@@ -39,7 +39,7 @@
       background-attachment: fixed;
     }
 
-    /* TUNED GLOBAL AURORA - Lower opacity to prevent washing out the BG */
+    /* GLOBAL AURORA */
     .aurora-layer {
       position: fixed;
       inset: 0;
@@ -51,14 +51,14 @@
         radial-gradient(circle at 12% 85%, rgba(255, 102, 255, 0.2) 0, transparent 60%),
         radial-gradient(circle at 90% 80%, rgba(0, 195, 255, 0.25) 0, transparent 60%);
       mix-blend-mode: screen;
-      opacity: 0.5; /* Reduced from 0.65 to let the astronaut show through */
+      opacity: 0.5;
       filter: blur(5px);
     }
 
     /* HERO TOP AREA */
     .hero {
       position: relative;
-      min-height: 60vh; /* Slightly taller to show more astronaut */
+      min-height: 60vh;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -69,7 +69,7 @@
       z-index: 0;
     }
 
-    /* BRIGHTER ASTRONAUT */
+    /* Astronaut background */
     .hero::before {
       content: "";
       position: absolute;
@@ -77,13 +77,12 @@
       background-image: url("astronaut-banner.jpeg");
       background-size: cover;
       background-position: center top;
-      /* Increased brightness and contrast to pop against the aurora */
-      filter: saturate(1.1) contrast(1.15) brightness(1.2); 
+      filter: saturate(1.1) contrast(1.15) brightness(1.2);
       transform: scale(1.0);
       z-index: -2;
     }
 
-    /* LIGHTER OVERLAY - No longer "washing over" everything */
+    /* Gradient overlay so text is readable */
     .hero::after {
       content: "";
       position: absolute;
@@ -91,10 +90,10 @@
       background:
         linear-gradient(
           to bottom,
-          rgba(0, 0, 0, 0.3) 0%, 
+          rgba(0, 0, 0, 0.3) 0%,
           rgba(0, 0, 0, 0.2) 35%,
           rgba(0, 0, 0, 0.5) 70%,
-          rgba(2, 3, 10, 1) 100% /* Blends into the body background */
+          rgba(2, 3, 10, 1) 100%
         );
       z-index: -1;
     }
@@ -212,7 +211,7 @@
       letter-spacing: 0.18em;
       text-transform: uppercase;
       color: var(--text-main);
-      text-shadow: 0 0 10px rgba(0,0,0,0.8);
+      text-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
       z-index: 1;
     }
 
@@ -232,7 +231,9 @@
       scroll-margin-top: 80px;
     }
 
-    section:first-of-type { border-top: none; }
+    section:first-of-type {
+      border-top: none;
+    }
 
     section h2 {
       font-size: 1.2rem;
@@ -258,7 +259,9 @@
     }
 
     @media (min-width: 768px) {
-      .embed-grid { grid-template-columns: repeat(2, 1fr); }
+      .embed-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
     }
 
     .embed-wrapper {
@@ -269,351 +272,24 @@
       border: 1px solid rgba(255, 255, 255, 0.1);
     }
 
-    .embed-wrapper iframe { display: block; border: none; width: 100%; }
-
-    footer {
-      text-align: center;
-      padding: 3rem 1rem;
-      font-size: 0.8rem;
-      color: rgba(255, 255, 255, 0.5);
-      background: rgba(0,0,0,0.3);
-    }
-
-    @media (max-width: 600px) {
-      .logo { font-size: 2.8rem; letter-spacing: 0.15em; }
-    }
-  </style>
-</head>
-<body>
-  <div class="aurora-layer"></div>
-
-  <header class="hero">
-    <nav class="main-nav">
-      <a href="#music">Music</a>
-      <a href="#videos">Videos</a>
-      <a href="#merch">Merch</a>
-    </nav>
-
-    <div class="logo-wrap">
-      <div class="logo-aurora-ring"></div>
-      <div class="logo-glow"></div>
-      <h1 class="logo">Summon Mars</h1>
-      <div class="logo-bottom-glow"></div>
-    </div>
-
-    <p class="hero-tagline">Signal from the other side</p>
-  </header>
-
-  <main>
-    <section id="music">
-      <h2>Music</h2>
-      <p>Listen to the latest Summon Mars transmissions: glitchy hip-hop pulses and cinematic synth storms.</p>
-
-      <div class="embed-grid">
-        <div class="embed-wrapper">
-          <iframe style="border-radius:12px" src="https://open.spotify.com/embed/track/0mtMGkRlTbPR31fG2vxy9e?utm_source=generator" height="352" loading="lazy"></iframe>
-        </div>
-        <div class="embed-wrapper">
-          <iframe style="border-radius:12px" src="https://open.spotify.com/embed/track/5lrwop2youkjb5Ci0Ryh2d?utm_source=generator" height="352" loading="lazy"></iframe>
-        </div>
-      </div>
-    </section>
-
-    <section id="videos">
-      <h2>Videos</h2>
-      <p>Broadcast from the static between channels.</p>
-    </section>
-
-    <section id="merch">
-      <h2>Merch</h2>
-      <p>Wear the broadcast: Minimal, bright, and loud.</p>
-    </section>
-  </main>
-
-  <footer>
-    © 2026 Summon Mars. All rights reserved.
-  </footer>
-</body>
-</html>
-      display: flex;
-      flex-direction: column;
-      scroll-behavior: smooth;
-      background-attachment: fixed;
-    }
-
-    /* VERY SUBTLE GLOBAL AURORA */
-    .aurora-layer {
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      z-index: -10;
-      background:
-        radial-gradient(circle at 15% 0%, rgba(119, 255, 239, 0.35) 0, transparent 55%),
-        radial-gradient(circle at 85% 5%, rgba(124, 255, 95, 0.3) 0, transparent 60%),
-        radial-gradient(circle at 12% 85%, rgba(255, 102, 255, 0.3) 0, transparent 60%),
-        radial-gradient(circle at 90% 80%, rgba(0, 195, 255, 0.4) 0, transparent 60%);
-      mix-blend-mode: screen;
-      opacity: 0.65;
-      filter: blur(3px);
-    }
-
-    /* HERO TOP AREA with astronaut background */
-    .hero {
-      position: relative;
-      min-height: 52vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-      text-align: center;
-      padding: 1.25rem 1.5rem 2rem;
-      overflow: hidden;
-      z-index: 0;
-    }
-
-    /* Astronaut as hero background */
-    .hero::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background-image: url("astronaut-banner.jpeg");
-      background-size: cover;
-      background-position: center top;
-      filter: saturate(1.05) contrast(1.08) brightness(0.9);
-      transform: scale(1.03);
-      z-index: -2;
-    }
-
-    /* Dark gradient overlay so text is readable */
-    .hero::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background:
-        linear-gradient(
-          to bottom,
-          rgba(0, 0, 0, 0.78) 0%,
-          rgba(0, 0, 0, 0.75) 35%,
-          rgba(0, 0, 0, 0.7) 65%,
-          rgba(0, 0, 0, 0.9) 100%
-        );
-      z-index: -1;
-    }
-
-    /* TOP NAV */
-    .main-nav {
-      display: flex;
-      gap: 2.5rem;
-      justify-content: center;
-      align-items: center;
-      margin-bottom: 0.75rem;
-      font-size: clamp(0.9rem, 1.5vw, 1.1rem);
-      letter-spacing: 0.25em;
-      text-transform: uppercase;
-      z-index: 1;
-    }
-
-    .main-nav a {
-      text-decoration: none;
-      color: var(--text-sub);
-      position: relative;
-      padding-bottom: 0.3rem;
-      transition: color 0.25s ease, transform 0.25s ease;
-    }
-
-    .main-nav a::after {
-      content: "";
-      position: absolute;
-      left: 0;
-      bottom: 0;
-      height: 2px;
-      width: 100%;
-      background: linear-gradient(90deg, var(--aurora-1), var(--aurora-3));
-      transform-origin: center;
-      transform: scaleX(0);
-      transition: transform 0.25s ease;
-    }
-
-    .main-nav a:hover {
-      color: var(--accent);
-      transform: translateY(-1px);
-    }
-
-    .main-nav a:hover::after {
-      transform: scaleX(1);
-    }
-
-    /* LOGO BLOCK */
-    .logo-wrap {
-      position: relative;
-      display: inline-block;
-      margin-top: 0.5rem;
-      padding-inline: 0.25em;
-      z-index: 1;
-    }
-
-    /* Slight aurora halo behind logo */
-    .logo-aurora-ring {
-      position: absolute;
-      inset: -130% -60%;
-      background:
-        radial-gradient(circle at 20% 0%, rgba(119, 255, 239, 0.9) 0%, transparent 55%),
-        radial-gradient(circle at 80% 0%, rgba(124, 255, 95, 0.8) 0%, transparent 55%),
-        radial-gradient(circle at 50% 95%, rgba(255, 102, 255, 0.9) 0%, transparent 60%);
-      filter: blur(22px);
-      opacity: 0.9;
-      mix-blend-mode: screen;
-      z-index: -2;
-    }
-
-    /* SUMMON MARS — 3D style, but readable */
-    .logo {
-      font-family: "Black Ops One", system-ui, sans-serif;
-      text-transform: uppercase;
-      font-size: clamp(3.1rem, 7vw, 5.5rem);
-      letter-spacing: 0.3em;
-      padding-inline: 0.18em;
-      color: #fdfdfd;
-      text-shadow:
-        0 1px 0 #040711,
-        0 2px 0 #050814,
-        0 3px 0 #060a18,
-        0 4px 0 #060a18,
-        0 6px 8px rgba(0, 0, 0, 0.9),
-        0 0 10px rgba(119, 255, 239, 0.6),
-        0 0 20px rgba(124, 255, 95, 0.7),
-        0 0 32px rgba(255, 102, 255, 0.8),
-        0 0 40px rgba(0, 195, 255, 0.9);
-      transform: perspective(650px) rotateX(6deg) skewX(-3deg);
-      position: relative;
-      z-index: 2;
-    }
-
-    .logo-glow {
-      position: absolute;
-      inset: 40% -10%;
-      background: radial-gradient(
-        ellipse at center,
-        rgba(255, 255, 255, 0.35) 0%,
-        rgba(124, 255, 95, 0.32) 30%,
-        rgba(0, 195, 255, 0.25) 55%,
-        transparent 85%
-      );
-      filter: blur(16px);
-      opacity: 0.9;
-      mix-blend-mode: screen;
-      z-index: -1;
-    }
-
-    .logo-bottom-glow {
-      position: absolute;
-      left: -12%;
-      right: -12%;
-      bottom: -0.8rem;
-      height: 3px;
-      background: linear-gradient(90deg, var(--aurora-2), var(--aurora-3), var(--aurora-4));
-      box-shadow:
-        0 0 10px rgba(124, 255, 95, 0.9),
-        0 0 20px rgba(255, 102, 255, 0.9),
-        0 0 30px rgba(0, 195, 255, 0.9);
-      opacity: 0.95;
-      z-index: 1;
-    }
-
-    .hero-tagline {
-      margin-top: 1rem;
-      font-size: clamp(0.9rem, 1.2vw, 1rem);
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: var(--text-sub);
-      opacity: 0.9;
-      z-index: 1;
-    }
-
-    /* MAIN CONTENT */
-    main {
-      position: relative;
-      z-index: 1;
-      padding: 1.4rem 1.5rem 3.2rem;
-      max-width: 1100px;
-      width: 100%;
-      margin: 0 auto;
-    }
-
-    /* SECTION SPACING + scroll offset so links don't hide titles */
-    section {
-      padding: 1.8rem 0 2rem;
-      border-top: 1px solid rgba(255, 255, 255, 0.08);
-      scroll-margin-top: 80px;
-    }
-
-    section:first-of-type {
-      border-top: none;
-    }
-
-    section h2 {
-      font-size: 1.1rem;
-      text-transform: uppercase;
-      letter-spacing: 0.25em;
-      margin-bottom: 0.7rem;
-      color: var(--accent);
-    }
-
-    section p {
-      max-width: 48rem;
-      color: var(--text-sub);
-      line-height: 1.6;
-      font-size: 0.98rem;
-    }
-
-    /* EMBED GRID (QUAD) */
-    .embed-grid {
-      margin-top: 1.5rem;
-      display: grid;
-      grid-template-columns: 1fr; /* mobile: single column */
-      gap: 1.2rem;
-    }
-
-    @media (min-width: 768px) {
-      .embed-grid {
-        grid-template-columns: repeat(2, 1fr); /* desktop: 2 x 2 */
-      }
-    }
-
-    .embed-wrapper {
-      border-radius: 16px;
-      overflow: hidden;
-      box-shadow:
-        0 10px 30px rgba(0, 0, 0, 0.85),
-        0 0 25px rgba(0, 255, 255, 0.25);
-      background: rgba(0, 0, 0, 0.85);
-    }
-
     .embed-wrapper iframe {
       display: block;
       border: none;
       width: 100%;
     }
 
-    /* FOOTER */
     footer {
       text-align: center;
-      padding: 1.5rem 1rem 2.5rem;
-      font-size: 0.78rem;
-      color: rgba(255, 255, 255, 0.4);
+      padding: 3rem 1rem;
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.5);
+      background: rgba(0, 0, 0, 0.3);
     }
 
-    /* MOBILE TWEAKS */
     @media (max-width: 600px) {
-      .main-nav {
-        gap: 1.5rem;
-        letter-spacing: 0.18em;
-      }
-
       .logo {
-        letter-spacing: 0.22em;
-        transform: perspective(620px) rotateX(5deg) skewX(-2deg);
-        font-size: clamp(2.6rem, 9vw, 4.4rem);
+        font-size: 2.8rem;
+        letter-spacing: 0.15em;
       }
     }
   </style>
@@ -720,7 +396,7 @@
   </main>
 
   <footer>
-    &copy; Summon Mars. All rights reserved.
+    © 2026 Summon Mars. All rights reserved.
   </footer>
 </body>
 </html>
