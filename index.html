@@ -8,14 +8,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Oswald:wght@300;400;500&display=swap" rel="stylesheet">
 
   <style>
-    /* RESET */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
-    /* THEME COLORS */
     :root {
       --aurora-1: #77ffef;
       --aurora-2: #7cff5f;
@@ -27,35 +21,30 @@
       --accent: #fffd9a;
     }
 
-    /* BASE */
     body {
-      font-family: "Oswald", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      font-family: "Oswald", sans-serif;
       background: radial-gradient(circle at 10% 0%, #05091a 0%, #000000 60%, #02030a 100%);
       color: var(--text-main);
       min-height: 100vh;
-      display: flex;
-      flex-direction: column;
       scroll-behavior: smooth;
       background-attachment: fixed;
     }
 
-    /* GLOBAL AURORA */
     .aurora-layer {
       position: fixed;
       inset: 0;
       pointer-events: none;
       z-index: -10;
       background:
-        radial-gradient(circle at 15% 0%, rgba(119, 255, 239, 0.25) 0, transparent 55%),
-        radial-gradient(circle at 85% 5%, rgba(124, 255, 95, 0.2) 0, transparent 60%),
-        radial-gradient(circle at 12% 85%, rgba(255, 102, 255, 0.2) 0, transparent 60%),
-        radial-gradient(circle at 90% 80%, rgba(0, 195, 255, 0.25) 0, transparent 60%);
+        radial-gradient(circle at 15% 0%, rgba(119,255,239,0.25) 0, transparent 55%),
+        radial-gradient(circle at 85% 5%, rgba(124,255,95,0.2) 0, transparent 60%),
+        radial-gradient(circle at 12% 85%, rgba(255,102,255,0.2) 0, transparent 60%),
+        radial-gradient(circle at 90% 80%, rgba(0,195,255,0.25) 0, transparent 60%);
       mix-blend-mode: screen;
       opacity: 0.5;
       filter: blur(5px);
     }
 
-    /* HERO TOP AREA */
     .hero {
       position: relative;
       min-height: 60vh;
@@ -65,11 +54,9 @@
       justify-content: flex-start;
       text-align: center;
       padding: 1.25rem 1.5rem 2rem;
-      overflow: hidden;
       z-index: 0;
     }
 
-    /* Astronaut background */
     .hero::before {
       content: "";
       position: absolute;
@@ -78,170 +65,80 @@
       background-size: cover;
       background-position: center top;
       filter: saturate(1.1) contrast(1.15) brightness(1.2);
-      transform: scale(1.0);
       z-index: -2;
     }
 
-    /* Gradient overlay so text is readable */
     .hero::after {
       content: "";
       position: absolute;
       inset: 0;
-      background:
-        linear-gradient(
-          to bottom,
-          rgba(0, 0, 0, 0.3) 0%,
-          rgba(0, 0, 0, 0.2) 35%,
-          rgba(0, 0, 0, 0.5) 70%,
-          rgba(2, 3, 10, 1) 100%
-        );
+      background: linear-gradient(to bottom,
+        rgba(0,0,0,0.3) 0%,
+        rgba(0,0,0,0.2) 35%,
+        rgba(0,0,0,0.5) 70%,
+        rgba(2,3,10,1) 100%);
       z-index: -1;
     }
 
-    /* TOP NAV */
     .main-nav {
       display: flex;
       gap: 2.5rem;
       justify-content: center;
-      align-items: center;
       margin-bottom: 0.75rem;
       font-size: clamp(0.9rem, 1.5vw, 1.1rem);
       letter-spacing: 0.25em;
       text-transform: uppercase;
-      z-index: 1;
     }
 
     .main-nav a {
       text-decoration: none;
-      /* DARKER LINKS */
-      color: #111111;
+      color: #111;
       font-weight: 500;
+      text-shadow: 0 0 6px rgba(0,0,0,0.8);
       position: relative;
       padding-bottom: 0.3rem;
-      transition: color 0.25s ease, transform 0.25s ease;
-      text-shadow: 0 0 6px rgba(0, 0, 0, 0.8);
+      transition: color 0.25s ease;
     }
 
-    .main-nav a::after {
-      content: "";
-      position: absolute;
-      left: 0;
-      bottom: 0;
-      height: 2px;
-      width: 100%;
-      background: linear-gradient(90deg, var(--aurora-1), var(--aurora-3));
-      transform-origin: center;
-      transform: scaleX(0);
-      transition: transform 0.25s ease;
-    }
+    .main-nav a:hover { color: var(--accent); }
 
-    .main-nav a:hover {
-      color: var(--accent);
-      transform: translateY(-1px);
-    }
-
-    .main-nav a:hover::after {
-      transform: scaleX(1);
-    }
-
-    /* LOGO BLOCK */
-    .logo-wrap {
-      position: relative;
-      display: inline-block;
-      margin-top: 1.5rem;
-      padding-inline: 0.25em;
-      z-index: 1;
-    }
-
-    .logo-aurora-ring {
-      position: absolute;
-      inset: -130% -60%;
-      background:
-        radial-gradient(circle at 20% 0%, rgba(119, 255, 239, 0.8) 0%, transparent 55%),
-        radial-gradient(circle at 80% 0%, rgba(124, 255, 95, 0.7) 0%, transparent 55%),
-        radial-gradient(circle at 50% 95%, rgba(255, 102, 255, 0.8) 0%, transparent 60%);
-      filter: blur(25px);
-      opacity: 0.8;
-      mix-blend-mode: screen;
-      z-index: -2;
-    }
-
+    .logo-wrap { margin-top: 1.5rem; position: relative; }
     .logo {
-      font-family: "Black Ops One", system-ui, sans-serif;
-      text-transform: uppercase;
+      font-family: "Black Ops One";
       font-size: clamp(3.1rem, 7vw, 5.5rem);
       letter-spacing: 0.3em;
-      padding-inline: 0.18em;
-      color: #fdfdfd;
-      text-shadow:
-        0 1px 0 #040711,
-        0 2px 0 #050814,
-        0 0 15px rgba(255, 255, 255, 0.2);
+      text-transform: uppercase;
+      color: #fff;
+      text-shadow: 0 2px 0 #050814, 0 6px 8px rgba(0,0,0,0.9);
       transform: perspective(650px) rotateX(6deg) skewX(-3deg);
-      position: relative;
-      z-index: 2;
-    }
-
-    .logo-glow {
-      position: absolute;
-      inset: 40% -10%;
-      background: radial-gradient(
-        ellipse at center,
-        rgba(255, 255, 255, 0.35) 0%,
-        rgba(124, 255, 95, 0.2) 30%,
-        transparent 85%
-      );
-      filter: blur(16px);
-      mix-blend-mode: screen;
-      z-index: -1;
-    }
-
-    .logo-bottom-glow {
-      position: absolute;
-      left: -12%;
-      right: -12%;
-      bottom: -0.8rem;
-      height: 3px;
-      background: linear-gradient(90deg, var(--aurora-2), var(--aurora-3), var(--aurora-4));
-      box-shadow: 0 0 15px rgba(124, 255, 95, 0.8);
-      opacity: 0.9;
-      z-index: 1;
     }
 
     .hero-tagline {
-      margin-top: 1.5rem;
-      font-size: clamp(0.9rem, 1.2vw, 1rem);
+      margin-top: 1rem;
+      font-size: clamp(0.9rem,1.2vw,1rem);
       letter-spacing: 0.18em;
       text-transform: uppercase;
-      color: var(--text-main);
-      text-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
-      z-index: 1;
+      opacity: 0.9;
     }
 
-    /* MAIN CONTENT */
     main {
-      position: relative;
-      z-index: 1;
-      padding: 1.4rem 1.5rem 3.2rem;
       max-width: 1100px;
-      width: 100%;
       margin: 0 auto;
+      padding: 1.4rem 1.5rem 3rem;
     }
 
     section {
       padding: 2.5rem 0;
-      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      border-top: 1px solid rgba(255,255,255,0.1);
       scroll-margin-top: 80px;
     }
 
-    section:first-of-type {
-      border-top: none;
-    }
+    section:first-of-type { border-top: none; }
 
     section h2 {
       font-size: 1.2rem;
-      text-transform: uppercase;
       letter-spacing: 0.25em;
+      text-transform: uppercase;
       margin-bottom: 1rem;
       color: var(--accent);
     }
@@ -250,53 +147,53 @@
       max-width: 48rem;
       color: var(--text-sub);
       line-height: 1.6;
-      font-size: 1rem;
     }
 
-    /* EMBED GRID */
     .embed-grid {
       margin-top: 2rem;
       display: grid;
-      grid-template-columns: 1fr;
       gap: 1.5rem;
+      grid-template-columns: 1fr;
     }
 
     @media (min-width: 768px) {
-      .embed-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
+      .embed-grid { grid-template-columns: repeat(2, 1fr); }
     }
 
     .embed-wrapper {
       border-radius: 16px;
       overflow: hidden;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
-      background: rgba(0, 0, 0, 0.5);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(0,0,0,0.5);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+      border: 1px solid rgba(255,255,255,0.1);
     }
 
-    .embed-wrapper iframe {
-      display: block;
-      border: none;
+    /* ABOUT SECTION IMAGE */
+    .about-photo {
       width: 100%;
+      max-width: 450px;
+      border-radius: 14px;
+      box-shadow: 0 0 40px rgba(0,0,0,0.8);
+      margin-bottom: 1.5rem;
+    }
+
+    .about-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: left;
+      gap: 1.5rem;
     }
 
     footer {
       text-align: center;
       padding: 3rem 1rem;
       font-size: 0.8rem;
-      color: rgba(255, 255, 255, 0.5);
-      background: rgba(0, 0, 0, 0.3);
-    }
-
-    @media (max-width: 600px) {
-      .logo {
-        font-size: 2.8rem;
-        letter-spacing: 0.15em;
-      }
+      color: rgba(255,255,255,0.5);
     }
   </style>
 </head>
+
 <body>
   <div class="aurora-layer"></div>
 
@@ -305,13 +202,11 @@
       <a href="#music">Music</a>
       <a href="#videos">Videos</a>
       <a href="#merch">Merch</a>
+      <a href="#about">About</a>
     </nav>
 
     <div class="logo-wrap">
-      <div class="logo-aurora-ring"></div>
-      <div class="logo-glow"></div>
       <h1 class="logo">Summon Mars</h1>
-      <div class="logo-bottom-glow"></div>
     </div>
 
     <p class="hero-tagline">Signal from the other side</p>
@@ -321,85 +216,72 @@
     <!-- MUSIC SECTION -->
     <section id="music">
       <h2>Music</h2>
-      <p>
-        Listen to the latest Summon Mars transmissions: glitchy hip-hop pulses,
-        cinematic synth storms, and everything humming between.
-      </p>
+      <p>Listen to the latest Summon Mars transmissions…</p>
 
       <div class="embed-grid">
-        <!-- See You in the Sky -->
         <div class="embed-wrapper">
-          <iframe
-            data-testid="embed-iframe"
-            style="border-radius:12px"
-            src="https://open.spotify.com/embed/track/0mtMGkRlTbPR31fG2vxy9e?utm_source=generator"
-            height="352"
-            loading="lazy"
-            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture">
-          </iframe>
+          <iframe src="https://open.spotify.com/embed/track/0mtMGkRlTbPR31fG2vxy9e"
+                  height="352" loading="lazy"></iframe>
         </div>
 
-        <!-- Ethereal -->
         <div class="embed-wrapper">
-          <iframe
-            data-testid="embed-iframe"
-            style="border-radius:12px"
-            src="https://open.spotify.com/embed/track/5lrwop2youkjb5Ci0Ryh2d?utm_source=generator"
-            height="352"
-            loading="lazy"
-            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture">
-          </iframe>
+          <iframe src="https://open.spotify.com/embed/track/5lrwop2youkjb5Ci0Ryh2d"
+                  height="352" loading="lazy"></iframe>
         </div>
 
-        <!-- What Is Love -->
         <div class="embed-wrapper">
-          <iframe
-            data-testid="embed-iframe"
-            style="border-radius:12px"
-            src="https://open.spotify.com/embed/track/4LaKzm4Y9ain2HRsXLzBYL?utm_source=generator"
-            height="352"
-            loading="lazy"
-            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture">
-          </iframe>
+          <iframe src="https://open.spotify.com/embed/track/4LaKzm4Y9ain2HRsXLzBYL"
+                  height="352" loading="lazy"></iframe>
         </div>
 
-        <!-- Life That Moves -->
         <div class="embed-wrapper">
-          <iframe
-            data-testid="embed-iframe"
-            style="border-radius:12px"
-            src="https://open.spotify.com/embed/track/1yMi0TQ6PwmvCfK5lLqAxF?utm_source=generator"
-            height="352"
-            loading="lazy"
-            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture">
-          </iframe>
+          <iframe src="https://open.spotify.com/embed/track/1yMi0TQ6PwmvCfK5lLqAxF"
+                  height="352" loading="lazy"></iframe>
         </div>
       </div>
     </section>
 
-    <!-- VIDEOS SECTION -->
+    <!-- VIDEOS -->
     <section id="videos">
       <h2>Videos</h2>
-      <p>
-        Portals, shorts, and weird visuals from the Summon Mars universe.
-        Broadcast from the static between channels.
-      </p>
-      <!-- Future video embeds go here -->
+      <p>Portals, shorts, and weird visuals from the Summon Mars universe.</p>
     </section>
 
-    <!-- MERCH SECTION -->
+    <!-- MERCH -->
     <section id="merch">
       <h2>Merch</h2>
-      <p>
-        Wear the broadcast: hoodies, tees, and glitch artifacts from future drops.
-        Minimal, bright, and loud enough to bend the signal.
-      </p>
-      <!-- Future merch grid / links go here -->
+      <p>Wear the broadcast.</p>
+    </section>
+
+    <!-- ABOUT SECTION (ADDED) -->
+    <section id="about">
+      <h2>About</h2>
+
+      <div class="about-wrap">
+        <img src="/mnt/data/propic.png" alt="Summon Mars" class="about-photo">
+
+        <p>Summon Mars is the voice of a life lived through chaos, clarity, and the long road back to sound.
+        After years of creating music while battling hearing issues, these songs rise from different chapters
+        of a personal story finally ready to be spoken out loud.</p>
+
+        <p>His connection to music started early, long before studios or training. As a kid, he made songs on
+        a game console, burned homemade CDs, and sold them with more ambition than marketing sense. Writing
+        grew with him too — notebooks full of poetry, some published, and spoken-word performances that showed
+        what it meant to turn experience into connection.</p>
+
+        <p>Everything changed after a wreck left him in a coma for six days. Doctors expected the worst, but he
+        returned with a slow thumbs-up that reshaped his sense of time, purpose, and the urgency to create.
+        From then on, music wasn’t a dream. It was a mission.</p>
+
+        <p>The name Summon Mars came later, tied to a moment that felt bigger than the everyday — a pull toward
+        a stranger, more honest world where the work could finally match the life behind it.</p>
+
+        <p>Based in the eastern U.S., Summon Mars steps forward with songs that hit hard, visuals on the way,
+        and a drive to connect with anyone who feels music the way it’s meant to be felt.</p>
+      </div>
     </section>
   </main>
 
-  <footer>
-    © 2026 Summon Mars. All rights reserved.
-  </footer>
+  <footer>© 2026 Summon Mars. All rights reserved.</footer>
 </body>
 </html>
