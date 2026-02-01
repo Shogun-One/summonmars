@@ -232,10 +232,8 @@
     }
 
     .embed-wrapper {
-      margin-top: 1.5rem;
       border-radius: 16px;
       overflow: hidden;
-
       box-shadow:
         0 10px 30px rgba(0, 0, 0, 0.75),
         0 0 25px rgba(0, 255, 255, 0.25);
@@ -245,6 +243,20 @@
       display: block;
       border: none;
       width: 100%;
+    }
+
+    /* MUSIC GRID: TWO EMBEDS SIDE BY SIDE */
+    .music-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-top: 1.5rem;
+    }
+
+    @media (max-width: 750px) {
+      .music-grid {
+        grid-template-columns: 1fr;
+      }
     }
 
     /* FOOTER */
@@ -299,13 +311,31 @@
       <h2>Music</h2>
       <p>Listen to the latest Summon Mars transmissions: glitchy hip-hop pulses, cinematic synth storms, and everything humming between.</p>
 
-      <div class="embed-wrapper">
-        <iframe
-          src="https://open.spotify.com/embed/album/4B1aurXCA20ZpCJ2PIAXjt?utm_source=generator"
-          height="352"
-          loading="lazy"
-          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture">
-        </iframe>
+      <div class="music-grid">
+        <!-- ALBUM 1 -->
+        <div class="embed-wrapper">
+          <iframe
+            src="https://open.spotify.com/embed/album/4B1aurXCA20ZpCJ2PIAXjt?utm_source=generator"
+            height="352"
+            loading="lazy"
+            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture">
+          </iframe>
+        </div>
+
+        <!-- ALBUM 2 (ETHEREAL) -->
+        <div class="embed-wrapper">
+          <iframe
+            data-testid="embed-iframe"
+            style="border-radius:12px"
+            src="https://open.spotify.com/embed/album/5ZIPa0EuAz7DNYpgXMRjIm?utm_source=generator"
+            width="100%"
+            height="352"
+            frameBorder="0"
+            allowfullscreen=""
+            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+            loading="lazy">
+          </iframe>
+        </div>
       </div>
     </section>
 
