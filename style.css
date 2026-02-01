@@ -176,3 +176,81 @@ body {
   margin-top: 1.2rem;
   font-size: clamp(0.9rem, 1.3vw, 1.05rem);
   letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-sub);
+  opacity: 0.9;
+}
+
+/* MAIN CONTENT */
+main {
+  padding: 1.5rem 1.5rem 4rem;
+  max-width: 1100px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* SECTION SPACING — tightened */
+section {
+  padding: 2.2rem 0 2rem;      /* was 4rem 0 3rem */
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+section:first-of-type {
+  border-top: none;
+}
+
+section h2 {
+  font-size: 1.1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.25em;
+  margin-bottom: 0.75rem;
+  color: var(--accent);
+}
+
+section p {
+  max-width: 48rem;
+  color: var(--text-sub);
+  line-height: 1.6;
+  font-size: 0.98rem;
+}
+
+.embed-wrapper {
+  margin-top: 1.5rem;
+  border-radius: 16px;
+  overflow: hidden;
+
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.75),
+    0 0 25px rgba(0, 255, 255, 0.25);
+}
+
+.embed-wrapper iframe {
+  display: block;
+  border: none;
+  width: 100%;
+}
+
+/* FOOTER */
+footer {
+  text-align: center;
+  padding: 1.5rem 1rem 2.5rem;
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+/* MOBILE FIXES */
+@media (max-width: 600px) {
+  .main-nav {
+    gap: 1.5rem;
+    letter-spacing: 0.18em;
+  }
+
+  .logo {
+    letter-spacing: 0.22em;
+    transform: skewX(-6deg);
+  }
+
+  .logo-bottom-glow {
+    bottom: -0.6rem;
+  }
+}
