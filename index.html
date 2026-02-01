@@ -74,7 +74,7 @@
 
     /* HERO TOP AREA — tightened + raised more */
     .hero {
-      min-height: 35vh; /* was 45vh */
+      min-height: 35vh;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -320,10 +320,15 @@
         <!-- ALBUM 1 -->
         <div class="embed-wrapper">
           <iframe
+            data-testid="embed-iframe"
+            style="border-radius:12px"
             src="https://open.spotify.com/embed/album/4B1aurXCA20ZpCJ2PIAXjt?utm_source=generator"
+            width="100%"
             height="352"
-            loading="lazy"
-            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture">
+            frameBorder="0"
+            allowfullscreen=""
+            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+            loading="lazy">
           </iframe>
         </div>
 
