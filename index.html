@@ -2,80 +2,83 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Summon Mars</title>
-  <meta name="description" content="Summon Mars • Audio, code, and cosmic signals from another timeline." />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Point this to your existing CSS file -->
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="bg-orbit"></div>
+  <header class="site-header">
+    <div class="logo">Summon Mars</div>
 
-  <div class="frame">
-    <header class="top-bar">
-      <div class="brand-mark">
-        <span class="brand-dot"></span>
-        <span class="brand-text">SUMMON MARS</span>
+    <nav class="site-nav">
+      <a href="#music">Music</a>
+      <a href="#videos">Videos</a>
+      <a href="#merch">Merch</a>
+    </nav>
+  </header>
+
+  <main>
+    <!-- SECTION 1: MUSIC -->
+    <section id="music" class="full-section full-section--music">
+      <div class="section-inner">
+        <h1>Music</h1>
+        <p>Beats, bangers, and brain rewiring.</p>
+
+        <!-- Drop your Spotify / Apple / etc embeds here -->
+        <!-- Example:
+        <div class="grid">
+          <iframe src="SPOTIFY_EMBED_URL"></iframe>
+          <iframe src="APPLE_MUSIC_EMBED_URL"></iframe>
+        </div>
+        -->
+
+        <button class="down-arrow" data-target="#videos" aria-label="Go to Videos">
+          ↓
+        </button>
       </div>
-      <div class="tagline-pill">audio • code • cosmos</div>
-    </header>
+    </section>
 
-    <main class="layout">
-      <section class="hero">
-        <p class="hero-label">signal: online</p>
-        <h1 class="hero-title">Minimal noise.<br /><span>Maximum signal.</span></h1>
-        <p class="hero-sub">
-          Summon Mars is a channel for future-tilted sound, systems, and stories.
-          No fluff, just the transmission.
-        </p>
+    <!-- SECTION 2: VIDEOS -->
+    <section id="videos" class="full-section full-section--videos">
+      <div class="section-inner">
+        <h1>Videos</h1>
+        <p>Portals, stories, and visual weirdness.</p>
 
-        <div class="hero-actions">
-          <a href="#listen" class="btn primary">Listen</a>
-          <a href="#links" class="btn ghost">Enter portal</a>
-        </div>
-      </section>
+        <!-- Drop your YouTube / Shorts / trailer embeds here -->
 
-      <section class="panel">
-        <div class="panel-header">
-          <span class="panel-label">latest transmission</span>
-          <span class="panel-status">live</span>
-        </div>
+        <button class="down-arrow" data-target="#merch" aria-label="Go to Merch">
+          ↓
+        </button>
+      </div>
+    </section>
 
-        <div class="panel-body" id="listen">
-          <h2 class="track-title">Hello World</h2>
-          <p class="track-meta">single • Summon Mars</p>
+    <!-- SECTION 3: MERCH -->
+    <section id="merch" class="full-section full-section--merch">
+      <div class="section-inner">
+        <h1>Merch</h1>
+        <p>Wear the signal. Broadcast the glitch.</p>
 
-          <!-- Replace this iframe with your real player embed (Spotify, Apple, etc.) -->
-          <div class="player-placeholder">
-            <div class="player-bar">
-              <span class="player-dot"></span>
-              <span class="player-line"></span>
-            </div>
-            <p class="player-hint">Embed your Spotify / Apple / YouTube player here.</p>
-          </div>
-        </div>
+        <!-- DK merch store links, images, buttons, whatever you want here -->
 
-        <div class="panel-footer" id="links">
-          <p class="panel-note">Primary links</p>
-          <div class="link-grid">
-            <a href="#" class="mini-link">Spotify</a>
-            <a href="#" class="mini-link">Apple Music</a>
-            <a href="#" class="mini-link">YouTube Music</a>
-            <a href="#" class="mini-link">Instagram</a>
-          </div>
-        </div>
-      </section>
-    </main>
-
-    <footer class="footer">
-      <span class="footer-text">© <span id="year"></span> Summon Mars</span>
-      <span class="footer-divider">•</span>
-      <span class="footer-text">Raleigh · Earth · Sector 919</span>
-    </footer>
-  </div>
+        <button class="down-arrow" data-target="#music" aria-label="Back to Music">
+          ↑
+        </button>
+      </div>
+    </section>
+  </main>
 
   <script>
-    // Set current year in footer
-    document.getElementById("year").textContent = new Date().getFullYear();
+    // Smooth scroll for the arrow buttons
+    document.querySelectorAll(".down-arrow").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const target = document.querySelector(btn.dataset.target);
+        if (target) {
+          target.scrollIntoView({ behavior: "smooth" });
+        }
+      });
+    });
   </script>
 </body>
 </html>
