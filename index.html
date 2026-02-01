@@ -3,97 +3,314 @@
 <head>
   <meta charset="UTF-8" />
   <title>Summon Mars</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="stylesheet" href="style.css" />
-</head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+  <!-- Metal-ish but safe font -->
+  <link href="https://fonts.googleapis.com/css2?family=Metal+Mania&family=Oswald:wght@300;400;500&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --aurora-1: #77ffef;
+      --aurora-2: #7cff5f;
+      --aurora-3: #ff66ff;
+      --aurora-4: #00c3ff;
+      --bg-deep: #02030a;
+      --text-main: #fdfdfd;
+      --text-sub: #cfd9ff;
+      --accent: #fffd9a;
+    }
+
+    body {
+      font-family: "Oswald", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: radial-gradient(circle at 10% 0%, #05091a 0%, #000000 60%, #02030a 100%);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      scroll-behavior: smooth;
+      background-attachment: fixed;
+    }
+
+    /* Aurora background */
+    .aurora-layer {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: -1;
+      background: radial-gradient(circle at 20% 0%, rgba(119, 255, 239, 0.5) 0, transparent 45%),
+                  radial-gradient(circle at 80% 10%, rgba(124, 255, 95, 0.5) 0, transparent 50%),
+                  radial-gradient(circle at 10% 80%, rgba(255, 102, 255, 0.4) 0, transparent 55%),
+                  radial-gradient(circle at 90% 70%, rgba(0, 195, 255, 0.45) 0, transparent 55%);
+      mix-blend-mode: screen;
+      animation: aurora-shift 20s ease-in-out infinite alternate;
+      opacity: 0.9;
+    }
+
+    @keyframes aurora-shift {
+      0% {
+        transform: translate3d(-10px, 0, 0) scale(1.03);
+        filter: blur(4px);
+      }
+      50% {
+        transform: translate3d(10px, -10px, 0) scale(1.06);
+        filter: blur(6px);
+      }
+      100% {
+        transform: translate3d(0, 10px, 0) scale(1.02);
+        filter: blur(4px);
+      }
+    }
+
+    /* HERO AREA */
+
+    .hero {
+      min-height: 70vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      position: relative;
+      padding: 2.5rem 1.5rem 3rem;
+    }
+
+    /* top nav in the middle */
+    .main-nav {
+      display: flex;
+      gap: 3rem;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      font-size: clamp(0.9rem, 1.5vw, 1.1rem);
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+    }
+
+    .main-nav a {
+      text-decoration: none;
+      color: var(--text-sub);
+      position: relative;
+      padding-bottom: 0.3rem;
+      transition: color 0.25s ease, transform 0.25s ease;
+    }
+
+    .main-nav a::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      height: 2px;
+      width: 100%;
+      background: linear-gradient(90deg, var(--aurora-1), var(--aurora-3));
+      transform-origin: center;
+      transform: scaleX(0);
+      transition: transform 0.25s ease;
+    }
+
+    .main-nav a:hover {
+      color: var(--accent);
+      transform: translateY(-1px);
+    }
+
+    .main-nav a:hover::after {
+      transform: scaleX(1);
+    }
+
+    /* SUMMON MARS LOGO TEXT */
+
+    .logo-wrap {
+      position: relative;
+      display: inline-block;
+    }
+
+    .logo {
+      font-family: "Metal Mania", system-ui, sans-serif;
+      text-transform: uppercase;
+      font-size: clamp(3rem, 7vw, 5.5rem);
+      letter-spacing: 0.35em;
+      padding-inline: 0.1em;
+      color: var(--text-main);
+      text-shadow:
+        0 0 12px rgba(0, 255, 255, 0.85),
+        0 0 32px rgba(124, 255, 95, 0.85),
+        0 0 52px rgba(255, 102, 255, 0.9),
+        0 0 72px rgba(0, 195, 255, 1);
+      transform: skewX(-8deg);
+      position: relative;
+      z-index: 2;
+    }
+
+    /* subtle “energy beam” behind the text */
+    .logo-glow {
+      position: absolute;
+      inset: 35% -10%;
+      background: radial-gradient(ellipse at center,
+        rgba(255, 255, 255, 0.9) 0%,
+        rgba(124, 255, 95, 0.35) 35%,
+        rgba(0, 195, 255, 0.25) 60%,
+        transparent 85%);
+      filter: blur(18px);
+      opacity: 0.9;
+      z-index: 1;
+      mix-blend-mode: screen;
+    }
+
+    .logo-bottom-glow {
+      position: absolute;
+      left: -10%;
+      right: -10%;
+      bottom: -0.8rem;
+      height: 3px;
+      background: linear-gradient(90deg, var(--aurora-2), var(--aurora-3), var(--aurora-4));
+      box-shadow:
+        0 0 10px rgba(124, 255, 95, 0.9),
+        0 0 20px rgba(255, 102, 255, 0.9),
+        0 0 30px rgba(0, 195, 255, 0.9);
+      opacity: 0.9;
+    }
+
+    .hero-tagline {
+      margin-top: 1.2rem;
+      font-size: clamp(0.9rem, 1.3vw, 1.05rem);
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--text-sub);
+      opacity: 0.9;
+    }
+
+    /* MAIN SECTIONS */
+
+    main {
+      padding: 2rem 1.5rem 4rem;
+      max-width: 1100px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    section {
+      padding: 4rem 0 3rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    section:first-of-type {
+      border-top: none;
+    }
+
+    section h2 {
+      font-size: 1.1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.25em;
+      margin-bottom: 0.75rem;
+      color: var(--accent);
+    }
+
+    section p {
+      max-width: 48rem;
+      color: var(--text-sub);
+      line-height: 1.6;
+      font-size: 0.98rem;
+    }
+
+    .embed-wrapper {
+      margin-top: 1.5rem;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow:
+        0 10px 30px rgba(0, 0, 0, 0.75),
+        0 0 25px rgba(0, 255, 255, 0.25);
+    }
+
+    .embed-wrapper iframe {
+      display: block;
+      border: none;
+      width: 100%;
+    }
+
+    footer {
+      text-align: center;
+      padding: 1.5rem 1rem 2.5rem;
+      font-size: 0.78rem;
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    /* RESPONSIVE */
+
+    @media (max-width: 600px) {
+      .main-nav {
+        gap: 1.5rem;
+        letter-spacing: 0.18em;
+      }
+
+      .logo {
+        letter-spacing: 0.22em;
+        transform: skewX(-6deg);
+      }
+
+      .logo-bottom-glow {
+        bottom: -0.6rem;
+      }
+    }
+  </style>
+</head>
 <body>
-  <!-- HEADER -->
-  <header class="site-header">
-    <div class="logo">SUMMON MARS</div>
-    <nav class="site-nav">
+  <div class="aurora-layer"></div>
+
+  <header class="hero">
+    <nav class="main-nav">
       <a href="#music">Music</a>
       <a href="#videos">Videos</a>
       <a href="#merch">Merch</a>
     </nav>
+
+    <div class="logo-wrap">
+      <div class="logo-glow"></div>
+      <h1 class="logo">Summon Mars</h1>
+      <div class="logo-bottom-glow"></div>
+    </div>
+
+    <p class="hero-tagline">Signal from the other side</p>
   </header>
 
   <main>
+    <!-- MUSIC SECTION -->
+    <section id="music">
+      <h2>Music</h2>
+      <p>Listen to the latest Summon Mars transmissions: glitchy hip-hop pulses, cinematic synth storms, and everything humming between.</p>
 
-    <!-- ============================
-         SECTION 1 — MUSIC
-    ============================ -->
-    <section id="music" class="section">
-      <div class="section-inner">
-        <h1>Music</h1>
-        <p>Listen to the latest Summon Mars release.</p>
-
-        <div class="embed-wrapper">
-          <iframe 
-            data-testid="embed-iframe"
-            style="border-radius:12px"
-            src="https://open.spotify.com/embed/album/4B1aurXCA20ZpCJ2PIAXjt?utm_source=generator"
-            width="100%"
-            height="352"
-            frameborder="0"
-            allowfullscreen=""
-            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-            loading="lazy">
-          </iframe>
-        </div>
+      <!-- Replace this with whatever embed you want -->
+      <div class="embed-wrapper">
+        <iframe
+          src="https://open.spotify.com/embed/album/4B1aurXCA20ZpCJ2PIAXjt?utm_source=generator"
+          height="352"
+          loading="lazy"
+          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture">
+        </iframe>
       </div>
     </section>
 
-    <!-- ============================
-         SECTION 2 — VIDEOS
-    ============================ -->
-    <section id="videos" class="section">
-      <div class="section-inner">
-        <h1>Videos</h1>
-        <p>Shorts, portals, weird visuals — straight from the Summon Mars universe.</p>
-
-        <div class="embed-wrapper">
-          <iframe
-            width="100%"
-            height="315"
-            src="https://www.youtube.com/embed/?listType=search&list=Summon%20Mars"
-            title="Summon Mars Videos"
-            frameborder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            allowfullscreen
-            loading="lazy">
-          </iframe>
-        </div>
-      </div>
+    <!-- VIDEOS SECTION -->
+    <section id="videos">
+      <h2>Videos</h2>
+      <p>Portals, shorts, and weird visuals from the Summon Mars universe. Broadcast from the static between channels.</p>
+      <!-- You can drop a YouTube or other embed here later -->
     </section>
 
-    <!-- ============================
-         SECTION 3 — MERCH
-    ============================ -->
-    <section id="merch" class="section">
-      <div class="section-inner">
-        <h1>Merch</h1>
-        <p>Wear the broadcast. Minimal drops coming soon.</p>
-
-        <div class="merch-grid">
-          <div class="merch-card">
-            <h3>Core Logo Series</h3>
-            <p>Clean signal on hoodies and tees. Coming soon.</p>
-          </div>
-
-          <div class="merch-card">
-            <h3>Glitch Variants</h3>
-            <p>Distorted designs. Limited runs. Coming soon.</p>
-          </div>
-
-          <div class="merch-card">
-            <h3>Future Capsules</h3>
-            <p>Collabs, experiments, and oddities. Coming soon.</p>
-          </div>
-        </div>
-      </div>
+    <!-- MERCH SECTION -->
+    <section id="merch">
+      <h2>Merch</h2>
+      <p>Wear the broadcast: hoodies, tees, and glitch artifacts from future drops. Minimal, bright, and loud enough to bend the signal.</p>
+      <!-- Future merch grid / links go here -->
     </section>
-
   </main>
+
+  <footer>
+    &copy; <!-- put current year here --> Summon Mars. All rights reserved.
+  </footer>
 </body>
 </html>
