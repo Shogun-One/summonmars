@@ -1,5 +1,7 @@
-/* Reset-ish */
-* {
+/* ===== Global Reset-ish ===== */
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
@@ -11,118 +13,213 @@ body {
   scroll-behavior: smooth;
 }
 
-body {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+/* ===== Base Theme ===== */
+:root {
+  --bg-main: #050509;
+  --bg-alt-1: #0a0a16;
+  --bg-alt-2: #060910;
+  --accent: #7bffb7;      /* Summon Mars greenish glow */
+  --accent-soft: #7bffb722;
+  --text-main: #f5f5f5;
+  --text-muted: #b3b3c2;
+  --border-subtle: #2a2a3a;
+  --shadow-soft: 0 18px 45px rgba(0, 0, 0, 0.6);
+  --radius-lg: 18px;
+  --radius-pill: 999px;
+  --font-main: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
     sans-serif;
-  background: #02020a;
-  color: #f5f5f5;
 }
 
-/* Header overlay at top */
+body {
+  background: var(--bg-main);
+  color: var(--text-main);
+  font-family: var(--font-main);
+}
+
+/* ===== Header / Nav ===== */
 .site-header {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
-  height: 60px;
+  height: 64px;
+  padding: 0 24px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 24px;
+  background: rgba(5, 5, 15, 0.92);
+  border-bottom: 1px solid var(--border-subtle);
+  backdrop-filter: blur(10px);
   z-index: 100;
-  background: linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, 0.9),
-    rgba(0, 0, 0, 0)
-  );
 }
 
 .logo {
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
+  font-size: 0.95rem;
+  color: var(--accent);
+}
+
+.site-nav {
+  display: flex;
+  gap: 18px;
   font-size: 0.9rem;
 }
 
 .site-nav a {
-  margin-left: 16px;
+  color: var(--text-muted);
   text-decoration: none;
-  color: #f5f5f5;
-  font-size: 0.9rem;
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
-  opacity: 0.8;
+  padding-bottom: 3px;
+  border-bottom: 2px solid transparent;
+  transition: color 0.18s ease, border-color 0.18s ease;
 }
 
-.site-nav a:hover {
-  opacity: 1;
+.site-nav a:hover,
+.site-nav a:focus-visible {
+  color: var(--text-main);
+  border-color: var(--accent);
+  outline: none;
 }
 
-/* Fullscreen sections */
+/* ===== Layout: Sections ===== */
+main {
+  margin-top: 64px; /* clear the fixed header */
+}
+
 .full-section {
-  height: 100vh;
-  padding-top: 60px; /* clear the fixed header */
+  min-height: calc(100vh - 64px);
+  padding: 72px 16px 96px;
   display: flex;
   align-items: center;
   justify-content: center;
-  position: relative;
-  text-align: center;
 }
 
 .section-inner {
+  width: 100%;
   max-width: 960px;
-  padding: 1.5rem;
   margin: 0 auto;
+  text-align: center;
 }
 
-.full-section h1 {
-  font-size: clamp(2.8rem, 5vw, 3.6rem);
-  margin-bottom: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.18em;
-}
-
-.full-section p {
-  max-width: 640px;
-  margin: 0 auto 1.5rem auto;
-  font-size: 0.98rem;
-  opacity: 0.9;
-}
-
-/* Panel themes – tune to match your Summon Mars vibe */
+/* Different vibes per section */
 .full-section--music {
-  background: radial-gradient(circle at top, #6b3bff 0, #050011 50%, #000 100%);
+  background:
+    radial-gradient(circle at top, #261438 0, transparent 55%),
+    radial-gradient(circle at bottom, #0a2b22 0, transparent 60%),
+    var(--bg-main);
 }
 
 .full-section--videos {
-  background: radial-gradient(circle at top, #ff3b6b 0, #12000b 50%, #000 100%);
+  background:
+    radial-gradient(circle at top left, #2a1638 0, transparent 55%),
+    radial-gradient(circle at bottom right, #13223a 0, transparent 60%),
+    var(--bg-alt-1);
 }
 
 .full-section--merch {
-  background: radial-gradient(circle at top, #20ffd4 0, #00110f 50%, #000 100%);
+  background:
+    radial-gradient(circle at top right, #283830 0, transparent 55%),
+    radial-gradient(circle at bottom, #1a142a 0, transparent 60%),
+    var(--bg-alt-2);
 }
 
-/* Arrow buttons */
+/* ===== Typography ===== */
+.section-inner h1 {
+  font-size: clamp(2.2rem, 3vw + 1rem, 3rem);
+  margin: 0 0 8px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.section-inner p {
+  margin: 0 0 32px;
+  font-size: 0.98rem;
+  color: var(--text-muted);
+}
+
+/* ===== Embeds ===== */
+.embed-wrapper {
+  margin: 0 auto 24px;
+  max-width: 760px;
+  box-shadow: var(--shadow-soft);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+/* Just in case any iframe misbehaves */
+.embed-wrapper iframe {
+  display: block;
+  width: 100%;
+}
+
+/* ===== Down Arrow Buttons ===== */
 .down-arrow {
-  position: absolute;
-  bottom: 2rem;
-  left: 50%;
-  transform: translateX(-50%);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  background: rgba(0, 0, 0, 0.6);
-  color: #fff;
-  border-radius: 999px;
-  padding: 0.4rem 1.2rem;
+  margin-top: 32px;
+  width: 54px;
+  height: 54px;
+  border-radius: var(--radius-pill);
+  border: 2px solid var(--accent);
+  background: radial-gradient(circle at 30% 0%, var(--accent-soft), transparent);
+  color: var(--accent);
+  font-size: 1.4rem;
   cursor: pointer;
-  font-size: 1.2rem;
-  line-height: 1;
-  backdrop-filter: blur(6px);
-  transition: transform 0.15s ease, background 0.15s ease,
-    box-shadow 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.75);
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    background 0.18s ease,
+    border-color 0.18s ease,
+    color 0.18s ease;
 }
 
-.down-arrow:hover {
-  transform: translateX(-50%) translateY(-3px);
-  background: rgba(255, 255, 255, 0.1);
-  box-shadow: 0 0 18px rgba(255, 255, 255, 0.25);
+.down-arrow:hover,
+.down-arrow:focus-visible {
+  outline: none;
+  transform: translateY(2px);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.85);
+  background: radial-gradient(circle at 30% 0%, var(--accent-soft), #07150f);
+  border-color: #9dffd0;
+  color: #dfffee;
 }
+
+/* ===== Responsive tweaks ===== */
+@media (max-width: 768px) {
+  .site-header {
+    padding: 0 16px;
+  }
+
+  .site-nav {
+    gap: 12px;
+    font-size: 0.8rem;
+  }
+
+  .full-section {
+    padding: 72px 12px 80px;
+  }
+
+  .embed-wrapper {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .logo {
+    font-size: 0.8rem;
+  }
+
+  .section-inner p {
+    font-size: 0.9rem;
+  }
+
+  .down-arrow {
+    width: 48px;
+    height: 48px;
+    font-size: 1.2rem;
+  }
+}
+
