@@ -227,12 +227,18 @@
       font-size: 0.98rem;
     }
 
-    /* EMBED GRID (2x2 QUAD) */
+    /* EMBED GRID (QUAD) */
     .embed-grid {
       margin-top: 1.4rem;
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      grid-template-columns: 1fr;   /* mobile: single column */
       gap: 1.4rem;
+    }
+
+    @media (min-width: 768px) {
+      .embed-grid {
+        grid-template-columns: repeat(2, 1fr);  /* desktop: 2 columns = quad */
+      }
     }
 
     .embed-wrapper {
