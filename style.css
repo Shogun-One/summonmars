@@ -34,12 +34,31 @@ body {
   z-index: 100;
 }
 
+/* 3D-ish logo treatment (Metal-ish without copying anyone) */
 .logo {
-  font-weight: 800;
-  letter-spacing: 0.16em;
-  font-size: 0.9rem;
+  font-weight: 900;
+  letter-spacing: 0.22em;
+  font-size: 1rem;
   text-transform: uppercase;
-  color: #7bffb7;
+  padding-top: 2px;
+
+  /* metallic-ish gradient */
+  background: linear-gradient(
+    180deg,
+    #f8f8fb 0%,
+    #d7dae4 30%,
+    #7bffb7 55%,
+    #0a0c10 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+
+  /* stacked shadows for fake depth */
+  text-shadow:
+    0 0 6px rgba(0, 0, 0, 0.8),
+    0 2px 0 #05060a,
+    0 4px 6px rgba(0, 0, 0, 0.9);
 }
 
 .site-nav {
@@ -70,7 +89,7 @@ main {
 
 .section {
   padding: 80px 16px 96px;
-  scroll-margin-top: 80px; /* prevent header from hiding anchors */
+  scroll-margin-top: 80px;
 }
 
 .section-inner {
@@ -134,49 +153,9 @@ main {
 
 .music-cta {
   margin-top: 18px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
 }
 
-/* Spotify badge button */
-.btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  border-radius: 999px;
-  border: 1px solid transparent;
-  font-size: 0.9rem;
-  cursor: pointer;
-  text-decoration: none;
-  transition: transform 0.14s ease, box-shadow 0.14s ease,
-    background 0.14s ease, border-color 0.14s ease, color 0.14s ease;
-}
-
-.btn-spotify {
-  padding: 9px 18px;
-  background: #1db954;
-  color: #0b0f0d;
-  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.75);
-}
-
-.btn-spotify .dot {
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 30% 10%, #ffffffcc 0, transparent 50%),
-    #0b0f0d;
-}
-
-.btn-spotify:hover,
-.btn-spotify:focus-visible {
-  outline: none;
-  transform: translateY(1px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.9);
-  background: #1ee063;
-}
-
-/* Apple / Amazon bubbles */
+/* Apple / Amazon bubbles (left side) */
 .music-bubbles {
   display: flex;
   flex-wrap: wrap;
@@ -207,11 +186,11 @@ main {
   transform: translateY(1px);
 }
 
-/* Music panel */
+/* Music panel (right box) */
 .music-panel {
   background: linear-gradient(135deg, #101325, #070a14);
   border-radius: 20px;
-  padding: 18px 18px 20px;
+  padding: 20px 18px 20px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: 0 22px 60px rgba(0, 0, 0, 0.8);
 }
@@ -252,6 +231,52 @@ main {
   color: #c0c3d7;
 }
 
+/* ========== Buttons / Spotify badge ========== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  font-size: 0.9rem;
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform 0.14s ease, box-shadow 0.14s ease,
+    background 0.14s ease, border-color 0.14s ease, color 0.14s ease;
+}
+
+/* Main Spotify badge */
+.btn-spotify {
+  background: #1db954;
+  color: #0b0f0d;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.75);
+}
+
+.btn-spotify .dot {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 10%, #ffffffdd 0, transparent 55%),
+    #0b0f0d;
+}
+
+/* Make it fill the panel width & feel big */
+.btn-spotify-wide {
+  width: 100%;
+  padding: 12px 20px;
+  justify-content: center;
+  margin-bottom: 14px;
+}
+
+.btn-spotify:hover,
+.btn-spotify:focus-visible {
+  outline: none;
+  transform: translateY(1px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.9);
+  background: #20e666;
+}
+
+/* Spotify embed wrapper */
 .embed-wrapper {
   border-radius: 16px;
   overflow: hidden;
@@ -264,7 +289,8 @@ main {
     radial-gradient(circle at bottom right, #081c31 0, transparent 65%),
     #060711;
   border-top: 1px solid #1a1b28;
-  border-bottom: 1px solid #1a1b28;
+  border-bottom: 1a1b28;
+  border-bottom-style: solid;
 }
 
 .section--videos .section-header {
