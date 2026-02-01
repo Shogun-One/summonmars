@@ -5,9 +5,8 @@
   <title>Summon Mars</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <!-- INLINE STYLES: DESKTOP vs MOBILE ALL HERE -->
   <style>
-    /* ===== Global Reset ===== */
+    /* ========== Reset ========== */
     *,
     *::before,
     *::after {
@@ -18,56 +17,63 @@
     body {
       margin: 0;
       padding: 0;
-      height: 100%;
       scroll-behavior: smooth;
     }
 
-    /* ===== Theme Vars ===== */
+    /* ========== Theme ========== */
     :root {
       --bg-main: #050509;
-      --bg-alt-1: #0a0a16;
-      --bg-alt-2: #060910;
+      --bg-surface: #0b0c13;
+      --bg-alt: #111321;
       --accent: #7bffb7;
-      --accent-soft: #7bffb722;
-      --text-main: #f5f5f5;
-      --text-muted: #b3b3c2;
-      --border-subtle: #2a2a3a;
-      --shadow-soft: 0 18px 45px rgba(0, 0, 0, 0.6);
+      --accent-soft: #7bffb733;
+      --accent-strong: #a4ffd0;
+      --text-main: #f5f5f7;
+      --text-muted: #b1b4c6;
+      --border-subtle: #232535;
+      --shadow-soft: 0 22px 60px rgba(0, 0, 0, 0.75);
       --radius-lg: 18px;
+      --radius-xl: 26px;
       --radius-pill: 999px;
       --font-main: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
         sans-serif;
     }
 
     body {
-      background: var(--bg-main);
-      color: var(--text-main);
       font-family: var(--font-main);
+      color: var(--text-main);
+      background: radial-gradient(circle at top, #251438 0, transparent 55%),
+        radial-gradient(circle at bottom, #07241e 0, transparent 60%),
+        var(--bg-main);
+      min-height: 100vh;
     }
 
-    /* ===== Header / Nav ===== */
+    /* ========== Header ========== */
     .site-header {
       position: fixed;
+      inset-inline: 0;
       top: 0;
-      left: 0;
-      right: 0;
       height: 64px;
       padding: 0 24px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background: rgba(5, 5, 15, 0.92);
+      background: rgba(5, 5, 15, 0.9);
       border-bottom: 1px solid var(--border-subtle);
       backdrop-filter: blur(10px);
       z-index: 100;
     }
 
     .logo {
-      font-weight: 700;
-      letter-spacing: 0.12em;
+      font-weight: 800;
+      letter-spacing: 0.16em;
       text-transform: uppercase;
       font-size: 0.95rem;
       color: var(--accent);
+    }
+
+    .logo span {
+      color: var(--accent-strong);
     }
 
     .site-nav {
@@ -86,71 +92,161 @@
 
     .site-nav a:hover,
     .site-nav a:focus-visible {
-      color: var(--text-main);
+      color: var(--accent-strong);
       border-color: var(--accent);
       outline: none;
     }
 
-    /* ===== Layout: base (MOBILE FIRST) ===== */
+    /* ========== Layout: sections ========== */
     main {
-      margin-top: 64px; /* clear fixed header */
+      margin-top: 64px; /* clear header */
     }
 
-    .full-section {
-      padding: 72px 16px 80px;
+    .section {
+      padding: 72px 16px 96px;
     }
 
     .section-inner {
       width: 100%;
-      max-width: 960px;
+      max-width: 1120px;
       margin: 0 auto;
-      text-align: left;
     }
 
-    /* Background vibes per section */
-    .full-section--music {
-      background:
-        radial-gradient(circle at top, #261438 0, transparent 55%),
-        radial-gradient(circle at bottom, #0a2b22 0, transparent 60%),
-        var(--bg-main);
+    /* Hero-style first section (Music) */
+    .section--music {
+      min-height: calc(100vh - 64px);
+      display: flex;
+      align-items: center;
     }
 
-    .full-section--videos {
-      background:
-        radial-gradient(circle at top left, #2a1638 0, transparent 55%),
-        radial-gradient(circle at bottom right, #13223a 0, transparent 60%),
-        var(--bg-alt-1);
+    .music-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+      gap: 32px;
+      align-items: center;
     }
 
-    .full-section--merch {
-      background:
-        radial-gradient(circle at top right, #283830 0, transparent 55%),
-        radial-gradient(circle at bottom, #1a142a 0, transparent 60%),
-        var(--bg-alt-2);
-    }
-
-    /* ===== Typography ===== */
-    .section-inner h1 {
-      font-size: clamp(2.1rem, 3vw + 1rem, 3rem);
-      margin: 0 0 8px;
-      letter-spacing: 0.08em;
+    /* If screen too small this will collapse below via media query */
+    .music-copy h1 {
+      font-size: clamp(2.5rem, 4vw + 1rem, 3.5rem);
+      margin: 0 0 10px;
+      letter-spacing: 0.16em;
       text-transform: uppercase;
     }
 
-    .section-inner p {
-      margin: 0 0 32px;
+    .music-copy .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--accent-soft);
+      background: rgba(8, 16, 18, 0.9);
+      color: var(--accent-strong);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      margin-bottom: 10px;
+    }
+
+    .music-copy p {
+      margin: 0 0 16px;
+      color: var(--text-muted);
       font-size: 0.98rem;
+    }
+
+    .music-copy .sub {
+      font-size: 0.82rem;
+      opacity: 0.9;
+    }
+
+    .primary-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 14px;
+      margin-top: 18px;
+    }
+
+    .btn {
+      border-radius: var(--radius-pill);
+      border: 1px solid var(--accent);
+      padding: 8px 18px;
+      font-size: 0.86rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: radial-gradient(circle at 0 0, var(--accent-soft), #05060c);
+      color: var(--accent-strong);
+      cursor: pointer;
+      text-decoration: none;
+      box-shadow: 0 14px 34px rgba(0, 0, 0, 0.7);
+      transition:
+        transform 0.16s ease,
+        box-shadow 0.16s ease,
+        background 0.16s ease,
+        border-color 0.16s ease,
+        color 0.16s ease;
+    }
+
+    .btn span.icon {
+      font-size: 1rem;
+    }
+
+    .btn:hover,
+    .btn:focus-visible {
+      outline: none;
+      transform: translateY(1px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.85);
+      background: radial-gradient(circle at 0 0, var(--accent-soft), #070a10);
+      border-color: var(--accent-strong);
+    }
+
+    .btn-secondary {
+      border-color: var(--border-subtle);
+      background: rgba(7, 8, 16, 0.95);
+      color: var(--text-main);
+      box-shadow: 0 10px 26px rgba(0, 0, 0, 0.6);
+    }
+
+    .btn-secondary:hover,
+    .btn-secondary:focus-visible {
+      border-color: var(--accent-soft);
+      color: var(--accent-strong);
+    }
+
+    /* Music players panel */
+    .player-panel {
+      background: linear-gradient(135deg, #101223, #070914);
+      border-radius: var(--radius-xl);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      padding: 18px 18px 20px;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .player-panel h2 {
+      margin: 0 0 8px;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
       color: var(--text-muted);
     }
 
-    /* ===== Embeds ===== */
+    .player-panel p {
+      margin: 0 0 18px;
+      font-size: 0.86rem;
+      color: var(--text-muted);
+    }
+
+    .player-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
     .embed-wrapper {
-      margin: 0 auto 24px;
-      max-width: 760px;
-      box-shadow: var(--shadow-soft);
-      border-radius: var(--radius-lg);
+      border-radius: 14px;
       overflow: hidden;
-      border: 1px solid rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.05);
     }
 
     .embed-wrapper iframe {
@@ -159,65 +255,168 @@
       height: 100%;
     }
 
-    /* ===== Down Arrow Buttons ===== */
+    /* ========== Videos Section ========== */
+    .section--videos {
+      background: radial-gradient(circle at top left, #201434 0, transparent 55%),
+        radial-gradient(circle at bottom right, #0b1f33 0, transparent 60%),
+        var(--bg-surface);
+      border-top: 1px solid var(--border-subtle);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .section-heading {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .section-heading h2 {
+      margin: 0 0 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      font-size: 0.9rem;
+      color: var(--accent-strong);
+    }
+
+    .section-heading h3 {
+      margin: 0 0 6px;
+      font-size: 1.8rem;
+    }
+
+    .section-heading p {
+      margin: 0;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    .video-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 20px;
+    }
+
+    .video-card {
+      background: rgba(7, 10, 20, 0.94);
+      border-radius: var(--radius-lg);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      padding: 14px 14px 16px;
+      box-shadow: 0 16px 38px rgba(0, 0, 0, 0.7);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .video-thumb {
+      background: radial-gradient(circle at 10% 0, #7bffb722, transparent 60%),
+        #05060d;
+      border-radius: 12px;
+      aspect-ratio: 16 / 9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent-strong);
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .video-card h4 {
+      margin: 0;
+      font-size: 0.95rem;
+    }
+
+    .video-card p {
+      margin: 0;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    /* ========== Merch Section ========== */
+    .section--merch {
+      background: radial-gradient(circle at top, #222b26 0, transparent 55%),
+        radial-gradient(circle at bottom, #1a1428 0, transparent 60%),
+        var(--bg-alt);
+    }
+
+    .merch-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 20px;
+    }
+
+    .merch-card {
+      background: rgba(6, 8, 14, 0.96);
+      border-radius: var(--radius-lg);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      padding: 14px 14px 16px;
+      box-shadow: 0 16px 38px rgba(0, 0, 0, 0.7);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .merch-thumb {
+      border-radius: 12px;
+      aspect-ratio: 1 / 1;
+      background: radial-gradient(circle at 20% 0, #7bffb722, transparent 60%),
+        #05060d;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent-strong);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .merch-card h4 {
+      margin: 0;
+      font-size: 0.95rem;
+    }
+
+    .merch-card p {
+      margin: 0;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    /* ========== Scroll arrows (section-level backup) ========== */
+    .section-footer {
+      margin-top: 28px;
+      text-align: center;
+    }
+
     .down-arrow {
-      margin-top: 24px;
-      width: 54px;
-      height: 54px;
       border-radius: var(--radius-pill);
-      border: 2px solid var(--accent);
-      background: radial-gradient(circle at 30% 0%, var(--accent-soft), transparent);
-      color: var(--accent);
-      font-size: 1.4rem;
-      cursor: pointer;
+      border: 1px solid var(--accent);
+      width: 46px;
+      height: 46px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.75);
+      font-size: 1.3rem;
+      background: radial-gradient(circle at 30% 0, var(--accent-soft), #050710);
+      color: var(--accent-strong);
+      cursor: pointer;
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.78);
       transition:
-        transform 0.18s ease,
-        box-shadow 0.18s ease,
-        background 0.18s ease,
-        border-color 0.18s ease,
-        color 0.18s ease;
+        transform 0.14s ease,
+        box-shadow 0.14s ease,
+        border-color 0.14s ease,
+        background 0.14s ease;
     }
 
     .down-arrow:hover,
     .down-arrow:focus-visible {
       outline: none;
-      transform: translateY(2px);
-      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.85);
-      background: radial-gradient(circle at 30% 0%, var(--accent-soft), #07150f);
-      border-color: #9dffd0;
-      color: #dfffee;
+      transform: translateY(1px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.86);
+      border-color: var(--accent-strong);
+      background: radial-gradient(circle at 30% 0, var(--accent-soft), #05060c);
     }
 
-    /* ===== DESKTOP BREAKPOINT (this is the “INTELLIGENCE”) ===== */
-    @media (min-width: 1024px) {
-      .full-section {
-        min-height: calc(100vh - 64px);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding-top: 80px;
-        padding-bottom: 96px;
-      }
-
-      .section-inner {
-        text-align: center;
-      }
-
-      .section-inner h1,
-      .section-inner p {
-        text-align: center;
-      }
-
-      .down-arrow {
-        margin-top: 32px;
-      }
-    }
-
-    /* ===== Mid screens / tablets ===== */
+    /* ========== Responsive ========== */
     @media (max-width: 900px) {
       .site-header {
         padding: 0 16px;
@@ -225,60 +424,58 @@
 
       .site-nav {
         gap: 12px;
-        font-size: 0.8rem;
+        font-size: 0.78rem;
       }
 
-      .embed-wrapper {
-        max-width: 100%;
+      .music-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      .section--music {
+        min-height: auto;
+        padding-top: 80px;
+        padding-bottom: 80px;
+      }
+
+      .section {
+        padding: 72px 16px 80px;
+      }
+
+      .video-grid,
+      .merch-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
       }
     }
 
-    /* Extra small devices */
-    @media (max-width: 480px) {
+    @media (max-width: 640px) {
       .logo {
-        font-size: 0.8rem;
+        letter-spacing: 0.12em;
+        font-size: 0.82rem;
       }
 
-      .section-inner p {
-        font-size: 0.9rem;
+      .section {
+        padding: 64px 14px 72px;
       }
 
-      .down-arrow {
-        width: 48px;
-        height: 48px;
-        font-size: 1.2rem;
+      .video-grid,
+      .merch-grid {
+        grid-template-columns: minmax(0, 1fr);
       }
-    }
 
-    /* ===== DEBUG: Show which layout is active ===== */
-    .layout-indicator {
-      position: fixed;
-      bottom: 6px;
-      right: 10px;
-      font-size: 10px;
-      font-family: system-ui, sans-serif;
-      opacity: 0.6;
-      color: #999;
-      z-index: 999;
-      pointer-events: none;
-    }
-
-    @media (min-width: 1024px) {
-      .layout-indicator::after {
-        content: "DESKTOP LAYOUT";
+      .music-copy h1 {
+        font-size: 2.1rem;
       }
-    }
 
-    @media (max-width: 1023.98px) {
-      .layout-indicator::after {
-        content: "MOBILE LAYOUT";
+      .primary-actions {
+        flex-direction: column;
+        align-items: flex-start;
       }
     }
   </style>
 </head>
 <body>
   <header class="site-header">
-    <div class="logo">Summon Mars</div>
+    <div class="logo">SUMMON <span>MARS</span></div>
     <nav class="site-nav">
       <a href="#music">Music</a>
       <a href="#videos">Videos</a>
@@ -287,97 +484,72 @@
   </header>
 
   <main>
-    <!-- SECTION 1: MUSIC -->
-    <section id="music" class="full-section full-section--music">
+    <!-- ========== MUSIC / HERO ========== -->
+    <section id="music" class="section section--music">
       <div class="section-inner">
-        <h1>Music</h1>
-        <p>Beats, bangers, and brain rewiring.</p>
+        <div class="music-grid">
+          <div class="music-copy">
+            <div class="pill">
+              <span>●</span>
+              <span>Signal online</span>
+            </div>
+            <h1>Music</h1>
+            <p>Beats, bangers, and brain rewiring from the Summon Mars frequency field.</p>
+            <p class="sub">Stream across the big three, or drop into the portal below and let the algorithms panic.</p>
 
-        <div class="embed-wrapper">
-          <iframe
-            style="border-radius:12px"
-            src="https://open.spotify.com/embed/artist/5GohNtXpBBkQyOfYpweSnO?utm_source=generator"
-            width="100%"
-            height="380"
-            frameborder="0"
-            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-            loading="lazy">
-          </iframe>
+            <div class="primary-actions">
+              <button class="btn down-arrow-trigger" data-target="#videos">
+                <span class="icon">↓</span>
+                Jump to videos
+              </button>
+              <button class="btn btn-secondary down-arrow-trigger" data-target="#merch">
+                <span class="icon">★</span>
+                Skip to merch
+              </button>
+            </div>
+          </div>
+
+          <aside class="player-panel">
+            <h2>Stream Summon Mars</h2>
+            <p>Locked in across platforms. Choose your gate:</p>
+            <div class="player-stack">
+              <div class="embed-wrapper">
+                <iframe
+                  style="border-radius:12px"
+                  src="https://open.spotify.com/embed/artist/5GohNtXpBBkQyOfYpweSnO?utm_source=generator"
+                  width="100%"
+                  height="180"
+                  frameborder="0"
+                  allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                  loading="lazy">
+                </iframe>
+              </div>
+
+              <div class="embed-wrapper">
+                <iframe
+                  allow="autoplay *; encrypted-media *; fullscreen *"
+                  frameborder="0"
+                  height="160"
+                  style="width:100%;overflow:hidden;border-radius:12px;"
+                  sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-top-navigation-by-user-activation"
+                  src="https://embed.music.apple.com/us/artist/summon-mars/1740370218">
+                </iframe>
+              </div>
+
+              <div class="embed-wrapper">
+                <iframe
+                  style="border:0; border-radius:12px;"
+                  width="100%"
+                  height="160"
+                  src="https://music.amazon.com/embed/artists/B0CQFKRK39?do=play"
+                  loading="lazy"
+                  allow="autoplay; encrypted-media">
+                </iframe>
+              </div>
+            </div>
+          </aside>
         </div>
 
-        <div class="embed-wrapper">
-          <iframe
-            allow="autoplay *; encrypted-media *; fullscreen *"
-            frameborder="0"
-            height="400"
-            style="width:100%;max-width:660px;overflow:hidden;border-radius:12px;"
-            sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-top-navigation-by-user-activation"
-            src="https://embed.music.apple.com/us/artist/summon-mars/1740370218">
-          </iframe>
-        </div>
-
-        <div class="embed-wrapper">
-          <iframe
-            style="border:0; border-radius:12px;"
-            width="100%"
-            height="400"
-            src="https://music.amazon.com/embed/artists/B0CQFKRK39?do=play"
-            loading="lazy"
-            allow="autoplay; encrypted-media">
-          </iframe>
-        </div>
-
-        <button class="down-arrow" data-target="#videos" aria-label="Go to Videos">
-          ↓
-        </button>
-      </div>
-    </section>
-
-    <!-- SECTION 2: VIDEOS -->
-    <section id="videos" class="full-section full-section--videos">
-      <div class="section-inner">
-        <h1>Videos</h1>
-        <p>Portals, stories, and visual weirdness.</p>
-
-        <!-- Drop your YouTube / Shorts / trailer embeds here -->
-
-        <button class="down-arrow" data-target="#merch" aria-label="Go to Merch">
-          ↓
-        </button>
-      </div>
-    </section>
-
-    <!-- SECTION 3: MERCH -->
-    <section id="merch" class="full-section full-section--merch">
-      <div class="section-inner">
-        <h1>Merch</h1>
-        <p>Wear the signal. Broadcast the glitch.</p>
-
-        <!-- Plug in your merch store / links / images here -->
-
-        <button class="down-arrow" data-target="#music" aria-label="Back to Music">
-          ↑
-        </button>
-      </div>
-    </section>
-  </main>
-
-  <div class="layout-indicator"></div>
-
-  <script>
-    // Smooth scroll for arrow buttons
-    document.addEventListener("click", function (e) {
-      const btn = e.target.closest(".down-arrow");
-      if (!btn) return;
-
-      const targetSelector = btn.getAttribute("data-target");
-      if (!targetSelector) return;
-
-      const target = document.querySelector(targetSelector);
-      if (!target) return;
-
-      target.scrollIntoView({ behavior: "smooth" });
-    });
-  </script>
-</body>
-</html>
+        <div class="section-footer">
+          <button class="down-arrow" data-target="#videos" aria-label="Go to Videos">
+            ↓
