@@ -82,25 +82,21 @@ body {
   outline: none;
 }
 
-/* ===== Layout: Sections ===== */
+/* ===== Layout: base ===== */
 main {
   margin-top: 64px; /* clear fixed header */
 }
 
-/* Default: desktop/tablet layout */
+/* Default (mobile-first): stacked sections, natural height */
 .full-section {
-  min-height: calc(100vh - 64px);
-  padding: 72px 16px 96px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  padding: 72px 16px 80px;
 }
 
 .section-inner {
   width: 100%;
   max-width: 960px;
   margin: 0 auto;
-  text-align: center;
+  text-align: left;
 }
 
 /* Background vibes */
@@ -127,7 +123,7 @@ main {
 
 /* ===== Typography ===== */
 .section-inner h1 {
-  font-size: clamp(2.2rem, 3vw + 1rem, 3rem);
+  font-size: clamp(2.1rem, 3vw + 1rem, 3rem);
   margin: 0 0 8px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -149,14 +145,16 @@ main {
   border: 1px solid rgba(255, 255, 255, 0.04);
 }
 
+/* Force iframes to behave on mobile */
 .embed-wrapper iframe {
   display: block;
   width: 100%;
+  height: 100%;
 }
 
 /* ===== Down Arrow Buttons ===== */
 .down-arrow {
-  margin-top: 32px;
+  margin-top: 24px;
   width: 54px;
   height: 54px;
   border-radius: var(--radius-pill);
@@ -187,7 +185,32 @@ main {
   color: #dfffee;
 }
 
-/* ===== RESPONSIVE: Tablet & Down ===== */
+/* ===== Desktop / large screens: full-viewport sections ===== */
+@media (min-width: 1024px) {
+  .full-section {
+    min-height: calc(100vh - 64px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-top: 80px;
+    padding-bottom: 96px;
+  }
+
+  .section-inner {
+    text-align: center;
+  }
+
+  .section-inner h1,
+  .section-inner p {
+    text-align: center;
+  }
+
+  .down-arrow {
+    margin-top: 32px;
+  }
+}
+
+/* ===== Mid screens / tablets ===== */
 @media (max-width: 900px) {
   .site-header {
     padding: 0 16px;
@@ -198,39 +221,8 @@ main {
     font-size: 0.8rem;
   }
 
-  .full-section {
-    padding: 72px 12px 80px;
-  }
-
   .embed-wrapper {
     max-width: 100%;
-  }
-}
-
-/* ===== RESPONSIVE: Mobile-first layout ===== */
-@media (max-width: 768px) {
-  /* Don’t force full viewport height on smaller screens */
-  .full-section {
-    min-height: auto;
-    padding-top: 72px;
-    padding-bottom: 72px;
-    align-items: flex-start;
-  }
-
-  .section-inner {
-    text-align: left;
-  }
-
-  .section-inner h1 {
-    text-align: left;
-  }
-
-  .section-inner p {
-    text-align: left;
-  }
-
-  .down-arrow {
-    margin-top: 24px;
   }
 }
 
