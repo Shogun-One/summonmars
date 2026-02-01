@@ -5,8 +5,8 @@
   <title>Summon Mars</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Oswald:wght@300;400;500&display=swap" rel="stylesheet" />
+  <!-- Fonts: clean body + bold, sci-fi/industrial logo font -->
+  <link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Oswald:wght@300;400;500&display=swap" rel="stylesheet">
 
   <style>
     /* RESET */
@@ -31,8 +31,7 @@
     /* BASE */
     body {
       font-family: "Oswald", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-      background:
-        radial-gradient(circle at 10% 0%, #05091a 0%, #000000 55%, #02030a 100%);
+      background: radial-gradient(circle at 10% 0%, #05091a 0%, #000000 60%, #02030a 100%);
       color: var(--text-main);
       min-height: 100vh;
       display: flex;
@@ -41,111 +40,83 @@
       background-attachment: fixed;
     }
 
-    /* SUBTLE GLOBAL AURORA (TONED DOWN) */
+    /* VERY SUBTLE GLOBAL AURORA */
     .aurora-layer {
       position: fixed;
       inset: 0;
       pointer-events: none;
       z-index: -10;
       background:
-        radial-gradient(circle at 12% 0%, rgba(119, 255, 239, 0.35) 0, transparent 45%),
-        radial-gradient(circle at 88% 5%, rgba(124, 255, 95, 0.3) 0, transparent 50%),
-        radial-gradient(circle at 8% 90%, rgba(255, 102, 255, 0.25) 0, transparent 55%),
-        radial-gradient(circle at 92% 80%, rgba(0, 195, 255, 0.3) 0, transparent 55%);
+        radial-gradient(circle at 15% 0%, rgba(119, 255, 239, 0.35) 0, transparent 55%),
+        radial-gradient(circle at 85% 5%, rgba(124, 255, 95, 0.3) 0, transparent 60%),
+        radial-gradient(circle at 12% 85%, rgba(255, 102, 255, 0.3) 0, transparent 60%),
+        radial-gradient(circle at 90% 80%, rgba(0, 195, 255, 0.4) 0, transparent 60%);
       mix-blend-mode: screen;
-      animation: aurora-shift 22s ease-in-out infinite alternate;
-      opacity: 0.6;
+      opacity: 0.65;
+      filter: blur(3px);
     }
 
-    @keyframes aurora-shift {
-      0% {
-        transform: translate3d(-8px, 0, 0) scale(1.02);
-        filter: blur(4px);
-      }
-      50% {
-        transform: translate3d(6px, -8px, 0) scale(1.05);
-        filter: blur(5px);
-      }
-      100% {
-        transform: translate3d(0, 8px, 0) scale(1.01);
-        filter: blur(4px);
-      }
-    }
-
-    /* HERO */
-    header.hero {
-      min-height: 32vh;
+    /* HERO TOP AREA with astronaut background */
+    .hero {
+      position: relative;
+      min-height: 52vh;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: flex-start;
       text-align: center;
-      position: relative;
-      padding: 1.2rem 1.5rem 1rem;
-      margin-top: 0.35rem;
+      padding: 1.25rem 1.5rem 2rem;
+      overflow: hidden;
       z-index: 0;
     }
 
-    /* VERY LIGHT AURORA BEHIND LOGO */
-    .hero-aurora {
+    /* Astronaut as hero background */
+    .hero::before {
+      content: "";
       position: absolute;
-      top: -30vh;
-      left: 0;
-      right: 0;
-      height: 100vh;
-      pointer-events: none;
-      z-index: -5;
-      background:
-        linear-gradient(
-          180deg,
-          rgba(119, 255, 239, 0) 0%,
-          rgba(119, 255, 239, 0.45) 35%,
-          rgba(119, 255, 239, 0) 80%
-        ),
-        linear-gradient(
-          180deg,
-          rgba(255, 102, 255, 0) 5%,
-          rgba(255, 102, 255, 0.4) 45%,
-          rgba(255, 102, 255, 0) 85%
-        );
-      background-size: 22% 100%, 18% 100%;
-      background-position: 18% 0, 78% 0;
-      background-repeat: no-repeat;
-      filter: blur(12px);
-      mix-blend-mode: screen;
-      opacity: 0.7;
-      animation: hero-aurora-flow 18s ease-in-out infinite alternate;
+      inset: 0;
+      background-image: url("astronaut-banner.jpeg");
+      background-size: cover;
+      background-position: center top;
+      filter: saturate(1.05) contrast(1.08) brightness(0.9);
+      transform: scale(1.03);
+      z-index: -2;
     }
 
-    @keyframes hero-aurora-flow {
-      0% {
-        transform: translateY(-8px) skewX(-3deg);
-      }
-      50% {
-        transform: translateY(4px) skewX(1deg);
-      }
-      100% {
-        transform: translateY(10px) skewX(-2deg);
-      }
+    /* Dark gradient overlay so text is readable */
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(
+          to bottom,
+          rgba(0, 0, 0, 0.78) 0%,
+          rgba(0, 0, 0, 0.75) 35%,
+          rgba(0, 0, 0, 0.7) 65%,
+          rgba(0, 0, 0, 0.9) 100%
+        );
+      z-index: -1;
     }
 
     /* TOP NAV */
     .main-nav {
       display: flex;
-      gap: 2.8rem;
+      gap: 2.5rem;
       justify-content: center;
       align-items: center;
-      margin-bottom: 0.9rem;
+      margin-bottom: 0.75rem;
       font-size: clamp(0.9rem, 1.5vw, 1.1rem);
       letter-spacing: 0.25em;
       text-transform: uppercase;
+      z-index: 1;
     }
 
     .main-nav a {
       text-decoration: none;
       color: var(--text-sub);
       position: relative;
-      padding-bottom: 0.25rem;
+      padding-bottom: 0.3rem;
       transition: color 0.25s ease, transform 0.25s ease;
     }
 
@@ -175,73 +146,59 @@
     .logo-wrap {
       position: relative;
       display: inline-block;
-      margin-top: 0.2rem;
+      margin-top: 0.5rem;
       padding-inline: 0.25em;
       z-index: 1;
     }
 
+    /* Slight aurora halo behind logo */
     .logo-aurora-ring {
       position: absolute;
-      inset: -120% -60%;
+      inset: -130% -60%;
       background:
         radial-gradient(circle at 20% 0%, rgba(119, 255, 239, 0.9) 0%, transparent 55%),
         radial-gradient(circle at 80% 0%, rgba(124, 255, 95, 0.8) 0%, transparent 55%),
         radial-gradient(circle at 50% 95%, rgba(255, 102, 255, 0.9) 0%, transparent 60%);
-      filter: blur(26px);
+      filter: blur(22px);
       opacity: 0.9;
       mix-blend-mode: screen;
       z-index: -2;
-      animation: logo-aurora-pulse 16s ease-in-out infinite alternate;
     }
 
-    @keyframes logo-aurora-pulse {
-      0% {
-        transform: scale(1);
-        opacity: 0.9;
-      }
-      50% {
-        transform: scale(1.05);
-        opacity: 1;
-      }
-      100% {
-        transform: scale(0.98);
-        opacity: 0.85;
-      }
-    }
-
+    /* SUMMON MARS — 3D style, but readable */
     .logo {
       font-family: "Black Ops One", system-ui, sans-serif;
       text-transform: uppercase;
-      font-size: clamp(3.1rem, 7.2vw, 5.6rem);
+      font-size: clamp(3.1rem, 7vw, 5.5rem);
       letter-spacing: 0.3em;
-      padding-inline: 0.15em;
-      color: #ffffff;
+      padding-inline: 0.18em;
+      color: #fdfdfd;
       text-shadow:
         0 1px 0 #040711,
         0 2px 0 #050814,
         0 3px 0 #060a18,
         0 4px 0 #060a18,
         0 6px 8px rgba(0, 0, 0, 0.9),
-        0 0 14px rgba(119, 255, 239, 0.7),
-        0 0 24px rgba(124, 255, 95, 0.75),
-        0 0 34px rgba(255, 102, 255, 0.8),
-        0 0 44px rgba(0, 195, 255, 0.9);
-      transform: perspective(700px) rotateX(6deg) skewX(-4deg);
+        0 0 10px rgba(119, 255, 239, 0.6),
+        0 0 20px rgba(124, 255, 95, 0.7),
+        0 0 32px rgba(255, 102, 255, 0.8),
+        0 0 40px rgba(0, 195, 255, 0.9);
+      transform: perspective(650px) rotateX(6deg) skewX(-3deg);
       position: relative;
       z-index: 2;
     }
 
     .logo-glow {
       position: absolute;
-      inset: 42% -12%;
+      inset: 40% -10%;
       background: radial-gradient(
         ellipse at center,
-        rgba(255, 255, 255, 0.38) 0%,
+        rgba(255, 255, 255, 0.35) 0%,
         rgba(124, 255, 95, 0.32) 30%,
-        rgba(0, 195, 255, 0.26) 55%,
+        rgba(0, 195, 255, 0.25) 55%,
         transparent 85%
       );
-      filter: blur(18px);
+      filter: blur(16px);
       opacity: 0.9;
       mix-blend-mode: screen;
       z-index: -1;
@@ -263,67 +220,30 @@
     }
 
     .hero-tagline {
-      margin-top: 0.9rem;
-      font-size: clamp(0.9rem, 1.3vw, 1.05rem);
+      margin-top: 1rem;
+      font-size: clamp(0.9rem, 1.2vw, 1rem);
       letter-spacing: 0.18em;
       text-transform: uppercase;
       color: var(--text-sub);
       opacity: 0.9;
-    }
-
-    /* ASTRONAUT BANNER – CLEAN, NON-INTRUSIVE STRIP */
-    .astronaut-banner {
-      position: relative;
-      max-width: 1100px;
-      width: 100%;
-      height: 280px;
-      margin: 1.2rem auto 1.8rem;
-      border-radius: 20px;
-      overflow: hidden;
-      box-shadow:
-        0 18px 40px rgba(0, 0, 0, 0.9),
-        0 0 32px rgba(0, 195, 255, 0.45);
-      z-index: 0;
-    }
-
-    .astronaut-banner::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background-image: url("astronaut-banner.jpeg");
-      background-size: cover;
-      background-position: center;
-      transform: scale(1.04);
-      filter: saturate(1.1) contrast(1.05) brightness(0.9);
-    }
-
-    .astronaut-banner::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background:
-        linear-gradient(
-          to bottom,
-          rgba(0, 0, 0, 0.45) 0%,
-          rgba(0, 0, 0, 0.6) 45%,
-          rgba(0, 0, 0, 0.9) 100%
-        );
-      mix-blend-mode: normal;
+      z-index: 1;
     }
 
     /* MAIN CONTENT */
     main {
       position: relative;
       z-index: 1;
-      padding: 0 1.5rem 3rem;
+      padding: 1.4rem 1.5rem 3.2rem;
       max-width: 1100px;
       width: 100%;
       margin: 0 auto;
     }
 
+    /* SECTION SPACING + scroll offset so links don't hide titles */
     section {
-      padding: 1.5rem 0 1.9rem;
+      padding: 1.8rem 0 2rem;
       border-top: 1px solid rgba(255, 255, 255, 0.08);
+      scroll-margin-top: 80px;
     }
 
     section:first-of-type {
@@ -345,17 +265,17 @@
       font-size: 0.98rem;
     }
 
-    /* MUSIC QUAD */
+    /* EMBED GRID (QUAD) */
     .embed-grid {
       margin-top: 1.5rem;
       display: grid;
-      grid-template-columns: 1fr;
+      grid-template-columns: 1fr; /* mobile: single column */
       gap: 1.2rem;
     }
 
     @media (min-width: 768px) {
       .embed-grid {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(2, 1fr); /* desktop: 2 x 2 */
       }
     }
 
@@ -385,23 +305,14 @@
     /* MOBILE TWEAKS */
     @media (max-width: 600px) {
       .main-nav {
-        gap: 1.4rem;
+        gap: 1.5rem;
         letter-spacing: 0.18em;
       }
 
       .logo {
         letter-spacing: 0.22em;
-        transform: perspective(650px) rotateX(5deg) skewX(-3deg);
+        transform: perspective(620px) rotateX(5deg) skewX(-2deg);
         font-size: clamp(2.6rem, 9vw, 4.4rem);
-      }
-
-      .logo-bottom-glow {
-        bottom: -0.6rem;
-      }
-
-      .astronaut-banner {
-        height: 230px;
-        margin: 1rem auto 1.6rem;
       }
     }
   </style>
@@ -410,8 +321,6 @@
   <div class="aurora-layer"></div>
 
   <header class="hero">
-    <div class="hero-aurora"></div>
-
     <nav class="main-nav">
       <a href="#music">Music</a>
       <a href="#videos">Videos</a>
@@ -427,9 +336,6 @@
 
     <p class="hero-tagline">Signal from the other side</p>
   </header>
-
-  <!-- ASTRONAUT BANNER STRIP -->
-  <div class="astronaut-banner"></div>
 
   <main>
     <!-- MUSIC SECTION -->
@@ -498,6 +404,7 @@
         Portals, shorts, and weird visuals from the Summon Mars universe.
         Broadcast from the static between channels.
       </p>
+      <!-- Future video embeds go here -->
     </section>
 
     <!-- MERCH SECTION -->
@@ -507,6 +414,7 @@
         Wear the broadcast: hoodies, tees, and glitch artifacts from future drops.
         Minimal, bright, and loud enough to bend the signal.
       </p>
+      <!-- Future merch grid / links go here -->
     </section>
   </main>
 
