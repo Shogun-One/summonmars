@@ -4,132 +4,140 @@
   <meta charset="UTF-8" />
   <title>Summon Mars</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-
-  <style>
-    body {
-      margin: 0;
-      font-family: system-ui, sans-serif;
-      background: #050509;
-      color: #f2f2f2;
-      scroll-behavior: smooth;
-    }
-
-    header {
-      position: fixed;
-      top: 0;
-      width: 100%;
-      height: 60px;
-      background: rgba(0,0,0,0.75);
-      backdrop-filter: blur(8px);
-      border-bottom: 1px solid #111;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 20px;
-      z-index: 1000;
-    }
-
-    header .logo {
-      font-weight: bold;
-      letter-spacing: 2px;
-      color: #7bffb7;
-      text-transform: uppercase;
-    }
-
-    header nav a {
-      margin-left: 20px;
-      color: #ccc;
-      text-decoration: none;
-      font-size: 0.9rem;
-    }
-
-    header nav a:hover {
-      color: #7bffb7;
-    }
-
-    section {
-      min-height: 100vh;
-      padding: 90px 20px 60px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-      text-align: center;
-    }
-
-    h1 {
-      font-size: 3rem;
-      margin-bottom: 10px;
-      letter-spacing: 4px;
-      text-transform: uppercase;
-      color: #7bffb7;
-    }
-
-    p {
-      max-width: 600px;
-      margin-bottom: 40px;
-      color: #bbb;
-    }
-
-    .embed-wrapper {
-      width: 100%;
-      max-width: 700px;
-      margin-bottom: 25px;
-      border-radius: 12px;
-      overflow: hidden;
-    }
-
-    iframe {
-      width: 100%;
-      border: none;
-    }
-
-    .down-arrow {
-      margin-top: 40px;
-      font-size: 2rem;
-      background: #111;
-      border: 1px solid #333;
-      color: #7bffb7;
-      border-radius: 50%;
-      width: 50px;
-      height: 50px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: 0.2s;
-    }
-
-    .down-arrow:hover {
-      background: #7bffb7;
-      color: #000;
-    }
-
-    /* Different section backgrounds */
-    #music { background: #08090e; }
-    #videos { background: #0e0c18; }
-    #merch { background: #0b1410; }
-
-  </style>
+  <link rel="stylesheet" href="style.css" />
 </head>
-
 <body>
+  <header class="site-header">
+    <div class="logo">SUMMON MARS</div>
+    <nav class="site-nav">
+      <a href="#music">Music</a>
+      <a href="#videos">Videos</a>
+      <a href="#merch">Merch</a>
+    </nav>
+  </header>
 
-<header>
-  <div class="logo">SUMMON MARS</div>
-  <nav>
-    <a href="#music">Music</a>
-    <a href="#videos">Videos</a>
-    <a href="#merch">Merch</a>
-  </nav>
-</header>
+  <main>
+    <!-- ========== MUSIC SECTION ========== -->
+    <section id="music" class="section section--music">
+      <div class="section-inner music-layout">
+        <div class="music-copy">
+          <p class="eyebrow">Signal online</p>
+          <h1>Music</h1>
+          <p class="lead">
+            Beats, bangers, and brain rewiring from the Summon Mars frequency field.
+          </p>
 
-<main>
+          <div class="music-cta">
+            <!-- Spotify badge -->
+            <a
+              class="btn btn-spotify"
+              href="https://open.spotify.com/artist/5GohNtXpBBkQyOfYpweSnO?utm_source=website"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <span class="dot"></span>
+              <span>Listen on Spotify</span>
+            </a>
 
-  <!-- MUSIC -->
-  <section id="music">
-    <h1>Music</h1>
-    <p>Beats, bangers, and brain rewiring.</p>
+            <!-- Bubble links -->
+            <div class="music-bubbles">
+              <a
+                class="bubble-link"
+                href="https://music.apple.com/us/artist/summon-mars/1740370218"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                 Music
+              </a>
+              <a
+                class="bubble-link"
+                href="https://music.amazon.com/artists/B0CQFKRK39"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Amazon Music
+              </a>
+            </div>
+          </div>
 
-    <div class="embed-wrapper">
-      <iframe style="border-radius:12px"
+          <p class="tiny-note">
+            Pick your portal. Same brainwaves, different overlords.
+          </p>
+        </div>
+
+        <div class="music-panel">
+          <div class="panel-heading">
+            <span class="pill">Now streaming</span>
+            <h2>Featured tracks</h2>
+          </div>
+          <p class="panel-text">
+            Drop in on Spotify for the full catalog. Apple and Amazon links above if you’re living in those ecosystems.
+          </p>
+
+          <!-- Optional: keep the Spotify embed as a visual block -->
+          <div class="embed-wrapper">
+            <iframe
+              style="border-radius: 16px"
+              src="https://open.spotify.com/embed/artist/5GohNtXpBBkQyOfYpweSnO?utm_source=generator"
+              width="100%"
+              height="260"
+              frameborder="0"
+              allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+              loading="lazy"
+            ></iframe>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== VIDEOS SECTION ========== -->
+    <section id="videos" class="section section--videos">
+      <div class="section-inner">
+        <header class="section-header">
+          <p class="eyebrow">Visual signals</p>
+          <h2>Videos</h2>
+          <p class="section-sub">
+            Portals, stories, shorts, and visual weirdness from the Summon Mars universe.
+          </p>
+        </header>
+
+        <div class="video-layout">
+          <div class="video-main">
+            <!-- Replace this iframe with your actual channel / playlist embed when ready -->
+            <div class="embed-wrapper video-embed">
+              <iframe
+                width="100%"
+                height="315"
+                src="https://www.youtube.com/embed/?listType=search&list=Summon%20Mars"
+                title="Summon Mars videos"
+                frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowfullscreen
+                loading="lazy"
+              ></iframe>
+            </div>
+          </div>
+
+          <aside class="video-side">
+            <h3>Channel vibes</h3>
+            <ul class="bullet-list">
+              <li>Story-driven visuals and glitchy portals</li>
+              <li>Shorts built for scroll hypnosis</li>
+              <li>Behind-the-scenes experiments and future drops</li>
+            </ul>
+            <p class="tiny-note">
+              Swap this embed for your official channel / playlist link once it’s locked in.
+            </p>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== MERCH SECTION ========== -->
+    <section id="merch" class="section section--merch">
+      <div class="section-inner">
+        <header class="section-header">
+          <p class="eyebrow">Signal wear</p>
+          <h2>Merch</h2>
+          <p class="section-sub">
+            Wear the broadcast. Minimal designs, glitch-forward energy, and future capsule
