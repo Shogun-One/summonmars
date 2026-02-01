@@ -5,8 +5,8 @@
   <title>Summon Mars</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- Fonts: clean body + bold, sci-fi/industrial logo font -->
-  <link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Oswald:wght@300;400;500&display=swap" rel="stylesheet">
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Oswald:wght@300;400;500&display=swap" rel="stylesheet" />
 
   <style>
     /* RESET */
@@ -31,7 +31,8 @@
     /* BASE */
     body {
       font-family: "Oswald", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-      background: radial-gradient(circle at 10% 0%, #05091a 0%, #000000 60%, #02030a 100%);
+      background:
+        radial-gradient(circle at 10% 0%, #05091a 0%, #000000 55%, #02030a 100%);
       color: var(--text-main);
       min-height: 100vh;
       display: flex;
@@ -40,108 +41,101 @@
       background-attachment: fixed;
     }
 
-    /* GLOBAL AURORA BACKGROUND */
+    /* SUBTLE GLOBAL AURORA (TONED DOWN) */
     .aurora-layer {
       position: fixed;
       inset: 0;
       pointer-events: none;
       z-index: -10;
       background:
-        radial-gradient(circle at 15% 0%, rgba(119, 255, 239, 0.7) 0, transparent 50%),
-        radial-gradient(circle at 85% 5%, rgba(124, 255, 95, 0.65) 0, transparent 55%),
-        radial-gradient(circle at 10% 85%, rgba(255, 102, 255, 0.6) 0, transparent 55%),
-        radial-gradient(circle at 90% 75%, rgba(0, 195, 255, 0.7) 0, transparent 55%);
+        radial-gradient(circle at 12% 0%, rgba(119, 255, 239, 0.35) 0, transparent 45%),
+        radial-gradient(circle at 88% 5%, rgba(124, 255, 95, 0.3) 0, transparent 50%),
+        radial-gradient(circle at 8% 90%, rgba(255, 102, 255, 0.25) 0, transparent 55%),
+        radial-gradient(circle at 92% 80%, rgba(0, 195, 255, 0.3) 0, transparent 55%);
       mix-blend-mode: screen;
-      animation: aurora-shift 20s ease-in-out infinite alternate;
-      opacity: 0.95;
+      animation: aurora-shift 22s ease-in-out infinite alternate;
+      opacity: 0.6;
     }
 
     @keyframes aurora-shift {
       0% {
-        transform: translate3d(-10px, 0, 0) scale(1.03);
+        transform: translate3d(-8px, 0, 0) scale(1.02);
         filter: blur(4px);
       }
       50% {
-        transform: translate3d(10px, -10px, 0) scale(1.06);
-        filter: blur(6px);
+        transform: translate3d(6px, -8px, 0) scale(1.05);
+        filter: blur(5px);
       }
       100% {
-        transform: translate3d(0, 10px, 0) scale(1.02);
+        transform: translate3d(0, 8px, 0) scale(1.01);
         filter: blur(4px);
       }
     }
 
-    /* HERO TOP AREA — raised & tight */
-    .hero {
-      min-height: 35vh;
+    /* HERO */
+    header.hero {
+      min-height: 32vh;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: flex-start;
       text-align: center;
       position: relative;
-      padding: 0.6rem 1.5rem 0.4rem;
-      margin-top: 0.15rem;
+      padding: 1.2rem 1.5rem 1rem;
+      margin-top: 0.35rem;
       z-index: 0;
-      overflow: visible;
     }
 
-    /* VERTICAL AURORA CURTAINS BEHIND HERO */
+    /* VERY LIGHT AURORA BEHIND LOGO */
     .hero-aurora {
       position: absolute;
-      top: -40vh;
+      top: -30vh;
       left: 0;
       right: 0;
-      height: 120vh;
+      height: 100vh;
       pointer-events: none;
       z-index: -5;
       background:
         linear-gradient(
           180deg,
-          rgba(119, 255, 239, 0.0) 0%,
-          rgba(119, 255, 239, 0.8) 35%,
-          rgba(119, 255, 239, 0.0) 85%
+          rgba(119, 255, 239, 0) 0%,
+          rgba(119, 255, 239, 0.45) 35%,
+          rgba(119, 255, 239, 0) 80%
         ),
         linear-gradient(
           180deg,
-          rgba(255, 102, 255, 0.0) 5%,
-          rgba(255, 102, 255, 0.75) 45%,
-          rgba(255, 102, 255, 0.0) 90%
-        ),
-        linear-gradient(
-          180deg,
-          rgba(0, 195, 255, 0.0) 10%,
-          rgba(0, 195, 255, 0.9) 50%,
-          rgba(0, 195, 255, 0.0) 95%
+          rgba(255, 102, 255, 0) 5%,
+          rgba(255, 102, 255, 0.4) 45%,
+          rgba(255, 102, 255, 0) 85%
         );
-      background-size: 22% 100%, 18% 100%, 26% 100%;
-      background-position: 15% 0, 55% 0, 85% 0;
+      background-size: 22% 100%, 18% 100%;
+      background-position: 18% 0, 78% 0;
       background-repeat: no-repeat;
-      filter: blur(10px);
+      filter: blur(12px);
       mix-blend-mode: screen;
-      opacity: 0.95;
-      animation: hero-aurora-flow 16s ease-in-out infinite alternate;
+      opacity: 0.7;
+      animation: hero-aurora-flow 18s ease-in-out infinite alternate;
     }
 
     @keyframes hero-aurora-flow {
       0% {
-        transform: translateY(-10px) skewX(-4deg);
+        transform: translateY(-8px) skewX(-3deg);
       }
       50% {
-        transform: translateY(5px) skewX(2deg);
+        transform: translateY(4px) skewX(1deg);
       }
       100% {
-        transform: translateY(12px) skewX(-2deg);
+        transform: translateY(10px) skewX(-2deg);
       }
     }
 
     /* TOP NAV */
     .main-nav {
       display: flex;
-      gap: 3rem;
+      gap: 2.8rem;
       justify-content: center;
       align-items: center;
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.9rem;
       font-size: clamp(0.9rem, 1.5vw, 1.1rem);
       letter-spacing: 0.25em;
       text-transform: uppercase;
@@ -151,7 +145,7 @@
       text-decoration: none;
       color: var(--text-sub);
       position: relative;
-      padding-bottom: 0.3rem;
+      padding-bottom: 0.25rem;
       transition: color 0.25s ease, transform 0.25s ease;
     }
 
@@ -186,42 +180,40 @@
       z-index: 1;
     }
 
-    /* BIG AURORA HALO AROUND LOGO */
     .logo-aurora-ring {
       position: absolute;
-      inset: -150% -70%;
+      inset: -120% -60%;
       background:
-        radial-gradient(circle at 20% 0%, rgba(119, 255, 239, 1) 0%, transparent 55%),
-        radial-gradient(circle at 80% 0%, rgba(124, 255, 95, 0.95) 0%, transparent 55%),
-        radial-gradient(circle at 50% 95%, rgba(255, 102, 255, 1) 0%, transparent 60%);
-      filter: blur(30px);
-      opacity: 1;
+        radial-gradient(circle at 20% 0%, rgba(119, 255, 239, 0.9) 0%, transparent 55%),
+        radial-gradient(circle at 80% 0%, rgba(124, 255, 95, 0.8) 0%, transparent 55%),
+        radial-gradient(circle at 50% 95%, rgba(255, 102, 255, 0.9) 0%, transparent 60%);
+      filter: blur(26px);
+      opacity: 0.9;
       mix-blend-mode: screen;
       z-index: -2;
-      animation: logo-aurora-pulse 14s ease-in-out infinite alternate;
+      animation: logo-aurora-pulse 16s ease-in-out infinite alternate;
     }
 
     @keyframes logo-aurora-pulse {
       0% {
         transform: scale(1);
-        opacity: 0.95;
+        opacity: 0.9;
       }
       50% {
-        transform: scale(1.07);
+        transform: scale(1.05);
         opacity: 1;
       }
       100% {
-        transform: scale(0.97);
-        opacity: 0.94;
+        transform: scale(0.98);
+        opacity: 0.85;
       }
     }
 
-    /* SUMMON MARS — 3D style */
     .logo {
       font-family: "Black Ops One", system-ui, sans-serif;
       text-transform: uppercase;
-      font-size: clamp(3.2rem, 7.4vw, 5.8rem);
-      letter-spacing: 0.32em;
+      font-size: clamp(3.1rem, 7.2vw, 5.6rem);
+      letter-spacing: 0.3em;
       padding-inline: 0.15em;
       color: #ffffff;
       text-shadow:
@@ -230,24 +222,23 @@
         0 3px 0 #060a18,
         0 4px 0 #060a18,
         0 6px 8px rgba(0, 0, 0, 0.9),
-        0 0 12px rgba(119, 255, 239, 0.7),
-        0 0 22px rgba(124, 255, 95, 0.75),
-        0 0 34px rgba(255, 102, 255, 0.85),
-        0 0 46px rgba(0, 195, 255, 0.95);
-      transform: perspective(700px) rotateX(7deg) skewX(-4deg);
+        0 0 14px rgba(119, 255, 239, 0.7),
+        0 0 24px rgba(124, 255, 95, 0.75),
+        0 0 34px rgba(255, 102, 255, 0.8),
+        0 0 44px rgba(0, 195, 255, 0.9);
+      transform: perspective(700px) rotateX(6deg) skewX(-4deg);
       position: relative;
       z-index: 2;
     }
 
-    /* soft glow band directly under logo text */
     .logo-glow {
       position: absolute;
-      inset: 40% -12%;
+      inset: 42% -12%;
       background: radial-gradient(
         ellipse at center,
-        rgba(255, 255, 255, 0.4) 0%,
-        rgba(124, 255, 95, 0.35) 30%,
-        rgba(0, 195, 255, 0.3) 55%,
+        rgba(255, 255, 255, 0.38) 0%,
+        rgba(124, 255, 95, 0.32) 30%,
+        rgba(0, 195, 255, 0.26) 55%,
         transparent 85%
       );
       filter: blur(18px);
@@ -272,7 +263,7 @@
     }
 
     .hero-tagline {
-      margin-top: 0.8rem;
+      margin-top: 0.9rem;
       font-size: clamp(0.9rem, 1.3vw, 1.05rem);
       letter-spacing: 0.18em;
       text-transform: uppercase;
@@ -280,54 +271,58 @@
       opacity: 0.9;
     }
 
-    /* ASTRONAUT BANNER (between hero and music, partially behind quad) */
+    /* ASTRONAUT BANNER – CLEAN, NON-INTRUSIVE STRIP */
     .astronaut-banner {
       position: relative;
       max-width: 1100px;
       width: 100%;
-      height: 320px;
-      margin: 0.7rem auto;
-      border-radius: 18px;
+      height: 280px;
+      margin: 1.2rem auto 1.8rem;
+      border-radius: 20px;
       overflow: hidden;
       box-shadow:
-        0 18px 45px rgba(0, 0, 0, 0.9),
-        0 0 40px rgba(0, 195, 255, 0.55);
+        0 18px 40px rgba(0, 0, 0, 0.9),
+        0 0 32px rgba(0, 195, 255, 0.45);
       z-index: 0;
-      margin-bottom: -130px; /* pulls music section up so quad overlaps bottom half */
     }
 
     .astronaut-banner::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background-image: url("astronaut-banner.jpeg");
-  background-size: cover;
-  background-position: center top;
-  transform: scale(1.03);
-  filter: saturate(1.1) contrast(1.05) brightness(0.9);
-}
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image: url("astronaut-banner.jpeg");
+      background-size: cover;
+      background-position: center;
+      transform: scale(1.04);
+      filter: saturate(1.1) contrast(1.05) brightness(0.9);
+    }
 
     .astronaut-banner::after {
       content: "";
       position: absolute;
       inset: 0;
-      background: radial-gradient(circle at top, rgba(0, 0, 0, 0.05) 0%, rgba(0, 0, 0, 0.55) 70%);
-      mix-blend-mode: multiply;
+      background:
+        linear-gradient(
+          to bottom,
+          rgba(0, 0, 0, 0.45) 0%,
+          rgba(0, 0, 0, 0.6) 45%,
+          rgba(0, 0, 0, 0.9) 100%
+        );
+      mix-blend-mode: normal;
     }
 
     /* MAIN CONTENT */
     main {
       position: relative;
-      z-index: 1; /* so it sits above astronaut banner */
-      padding: 0.4rem 1.5rem 3rem;
+      z-index: 1;
+      padding: 0 1.5rem 3rem;
       max-width: 1100px;
       width: 100%;
       margin: 0 auto;
     }
 
-    /* SECTION SPACING — tight to leave room for embeds */
     section {
-      padding: 1.4rem 0 1.7rem;
+      padding: 1.5rem 0 1.9rem;
       border-top: 1px solid rgba(255, 255, 255, 0.08);
     }
 
@@ -350,17 +345,17 @@
       font-size: 0.98rem;
     }
 
-    /* EMBED GRID (QUAD) */
+    /* MUSIC QUAD */
     .embed-grid {
       margin-top: 1.5rem;
       display: grid;
-      grid-template-columns: 1fr;   /* mobile: single column */
+      grid-template-columns: 1fr;
       gap: 1.2rem;
     }
 
     @media (min-width: 768px) {
       .embed-grid {
-        grid-template-columns: repeat(2, 1fr);  /* desktop: 2 x 2 */
+        grid-template-columns: repeat(2, 1fr);
       }
     }
 
@@ -370,7 +365,7 @@
       box-shadow:
         0 10px 30px rgba(0, 0, 0, 0.85),
         0 0 25px rgba(0, 255, 255, 0.25);
-      background: rgba(0, 0, 0, 0.8);
+      background: rgba(0, 0, 0, 0.85);
     }
 
     .embed-wrapper iframe {
@@ -387,16 +382,16 @@
       color: rgba(255, 255, 255, 0.4);
     }
 
-    /* MOBILE FIXES */
+    /* MOBILE TWEAKS */
     @media (max-width: 600px) {
       .main-nav {
-        gap: 1.5rem;
+        gap: 1.4rem;
         letter-spacing: 0.18em;
       }
 
       .logo {
         letter-spacing: 0.22em;
-        transform: perspective(650px) rotateX(6deg) skewX(-3deg);
+        transform: perspective(650px) rotateX(5deg) skewX(-3deg);
         font-size: clamp(2.6rem, 9vw, 4.4rem);
       }
 
@@ -405,8 +400,8 @@
       }
 
       .astronaut-banner {
-        height: 260px;
-        margin-bottom: -110px;
+        height: 230px;
+        margin: 1rem auto 1.6rem;
       }
     }
   </style>
@@ -433,48 +428,63 @@
     <p class="hero-tagline">Signal from the other side</p>
   </header>
 
-  <!-- ASTRONAUT BANNER PANEL -->
+  <!-- ASTRONAUT BANNER STRIP -->
   <div class="astronaut-banner"></div>
 
   <main>
     <!-- MUSIC SECTION -->
     <section id="music">
       <h2>Music</h2>
-      <p>Listen to the latest Summon Mars transmissions: glitchy hip-hop pulses, cinematic synth storms, and everything humming between.</p>
+      <p>
+        Listen to the latest Summon Mars transmissions: glitchy hip-hop pulses,
+        cinematic synth storms, and everything humming between.
+      </p>
 
       <div class="embed-grid">
         <!-- See You in the Sky -->
         <div class="embed-wrapper">
-          <iframe data-testid="embed-iframe" style="border-radius:12px"
+          <iframe
+            data-testid="embed-iframe"
+            style="border-radius:12px"
             src="https://open.spotify.com/embed/track/0mtMGkRlTbPR31fG2vxy9e?utm_source=generator"
-            height="352" loading="lazy"
+            height="352"
+            loading="lazy"
             allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture">
           </iframe>
         </div>
 
         <!-- Ethereal -->
         <div class="embed-wrapper">
-          <iframe data-testid="embed-iframe" style="border-radius:12px"
+          <iframe
+            data-testid="embed-iframe"
+            style="border-radius:12px"
             src="https://open.spotify.com/embed/track/5lrwop2youkjb5Ci0Ryh2d?utm_source=generator"
-            height="352" loading="lazy"
+            height="352"
+            loading="lazy"
             allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture">
           </iframe>
         </div>
 
         <!-- What Is Love -->
         <div class="embed-wrapper">
-          <iframe data-testid="embed-iframe" style="border-radius:12px"
+          <iframe
+            data-testid="embed-iframe"
+            style="border-radius:12px"
             src="https://open.spotify.com/embed/track/4LaKzm4Y9ain2HRsXLzBYL?utm_source=generator"
-            height="352" loading="lazy"
+            height="352"
+            loading="lazy"
             allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture">
           </iframe>
         </div>
 
         <!-- Life That Moves -->
         <div class="embed-wrapper">
-          <iframe data-testid="embed-iframe" style="border-radius:12px"
+          <iframe
+            data-testid="embed-iframe"
+            style="border-radius:12px"
             src="https://open.spotify.com/embed/track/1yMi0TQ6PwmvCfK5lLqAxF?utm_source=generator"
-            height="352" loading="lazy"
+            height="352"
+            loading="lazy"
             allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture">
           </iframe>
         </div>
@@ -484,13 +494,19 @@
     <!-- VIDEOS SECTION -->
     <section id="videos">
       <h2>Videos</h2>
-      <p>Portals, shorts, and weird visuals from the Summon Mars universe. Broadcast from the static between channels.</p>
+      <p>
+        Portals, shorts, and weird visuals from the Summon Mars universe.
+        Broadcast from the static between channels.
+      </p>
     </section>
 
     <!-- MERCH SECTION -->
     <section id="merch">
       <h2>Merch</h2>
-      <p>Wear the broadcast: hoodies, tees, and glitch artifacts from future drops. Minimal, bright, and loud enough to bend the signal.</p>
+      <p>
+        Wear the broadcast: hoodies, tees, and glitch artifacts from future drops.
+        Minimal, bright, and loud enough to bend the signal.
+      </p>
     </section>
   </main>
 
