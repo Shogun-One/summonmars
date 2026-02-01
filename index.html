@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Summon Mars</title>
+  <meta name="description" content="Summon Mars • Audio, code, and cosmic signals from another timeline." />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="bg-orbit"></div>
+
+  <div class="frame">
+    <header class="top-bar">
+      <div class="brand-mark">
+        <span class="brand-dot"></span>
+        <span class="brand-text">SUMMON MARS</span>
+      </div>
+      <div class="tagline-pill">audio • code • cosmos</div>
+    </header>
+
+    <main class="layout">
+      <section class="hero">
+        <p class="hero-label">signal: online</p>
+        <h1 class="hero-title">Minimal noise.<br /><span>Maximum signal.</span></h1>
+        <p class="hero-sub">
+          Summon Mars is a channel for future-tilted sound, systems, and stories.
+          No fluff, just the transmission.
+        </p>
+
+        <div class="hero-actions">
+          <a href="#listen" class="btn primary">Listen</a>
+          <a href="#links" class="btn ghost">Enter portal</a>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <span class="panel-label">latest transmission</span>
+          <span class="panel-status">live</span>
+        </div>
+
+        <div class="panel-body" id="listen">
+          <h2 class="track-title">Hello World</h2>
+          <p class="track-meta">single • Summon Mars</p>
+
+          <!-- Replace this iframe with your real player embed (Spotify, Apple, etc.) -->
+          <div class="player-placeholder">
+            <div class="player-bar">
+              <span class="player-dot"></span>
+              <span class="player-line"></span>
+            </div>
+            <p class="player-hint">Embed your Spotify / Apple / YouTube player here.</p>
+          </div>
+        </div>
+
+        <div class="panel-footer" id="links">
+          <p class="panel-note">Primary links</p>
+          <div class="link-grid">
+            <a href="#" class="mini-link">Spotify</a>
+            <a href="#" class="mini-link">Apple Music</a>
+            <a href="#" class="mini-link">YouTube Music</a>
+            <a href="#" class="mini-link">Instagram</a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <span class="footer-text">© <span id="year"></span> Summon Mars</span>
+      <span class="footer-divider">•</span>
+      <span class="footer-text">Raleigh · Earth · Sector 919</span>
+    </footer>
+  </div>
+
+  <script>
+    // Set current year in footer
+    document.getElementById("year").textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
