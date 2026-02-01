@@ -1,4 +1,4 @@
-/* ===== Global Reset-ish ===== */
+/* ===== Global Reset ===== */
 *,
 *::before,
 *::after {
@@ -13,12 +13,12 @@ body {
   scroll-behavior: smooth;
 }
 
-/* ===== Base Theme ===== */
+/* ===== Theme Vars ===== */
 :root {
   --bg-main: #050509;
   --bg-alt-1: #0a0a16;
   --bg-alt-2: #060910;
-  --accent: #7bffb7;      /* Summon Mars greenish glow */
+  --accent: #7bffb7;
   --accent-soft: #7bffb722;
   --text-main: #f5f5f5;
   --text-muted: #b3b3c2;
@@ -84,9 +84,10 @@ body {
 
 /* ===== Layout: Sections ===== */
 main {
-  margin-top: 64px; /* clear the fixed header */
+  margin-top: 64px; /* clear fixed header */
 }
 
+/* Default: desktop/tablet layout */
 .full-section {
   min-height: calc(100vh - 64px);
   padding: 72px 16px 96px;
@@ -102,7 +103,7 @@ main {
   text-align: center;
 }
 
-/* Different vibes per section */
+/* Background vibes */
 .full-section--music {
   background:
     radial-gradient(circle at top, #261438 0, transparent 55%),
@@ -148,7 +149,6 @@ main {
   border: 1px solid rgba(255, 255, 255, 0.04);
 }
 
-/* Just in case any iframe misbehaves */
 .embed-wrapper iframe {
   display: block;
   width: 100%;
@@ -187,8 +187,8 @@ main {
   color: #dfffee;
 }
 
-/* ===== Responsive tweaks ===== */
-@media (max-width: 768px) {
+/* ===== RESPONSIVE: Tablet & Down ===== */
+@media (max-width: 900px) {
   .site-header {
     padding: 0 16px;
   }
@@ -207,6 +207,34 @@ main {
   }
 }
 
+/* ===== RESPONSIVE: Mobile-first layout ===== */
+@media (max-width: 768px) {
+  /* Don’t force full viewport height on smaller screens */
+  .full-section {
+    min-height: auto;
+    padding-top: 72px;
+    padding-bottom: 72px;
+    align-items: flex-start;
+  }
+
+  .section-inner {
+    text-align: left;
+  }
+
+  .section-inner h1 {
+    text-align: left;
+  }
+
+  .section-inner p {
+    text-align: left;
+  }
+
+  .down-arrow {
+    margin-top: 24px;
+  }
+}
+
+/* Extra small devices */
 @media (max-width: 480px) {
   .logo {
     font-size: 0.8rem;
@@ -222,4 +250,3 @@ main {
     font-size: 1.2rem;
   }
 }
-
