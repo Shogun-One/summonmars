@@ -5,16 +5,18 @@
   <title>Summon Mars</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- Metal-ish but safe font -->
-  <link href="https://fonts.googleapis.com/css2?family=Metal+Mania&family=Oswald:wght@300;400;500&display=swap" rel="stylesheet">
+  <!-- Fonts: clean body + bold, sci-fi/industrial logo font -->
+  <link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Oswald:wght@300;400;500&display=swap" rel="stylesheet">
 
   <style>
+    /* RESET */
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
     }
 
+    /* THEME COLORS */
     :root {
       --aurora-1: #77ffef;
       --aurora-2: #7cff5f;
@@ -26,6 +28,7 @@
       --accent: #fffd9a;
     }
 
+    /* BASE */
     body {
       font-family: "Oswald", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
       background: radial-gradient(circle at 10% 0%, #05091a 0%, #000000 60%, #02030a 100%);
@@ -37,16 +40,18 @@
       background-attachment: fixed;
     }
 
-    /* Aurora background */
+    /* AURORA BACKGROUND */
     .aurora-layer {
       position: fixed;
       inset: 0;
       pointer-events: none;
       z-index: -1;
-      background: radial-gradient(circle at 20% 0%, rgba(119, 255, 239, 0.5) 0, transparent 45%),
-                  radial-gradient(circle at 80% 10%, rgba(124, 255, 95, 0.5) 0, transparent 50%),
-                  radial-gradient(circle at 10% 80%, rgba(255, 102, 255, 0.4) 0, transparent 55%),
-                  radial-gradient(circle at 90% 70%, rgba(0, 195, 255, 0.45) 0, transparent 55%);
+
+      background:
+        radial-gradient(circle at 20% 0%, rgba(119, 255, 239, 0.5) 0, transparent 45%),
+        radial-gradient(circle at 80% 10%, rgba(124, 255, 95, 0.5) 0, transparent 50%),
+        radial-gradient(circle at 10% 80%, rgba(255, 102, 255, 0.4) 0, transparent 55%),
+        radial-gradient(circle at 90% 70%, rgba(0, 195, 255, 0.45) 0, transparent 55%);
       mix-blend-mode: screen;
       animation: aurora-shift 20s ease-in-out infinite alternate;
       opacity: 0.9;
@@ -67,28 +72,27 @@
       }
     }
 
-    /* HERO AREA */
-
+    /* HERO TOP AREA — tightened + raised */
     .hero {
-      min-height: 45vh;              /* raised everything toward top */
+      min-height: 45vh;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: flex-start;    /* top-align instead of center */
+      justify-content: flex-start;
       text-align: center;
       position: relative;
-      padding: 1.5rem 1.5rem 1rem;    /* less padding overall */
+      padding: 1.5rem 1.5rem 1rem;
       margin-top: 0.5rem;
     }
 
-    /* top nav in the middle */
+    /* TOP NAV */
     .main-nav {
       display: flex;
       gap: 3rem;
       justify-content: center;
       align-items: center;
-      margin-top: 0.5rem;             /* closer to top */
-      margin-bottom: 0.8rem;          /* tighter under nav */
+      margin-top: 0.5rem;
+      margin-bottom: 0.8rem;
       font-size: clamp(0.9rem, 1.5vw, 1.1rem);
       letter-spacing: 0.25em;
       text-transform: uppercase;
@@ -124,49 +128,57 @@
       transform: scaleX(1);
     }
 
-    /* SUMMON MARS LOGO TEXT */
-
+    /* LOGO BLOCK */
     .logo-wrap {
       position: relative;
       display: inline-block;
+      margin-top: 0.3rem;
     }
 
+    /* SUMMON MARS — new 3D style */
     .logo {
-      font-family: "Metal Mania", system-ui, sans-serif;
+      font-family: "Black Ops One", system-ui, sans-serif;
       text-transform: uppercase;
-      font-size: clamp(3rem, 7vw, 5.5rem);
-      letter-spacing: 0.35em;
-      padding-inline: 0.1em;
-      color: var(--text-main);
+      font-size: clamp(3.2rem, 7.4vw, 5.8rem);
+      letter-spacing: 0.32em;
+      padding-inline: 0.15em;
+      color: #ffffff;
+
+      /* stacked shadows for depth + neon glow */
       text-shadow:
-        0 0 12px rgba(0, 255, 255, 0.85),
-        0 0 32px rgba(124, 255, 95, 0.85),
-        0 0 52px rgba(255, 102, 255, 0.9),
-        0 0 72px rgba(0, 195, 255, 1);
-      transform: skewX(-8deg);
-      position: relative;
-      z-index: 2;
+        0 1px 0 #040711,
+        0 2px 0 #050814,
+        0 3px 0 #060a18,
+        0 4px 0 #060a18,
+        0 6px 6px rgba(0, 0, 0, 0.9),
+        0 0 14px rgba(119, 255, 239, 0.75),
+        0 0 26px rgba(124, 255, 95, 0.85),
+        0 0 40px rgba(255, 102, 255, 0.9),
+        0 0 60px rgba(0, 195, 255, 1);
+      transform: perspective(700px) rotateX(7deg) skewX(-4deg);
     }
 
-    /* subtle “energy beam” behind the text */
+    /* glow band behind logo */
     .logo-glow {
       position: absolute;
-      inset: 35% -10%;
-      background: radial-gradient(ellipse at center,
-        rgba(255, 255, 255, 0.9) 0%,
-        rgba(124, 255, 95, 0.35) 35%,
-        rgba(0, 195, 255, 0.25) 60%,
-        transparent 85%);
+      inset: 40% -12%;
+      background: radial-gradient(
+        ellipse at center,
+        rgba(255, 255, 255, 0.45) 0%,
+        rgba(124, 255, 95, 0.35) 30%,
+        rgba(0, 195, 255, 0.25) 55%,
+        transparent 85%
+      );
       filter: blur(18px);
       opacity: 0.9;
-      z-index: 1;
+      z-index: -1;
       mix-blend-mode: screen;
     }
 
     .logo-bottom-glow {
       position: absolute;
-      left: -10%;
-      right: -10%;
+      left: -12%;
+      right: -12%;
       bottom: -0.8rem;
       height: 3px;
       background: linear-gradient(90deg, var(--aurora-2), var(--aurora-3), var(--aurora-4));
@@ -178,7 +190,7 @@
     }
 
     .hero-tagline {
-      margin-top: 1.2rem;
+      margin-top: 1.1rem;
       font-size: clamp(0.9rem, 1.3vw, 1.05rem);
       letter-spacing: 0.18em;
       text-transform: uppercase;
@@ -186,8 +198,7 @@
       opacity: 0.9;
     }
 
-    /* MAIN SECTIONS */
-
+    /* MAIN CONTENT */
     main {
       padding: 1.5rem 1.5rem 4rem;
       max-width: 1100px;
@@ -195,8 +206,9 @@
       margin: 0 auto;
     }
 
+    /* SECTION SPACING — tightened */
     section {
-      padding: 2.2rem 0 2rem;         /* tighter vertical spacing */
+      padding: 2.2rem 0 2rem;
       border-top: 1px solid rgba(255, 255, 255, 0.08);
     }
 
@@ -223,6 +235,7 @@
       margin-top: 1.5rem;
       border-radius: 16px;
       overflow: hidden;
+
       box-shadow:
         0 10px 30px rgba(0, 0, 0, 0.75),
         0 0 25px rgba(0, 255, 255, 0.25);
@@ -234,6 +247,7 @@
       width: 100%;
     }
 
+    /* FOOTER */
     footer {
       text-align: center;
       padding: 1.5rem 1rem 2.5rem;
@@ -241,8 +255,7 @@
       color: rgba(255, 255, 255, 0.4);
     }
 
-    /* RESPONSIVE */
-
+    /* MOBILE FIXES */
     @media (max-width: 600px) {
       .main-nav {
         gap: 1.5rem;
@@ -251,7 +264,8 @@
 
       .logo {
         letter-spacing: 0.22em;
-        transform: skewX(-6deg);
+        transform: perspective(650px) rotateX(6deg) skewX(-3deg);
+        font-size: clamp(2.6rem, 9vw, 4.4rem);
       }
 
       .logo-bottom-glow {
