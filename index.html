@@ -12,7 +12,6 @@
     *::after {
       box-sizing: border-box;
     }
-
     html,
     body {
       margin: 0;
@@ -63,7 +62,6 @@
       backdrop-filter: blur(10px);
       z-index: 100;
     }
-
     .logo {
       font-weight: 800;
       letter-spacing: 0.16em;
@@ -71,17 +69,14 @@
       font-size: 0.95rem;
       color: var(--accent);
     }
-
     .logo span {
       color: var(--accent-strong);
     }
-
     .site-nav {
       display: flex;
       gap: 18px;
       font-size: 0.9rem;
     }
-
     .site-nav a {
       color: var(--text-muted);
       text-decoration: none;
@@ -89,7 +84,6 @@
       border-bottom: 2px solid transparent;
       transition: color 0.18s ease, border-color 0.18s ease;
     }
-
     .site-nav a:hover,
     .site-nav a:focus-visible {
       color: var(--accent-strong);
@@ -97,49 +91,37 @@
       outline: none;
     }
 
-    /* ========== Layout: sections ========== */
+    /* ========== Layout ========== */
     main {
       margin-top: 64px; /* clear header */
     }
-
-    .section {
+    section {
       padding: 72px 16px 96px;
     }
-
     .section-inner {
       width: 100%;
       max-width: 1120px;
       margin: 0 auto;
     }
 
-    /* Hero-style first section (Music) */
-    .section--music {
+    /* ========== Music / Hero ========== */
+    #music {
       min-height: calc(100vh - 64px);
       display: flex;
       align-items: center;
     }
-
     .music-grid {
       display: grid;
       grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
       gap: 32px;
       align-items: center;
     }
-
-    /* If screen too small this will collapse below via media query */
-    .music-copy h1 {
-      font-size: clamp(2.5rem, 4vw + 1rem, 3.5rem);
-      margin: 0 0 10px;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-    }
-
-    .music-copy .pill {
+    .pill {
       display: inline-flex;
       align-items: center;
       gap: 6px;
       padding: 4px 12px;
-      border-radius: 999px;
+      border-radius: var(--radius-pill);
       border: 1px solid var(--accent-soft);
       background: rgba(8, 16, 18, 0.9);
       color: var(--accent-strong);
@@ -148,13 +130,17 @@
       letter-spacing: 0.14em;
       margin-bottom: 10px;
     }
-
+    .music-copy h1 {
+      font-size: clamp(2.5rem, 4vw + 1rem, 3.5rem);
+      margin: 0 0 10px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
     .music-copy p {
       margin: 0 0 16px;
       color: var(--text-muted);
       font-size: 0.98rem;
     }
-
     .music-copy .sub {
       font-size: 0.82rem;
       opacity: 0.9;
@@ -166,7 +152,6 @@
       gap: 10px 14px;
       margin-top: 18px;
     }
-
     .btn {
       border-radius: var(--radius-pill);
       border: 1px solid var(--accent);
@@ -182,374 +167,4 @@
       box-shadow: 0 14px 34px rgba(0, 0, 0, 0.7);
       transition:
         transform 0.16s ease,
-        box-shadow 0.16s ease,
-        background 0.16s ease,
-        border-color 0.16s ease,
-        color 0.16s ease;
-    }
-
-    .btn span.icon {
-      font-size: 1rem;
-    }
-
-    .btn:hover,
-    .btn:focus-visible {
-      outline: none;
-      transform: translateY(1px);
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.85);
-      background: radial-gradient(circle at 0 0, var(--accent-soft), #070a10);
-      border-color: var(--accent-strong);
-    }
-
-    .btn-secondary {
-      border-color: var(--border-subtle);
-      background: rgba(7, 8, 16, 0.95);
-      color: var(--text-main);
-      box-shadow: 0 10px 26px rgba(0, 0, 0, 0.6);
-    }
-
-    .btn-secondary:hover,
-    .btn-secondary:focus-visible {
-      border-color: var(--accent-soft);
-      color: var(--accent-strong);
-    }
-
-    /* Music players panel */
-    .player-panel {
-      background: linear-gradient(135deg, #101223, #070914);
-      border-radius: var(--radius-xl);
-      border: 1px solid rgba(255, 255, 255, 0.04);
-      padding: 18px 18px 20px;
-      box-shadow: var(--shadow-soft);
-    }
-
-    .player-panel h2 {
-      margin: 0 0 8px;
-      font-size: 0.9rem;
-      text-transform: uppercase;
-      letter-spacing: 0.14em;
-      color: var(--text-muted);
-    }
-
-    .player-panel p {
-      margin: 0 0 18px;
-      font-size: 0.86rem;
-      color: var(--text-muted);
-    }
-
-    .player-stack {
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-    }
-
-    .embed-wrapper {
-      border-radius: 14px;
-      overflow: hidden;
-      border: 1px solid rgba(255, 255, 255, 0.05);
-    }
-
-    .embed-wrapper iframe {
-      display: block;
-      width: 100%;
-      height: 100%;
-    }
-
-    /* ========== Videos Section ========== */
-    .section--videos {
-      background: radial-gradient(circle at top left, #201434 0, transparent 55%),
-        radial-gradient(circle at bottom right, #0b1f33 0, transparent 60%),
-        var(--bg-surface);
-      border-top: 1px solid var(--border-subtle);
-      border-bottom: 1px solid var(--border-subtle);
-    }
-
-    .section-heading {
-      text-align: center;
-      margin-bottom: 32px;
-    }
-
-    .section-heading h2 {
-      margin: 0 0 6px;
-      text-transform: uppercase;
-      letter-spacing: 0.18em;
-      font-size: 0.9rem;
-      color: var(--accent-strong);
-    }
-
-    .section-heading h3 {
-      margin: 0 0 6px;
-      font-size: 1.8rem;
-    }
-
-    .section-heading p {
-      margin: 0;
-      color: var(--text-muted);
-      font-size: 0.95rem;
-    }
-
-    .video-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 20px;
-    }
-
-    .video-card {
-      background: rgba(7, 10, 20, 0.94);
-      border-radius: var(--radius-lg);
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      padding: 14px 14px 16px;
-      box-shadow: 0 16px 38px rgba(0, 0, 0, 0.7);
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .video-thumb {
-      background: radial-gradient(circle at 10% 0, #7bffb722, transparent 60%),
-        #05060d;
-      border-radius: 12px;
-      aspect-ratio: 16 / 9;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--accent-strong);
-      font-size: 0.85rem;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      border: 1px solid rgba(255, 255, 255, 0.04);
-    }
-
-    .video-card h4 {
-      margin: 0;
-      font-size: 0.95rem;
-    }
-
-    .video-card p {
-      margin: 0;
-      font-size: 0.85rem;
-      color: var(--text-muted);
-    }
-
-    /* ========== Merch Section ========== */
-    .section--merch {
-      background: radial-gradient(circle at top, #222b26 0, transparent 55%),
-        radial-gradient(circle at bottom, #1a1428 0, transparent 60%),
-        var(--bg-alt);
-    }
-
-    .merch-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 20px;
-    }
-
-    .merch-card {
-      background: rgba(6, 8, 14, 0.96);
-      border-radius: var(--radius-lg);
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      padding: 14px 14px 16px;
-      box-shadow: 0 16px 38px rgba(0, 0, 0, 0.7);
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .merch-thumb {
-      border-radius: 12px;
-      aspect-ratio: 1 / 1;
-      background: radial-gradient(circle at 20% 0, #7bffb722, transparent 60%),
-        #05060d;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.9rem;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--accent-strong);
-      border: 1px solid rgba(255, 255, 255, 0.04);
-    }
-
-    .merch-card h4 {
-      margin: 0;
-      font-size: 0.95rem;
-    }
-
-    .merch-card p {
-      margin: 0;
-      font-size: 0.85rem;
-      color: var(--text-muted);
-    }
-
-    /* ========== Scroll arrows (section-level backup) ========== */
-    .section-footer {
-      margin-top: 28px;
-      text-align: center;
-    }
-
-    .down-arrow {
-      border-radius: var(--radius-pill);
-      border: 1px solid var(--accent);
-      width: 46px;
-      height: 46px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.3rem;
-      background: radial-gradient(circle at 30% 0, var(--accent-soft), #050710);
-      color: var(--accent-strong);
-      cursor: pointer;
-      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.78);
-      transition:
-        transform 0.14s ease,
-        box-shadow 0.14s ease,
-        border-color 0.14s ease,
-        background 0.14s ease;
-    }
-
-    .down-arrow:hover,
-    .down-arrow:focus-visible {
-      outline: none;
-      transform: translateY(1px);
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.86);
-      border-color: var(--accent-strong);
-      background: radial-gradient(circle at 30% 0, var(--accent-soft), #05060c);
-    }
-
-    /* ========== Responsive ========== */
-    @media (max-width: 900px) {
-      .site-header {
-        padding: 0 16px;
-      }
-
-      .site-nav {
-        gap: 12px;
-        font-size: 0.78rem;
-      }
-
-      .music-grid {
-        grid-template-columns: minmax(0, 1fr);
-      }
-
-      .section--music {
-        min-height: auto;
-        padding-top: 80px;
-        padding-bottom: 80px;
-      }
-
-      .section {
-        padding: 72px 16px 80px;
-      }
-
-      .video-grid,
-      .merch-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-    }
-
-    @media (max-width: 640px) {
-      .logo {
-        letter-spacing: 0.12em;
-        font-size: 0.82rem;
-      }
-
-      .section {
-        padding: 64px 14px 72px;
-      }
-
-      .video-grid,
-      .merch-grid {
-        grid-template-columns: minmax(0, 1fr);
-      }
-
-      .music-copy h1 {
-        font-size: 2.1rem;
-      }
-
-      .primary-actions {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-    }
-  </style>
-</head>
-<body>
-  <header class="site-header">
-    <div class="logo">SUMMON <span>MARS</span></div>
-    <nav class="site-nav">
-      <a href="#music">Music</a>
-      <a href="#videos">Videos</a>
-      <a href="#merch">Merch</a>
-    </nav>
-  </header>
-
-  <main>
-    <!-- ========== MUSIC / HERO ========== -->
-    <section id="music" class="section section--music">
-      <div class="section-inner">
-        <div class="music-grid">
-          <div class="music-copy">
-            <div class="pill">
-              <span>●</span>
-              <span>Signal online</span>
-            </div>
-            <h1>Music</h1>
-            <p>Beats, bangers, and brain rewiring from the Summon Mars frequency field.</p>
-            <p class="sub">Stream across the big three, or drop into the portal below and let the algorithms panic.</p>
-
-            <div class="primary-actions">
-              <button class="btn down-arrow-trigger" data-target="#videos">
-                <span class="icon">↓</span>
-                Jump to videos
-              </button>
-              <button class="btn btn-secondary down-arrow-trigger" data-target="#merch">
-                <span class="icon">★</span>
-                Skip to merch
-              </button>
-            </div>
-          </div>
-
-          <aside class="player-panel">
-            <h2>Stream Summon Mars</h2>
-            <p>Locked in across platforms. Choose your gate:</p>
-            <div class="player-stack">
-              <div class="embed-wrapper">
-                <iframe
-                  style="border-radius:12px"
-                  src="https://open.spotify.com/embed/artist/5GohNtXpBBkQyOfYpweSnO?utm_source=generator"
-                  width="100%"
-                  height="180"
-                  frameborder="0"
-                  allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-                  loading="lazy">
-                </iframe>
-              </div>
-
-              <div class="embed-wrapper">
-                <iframe
-                  allow="autoplay *; encrypted-media *; fullscreen *"
-                  frameborder="0"
-                  height="160"
-                  style="width:100%;overflow:hidden;border-radius:12px;"
-                  sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-top-navigation-by-user-activation"
-                  src="https://embed.music.apple.com/us/artist/summon-mars/1740370218">
-                </iframe>
-              </div>
-
-              <div class="embed-wrapper">
-                <iframe
-                  style="border:0; border-radius:12px;"
-                  width="100%"
-                  height="160"
-                  src="https://music.amazon.com/embed/artists/B0CQFKRK39?do=play"
-                  loading="lazy"
-                  allow="autoplay; encrypted-media">
-                </iframe>
-              </div>
-            </div>
-          </aside>
-        </div>
-
-        <div class="section-footer">
-          <button class="down-arrow" data-target="#videos" aria-label="Go to Videos">
-            ↓
+        box-sh
