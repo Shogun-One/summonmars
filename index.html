@@ -28,18 +28,7 @@
           </p>
 
           <div class="music-cta">
-            <!-- Spotify badge -->
-            <a
-              class="btn btn-spotify"
-              href="https://open.spotify.com/artist/5GohNtXpBBkQyOfYpweSnO?utm_source=website"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <span class="dot"></span>
-              <span>Listen on Spotify</span>
-            </a>
-
-            <!-- Bubble links -->
+            <!-- Bubble links only on the left -->
             <div class="music-bubbles">
               <a
                 class="bubble-link"
@@ -71,16 +60,27 @@
             <h2>Featured tracks</h2>
           </div>
           <p class="panel-text">
-            Drop in on Spotify for the full catalog. Apple and Amazon links above if you’re living in those ecosystems.
+            Drop in on Spotify for the full catalog. Apple and Amazon links live on the left if that’s your ecosystem.
           </p>
 
-          <!-- Optional: keep the Spotify embed as a visual block -->
+          <!-- BIG SPOTIFY BADGE INSIDE THE BOX -->
+          <a
+            class="btn btn-spotify btn-spotify-wide"
+            href="https://open.spotify.com/artist/5GohNtXpBBkQyOfYpweSnO?utm_source=website"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <span class="dot"></span>
+            <span>Listen on Spotify</span>
+          </a>
+
+          <!-- Optional embedded player under the badge -->
           <div class="embed-wrapper">
             <iframe
               style="border-radius: 16px"
               src="https://open.spotify.com/embed/artist/5GohNtXpBBkQyOfYpweSnO?utm_source=generator"
               width="100%"
-              height="260"
+              height="220"
               frameborder="0"
               allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
               loading="lazy"
@@ -103,7 +103,6 @@
 
         <div class="video-layout">
           <div class="video-main">
-            <!-- Replace this iframe with your actual channel / playlist embed when ready -->
             <div class="embed-wrapper video-embed">
               <iframe
                 width="100%"
@@ -126,7 +125,7 @@
               <li>Behind-the-scenes experiments and future drops</li>
             </ul>
             <p class="tiny-note">
-              Swap this embed for your official channel / playlist link once it’s locked in.
+              Swap this embed for your official channel / playlist once everything is locked in.
             </p>
           </aside>
         </div>
@@ -140,4 +139,34 @@
           <p class="eyebrow">Signal wear</p>
           <h2>Merch</h2>
           <p class="section-sub">
-            Wear the broadcast. Minimal designs, glitch-forward energy, and future capsule
+            Wear the broadcast. Minimal designs, glitch-forward energy, and future capsule drops.
+          </p>
+        </header>
+
+        <div class="merch-grid">
+          <article class="merch-card">
+            <div class="merch-thumb">CORE LOGO</div>
+            <h3>Core logo series</h3>
+            <p>Clean signal on hoodies and tees. Day-one identity pieces.</p>
+            <a class="card-link" href="#" aria-disabled="true">Coming soon</a>
+          </article>
+
+          <article class="merch-card">
+            <div class="merch-thumb">GLITCH RUN</div>
+            <h3>Glitch variants</h3>
+            <p>Distorted prints in small batches. Once they’re gone, they’re ghosts.</p>
+            <a class="card-link" href="#" aria-disabled="true">Coming soon</a>
+          </article>
+
+          <article class="merch-card">
+            <div class="merch-thumb">FUTURE DROP</div>
+            <h3>Future capsules</h3>
+            <p>Collabs, capsule drops, and weird experiments from the Mars lab.</p>
+            <a class="card-link" href="#" aria-disabled="true">Coming soon</a>
+          </article>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
