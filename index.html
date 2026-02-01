@@ -4,14 +4,12 @@
   <meta charset="UTF-8" />
   <title>Summon Mars</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-
-  <!-- Point this to your existing CSS file -->
+  <!-- Your CSS -->
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <header class="site-header">
     <div class="logo">Summon Mars</div>
-
     <nav class="site-nav">
       <a href="#music">Music</a>
       <a href="#videos">Videos</a>
@@ -26,13 +24,28 @@
         <h1>Music</h1>
         <p>Beats, bangers, and brain rewiring.</p>
 
-        <!-- Drop your Spotify / Apple / etc embeds here -->
-        <!-- Example:
-        <div class="grid">
-          <iframe src="SPOTIFY_EMBED_URL"></iframe>
-          <iframe src="APPLE_MUSIC_EMBED_URL"></iframe>
+        <div class="embed-wrapper">
+          <iframe style="border-radius:12px"
+            src="https://open.spotify.com/embed/artist/5GohNtXpBBkQyOfYpweSnO?utm_source=generator"
+            width="100%" height="380" frameborder="0"
+            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+            loading="lazy"></iframe>
         </div>
-        -->
+
+        <div class="embed-wrapper">
+          <iframe allow="autoplay *; encrypted-media *; fullscreen *" frameborder="0"
+            height="400" style="width:100%;max-width:660px;overflow:hidden;border-radius:12px;"
+            sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-top-navigation-by-user-activation"
+            src="https://embed.music.apple.com/us/artist/summon-mars/1740370218"></iframe>
+        </div>
+
+        <div class="embed-wrapper">
+          <iframe style="border:0; border-radius:12px;"
+            width="100%" height="400"
+            src="https://music.amazon.com/embed/artists/B0CQFKRK39?do=play"
+            loading="lazy"
+            allow="autoplay; encrypted-media"></iframe>
+        </div>
 
         <button class="down-arrow" data-target="#videos" aria-label="Go to Videos">
           ↓
@@ -60,7 +73,7 @@
         <h1>Merch</h1>
         <p>Wear the signal. Broadcast the glitch.</p>
 
-        <!-- DK merch store links, images, buttons, whatever you want here -->
+        <!-- Plug in your merch store / links / images here -->
 
         <button class="down-arrow" data-target="#music" aria-label="Back to Music">
           ↑
@@ -70,15 +83,12 @@
   </main>
 
   <script>
-    // Smooth scroll for the arrow buttons
-    document.querySelectorAll(".down-arrow").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const target = document.querySelector(btn.dataset.target);
-        if (target) {
-          target.scrollIntoView({ behavior: "smooth" });
-        }
-      });
-    });
-  </script>
-</body>
-</html>
+    // Smooth scroll for arrow buttons
+    document.addEventListener("click", function (e) {
+      const btn = e.target.closest(".down-arrow");
+      if (!btn) return;
+
+      const targetSelector = btn.getAttribute("data-target");
+      if (!targetSelector) return;
+
+      const target = do
