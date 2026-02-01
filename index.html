@@ -70,14 +70,15 @@
     /* HERO AREA */
 
     .hero {
-      min-height: 70vh;
+      min-height: 45vh;              /* raised everything toward top */
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
+      justify-content: flex-start;    /* top-align instead of center */
       text-align: center;
       position: relative;
-      padding: 2.5rem 1.5rem 3rem;
+      padding: 1.5rem 1.5rem 1rem;    /* less padding overall */
+      margin-top: 0.5rem;
     }
 
     /* top nav in the middle */
@@ -86,7 +87,8 @@
       gap: 3rem;
       justify-content: center;
       align-items: center;
-      margin-bottom: 1.5rem;
+      margin-top: 0.5rem;             /* closer to top */
+      margin-bottom: 0.8rem;          /* tighter under nav */
       font-size: clamp(0.9rem, 1.5vw, 1.1rem);
       letter-spacing: 0.25em;
       text-transform: uppercase;
@@ -187,14 +189,14 @@
     /* MAIN SECTIONS */
 
     main {
-      padding: 2rem 1.5rem 4rem;
+      padding: 1.5rem 1.5rem 4rem;
       max-width: 1100px;
       width: 100%;
       margin: 0 auto;
     }
 
     section {
-      padding: 4rem 0 3rem;
+      padding: 2.2rem 0 2rem;         /* tighter vertical spacing */
       border-top: 1px solid rgba(255, 255, 255, 0.08);
     }
 
@@ -283,7 +285,6 @@
       <h2>Music</h2>
       <p>Listen to the latest Summon Mars transmissions: glitchy hip-hop pulses, cinematic synth storms, and everything humming between.</p>
 
-      <!-- Replace this with whatever embed you want -->
       <div class="embed-wrapper">
         <iframe
           src="https://open.spotify.com/embed/album/4B1aurXCA20ZpCJ2PIAXjt?utm_source=generator"
@@ -298,7 +299,7 @@
     <section id="videos">
       <h2>Videos</h2>
       <p>Portals, shorts, and weird visuals from the Summon Mars universe. Broadcast from the static between channels.</p>
-      <!-- You can drop a YouTube or other embed here later -->
+      <!-- Add YouTube or other embeds here later -->
     </section>
 
     <!-- MERCH SECTION -->
@@ -310,7 +311,7 @@
   </main>
 
   <footer>
-    &copy; <!-- put current year here --> Summon Mars. All rights reserved.
+    &copy; Summon Mars. All rights reserved.
   </footer>
 </body>
 </html>
