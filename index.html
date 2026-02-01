@@ -1,3 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Summon Mars</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="logo">Summon Mars</div>
+    <nav class="site-nav">
+      <a href="#music">Music</a>
+      <a href="#videos">Videos</a>
+      <a href="#merch">Merch</a>
+    </nav>
+  </header>
+
+  <main>
+    <!-- SECTION 1: MUSIC -->
+    <section id="music" class="full-section full-section--music">
+      <div class="section-inner">
+        <h1>Music</h1>
+        <p>Beats, bangers, and brain rewiring.</p>
+
+        <div class="embed-wrapper">
+          <iframe
+            style="border-radius:12px"
+            src="https://open.spotify.com/embed/artist/5GohNtXpBBkQyOfYpweSnO?utm_source=generator"
+            width="100%"
+            height="380"
+            frameborder="0"
+            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+            loading="lazy">
+          </iframe>
+        </div>
+
+        <div class="embed-wrapper">
+          <iframe
+            allow="autoplay *; encrypted-media *; fullscreen *"
+            frameborder="0"
+            height="400"
+            style="width:100%;max-width:660px;overflow:hidden;border-radius:12px;"
+            sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-top-navigation-by-user-activation"
+            src="https://embed.music.apple.com/us/artist/summon-mars/1740370218">
+          </iframe>
+        </div>
+
+        <div class="embed-wrapper">
+          <iframe
+            style="border:0; border-radius:12px;"
+            width="100%"
+            height="400"
+            src="https://music.amazon.com/embed/artists/B0CQFKRK39?do=play"
+            loading="lazy"
+            allow="autoplay; encrypted-media">
+          </iframe>
+        </div>
+
+        <button class="down-arrow" data-target="#videos" aria-label="Go to Videos">
+          ↓
+        </button>
+      </div>
+    </section>
+
+    <!-- SECTION 2: VIDEOS -->
+    <section id="videos" class="full-section full-section--videos">
+      <div class="section-inner">
+        <h1>Videos</h1>
+        <p>Portals, stories, and visual weirdness.</p>
+
+        <!-- Drop your YouTube / Shorts / trailer embeds here -->
+
+        <button class="down-arrow" data-target="#merch" aria-label="Go to Merch">
+          ↓
+        </button>
+      </div>
+    </section>
+
+    <!-- SECTION 3: MERCH -->
+    <section id="merch" class="full-section full-section--merch">
+      <div class="section-inner">
+        <h1>Merch</h1>
+        <p>Wear the signal. Broadcast the glitch.</p>
+
+        <!-- Plug in your merch store / links / images here -->
+
+        <button class="down-arrow" data-target="#music" aria-label="Back to Music">
+          ↑
+        </button>
+      </div>
+    </section>
+  </main>
+
   <script>
     // Smooth scroll for arrow buttons
     document.addEventListener("click", function (e) {
