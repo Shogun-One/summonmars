@@ -40,12 +40,12 @@
       background-attachment: fixed;
     }
 
-    /* AURORA BACKGROUND */
+    /* GLOBAL AURORA BACKGROUND */
     .aurora-layer {
       position: fixed;
       inset: 0;
       pointer-events: none;
-      z-index: -1;
+      z-index: -10;
       background:
         radial-gradient(circle at 20% 0%, rgba(119, 255, 239, 0.5) 0, transparent 45%),
         radial-gradient(circle at 80% 10%, rgba(124, 255, 95, 0.5) 0, transparent 50%),
@@ -71,7 +71,7 @@
       }
     }
 
-    /* HERO TOP AREA — tightened + raised */
+    /* HERO TOP AREA — raised & tightened */
     .hero {
       min-height: 35vh;
       display: flex;
@@ -80,8 +80,9 @@
       justify-content: flex-start;
       text-align: center;
       position: relative;
-      padding: 1rem 1.5rem 0.5rem;
+      padding: 0.8rem 1.5rem 0.4rem;
       margin-top: 0.25rem;
+      z-index: 0;
     }
 
     /* TOP NAV */
@@ -130,7 +131,104 @@
     .logo-wrap {
       position: relative;
       display: inline-block;
-      margin-top: 0.2rem;
+      margin-top: 0.15rem;
+      padding-inline: 0.25em;
+      z-index: 1;
+    }
+
+    /* LOCAL AURORA AROUND THE NAME */
+
+    /* Big aurora bloom around the logo */
+    .logo-aurora-ring {
+      position: absolute;
+      inset: -130% -40%;
+      background:
+        radial-gradient(circle at 30% 0%, rgba(119, 255, 239, 0.75) 0%, transparent 45%),
+        radial-gradient(circle at 70% 10%, rgba(124, 255, 95, 0.8) 0%, transparent 50%),
+        radial-gradient(circle at 40% 90%, rgba(255, 102, 255, 0.75) 0%, transparent 55%);
+      filter: blur(22px);
+      opacity: 0.95;
+      mix-blend-mode: screen;
+      z-index: -2;
+      animation: logo-aurora-pulse 14s ease-in-out infinite alternate;
+    }
+
+    @keyframes logo-aurora-pulse {
+      0% {
+        transform: scale(1) translateY(0);
+        opacity: 0.85;
+      }
+      50% {
+        transform: scale(1.05) translateY(-6px);
+        opacity: 1;
+      }
+      100% {
+        transform: scale(0.97) translateY(4px);
+        opacity: 0.9;
+      }
+    }
+
+    /* Vertical aurora streaks "falling" behind logo */
+    .logo-aurora-streaks {
+      position: absolute;
+      inset: -180% -30%;
+      background:
+        linear-gradient(
+          180deg,
+          rgba(119, 255, 239, 0) 0%,
+          rgba(119, 255, 239, 0.9) 35%,
+          rgba(119, 255, 239, 0) 80%
+        ),
+        linear-gradient(
+          180deg,
+          rgba(124, 255, 95, 0) 0%,
+          rgba(124, 255, 95, 0.85) 40%,
+          rgba(124, 255, 95, 0) 85%
+        ),
+        linear-gradient(
+          180deg,
+          rgba(255, 102, 255, 0) 0%,
+          rgba(255, 102, 255, 0.85) 45%,
+          rgba(255, 102, 255, 0) 90%
+        ),
+        linear-gradient(
+          180deg,
+          rgba(0, 195, 255, 0) 0%,
+          rgba(0, 195, 255, 0.9) 40%,
+          rgba(0, 195, 255, 0) 85%
+        );
+      background-repeat: no-repeat;
+      background-size:
+        2px 130%,
+        3px 140%,
+        2px 135%,
+        3px 145%;
+      background-position:
+        12% -40%,
+        38% -55%,
+        64% -50%,
+        86% -60%;
+      opacity: 0.8;
+      mix-blend-mode: screen;
+      z-index: -1;
+      animation: aurora-streak-fall 11s linear infinite;
+    }
+
+    @keyframes aurora-streak-fall {
+      0% {
+        background-position:
+          12% -40%,
+          38% -55%,
+          64% -50%,
+          86% -60%;
+      }
+      100% {
+        background-position:
+          12% 130%,
+          38% 140%,
+          64% 135%,
+          86% 145%;
+      }
     }
 
     /* SUMMON MARS — 3D style */
@@ -152,23 +250,25 @@
         0 0 40px rgba(255, 102, 255, 0.9),
         0 0 60px rgba(0, 195, 255, 1);
       transform: perspective(700px) rotateX(7deg) skewX(-4deg);
+      position: relative;
+      z-index: 3;
     }
 
-    /* glow band behind logo */
+    /* glow band directly under logo text */
     .logo-glow {
       position: absolute;
       inset: 40% -12%;
       background: radial-gradient(
         ellipse at center,
-        rgba(255, 255, 255, 0.45) 0%,
-        rgba(124, 255, 95, 0.35) 30%,
-        rgba(0, 195, 255, 0.25) 55%,
+        rgba(255, 255, 255, 0.55) 0%,
+        rgba(124, 255, 95, 0.4) 30%,
+        rgba(0, 195, 255, 0.3) 55%,
         transparent 85%
       );
       filter: blur(18px);
       opacity: 0.9;
-      z-index: -1;
       mix-blend-mode: screen;
+      z-index: 1;
     }
 
     .logo-bottom-glow {
@@ -182,7 +282,8 @@
         0 0 10px rgba(124, 255, 95, 0.9),
         0 0 20px rgba(255, 102, 255, 0.9),
         0 0 30px rgba(0, 195, 255, 0.9);
-      opacity: 0.9;
+      opacity: 0.95;
+      z-index: 2;
     }
 
     .hero-tagline {
@@ -293,6 +394,8 @@
     </nav>
 
     <div class="logo-wrap">
+      <div class="logo-aurora-ring"></div>
+      <div class="logo-aurora-streaks"></div>
       <div class="logo-glow"></div>
       <h1 class="logo">Summon Mars</h1>
       <div class="logo-bottom-glow"></div>
