@@ -143,6 +143,14 @@
       transform: scaleX(1);
     }
 
+    /* HERO CENTER BLOCK (tagline + logo) */
+    .hero-center {
+      margin-top: clamp(5rem, 22vh, 9rem);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
     /* LOGO BLOCK */
     .logo-wrap {
       position: relative;
@@ -169,7 +177,7 @@
     }
 
     .hero-tagline {
-      margin-top: 1.5rem;
+      margin-top: 0;
       font-size: clamp(0.9rem, 1.2vw, 1rem);
       letter-spacing: 0.18em;
       text-transform: uppercase;
@@ -249,8 +257,8 @@
       display: flex;
       flex-direction: column;
       gap: 1.5rem;
-      align-items: center;
-      text-align: left; /* override section centering for bio text */
+      align-items: center;  /* centers image + block */
+      text-align: left;     /* keeps bio paragraphs left-aligned */
     }
 
     .about-photo {
@@ -288,10 +296,12 @@
       <a href="#about">About</a>
     </nav>
 
-    <p class="hero-tagline">Signal from the other side</p>
+    <div class="hero-center">
+      <p class="hero-tagline">Signal from the other side</p>
 
-    <div class="logo-wrap">
-      <h1 class="logo">Summon Mars</h1>
+      <div class="logo-wrap">
+        <h1 class="logo">Summon Mars</h1>
+      </div>
     </div>
   </header>
 
