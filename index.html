@@ -186,6 +186,27 @@
       z-index: 1;
     }
 
+    /* STORE STRIP (PLATFORM ICONS) */
+    .store-strip {
+      position: absolute;
+      left: 50%;
+      bottom: 1.25rem;
+      transform: translateX(-50%);
+      padding: 0.4rem 0.8rem;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(6px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.9);
+      max-width: min(95vw, 1100px);
+      z-index: 3;
+    }
+
+    .store-strip img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
     /* MAIN CONTENT */
     main {
       position: relative;
@@ -425,6 +446,10 @@
 
       <p class="hero-tagline">Signal from the other side</p>
     </div>
+
+    <div class="store-strip">
+      <img src="all-stores.png" alt="Summon Mars on all major platforms" />
+    </div>
   </header>
 
   <main>
@@ -451,18 +476,17 @@
 
         <!-- Through Time -->
         <div class="embed-wrapper">
-  <iframe
-    data-testid="embed-iframe"
-    style="border-radius:12px"
-    src="https://open.spotify.com/embed/track/23pNMd7Fn4WpsCH1aZSGPd?utm_source=generator"
-    width="100%"
-    height="352"
-    frameborder="0"
-    allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-    loading="lazy">
-  </iframe>
-</div>
-
+          <iframe
+            data-testid="embed-iframe"
+            style="border-radius:12px"
+            src="https://open.spotify.com/embed/track/23pNMd7Fn4WpsCH1aZSGPd?utm_source=generator"
+            width="100%"
+            height="352"
+            frameborder="0"
+            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+            loading="lazy">
+          </iframe>
+        </div>
 
         <!-- Life That Moves -->
         <div class="embed-wrapper">
