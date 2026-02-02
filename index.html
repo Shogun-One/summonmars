@@ -169,8 +169,7 @@
     }
 
     .hero-tagline {
-      /* moved down toward middle of hero image */
-      margin-top: clamp(6rem, 30vh, 11rem);
+      margin-top: 1.5rem;
       font-size: clamp(0.9rem, 1.2vw, 1rem);
       letter-spacing: 0.18em;
       text-transform: uppercase;
@@ -193,6 +192,7 @@
       padding: 2.5rem 0;
       border-top: 1px solid rgba(255, 255, 255, 0.1);
       scroll-margin-top: 80px;
+      text-align: center; /* center headings & blurbs */
     }
 
     section:first-of-type {
@@ -212,6 +212,8 @@
       color: var(--text-sub);
       line-height: 1.6;
       font-size: 1rem;
+      margin-left: auto;
+      margin-right: auto;
     }
 
     /* EMBED GRID */
@@ -248,7 +250,7 @@
       flex-direction: column;
       gap: 1.5rem;
       align-items: flex-start;
-      text-align: left;
+      text-align: left; /* override section centering for bio text */
     }
 
     .about-photo {
