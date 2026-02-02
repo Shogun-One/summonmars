@@ -8,8 +8,14 @@
   <link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Oswald:wght@300;400;500&display=swap" rel="stylesheet">
 
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    /* RESET */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
+    /* THEME COLORS */
     :root {
       --aurora-1: #77ffef;
       --aurora-2: #7cff5f;
@@ -21,155 +27,407 @@
       --accent: #fffd9a;
     }
 
+    /* BASE */
     body {
-      font-family: "Oswald", system-ui, sans-serif;
+      font-family: "Oswald", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
       background: radial-gradient(circle at 10% 0%, #05091a 0%, #000000 60%, #02030a 100%);
       color: var(--text-main);
       min-height: 100vh;
       scroll-behavior: smooth;
+      background-attachment: fixed;
     }
 
+    /* GLOBAL AURORA */
     .aurora-layer {
       position: fixed;
       inset: 0;
+      pointer-events: none;
       z-index: -10;
       background:
-        radial-gradient(circle at 15% 0%, rgba(119,255,239,.25), transparent 55%),
-        radial-gradient(circle at 85% 5%, rgba(124,255,95,.2), transparent 60%),
-        radial-gradient(circle at 12% 85%, rgba(255,102,255,.2), transparent 60%),
-        radial-gradient(circle at 90% 80%, rgba(0,195,255,.25), transparent 60%);
-      filter: blur(6px);
-      opacity: .5;
+        radial-gradient(circle at 15% 0%, rgba(119, 255, 239, 0.25) 0, transparent 55%),
+        radial-gradient(circle at 85% 5%, rgba(124, 255, 95, 0.2) 0, transparent 60%),
+        radial-gradient(circle at 12% 85%, rgba(255, 102, 255, 0.2) 0, transparent 60%),
+        radial-gradient(circle at 90% 80%, rgba(0, 195, 255, 0.25) 0, transparent 60%);
+      mix-blend-mode: screen;
+      opacity: 0.5;
+      filter: blur(5px);
     }
 
-    /* HERO */
+    /* HERO TOP AREA */
     .hero {
       position: relative;
       min-height: 60vh;
-      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
       text-align: center;
+      padding: 1.25rem 1.5rem 2rem;
       overflow: hidden;
+      z-index: 0;
     }
 
+    /* Astronaut background */
     .hero::before {
       content: "";
       position: absolute;
       inset: 0;
-      background: url("astronaut-banner.jpeg") center top / cover no-repeat;
-      filter: saturate(1.1) contrast(1.15) brightness(1.15);
+      background-image: url("astronaut-banner.jpeg");
+      background-size: cover;
+      background-position: center top;
+      filter: saturate(1.1) contrast(1.15) brightness(1.2);
+      transform: scale(1.0);
       z-index: -2;
     }
 
+    /* Gradient overlay so text is readable */
     .hero::after {
       content: "";
       position: absolute;
       inset: 0;
-      background: linear-gradient(
-        to bottom,
-        rgba(0,0,0,.2) 0%,
-        rgba(0,0,0,.3) 50%,
-        rgba(2,3,10,1) 100%
-      );
+      background:
+        linear-gradient(
+          to bottom,
+          rgba(0, 0, 0, 0.3) 0%,
+          rgba(0, 0, 0, 0.2) 35%,
+          rgba(0, 0, 0, 0.5) 70%,
+          rgba(2, 3, 10, 1) 100%
+        );
       z-index: -1;
     }
 
+    /* TOP NAV */
     .main-nav {
       display: flex;
-      justify-content: center;
       gap: 2.5rem;
-      letter-spacing: .25em;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 0.75rem;
+      font-size: clamp(0.9rem, 1.5vw, 1.1rem);
+      letter-spacing: 0.25em;
       text-transform: uppercase;
-      margin-bottom: 2rem;
+      z-index: 1;
     }
 
     .main-nav a {
-      color: #fff;
       text-decoration: none;
+      color: #ffffff;     /* bright and readable */
       font-weight: 600;
       position: relative;
+      padding-bottom: 0.3rem;
+      transition: color 0.25s ease, transform 0.25s ease;
+      text-shadow:
+        0 0 4px rgba(0,0,0,0.9),
+        0 0 8px rgba(0,0,0,0.7);
     }
 
     .main-nav a::after {
       content: "";
       position: absolute;
-      left: 0; bottom: -4px;
-      width: 100%;
+      left: 0;
+      bottom: 0;
       height: 2px;
+      width: 100%;
       background: linear-gradient(90deg, var(--aurora-1), var(--aurora-3));
+      transform-origin: center;
       transform: scaleX(0);
-      transition: .25s;
+      transition: transform 0.25s ease;
     }
 
-    .main-nav a:hover::after { transform: scaleX(1); }
+    .main-nav a:hover {
+      color: var(--accent);
+      transform: translateY(-1px);
+    }
 
+    .main-nav a:hover::after {
+      transform: scaleX(1);
+    }
+
+    /* HERO CENTER BLOCK (tagline + logo) */
     .hero-center {
-      margin-top: clamp(5rem, 20vh, 9rem);
+      margin-top: clamp(5rem, 22vh, 9rem);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* LOGO BLOCK */
+    .logo-wrap {
+      position: relative;
+      display: inline-block;
+      margin-top: 1.5rem;
+      padding-inline: 0.25em;
+      z-index: 1;
     }
 
     .logo {
-      font-family: "Black Ops One";
-      font-size: clamp(3rem, 7vw, 5.5rem);
-      letter-spacing: .3em;
+      font-family: "Black Ops One", system-ui, sans-serif;
       text-transform: uppercase;
+      font-size: clamp(3.1rem, 7vw, 5.5rem);
+      letter-spacing: 0.3em;
+      padding-inline: 0.18em;
+      color: #fdfdfd;
+      text-shadow:
+        0 1px 0 #040711,
+        0 2px 0 #050814,
+        0 0 15px rgba(255, 255, 255, 0.2);
+      transform: perspective(650px) rotateX(6deg) skewX(-3deg);
+      position: relative;
+      z-index: 2;
     }
 
     .hero-tagline {
-      margin-top: .5rem;
-      letter-spacing: .18em;
+      margin-top: 0;
+      font-size: clamp(0.9rem, 1.2vw, 1rem);
+      letter-spacing: 0.18em;
       text-transform: uppercase;
-      opacity: .9;
+      color: var(--text-main);
+      text-shadow: 0 0 10px rgba(0,0,0,0.8);
+      z-index: 1;
     }
 
-    /* STORE ICON BAR (THE THING YOU ASKED FOR) */
-    .store-bar {
+    /* STORE STRIP (PLATFORM ICONS) */
+    .store-strip {
       position: absolute;
-      bottom: 1.2rem;
       left: 50%;
+      bottom: 1.25rem;
       transform: translateX(-50%);
-      width: min(95%, 1100px);
-      z-index: 5;
-      background: rgba(0,0,0,.45);
+      padding: 0.4rem 0.8rem;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.6);
       backdrop-filter: blur(6px);
-      border-radius: 18px;
-      padding: 1.25rem 1.5rem;
-      box-shadow: 0 10px 30px rgba(0,0,0,.8);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.9);
+      max-width: min(95vw, 1100px);
+      z-index: 3;
     }
 
-    .store-bar img {
-      width: 100%;
-      max-width: 1000px; /* TWICE AS BIG */
+    .store-strip img {
       display: block;
-      margin: 0 auto;
+      width: 100%;
+      height: auto;
     }
 
+    /* MAIN CONTENT */
     main {
+      position: relative;
+      z-index: 1;
+      padding: 1.4rem 1.5rem 3.2rem;
       max-width: 1100px;
+      width: 100%;
       margin: 0 auto;
-      padding: 3rem 1.5rem;
     }
 
     section {
-      padding: 3rem 0;
-      border-top: 1px solid rgba(255,255,255,.1);
-      text-align: center;
+      padding: 2.5rem 0;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      scroll-margin-top: 80px;
+      text-align: center; /* center headings & blurbs */
+    }
+
+    section:first-of-type {
+      border-top: none;
     }
 
     section h2 {
-      letter-spacing: .25em;
+      font-size: 1.2rem;
+      text-transform: uppercase;
+      letter-spacing: 0.25em;
+      margin-bottom: 1rem;
+      color: var(--accent);
+    }
+
+    section p {
+      max-width: 48rem;
+      color: var(--text-sub);
+      line-height: 1.6;
+      font-size: 1rem;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* EMBED GRID (Music) */
+    .embed-grid {
+      margin-top: 2rem;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+
+    @media (min-width: 768px) {
+      .embed-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .embed-wrapper {
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .embed-wrapper iframe {
+      display: block;
+      border: none;
+      width: 100%;
+    }
+
+    /* VIDEO SECTION */
+    .video-wrapper {
+      margin-top: 2rem;
+      display: flex;
+      justify-content: center;
+    }
+
+    .video-wrapper video {
+      width: 100%;
+      max-width: 800px;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+    }
+
+    /* MERCH SECTION */
+    .merch-layout {
+      margin-top: 2.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 2.5rem;
+      align-items: center;
+    }
+
+    @media (min-width: 960px) {
+      .merch-layout {
+        flex-direction: row;
+        align-items: flex-start;
+        justify-content: center;
+      }
+    }
+
+    .merch-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.75rem;
+      width: 100%;
+      max-width: 720px;
+    }
+
+    @media (min-width: 768px) {
+      .merch-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+
+    .merch-card {
+      background: rgba(0, 0, 0, 0.65);
+      border-radius: 18px;
+      padding: 1.5rem 1.25rem 2rem;
+      box-shadow: 0 14px 40px rgba(0, 0, 0, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.1rem;
+    }
+
+    .merch-card img {
+      width: 100%;
+      max-width: 220px;
+      height: 220px;       /* same visual height */
+      object-fit: contain; /* avoid stretching */
+      display: block;
+    }
+
+    .merch-title {
+      font-size: 0.9rem;
+      letter-spacing: 0.18em;
       text-transform: uppercase;
       color: var(--accent);
-      margin-bottom: 1rem;
+    }
+
+    .merch-button {
+      margin-top: 0.25rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.55rem 1.6rem;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      background: radial-gradient(circle at 20% 0%, #222, #05050a);
+      color: var(--text-main);
+      font-size: 0.8rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      text-decoration: none;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+    }
+
+    .merch-button:hover {
+      border-color: var(--accent);
+      box-shadow: 0 0 20px rgba(255, 253, 154, 0.4);
+      transform: translateY(-1px);
+    }
+
+    .merch-qr {
+      max-width: 260px;
+      width: 100%;
+      background: radial-gradient(circle at 30% 0%, #111827, #02030a);
+      border-radius: 20px;
+      padding: 1.5rem 1.25rem 1.75rem;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 14px 40px rgba(0, 0, 0, 0.85);
+      text-align: center;
+    }
+
+    .merch-qr img {
+      width: 100%;
+      max-width: 210px;
+      display: block;
+      margin: 0 auto 0.9rem;
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 0.4rem;
+    }
+
+    .merch-qr p {
+      font-size: 0.8rem;
+      color: var(--text-sub);
+      line-height: 1.5;
+    }
+
+    /* ABOUT SECTION */
+    .about-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      align-items: center;  /* centers image + block */
+      text-align: left;     /* keeps bio paragraphs left-aligned */
+    }
+
+    .about-photo {
+      width: 100%;
+      max-width: 120px;
+      border-radius: 14px;
+      box-shadow: 0 0 40px rgba(0, 0, 0, 0.8);
+      object-fit: cover;
     }
 
     footer {
       text-align: center;
       padding: 3rem 1rem;
-      font-size: .8rem;
-      opacity: .6;
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.5);
+      background: rgba(0,0,0,0.3);
+    }
+
+    @media (max-width: 600px) {
+      .logo {
+        font-size: 2.8rem;
+        letter-spacing: 0.15em;
+      }
     }
   </style>
 </head>
-
 <body>
   <div class="aurora-layer"></div>
 
@@ -182,21 +440,153 @@
     </nav>
 
     <div class="hero-center">
-      <h1 class="logo">Summon Mars</h1>
+      <div class="logo-wrap">
+        <h1 class="logo">Summon Mars</h1>
+      </div>
+
       <p class="hero-tagline">Signal from the other side</p>
     </div>
 
-    <!-- THIS IS THE ICON STRIP -->
-    <div class="store-bar">
-      <img src="all-stores.png" alt="Available on all platforms">
+    <div class="store-strip">
+      <img src="all-stores.png" alt="Summon Mars on all major platforms" />
     </div>
   </header>
 
   <main>
-    <section id="music"><h2>Music</h2></section>
-    <section id="videos"><h2>Videos</h2></section>
-    <section id="merch"><h2>Merch</h2></section>
-    <section id="about"><h2>About</h2></section>
+    <!-- MUSIC SECTION -->
+    <section id="music">
+      <h2>Music</h2>
+      <p>
+        Listen to the latest Summon Mars transmissions: glitchy hip-hop pulses,
+        cinematic synth storms, and everything humming between.
+      </p>
+
+      <div class="embed-grid">
+        <!-- See You in the Sky -->
+        <div class="embed-wrapper">
+          <iframe
+            style="border-radius:12px"
+            src="https://open.spotify.com/embed/track/0mtMGkRlTbPR31fG2vxy9e?utm_source=generator"
+            width="100%"
+            height="352"
+            loading="lazy"
+            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture">
+          </iframe>
+        </div>
+
+        <!-- Through Time -->
+        <div class="embed-wrapper">
+          <iframe
+            data-testid="embed-iframe"
+            style="border-radius:12px"
+            src="https://open.spotify.com/embed/track/23pNMd7Fn4WpsCH1aZSGPd?utm_source=generator"
+            width="100%"
+            height="352"
+            frameborder="0"
+            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+            loading="lazy">
+          </iframe>
+        </div>
+
+        <!-- Life That Moves -->
+        <div class="embed-wrapper">
+          <iframe
+            style="border-radius:12px"
+            src="https://open.spotify.com/embed/track/1yMi0TQ6PwmvCfK5lLqAxF?utm_source=generator"
+            width="100%"
+            height="352"
+            loading="lazy"
+            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture">
+          </iframe>
+        </div>
+
+        <!-- Ethereal -->
+        <div class="embed-wrapper">
+          <iframe
+            style="border-radius:12px"
+            src="https://open.spotify.com/embed/track/5lrwop2youkjb5Ci0Ryh2d?utm_source=generator"
+            width="100%"
+            height="352"
+            loading="lazy"
+            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture">
+          </iframe>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIDEOS SECTION -->
+    <section id="videos">
+      <h2>Videos</h2>
+      <p>
+        Portals, shorts, and weird visuals from the Summon Mars universe.
+        Broadcast from the static between channels.
+      </p>
+
+      <div class="video-wrapper">
+        <video src="racetomars.mp4" controls></video>
+      </div>
+    </section>
+
+    <!-- MERCH SECTION -->
+    <section id="merch">
+      <h2>Merch</h2>
+      <p>
+        Wear the broadcast: mugs, hoodies, tees, and glitch artifacts from future drops.
+        Minimal, bright, and loud enough to bend the signal.
+      </p>
+
+      <div class="merch-layout">
+        <!-- QR ON THE LEFT / ABOVE -->
+        <div class="merch-qr">
+          <img src="merch-qr.png" alt="Scan to open Summon Mars merch store" />
+          <p>
+            Scan this on your phone to open the merch store instantly
+            and share the link with friends.
+          </p>
+        </div>
+
+        <div class="merch-grid">
+          <!-- Neon Tee -->
+          <div class="merch-card">
+            <img src="merch-tee.png" alt="Summon Mars Neon Tee" />
+            <div class="merch-title">Neon Tee</div>
+            <a class="merch-button" href="https://direct.distrokid.com/summonmars/product/1210578-see-you-in-the-sky-men-s-t-shirt">Shop tee</a>
+          </div>
+
+          <!-- Broadcast Mug -->
+          <div class="merch-card">
+            <img src="merch-mug.png" alt="Summon Mars Mug" />
+            <div class="merch-title">Broadcast Mug</div>
+            <a class="merch-button" href="https://direct.distrokid.com/summonmars/product/1210590-wake-up-my-mind-ceramic-mug">Shop mug</a>
+          </div>
+          
+          <!-- Wake Up My Mind Bag -->
+          <div class="merch-card">
+            <img src="merch-bag.png" alt="Summon Mars Bag" />
+            <div class="merch-title">Wake Up My Mind Bag</div>
+            <a class="merch-button" href="https://direct.distrokid.com/summonmars/product/1210591-wake-up-my-mind-tote-bag">Shop bag</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ABOUT SECTION -->
+    <section id="about">
+      <h2>About</h2>
+      <div class="about-wrap">
+        <img src="propic.png" alt="Summon Mars" class="about-photo" />
+
+        <p>Summon Mars is the voice of a life lived through chaos, clarity, and the long road back to sound. After years of creating music while battling hearing issues, these songs rise from different chapters of a personal story finally ready to be spoken out loud.</p>
+
+        <p>His connection to music started early, long before studios or training. As a kid, he made songs on a game console, burned homemade CDs, and sold them with more ambition than marketing sense. Writing grew with him too — notebooks full of poetry, some published, and spoken-word performances that showed what it meant to turn experience into connection.</p>
+
+        <p>Everything changed after a wreck left him in a coma for six days. Doctors expected the worst, but he returned with a slow thumbs-up that reshaped his sense of time, purpose, and the urgency to create. From then on, music wasn’t a dream. It was a mission.</p>
+
+        <p>The name Summon Mars came later, tied to a moment that felt bigger than the everyday — a pull toward a stranger, more honest world where the work could finally match the life behind it.</p>
+
+        <p>Based in the eastern U.S., Summon Mars steps forward with songs that hit hard, visuals on the way, and a drive to connect with anyone who feels music the way it’s meant to be felt.</p>
+      </div>
+    </section>
   </main>
 
   <footer>
