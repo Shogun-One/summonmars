@@ -224,7 +224,7 @@
       margin-right: auto;
     }
 
-    /* EMBED GRID */
+    /* EMBED GRID (Music) */
     .embed-grid {
       margin-top: 2rem;
       display: grid;
@@ -252,12 +252,29 @@
       width: 100%;
     }
 
-    /* MERCH GRID */
-    .merch-grid {
+    /* MERCH SECTION */
+    .merch-layout {
       margin-top: 2.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 2.5rem;
+      align-items: center;
+    }
+
+    @media (min-width: 960px) {
+      .merch-layout {
+        flex-direction: row;
+        align-items: flex-start;
+        justify-content: center;
+      }
+    }
+
+    .merch-grid {
       display: grid;
       grid-template-columns: 1fr;
       gap: 1.75rem;
+      width: 100%;
+      max-width: 720px;
     }
 
     @media (min-width: 768px) {
@@ -266,76 +283,79 @@
       }
     }
 
-    .merch-item {
-      background: rgba(0, 0, 0, 0.6);
+    .merch-card {
+      background: rgba(0, 0, 0, 0.65);
       border-radius: 18px;
-      padding: 1.25rem 1.1rem 1.6rem;
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.85);
+      padding: 1.5rem 1.25rem 2rem;
+      box-shadow: 0 14px 40px rgba(0, 0, 0, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.06);
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 0.75rem;
+      gap: 1.1rem;
     }
 
-    .merch-thumb {
+    .merch-card img {
       width: 100%;
       max-width: 220px;
-      border-radius: 12px;
-      object-fit: cover;
-      box-shadow: 0 0 24px rgba(0, 0, 0, 0.9);
+      display: block;
     }
 
     .merch-title {
-      font-size: 0.95rem;
-      letter-spacing: 0.12em;
+      font-size: 0.9rem;
+      letter-spacing: 0.18em;
       text-transform: uppercase;
       color: var(--accent);
     }
 
-    .merch-link {
-      display: inline-block;
-      margin-top: 0.35rem;
-      padding: 0.5rem 1.2rem;
+    .merch-button {
+      margin-top: 0.25rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.55rem 1.6rem;
       border-radius: 999px;
-      border: 1px solid rgba(255, 255, 255, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      background: radial-gradient(circle at 20% 0%, #222, #05050a);
+      color: var(--text-main);
       font-size: 0.8rem;
       letter-spacing: 0.18em;
       text-transform: uppercase;
       text-decoration: none;
-      color: var(--text-main);
-      background: radial-gradient(circle at 0 0, rgba(255, 255, 255, 0.18), transparent 55%);
-      backdrop-filter: blur(6px);
-      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
     }
 
-    .merch-link:hover {
-      transform: translateY(-1px);
+    .merch-button:hover {
       border-color: var(--accent);
-      box-shadow: 0 0 16px rgba(255, 253, 154, 0.35);
-    }
-
-    .merch-qr-block {
-      margin-top: 2.5rem;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 0.75rem;
+      box-shadow: 0 0 20px rgba(255, 253, 154, 0.4);
+      transform: translateY(-1px);
     }
 
     .merch-qr {
-      width: 120px;
-      height: 120px;
-      border-radius: 12px;
-      background: rgba(0, 0, 0, 0.7);
-      object-fit: contain;
-      box-shadow: 0 0 24px rgba(0, 0, 0, 0.9);
+      max-width: 260px;
+      width: 100%;
+      background: radial-gradient(circle at 30% 0%, #111827, #02030a);
+      border-radius: 20px;
+      padding: 1.5rem 1.25rem 1.75rem;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 14px 40px rgba(0, 0, 0, 0.85);
+      text-align: center;
     }
 
-    .merch-qr-text {
-      font-size: 0.85rem;
+    .merch-qr img {
+      width: 100%;
+      max-width: 210px;
+      display: block;
+      margin: 0 auto 0.9rem;
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 0.4rem;
+    }
+
+    .merch-qr p {
+      font-size: 0.8rem;
       color: var(--text-sub);
-      max-width: 18rem;
+      line-height: 1.5;
     }
 
     /* ABOUT SECTION */
@@ -367,10 +387,6 @@
       .logo {
         font-size: 2.8rem;
         letter-spacing: 0.15em;
-      }
-
-      .merch-grid {
-        grid-template-columns: 1fr;
       }
     }
   </style>
@@ -457,42 +473,41 @@
     <section id="merch">
       <h2>Merch</h2>
       <p>
-        Wear the broadcast: hoodies, tees, and glitch artifacts from future drops.
+        Wear the broadcast: mugs, hoodies, tees, and glitch artifacts from future drops.
         Minimal, bright, and loud enough to bend the signal.
-        
       </p>
 
-      <div class="merch-grid">
-        <div class="merch-item">
-          <img src="merch-tee.png" alt="Summon Mars Neon Tee" class="merch-thumb" />
-          <div class="merch-title">Neon Tee</div>
-          <a href="https://summonmars.com/merch" class="merch-link" target="_blank" rel="noopener">
-            Shop tee
-          </a>
+      <div class="merch-layout">
+        <div class="merch-grid">
+          <!-- Neon Tee -->
+          <div class="merch-card">
+            <img src="merch-tee.png" alt="Summon Mars Neon Tee" />
+            <div class="merch-title">Neon Tee</div>
+            <a class="merch-button" href="https://summonmars.com/merch">Shop tee</a>
+          </div>
+
+          <!-- Wake Up My Mind Bag -->
+          <div class="merch-card">
+            <img src="merch-bag.png" alt="Summon Mars Bag" />
+            <div class="merch-title">Wake Up My Mind Bag</div>
+            <a class="merch-button" href="https://summonmars.com/merch">Shop bag</a>
+          </div>
+
+          <!-- Broadcast Mug -->
+          <div class="merch-card">
+            <img src="merch-mug.png" alt="Summon Mars Mug" />
+            <div class="merch-title">Broadcast Mug</div>
+            <a class="merch-button" href="https://summonmars.com/merch">Shop mug</a>
+          </div>
         </div>
 
-        <div class="merch-item">
-          <img src="merch-bag.png" alt="Summon Mars Bag" class="merch-thumb" />
-          <div class="merch-title">Wake Up My Mind Bag/div>
-          <a href="https://summonmars.com/merch" class="merch-link" target="_blank" rel="noopener">
-            Shop hoodie
-          </a>
+        <div class="merch-qr">
+          <img src="merch-qr.png" alt="Scan to open Summon Mars merch store" />
+          <p>
+            Scan this on your phone to open the merch store instantly
+            and share the link with friends.
+          </p>
         </div>
-
-        <div class="merch-item">
-          <img src="merch-mug.png" alt="Summon Mars Mug" class="merch-thumb" />
-          <div class="merch-title">Broadcast Mug</div>
-          <a href="https://summonmars.com/merch" class="merch-link" target="_blank" rel="noopener">
-            Shop mug
-          </a>
-        </div>
-      </div>
-
-      <div class="merch-qr-block">
-        <img src="merch-qr.png" alt="Scan to open Summon Mars merch store" class="merch-qr" />
-        <p class="merch-qr-text">
-          Scan this on your phone to open the merch store instantly and share the link with friends.
-        </p>
       </div>
     </section>
 
