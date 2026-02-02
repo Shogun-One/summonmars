@@ -252,6 +252,92 @@
       width: 100%;
     }
 
+    /* MERCH GRID */
+    .merch-grid {
+      margin-top: 2.5rem;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.75rem;
+    }
+
+    @media (min-width: 768px) {
+      .merch-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+
+    .merch-item {
+      background: rgba(0, 0, 0, 0.6);
+      border-radius: 18px;
+      padding: 1.25rem 1.1rem 1.6rem;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.85);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .merch-thumb {
+      width: 100%;
+      max-width: 220px;
+      border-radius: 12px;
+      object-fit: cover;
+      box-shadow: 0 0 24px rgba(0, 0, 0, 0.9);
+    }
+
+    .merch-title {
+      font-size: 0.95rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .merch-link {
+      display: inline-block;
+      margin-top: 0.35rem;
+      padding: 0.5rem 1.2rem;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      font-size: 0.8rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      text-decoration: none;
+      color: var(--text-main);
+      background: radial-gradient(circle at 0 0, rgba(255, 255, 255, 0.18), transparent 55%);
+      backdrop-filter: blur(6px);
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+
+    .merch-link:hover {
+      transform: translateY(-1px);
+      border-color: var(--accent);
+      box-shadow: 0 0 16px rgba(255, 253, 154, 0.35);
+    }
+
+    .merch-qr-block {
+      margin-top: 2.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .merch-qr {
+      width: 120px;
+      height: 120px;
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.7);
+      object-fit: contain;
+      box-shadow: 0 0 24px rgba(0, 0, 0, 0.9);
+    }
+
+    .merch-qr-text {
+      font-size: 0.85rem;
+      color: var(--text-sub);
+      max-width: 18rem;
+    }
+
     /* ABOUT SECTION */
     .about-wrap {
       display: flex;
@@ -282,6 +368,10 @@
         font-size: 2.8rem;
         letter-spacing: 0.15em;
       }
+
+      .merch-grid {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
@@ -298,11 +388,10 @@
 
     <div class="hero-center">
       <div class="logo-wrap">
-  <h1 class="logo">Summon Mars</h1>
-</div>
+        <h1 class="logo">Summon Mars</h1>
+      </div>
 
-<p class="hero-tagline">Signal from the other side</p>
-
+      <p class="hero-tagline">Signal from the other side</p>
     </div>
   </header>
 
@@ -370,8 +459,41 @@
       <p>
         Wear the broadcast: hoodies, tees, and glitch artifacts from future drops.
         Minimal, bright, and loud enough to bend the signal.
+        
       </p>
-      <!-- Future merch grid / links go here -->
+
+      <div class="merch-grid">
+        <div class="merch-item">
+          <img src="merch-tee.png" alt="Summon Mars Neon Tee" class="merch-thumb" />
+          <div class="merch-title">Neon Signal Tee</div>
+          <a href="https://summonmars.com/merch" class="merch-link" target="_blank" rel="noopener">
+            Shop tee
+          </a>
+        </div>
+
+        <div class="merch-item">
+          <img src="merch-hoodie.png" alt="Summon Mars Hoodie" class="merch-thumb" />
+          <div class="merch-title">Orbit Hoodie</div>
+          <a href="https://summonmars.com/merch" class="merch-link" target="_blank" rel="noopener">
+            Shop hoodie
+          </a>
+        </div>
+
+        <div class="merch-item">
+          <img src="merch-mug.png" alt="Summon Mars Mug" class="merch-thumb" />
+          <div class="merch-title">Broadcast Mug</div>
+          <a href="https://summonmars.com/merch" class="merch-link" target="_blank" rel="noopener">
+            Shop mug
+          </a>
+        </div>
+      </div>
+
+      <div class="merch-qr-block">
+        <img src="merch-qr.png" alt="Scan to open Summon Mars merch store" class="merch-qr" />
+        <p class="merch-qr-text">
+          Scan this on your phone to open the merch store instantly and share the link with friends.
+        </p>
+      </div>
     </section>
 
     <!-- ABOUT SECTION -->
