@@ -252,6 +252,20 @@
       width: 100%;
     }
 
+    /* VIDEO SECTION */
+    .video-wrapper {
+      margin-top: 2rem;
+      display: flex;
+      justify-content: center;
+    }
+
+    .video-wrapper video {
+      width: 100%;
+      max-width: 800px;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+    }
+
     /* MERCH SECTION */
     .merch-layout {
       margin-top: 2.5rem;
@@ -298,7 +312,7 @@
     .merch-card img {
       width: 100%;
       max-width: 220px;
-      height: 220px;       /* make all merch images same visual height */
+      height: 220px;       /* same visual height */
       object-fit: contain; /* avoid stretching */
       display: block;
     }
@@ -462,30 +476,17 @@
     </section>
 
     <!-- VIDEOS SECTION -->
-<section id="videos">
-  <h2>Videos</h2>
-  <p>
-    Portals, shorts, and weird visuals from the Summon Mars universe.
-    Broadcast from the static between channels.
-  </p>
+    <section id="videos">
+      <h2>Videos</h2>
+      <p>
+        Portals, shorts, and weird visuals from the Summon Mars universe.
+        Broadcast from the static between channels.
+      </p>
 
-  <div class="video-wrapper" style="
-      margin-top:2rem;
-      display:flex;
-      justify-content:center;
-  ">
-    <video
-      src="racetomars.mp4"
-      controls
-      style="
-        width:100%;
-        max-width:800px;
-        border-radius:16px;
-        box-shadow:0 10px 30px rgba(0,0,0,0.8);
-      ">
-    </video>
-  </div>
-</section>
+      <div class="video-wrapper">
+        <video src="racetomars.mp4" controls></video>
+      </div>
+    </section>
 
     <!-- MERCH SECTION -->
     <section id="merch">
