@@ -317,6 +317,7 @@
       }
     }
 
+    /* --- FIXED MERCH CARD STYLES --- */
     .merch-card {
       background: rgba(0, 0, 0, 0.65);
       border-radius: 18px;
@@ -327,6 +328,7 @@
       flex-direction: column;
       align-items: center;
       gap: 1.1rem;
+      height: 100%; /* Added: Ensures all cards are equal height in the grid */
     }
 
     .merch-card img {
@@ -345,7 +347,7 @@
     }
 
     .merch-button {
-      margin-top: 0.25rem;
+      margin-top: auto; /* Added: Pushes the button to the bottom */
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -484,7 +486,6 @@
 
   <main>
 
-    <!-- MUSIC -->
     <section id="music">
       <h2>Music</h2>
       <p>
@@ -513,7 +514,6 @@
       </div>
     </section>
 
-    <!-- VIDEOS -->
     <section id="videos">
       <h2>Videos</h2>
       <p>
@@ -526,7 +526,6 @@
       </div>
     </section>
 
-    <!-- MERCH -->
     <section id="merch">
       <h2>Merch</h2>
       <p>
@@ -536,7 +535,6 @@
 
       <div class="merch-layout">
 
-        <!-- UPDATED QR EXACTLY LIKE SNAPSHOT -->
         <div class="merch-qr">
           <img src="merch-qr.png" alt="Scan Summon Mars merch QR" />
 
@@ -574,7 +572,6 @@
       </div>
     </section>
 
-    <!-- ABOUT -->
     <section id="about">
       <h2>About</h2>
       <div class="about-wrap">
