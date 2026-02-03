@@ -424,6 +424,14 @@
       background: rgba(0,0,0,0.3);
     }
 
+    /* VISIT COUNTER – subtle ghost text */
+    .visit-counter {
+      margin-top: 0.4rem;
+      font-size: 0.7rem;
+      color: rgba(255, 255, 255, 0.25);
+      text-align: right;
+    }
+
     @media (max-width: 600px) {
       .logo {
         font-size: 2.8rem;
@@ -589,13 +597,36 @@
 
         <p>The name Summon Mars came later, tied to a moment that felt bigger than the everyday — a pull toward a stranger, more honest world where the work could finally match the life behind it.</p>
 
-        <p>Based in the eastern U.S., Summon Mars steps forward with songs that hit hard, visuals on the way, and a drive to connect with anyone who feels music the way it’s meant to be felt.</p>
+        <p>Based in the eastern U.S>, Summon Mars steps forward with songs that hit hard, visuals on the way, and a drive to connect with anyone who feels music the way it’s meant to be felt.</p>
       </div>
     </section>
   </main>
 
   <footer>
     © 2026 Summon Mars. All rights reserved.
+    <div class="visit-counter">
+      Visitors: <span id="visit-counter">—</span>
+    </div>
   </footer>
+
+  <script>
+    (function () {
+      const el = document.getElementById('visit-counter');
+      if (!el) return;
+
+      fetch('https://api.countapi.xyz/hit/summonmars.com/visits')
+        .then(function (res) { return res.json(); })
+        .then(function (data) {
+          if (data && typeof data.value === 'number') {
+            el.textContent = data.value.toLocaleString();
+          } else {
+            el.textContent = 'n/a';
+          }
+        })
+        .catch(function () {
+          el.textContent = 'n/a';
+        });
+    })();
+  </script>
 </body>
 </html>
