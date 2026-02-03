@@ -186,7 +186,7 @@
       z-index: 1;
     }
 
-    /* STORE STRIP (PLATFORM ICONS) – now BELOW the hero, not absolutely positioned */
+    /* STORE STRIP */
     .store-strip {
       margin: 1.5rem auto 0;
       padding: 0.4rem 0.8rem;
@@ -204,7 +204,6 @@
       height: auto;
     }
 
-    /* tweak spacing on larger screens so it breathes under the astronaut */
     @media (min-width: 1024px) {
       .store-strip {
         margin-top: 2.5rem;
@@ -225,7 +224,7 @@
       padding: 2.5rem 0;
       border-top: 1px solid rgba(255, 255, 255, 0.1);
       scroll-margin-top: 80px;
-      text-align: center; /* center headings & blurbs */
+      text-align: center;
     }
 
     section:first-of-type {
@@ -337,8 +336,8 @@
     .merch-card img {
       width: 100%;
       max-width: 220px;
-      height: 220px;       /* same visual height */
-      object-fit: contain; /* avoid stretching */
+      height: 220px;
+      object-fit: contain;
       display: block;
     }
 
@@ -404,8 +403,8 @@
       display: flex;
       flex-direction: column;
       gap: 1.5rem;
-      align-items: center;  /* centers image + block */
-      text-align: left;     /* keeps bio paragraphs left-aligned */
+      align-items: center;
+      text-align: left;
     }
 
     .about-photo {
@@ -424,12 +423,19 @@
       background: rgba(0,0,0,0.3);
     }
 
-    /* VISIT COUNTER – subtle ghost text */
+    /* VISIT COUNTER – centered, faint, readable */
     .visit-counter {
-      margin-top: 0.4rem;
+      position: fixed;
+      left: 50%;
+      bottom: 6px;
+      transform: translateX(-50%);
       font-size: 0.7rem;
-      color: rgba(255, 255, 255, 0.25);
-      text-align: right;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.18); /* barely there */
+      pointer-events: none;
+      user-select: none;
+      text-shadow: 0 0 4px rgba(0,0,0,0.9);
     }
 
     @media (max-width: 600px) {
@@ -460,7 +466,7 @@
     </div>
   </header>
 
-  <!-- STORE ICON STRIP NOW LIVES *UNDER* THE HERO -->
+  <!-- STORE ICON STRIP NOW LIVES UNDER THE HERO -->
   <div class="store-strip">
     <img src="all-stores.png" alt="Summon Mars on all major platforms" />
   </div>
@@ -597,7 +603,7 @@
 
         <p>The name Summon Mars came later, tied to a moment that felt bigger than the everyday — a pull toward a stranger, more honest world where the work could finally match the life behind it.</p>
 
-        <p>Based in the eastern U.S>, Summon Mars steps forward with songs that hit hard, visuals on the way, and a drive to connect with anyone who feels music the way it’s meant to be felt.</p>
+        <p>Based in the eastern U.S., Summon Mars steps forward with songs that hit hard, visuals on the way, and a drive to connect with anyone who feels music the way it’s meant to be felt.</p>
       </div>
     </section>
   </main>
