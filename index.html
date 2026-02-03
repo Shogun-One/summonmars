@@ -186,27 +186,29 @@
       z-index: 1;
     }
 
-    /* STORE STRIP (PLATFORM ICONS) */
+    /* STORE STRIP (PLATFORM ICONS) – now BELOW the hero, not absolutely positioned */
     .store-strip {
-      position: absolute;
-      left: 50%;
-      bottom: 1.25rem;
-      transform: translateX(-50%);
+      margin: 1.5rem auto 0;
       padding: 0.4rem 0.8rem;
       border-radius: 999px;
-      background: rgba(0, 0, 0, 0.6);
+      background: rgba(0, 0, 0, 0.75);
       backdrop-filter: blur(6px);
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.9);
-      max-width: min(95vw, 1100px);
-      z-index: 3;
+      max-width: min(95vw, 900px);
+      z-index: 2;
     }
 
     .store-strip img {
       display: block;
       width: 100%;
       height: auto;
-      transform: scale(2);          /* ⬅ doubled visual size */
-      transform-origin: center;
+    }
+
+    /* tweak spacing on larger screens so it breathes under the astronaut */
+    @media (min-width: 1024px) {
+      .store-strip {
+        margin-top: 2.5rem;
+      }
     }
 
     /* MAIN CONTENT */
@@ -448,11 +450,12 @@
 
       <p class="hero-tagline">Signal from the other side</p>
     </div>
-
-    <div class="store-strip">
-      <img src="all-stores.png" alt="Summon Mars on all major platforms" />
-    </div>
   </header>
+
+  <!-- STORE ICON STRIP NOW LIVES *UNDER* THE HERO -->
+  <div class="store-strip">
+    <img src="all-stores.png" alt="Summon Mars on all major platforms" />
+  </div>
 
   <main>
     <!-- MUSIC SECTION -->
