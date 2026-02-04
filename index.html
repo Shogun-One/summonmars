@@ -594,29 +594,11 @@
   <footer>
     © 2026 Summon Mars. All rights reserved.
     <div class="visit-counter">
-      Visitors: <span id="visit-counter">—</span>
+      Visitors: <span id="busuanzi_value_site_uv"></span>
     </div>
   </footer>
 
-  <script>
-    (function () {
-      const el = document.getElementById('visit-counter');
-      if (!el) return;
-
-      fetch('https://api.countapi.xyz/hit/summonmars.com/visits')
-        .then(res => res.json())
-        .then(data => {
-          if (data && typeof data.value === 'number') {
-            el.textContent = data.value.toLocaleString();
-          } else {
-            el.textContent = 'n/a';
-          }
-        })
-        .catch(() => {
-          el.textContent = 'n/a';
-        });
-    })();
-  </script>
+  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 
 </body>
 </html>
