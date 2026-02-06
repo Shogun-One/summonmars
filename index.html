@@ -91,7 +91,6 @@
       100% { opacity: 0.6; }
     }
 
-    /* Vertical ascent for the starfield */
     @keyframes star-ascend {
       0%   { transform: translateY(40px); }
       100% { transform: translateY(-160px); }
@@ -315,8 +314,7 @@
       display: grid;
       grid-template-columns: 1fr;
       gap: 1.5rem;
-      /* give the whole quad some depth for the origami effect */
-      perspective: 1600px;
+      perspective: 1600px; /* for origami tilt */
     }
 
     @media (min-width: 768px) {
@@ -327,7 +325,7 @@
 
     .embed-wrapper {
       border-radius: 16px;
-      overflow: hidden;
+      overflow: visible; /* let inner glow breathe */
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
       background: rgba(0, 0, 0, 0.5);
       border: 1px solid rgba(255, 255, 255, 0.1);
@@ -336,43 +334,72 @@
         transform 0.25s ease,
         box-shadow 0.25s ease,
         border-color 0.25s ease;
+      cursor: pointer;
     }
 
-    /* TOP-LEFT: inner (bottom-right) corner tipped inward */
+    /* Inner container for pulse so we don't fight the 3D tilt */
+    .embed-inner {
+      border-radius: 16px;
+      overflow: hidden;
+      transform-origin: center;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      background: rgba(0, 0, 0, 0.4);
+    }
+
+    .embed-inner iframe {
+      display: block;
+      border: none;
+      width: 100%;
+    }
+
+    /* Origami tilt (outer) */
     .embed-wrapper:nth-child(1) {
       transform-origin: 100% 100%;
       transform: rotateX(7deg) rotateY(-8deg);
     }
 
-    /* TOP-RIGHT: inner (bottom-left) corner tipped inward */
     .embed-wrapper:nth-child(2) {
       transform-origin: 0% 100%;
       transform: rotateX(7deg) rotateY(8deg);
     }
 
-    /* BOTTOM-LEFT: inner (top-right) corner tipped inward */
     .embed-wrapper:nth-child(3) {
       transform-origin: 100% 0%;
       transform: rotateX(-7deg) rotateY(-8deg);
     }
 
-    /* BOTTOM-RIGHT: inner (top-left) corner tipped inward */
     .embed-wrapper:nth-child(4) {
       transform-origin: 0% 0%;
       transform: rotateX(-7deg) rotateY(8deg);
     }
 
-    /* Gentle hover to "unfold" toward the viewer */
     .embed-wrapper:hover {
       transform: rotateX(0deg) rotateY(0deg) translateZ(6px);
       box-shadow: 0 16px 40px rgba(0, 0, 0, 0.95);
       border-color: rgba(255, 255, 255, 0.3);
     }
 
-    .embed-wrapper iframe {
-      display: block;
-      border: none;
-      width: 100%;
+    /* PULSE FOR CURRENTLY "PLAYING" CARD */
+    @keyframes pulseBeat {
+      0%   { transform: scale(1); }
+      35%  { transform: scale(1.03); }
+      55%  { transform: scale(1.06); }
+      100% { transform: scale(1); }
+    }
+
+    .embed-wrapper.playing {
+      border-color: rgba(255, 253, 154, 0.7);
+      box-shadow:
+        0 0 24px rgba(124, 255, 95, 0.35),
+        0 0 60px rgba(0, 195, 255, 0.45),
+        0 18px 45px rgba(0, 0, 0, 0.95);
+    }
+
+    .embed-wrapper.playing .embed-inner {
+      animation: pulseBeat 0.9s ease-in-out infinite;
+      box-shadow:
+        0 0 24px rgba(124, 255, 95, 0.5),
+        0 0 60px rgba(0, 195, 255, 0.45);
     }
 
     /* VIDEO */
@@ -424,7 +451,7 @@
         grid-template-columns: 1fr;
       }
 
-      /* on narrow screens, flatten the origami so it doesn’t look warped */
+      /* flatten origami & pulse on mobile so it doesn't look warped */
       .embed-wrapper,
       .embed-wrapper:nth-child(1),
       .embed-wrapper:nth-child(2),
@@ -657,19 +684,27 @@
       <div class="embed-grid">
 
         <div class="embed-wrapper">
-          <iframe style="border-radius:12px" src="https://open.spotify.com/embed/track/1yMi0TQ6PwmvCfK5lLqAxF?utm_source=generator" width="100%" height="352" loading="lazy"></iframe>
+          <div class="embed-inner">
+            <iframe style="border-radius:12px" src="https://open.spotify.com/embed/track/1yMi0TQ6PwmvCfK5lLqAxF?utm_source=generator" width="100%" height="352" loading="lazy"></iframe>
+          </div>
         </div>
         
         <div class="embed-wrapper">
-          <iframe style="border-radius:12px" src="https://open.spotify.com/embed/track/0mtMGkRlTbPR31fG2vxy9e?utm_source=generator" width="100%" height="352" loading="lazy" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>
+          <div class="embed-inner">
+            <iframe style="border-radius:12px" src="https://open.spotify.com/embed/track/0mtMGkRlTbPR31fG2vxy9e?utm_source=generator" width="100%" height="352" loading="lazy" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>
+          </div>
         </div>
 
         <div class="embed-wrapper">
-          <iframe data-testid="embed-iframe" style="border-radius:12px" src="https://open.spotify.com/embed/track/5P6jAr1ajq0nbXOUsBP0jG?utm_source=generator" width="100%" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+          <div class="embed-inner">
+            <iframe data-testid="embed-iframe" style="border-radius:12px" src="https://open.spotify.com/embed/track/5P6jAr1ajq0nbXOUsBP0jG?utm_source=generator" width="100%" height="352" frameborder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+          </div>
         </div>
 
         <div class="embed-wrapper">
-          <iframe data-testid="embed-iframe" style="border-radius:12px" src="https://open.spotify.com/embed/track/7E04CMAt1nKEAN2wUgtNXL?utm_source=generator" width="100%" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+          <div class="embed-inner">
+            <iframe data-testid="embed-iframe" style="border-radius:12px" src="https://open.spotify.com/embed/track/7E04CMAt1nKEAN2wUgtNXL?utm_source=generator" width="100%" height="352" frameborder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+          </div>
         </div>
 
       </div>
@@ -771,6 +806,25 @@
       Visitors: <span id="busuanzi_value_site_uv"></span>
     </div>
   </footer>
+
+  <!-- make the "playing" card pulse -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const wrappers = document.querySelectorAll('.embed-wrapper');
+
+      if (wrappers.length) {
+        // default: first card is "playing"
+        wrappers[0].classList.add('playing');
+      }
+
+      wrappers.forEach(wrapper => {
+        wrapper.addEventListener('click', () => {
+          wrappers.forEach(w => w.classList.remove('playing'));
+          wrapper.classList.add('playing');
+        });
+      });
+    });
+  </script>
 
   <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 
