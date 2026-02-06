@@ -320,8 +320,7 @@
     @media (min-width: 768px) {
       .embed-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
+      }
     }
 
     .embed-wrapper {
@@ -661,7 +660,7 @@
       </div>
       <p class="hero-tagline">Signal from the other side</p>
       <br><br>
-      <p class="hero-tagline">For more information or questions, email us at info@summonmars.com</p>
+      <p class="hero-tagline">For more information or questions, email to info@summonmars.com</p>
     </div>
   </header>
 
@@ -682,25 +681,25 @@
 
         <div class="embed-wrapper">
           <div class="embed-inner">
-            <iframe data-testid="embed-iframe" style="border-radius:12px" src="https://open.spotify.com/embed/track/1yMi0TQ6PwmvCfK5lLqAxF?utm_source=generator&theme=0" width="100%" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+            <iframe data-testid="embed-iframe" style="border-radius:12px" src="https://open.spotify.com/embed/track/1yMi0TQ6PwmvCfK5lLqAxF?utm_source=generator&theme=0" width="100%" height="352" frameborder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
           </div>
         </div>
         
         <div class="embed-wrapper">
           <div class="embed-inner">
-            <iframe data-testid="embed-iframe" style="border-radius:12px" src="https://open.spotify.com/embed/track/6D1udlfRLhuv4KCrUmFV2j?utm_source=generator&theme=0" width="100%" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+            <iframe data-testid="embed-iframe" style="border-radius:12px" src="https://open.spotify.com/embed/track/6D1udlfRLhuv4KCrUmFV2j?utm_source=generator&theme=0" width="100%" height="352" frameborder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
           </div>
         </div>
 
         <div class="embed-wrapper">
           <div class="embed-inner">
-            <iframe data-testid="embed-iframe" style="border-radius:12px" src="https://open.spotify.com/embed/track/5P6jAr1ajq0nbXOUsBP0jG?utm_source=generator&theme=0" width="100%" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+            <iframe data-testid="embed-iframe" style="border-radius:12px" src="https://open.spotify.com/embed/track/5P6jAr1ajq0nbXOUsBP0jG?utm_source=generator&theme=0" width="100%" height="352" frameborder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
           </div>
         </div>
 
         <div class="embed-wrapper">
           <div class="embed-inner">
-            <iframe data-testid="embed-iframe" style="border-radius:12px" src="https://open.spotify.com/embed/track/7E04CMAt1nKEAN2wUgtNXL?utm_source=generator&theme=0" width="100%" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+            <iframe data-testid="embed-iframe" style="border-radius:12px" src="https://open.spotify.com/embed/track/7E04CMAt1nKEAN2wUgtNXL?utm_source=generator&theme=0" width="100%" height="352" frameborder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
           </div>
         </div>
 
@@ -804,22 +803,24 @@
     </div>
   </footer>
 
-  <!-- make the "playing" card pulse (click to toggle) -->
+  <!-- Highlight / pulse the "current" track: default first, then whichever card you're over -->
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const wrappers = document.querySelectorAll('.embed-wrapper');
 
+      if (!wrappers.length) return;
+
+      // default presence: first card "playing"
+      wrappers[0].classList.add('playing');
+
+      const setActive = (wrapper) => {
+        wrappers.forEach(w => w.classList.remove('playing'));
+        if (wrapper) wrapper.classList.add('playing');
+      };
+
       wrappers.forEach(wrapper => {
-        wrapper.addEventListener('click', () => {
-          const isActive = wrapper.classList.contains('playing');
-
-          // clear all first
-          wrappers.forEach(w => w.classList.remove('playing'));
-
-          // if it wasn't active, activate it; if it was, leave all off
-          if (!isActive) {
-            wrapper.classList.add('playing');
-          }
+        wrapper.addEventListener('mouseenter', () => {
+          setActive(wrapper);
         });
       });
     });
