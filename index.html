@@ -177,7 +177,7 @@
       background: linear-gradient(90deg, var(--aurora-1), var(--aurora-3));
       transform-origin: center;
       transform: scaleX(0);
-      transition: transform 0.25s ease;
+      transition: transform 0.25s.ease;
     }
 
     .main-nav a:hover {
@@ -302,7 +302,7 @@
 
     @media (min-width: 768px) {
       .embed-grid {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(2, minmax(0, 1fr));
       }
     }
 
@@ -511,26 +511,20 @@
       text-align: center;
     }
 
+    .about-images {
+      display: flex;
+      flex-direction: row;
+      gap: 1.25rem;
+      align-items: center;
+      justify-content: center;
+    }
+
     .about-photo {
       width: 100%;
       max-width: 120px;
       border-radius: 14px;
       box-shadow: 0 0 40px rgba(0, 0, 0, 0.8);
       object-fit: cover;
-    }
-
-    /* CANCER CONSTELLATION STRIP (below About) */
-    .cancer-constellation {
-      width: 100%;
-      max-width: 900px;
-      height: 260px;
-      margin: 1rem auto 0;
-      background-image: url("cancer-constellation.png"); /* <- put your Cancer image here */
-      background-size: contain;
-      background-repeat: no-repeat;
-      background-position: center;
-      opacity: 0.95;
-      pointer-events: none;
     }
 
     footer {
@@ -554,10 +548,6 @@
       .logo {
         font-size: 2.8rem;
         letter-spacing: 0.15em;
-      }
-
-      .cancer-constellation {
-        height: 220px;
       }
     }
 
@@ -687,7 +677,13 @@
     <section id="about">
       <h2>About</h2>
       <div class="about-wrap">
-        <img src="profile-stand.png" alt="Summon Mars" class="about-photo" />
+
+        <div class="about-images">
+          <!-- Cancer sigil on the LEFT, same frame style -->
+          <img src="cancer-constellation.png" alt="Cancer constellation" class="about-photo" />
+          <!-- Your existing profile image (unchanged size) -->
+          <img src="profile-stand.png" alt="Summon Mars" class="about-photo" />
+        </div>
 
         <p>
           Summon Mars is built with restraint and released without warning. Every track is pressure, memory, and motion held just long enough to matter. Nothing here is accidental. Nothing is rushed. If it found you, it was already moving your way.
@@ -702,9 +698,6 @@
     </section>
 
   </main>
-
-  <!-- Cancer constellation background strip -->
-  <div class="cancer-constellation" aria-hidden="true"></div>
 
   <footer>
     © 2026 Summon Mars. All rights reserved.
