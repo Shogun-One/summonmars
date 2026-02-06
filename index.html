@@ -315,6 +315,8 @@
       display: grid;
       grid-template-columns: 1fr;
       gap: 1.5rem;
+      /* give the whole quad some depth for the origami effect */
+      perspective: 1600px;
     }
 
     @media (min-width: 768px) {
@@ -329,6 +331,42 @@
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
       background: rgba(0, 0, 0, 0.5);
       border: 1px solid rgba(255, 255, 255, 0.1);
+      transform-style: preserve-3d;
+      transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease,
+        border-color 0.25s ease;
+    }
+
+    /* TOP-LEFT: inner (bottom-right) corner tipped inward */
+    .embed-wrapper:nth-child(1) {
+      transform-origin: 100% 100%;
+      transform: rotateX(7deg) rotateY(-8deg);
+    }
+
+    /* TOP-RIGHT: inner (bottom-left) corner tipped inward */
+    .embed-wrapper:nth-child(2) {
+      transform-origin: 0% 100%;
+      transform: rotateX(7deg) rotateY(8deg);
+    }
+
+    /* BOTTOM-LEFT: inner (top-right) corner tipped inward */
+    .embed-wrapper:nth-child(3) {
+      transform-origin: 100% 0%;
+      transform: rotateX(-7deg) rotateY(-8deg);
+    }
+
+    /* BOTTOM-RIGHT: inner (top-left) corner tipped inward */
+    .embed-wrapper:nth-child(4) {
+      transform-origin: 0% 0%;
+      transform: rotateX(-7deg) rotateY(8deg);
+    }
+
+    /* Gentle hover to "unfold" toward the viewer */
+    .embed-wrapper:hover {
+      transform: rotateX(0deg) rotateY(0deg) translateZ(6px);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.95);
+      border-color: rgba(255, 255, 255, 0.3);
     }
 
     .embed-wrapper iframe {
@@ -381,10 +419,19 @@
       aspect-ratio: 16 / 9;
     }
 
-    /* Mobile – still just stacked, but rule kept for future */
     @media (max-width: 768px) {
       #videos .videos-grid {
         grid-template-columns: 1fr;
+      }
+
+      /* on narrow screens, flatten the origami so it doesn’t look warped */
+      .embed-wrapper,
+      .embed-wrapper:nth-child(1),
+      .embed-wrapper:nth-child(2),
+      .embed-wrapper:nth-child(3),
+      .embed-wrapper:nth-child(4) {
+        transform: none;
+        transform-origin: center;
       }
     }
 
@@ -419,7 +466,6 @@
       }
     }
 
-    /* --- FIXED MERCH CARD STYLES --- */
     .merch-card {
       background: rgba(0, 0, 0, 0.65);
       border-radius: 18px;
@@ -471,7 +517,6 @@
       transform: translateY(-1px);
     }
 
-    /* UPDATED QR TO MATCH YOUR SNAPSHOT */
     .merch-qr {
       max-width: 260px;
       width: 100%;
@@ -519,7 +564,6 @@
       box-shadow: 0 0 16px rgba(255,253,154,0.35);
     }
 
-    /* ABOUT */
     .about-wrap {
       display: flex;
       flex-direction: column;
@@ -536,13 +580,12 @@
       justify-content: center;
     }
 
-    /* Constellation + profile – same height, about 1/3 smaller than before */
     .about-photo {
-      height: 174px;          /* ~2/3 of 260px */
+      height: 174px;
       width: auto;
       border-radius: 14px;
       box-shadow: 0 0 40px rgba(0, 0, 0, 0.8);
-      object-fit: contain;    /* no cropping, both fully visible */
+      object-fit: contain;
       display: block;
     }
 
@@ -554,7 +597,6 @@
       background: rgba(0,0,0,0.3);
     }
 
-    /* COUNTER */
     .visit-counter {
       margin-top: 0.4rem;
       font-size: 0.7rem;
@@ -643,12 +685,10 @@
       </p>
 
       <div class="videos-grid">
-        <!-- HERO SHIP VIDEO (big, glowing) -->
         <div class="video-wrapper hero-video">
           <video src="racetomarsforsite.mp4" controls></video>
         </div>
 
-        <!-- EARTH VIDEO (also big & glowing) -->
         <div class="video-wrapper earth-video">
           <video src="racetomars.mp4" controls></video>
         </div>
@@ -706,11 +746,8 @@
       <div class="about-wrap">
 
         <div class="about-images">
-          <!-- Grey dog on the LEFT -->
           <img src="marsmydog.jpg" alt="My dog Mars" class="about-photo" />
-          <!-- Cancer sigil on the Middle -->
           <img src="cancer-constellation.png" alt="Cancer constellation" class="about-photo" />
-          <!-- Your existing profile image -->
           <img src="profile-stand.png" alt="Summon Mars" class="about-photo" />
         </div>
 
