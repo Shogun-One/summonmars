@@ -37,7 +37,7 @@
       background-attachment: fixed;
     }
 
-    /* STARS BACKDROP (more + brighter, still sparse) */
+    /* STARS BACKDROP (more + brighter, now *clearly* ascending) */
     .stars-layer {
       position: fixed;
       inset: 0;
@@ -59,7 +59,7 @@
       opacity: 0.9;
       animation:
         twinkle-strong 9s ease-in-out infinite alternate,
-        star-ascend 80s linear infinite;
+        star-ascend 25s linear infinite;
       will-change: opacity, transform;
     }
 
@@ -75,7 +75,7 @@
       opacity: 0.8;
       animation:
         twinkle-soft 13s ease-in-out infinite alternate,
-        star-ascend-soft 120s linear infinite;
+        star-ascend-soft 35s linear infinite;
       will-change: opacity, transform;
     }
 
@@ -91,15 +91,15 @@
       100% { opacity: 0.6; }
     }
 
-    /* NEW: slow vertical ascent for the starfield */
+    /* Vertical ascent for the starfield */
     @keyframes star-ascend {
-      0%   { transform: translateY(40px); }
-      100% { transform: translateY(-40px); }
+      0%   { transform: translateY(0); }
+      100% { transform: translateY(-200px); }
     }
 
     @keyframes star-ascend-soft {
-      0%   { transform: translateY(20px); }
-      100% { transform: translateY(-20px); }
+      0%   { transform: translateY(0); }
+      100% { transform: translateY(-120px); }
     }
 
     /* GLOBAL AURORA */
@@ -178,7 +178,7 @@
       font-weight: 600;
       position: relative;
       padding-bottom: 0.3rem;
-      transition: color 0.25s.ease, transform 0.25s.ease;
+      transition: color 0.25s ease, transform 0.25s ease;
       text-shadow:
         0 0 4px rgba(0,0,0,0.9),
         0 0 8px rgba(0,0,0,0.7);
@@ -532,7 +532,7 @@
       display: flex;
       flex-direction: row;
       gap: 1.25rem;
-      align-items: flex-end;   /* bottoms aligned, aspect ratios free */
+      align-items: flex-end;
       justify-content: center;
     }
 
