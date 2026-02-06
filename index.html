@@ -37,6 +37,48 @@
       background-attachment: fixed;
     }
 
+    /* STARS LAYER (subtle + rare) */
+    .stars-layer {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: -11;
+      background:
+        radial-gradient(2px 2px at 8% 12%, rgba(255, 255, 255, 0.9) 0, transparent 60%),
+        radial-gradient(1.5px 1.5px at 22% 70%, rgba(200, 230, 255, 0.85) 0, transparent 60%),
+        radial-gradient(2px 2px at 78% 18%, rgba(255, 255, 255, 0.85) 0, transparent 60%),
+        radial-gradient(1.5px 1.5px at 64% 82%, rgba(220, 240, 255, 0.8) 0, transparent 60%),
+        radial-gradient(2px 2px at 92% 48%, rgba(255, 255, 255, 0.9) 0, transparent 60%),
+        radial-gradient(1.5px 1.5px at 38% 40%, rgba(210, 235, 255, 0.75) 0, transparent 60%),
+        radial-gradient(2px 2px at 50% 90%, rgba(255, 255, 255, 0.85) 0, transparent 60%);
+      opacity: 0.7;
+      animation: twinkle 8s ease-in-out infinite alternate;
+    }
+
+    .stars-layer::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(1.5px 1.5px at 15% 55%, rgba(255, 255, 255, 0.7) 0, transparent 60%),
+        radial-gradient(1.5px 1.5px at 70% 30%, rgba(210, 230, 255, 0.7) 0, transparent 60%),
+        radial-gradient(1.5px 1.5px at 45% 10%, rgba(255, 255, 255, 0.75) 0, transparent 60%);
+      opacity: 0.6;
+      animation: twinkle-soft 11s ease-in-out infinite alternate;
+    }
+
+    @keyframes twinkle {
+      0%   { opacity: 0.35; filter: blur(0.3px); }
+      50%  { opacity: 0.8;  filter: blur(0); }
+      100% { opacity: 0.45; filter: blur(0.4px); }
+    }
+
+    @keyframes twinkle-soft {
+      0%   { opacity: 0.25; }
+      50%  { opacity: 0.6; }
+      100% { opacity: 0.3; }
+    }
+
     /* GLOBAL AURORA */
     .aurora-layer {
       position: fixed;
@@ -316,7 +358,6 @@
       aspect-ratio: 16 / 9;
     }
 
-    /* Mobile – still just stacked, but rule kept for future */
     @media (max-width: 768px) {
       #videos .videos-grid {
         grid-template-columns: 1fr;
@@ -499,6 +540,7 @@
 </head>
 <body>
 
+  <div class="stars-layer"></div>
   <div class="aurora-layer"></div>
 
   <header class="hero">
