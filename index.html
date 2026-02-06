@@ -274,55 +274,73 @@
 
     /* VIDEO */
     .video-wrapper {
-  margin-top: 0;
-}
-    
-    .video-wrapper video {
-      width: 100%;
-      max-width: 800px;
-      border-radius: 16px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+      margin-top: 0;
     }
 
-    /* VIDEOS GRID */
-#videos .videos-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 2rem;
-  margin-top: 2rem;
-}
+    .video-wrapper video {
+      width: 100%;
+      max-width: 100%;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+      display: block;
+    }
 
-#videos .video-wrapper video {
-  width: 100%;
-  height: 100%;
-  display: block;
-  border-radius: 18px;
-}
+    /* VIDEOS GRID – hero ship on top, two clips below */
+    #videos .videos-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-areas:
+        "hero hero"
+        "earth astro";
+      gap: 2rem;
+      margin-top: 2rem;
+    }
 
-/* Bottom video spans full width */
-#videos .video-wrapper.full {
-  grid-column: 1 / 3;
-}
+    /* HERO SHIP VIDEO – big & glowing */
+    #videos .video-wrapper.hero-video {
+      grid-area: hero;
+      position: relative;
+      border-radius: 22px;
+      overflow: hidden;
+      max-width: 100%;
+      margin-inline: auto;
+      box-shadow:
+        0 0 40px rgba(119, 255, 239, 0.45),
+        0 0 80px rgba(0, 195, 255, 0.5),
+        0 18px 45px rgba(0, 0, 0, 0.95);
+    }
 
-/* Aspect helpers */
-#videos .video-wrapper.landscape video {
-  aspect-ratio: 16 / 9;
-}
+    #videos .video-wrapper.hero-video video {
+      border-radius: 22px;
+    }
 
-#videos .video-wrapper.portrait video {
-  aspect-ratio: 9 / 16;
-}
+    /* BOTTOM ROW: earth (left) + astronaut 9x16 (right) */
+    #videos .video-wrapper.earth-video {
+      grid-area: earth;
+    }
 
-/* Mobile fallback */
-@media (max-width: 768px) {
-  #videos .videos-grid {
-    grid-template-columns: 1fr;
-  }
+    #videos .video-wrapper.astro-video {
+      grid-area: astro;
+    }
 
-  #videos .video-wrapper.full {
-    grid-column: 1;
-  }
-}
+    #videos .video-wrapper.earth-video video {
+      aspect-ratio: 16 / 9;
+    }
+
+    #videos .video-wrapper.astro-video video {
+      aspect-ratio: 9 / 16;
+    }
+
+    /* Stack on mobile */
+    @media (max-width: 768px) {
+      #videos .videos-grid {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+          "hero"
+          "earth"
+          "astro";
+      }
+    }
 
     /* MERCH */
     .merch-layout {
@@ -366,7 +384,7 @@
       flex-direction: column;
       align-items: center;
       gap: 1.1rem;
-      height: 100%; /* Added: Ensures all cards are equal height in the grid */
+      height: 100%;
     }
 
     .merch-card img {
@@ -385,7 +403,7 @@
     }
 
     .merch-button {
-      margin-top: auto; /* Added: Pushes the button to the bottom */
+      margin-top: auto;
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -553,29 +571,28 @@
     </section>
 
     <section id="videos">
-  <h2>Videos</h2>
-  <p>
-    Portals, shorts, and weird visuals from the Summon Mars universe.
-    Broadcast from the static between channels.
-  </p>
+      <h2>Videos</h2>
+      <p>
+        Portals, shorts, and weird visuals from the Summon Mars universe.
+        Broadcast from the static between channels.
+      </p>
 
-  <div class="videos-grid">
-    <!-- TOP ROW: spaceship + 9x16 extra clip -->
-    <div class="video-wrapper landscape">
-      <video src="racetomarsforsite.mp4" controls></video>
-    </div>
+      <div class="videos-grid">
+        <!-- HERO SHIP VIDEO (big, glowing) -->
+        <div class="video-wrapper hero-video">
+          <video src="racetomarsforsite.mp4" controls></video>
+        </div>
 
-    <div class="video-wrapper portrait">
-      <video src="racetomars916.mp4" controls></video>
-    </div>
+        <!-- BOTTOM ROW: earth (left) + astronaut 9x16 (right) -->
+        <div class="video-wrapper earth-video">
+          <video src="racetomars.mp4" controls></video>
+        </div>
 
-    <!-- BOTTOM ROW: earth video, full width -->
-    <div class="video-wrapper full">
-      <video src="racetomars.mp4" controls></video>
-    </div>
-  </div>
-</section>
-
+        <div class="video-wrapper astro-video">
+          <video src="racetomars916.mp4" controls></video>
+        </div>
+      </div>
+    </section>
 
     <section id="merch">
       <h2>Merch</h2>
@@ -591,7 +608,7 @@
 
           <p>
             Click below | Scan QR with Phone<br>
-             Opens the merch store instantly.
+            Opens the merch store instantly.
           </p>
 
           <a class="qr-button" href="https://direct.distrokid.com/summonmars">
@@ -628,13 +645,15 @@
       <div class="about-wrap">
         <img src="profile-stand.png" alt="Summon Mars" class="about-photo" />
 
-        <p>Summon Mars is built with restraint and released without warning. Every track is pressure, memory, and motion held just long enough to matter. Nothing here is accidental. Nothing is rushed. If it found you, it was already moving your way.
-
-The work lives in heavy rhythms, disciplined melodies, and lyrics shaped by experience and patience rather than noise. Every track is intentional, carrying weight meant to linger instead of flash and disappear.
-
-The project is developed over years in the background where sound, visuals, and symbols evolved together. Influences run wide, but the execution stays focused.
-
-If the songs feel like they arrived already in motion, that’s because they were never built to chase attention, only to hold it.</p>
+        <p>
+          Summon Mars is built with restraint and released without warning. Every track is pressure, memory, and motion held just long enough to matter. Nothing here is accidental. Nothing is rushed. If it found you, it was already moving your way.
+          <br><br>
+          The work lives in heavy rhythms, disciplined melodies, and lyrics shaped by experience and patience rather than noise. Every track is intentional, carrying weight meant to linger instead of flash and disappear.
+          <br><br>
+          The project is developed over years in the background where sound, visuals, and symbols evolved together. Influences run wide, but the execution stays focused.
+          <br><br>
+          If the songs feel like they arrived already in motion, that’s because they were never built to chase attention, only to hold it.
+        </p>
       </div>
     </section>
 
