@@ -37,7 +37,7 @@
       background-attachment: fixed;
     }
 
-    /* STARS BACKDROP (more + brighter, now *clearly* ascending) */
+    /* STARS BACKDROP (brighter + clearly ascending) */
     .stars-layer {
       position: fixed;
       inset: 0;
@@ -59,7 +59,7 @@
       opacity: 0.9;
       animation:
         twinkle-strong 9s ease-in-out infinite alternate,
-        star-ascend 25s linear infinite;
+        star-ascend 30s linear infinite;
       will-change: opacity, transform;
     }
 
@@ -75,7 +75,7 @@
       opacity: 0.8;
       animation:
         twinkle-soft 13s ease-in-out infinite alternate,
-        star-ascend-soft 35s linear infinite;
+        star-ascend-soft 45s linear infinite;
       will-change: opacity, transform;
     }
 
@@ -93,13 +93,13 @@
 
     /* Vertical ascent for the starfield */
     @keyframes star-ascend {
-      0%   { transform: translateY(0); }
-      100% { transform: translateY(-200px); }
+      0%   { transform: translateY(40px); }
+      100% { transform: translateY(-160px); }
     }
 
     @keyframes star-ascend-soft {
-      0%   { transform: translateY(0); }
-      100% { transform: translateY(-120px); }
+      0%   { transform: translateY(20px); }
+      100% { transform: translateY(-100px); }
     }
 
     /* GLOBAL AURORA */
@@ -536,12 +536,14 @@
       justify-content: center;
     }
 
+    /* Constellation + profile – larger again */
     .about-photo {
-      width: 100%;
-      max-width: 120px;
+      width: auto;
+      max-width: 260px;
       border-radius: 14px;
       box-shadow: 0 0 40px rgba(0, 0, 0, 0.8);
       object-fit: cover;
+      display: block;
     }
 
     footer {
@@ -565,6 +567,10 @@
       .logo {
         font-size: 2.8rem;
         letter-spacing: 0.15em;
+      }
+
+      .about-photo {
+        max-width: 200px;
       }
     }
 
