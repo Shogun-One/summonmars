@@ -285,20 +285,17 @@
       display: block;
     }
 
-    /* VIDEOS GRID – hero ship on top, two clips below */
+    /* VIDEOS GRID – hero ship + earth stacked */
     #videos .videos-grid {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      grid-template-areas:
-        "hero hero"
-        "earth astro";
+      grid-template-columns: 1fr;
       gap: 2rem;
       margin-top: 2rem;
     }
 
-    /* HERO SHIP VIDEO – big & glowing */
-    #videos .video-wrapper.hero-video {
-      grid-area: hero;
+    /* HERO & EARTH – big & glowing */
+    #videos .video-wrapper.hero-video,
+    #videos .video-wrapper.earth-video {
       position: relative;
       border-radius: 22px;
       overflow: hidden;
@@ -310,35 +307,19 @@
         0 18px 45px rgba(0, 0, 0, 0.95);
     }
 
-    #videos .video-wrapper.hero-video video {
+    #videos .video-wrapper.hero-video video,
+    #videos .video-wrapper.earth-video video {
       border-radius: 22px;
-    }
-
-    /* BOTTOM ROW: earth (left) + astronaut 9x16 (right) */
-    #videos .video-wrapper.earth-video {
-      grid-area: earth;
-    }
-
-    #videos .video-wrapper.astro-video {
-      grid-area: astro;
     }
 
     #videos .video-wrapper.earth-video video {
       aspect-ratio: 16 / 9;
     }
 
-    #videos .video-wrapper.astro-video video {
-      aspect-ratio: 9 / 16;
-    }
-
-    /* Stack on mobile */
+    /* Mobile – still just stacked, but rule kept for future */
     @media (max-width: 768px) {
       #videos .videos-grid {
         grid-template-columns: 1fr;
-        grid-template-areas:
-          "hero"
-          "earth"
-          "astro";
       }
     }
 
@@ -583,13 +564,9 @@
           <video src="racetomarsforsite.mp4" controls></video>
         </div>
 
-        <!-- BOTTOM ROW: earth (left) + astronaut 9x16 (right) -->
+        <!-- EARTH VIDEO (also big & glowing) -->
         <div class="video-wrapper earth-video">
           <video src="racetomars.mp4" controls></video>
-        </div>
-
-        <div class="video-wrapper astro-video">
-          <video src="racetomars916.mp4" controls></video>
         </div>
       </div>
     </section>
