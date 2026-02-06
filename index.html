@@ -515,16 +515,17 @@
       display: flex;
       flex-direction: row;
       gap: 1.25rem;
-      align-items: flex-end;   /* bottoms aligned, aspect ratios free */
+      align-items: flex-end;   /* bottoms aligned */
       justify-content: center;
     }
 
     .about-photo {
-      width: 100%;
-      max-width: 120px;
+      height: 260px;           /* same height for both images */
+      width: auto;             /* keep aspect ratio, no squish */
       border-radius: 14px;
       box-shadow: 0 0 40px rgba(0, 0, 0, 0.8);
-      object-fit: cover;
+      object-fit: contain;
+      display: block;
     }
 
     footer {
@@ -548,6 +549,10 @@
       .logo {
         font-size: 2.8rem;
         letter-spacing: 0.15em;
+      }
+
+      .about-photo {
+        height: 200px;   /* slightly smaller on phones */
       }
     }
 
