@@ -57,7 +57,10 @@
         radial-gradient(2px 2px at 68% 78%, rgba(220, 235, 255, 0.9) 0, transparent 60%),
         radial-gradient(2.5px 2.5px at 90% 88%, rgba(255, 255, 255, 0.95) 0, transparent 60%);
       opacity: 0.9;
-      animation: twinkle-strong 9s ease-in-out infinite alternate;
+      animation:
+        twinkle-strong 9s ease-in-out infinite alternate,
+        star-ascend 80s linear infinite;
+      will-change: opacity, transform;
     }
 
     .stars-layer::before {
@@ -70,7 +73,10 @@
         radial-gradient(1.7px 1.7px at 76% 60%, rgba(255, 255, 255, 0.8) 0, transparent 60%),
         radial-gradient(1.7px 1.7px at 40% 90%, rgba(235, 242, 255, 0.8) 0, transparent 60%);
       opacity: 0.8;
-      animation: twinkle-soft 13s ease-in-out infinite alternate;
+      animation:
+        twinkle-soft 13s ease-in-out infinite alternate,
+        star-ascend-soft 120s linear infinite;
+      will-change: opacity, transform;
     }
 
     @keyframes twinkle-strong {
@@ -83,6 +89,17 @@
       0%   { opacity: 0.5; }
       50%  { opacity: 0.9; }
       100% { opacity: 0.6; }
+    }
+
+    /* NEW: slow vertical ascent for the starfield */
+    @keyframes star-ascend {
+      0%   { transform: translateY(40px); }
+      100% { transform: translateY(-40px); }
+    }
+
+    @keyframes star-ascend-soft {
+      0%   { transform: translateY(20px); }
+      100% { transform: translateY(-20px); }
     }
 
     /* GLOBAL AURORA */
@@ -161,7 +178,7 @@
       font-weight: 600;
       position: relative;
       padding-bottom: 0.3rem;
-      transition: color 0.25s ease, transform 0.25s ease;
+      transition: color 0.25s.ease, transform 0.25s.ease;
       text-shadow:
         0 0 4px rgba(0,0,0,0.9),
         0 0 8px rgba(0,0,0,0.7);
@@ -515,17 +532,16 @@
       display: flex;
       flex-direction: row;
       gap: 1.25rem;
-      align-items: flex-end;   /* bottoms aligned */
+      align-items: flex-end;   /* bottoms aligned, aspect ratios free */
       justify-content: center;
     }
 
     .about-photo {
-      height: 260px;           /* same height for both images */
-      width: auto;             /* keep aspect ratio, no squish */
+      width: 100%;
+      max-width: 120px;
       border-radius: 14px;
       box-shadow: 0 0 40px rgba(0, 0, 0, 0.8);
-      object-fit: contain;
-      display: block;
+      object-fit: cover;
     }
 
     footer {
@@ -549,10 +565,6 @@
       .logo {
         font-size: 2.8rem;
         letter-spacing: 0.15em;
-      }
-
-      .about-photo {
-        height: 200px;   /* slightly smaller on phones */
       }
     }
 
