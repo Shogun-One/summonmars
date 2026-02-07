@@ -856,15 +856,40 @@
 
       <div class="videos-grid">
         <div class="video-wrapper hero-video">
-          <video src="racetomarsforsite.mp4" controls></video>
+          <video
+            src="racetomarsforsite.mp4"
+            controls
+            controlslist="nodownload noplaybackrate"
+            disablepictureinpicture
+        ></video>
+
         </div>
 
         <div class="video-wrapper earth-video">
-          <video src="racetomars.mp4" controls></video>
+          <video
+            src="racetomars.mp4"
+            controls
+            controlslist="nodownload noplaybackrate"
+            disablepictureinpicture
+        ></video>
         </div>
       </div>
     </section>
 
+    /* VIDEO – prevent selection */
+video {
+  -webkit-user-select: none;
+  user-select: none;
+}
+    video::-webkit-media-controls-download-button {
+  display: none !important;
+}
+
+video::-webkit-media-controls-enclosure {
+  overflow: hidden;
+}
+
+    
     <!-- MERCH -->
     <section id="merch">
       <h2>Merch</h2>
