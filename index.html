@@ -8,6 +8,20 @@
   <link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Oswald:wght@300;400;500&display=swap" rel="stylesheet">
   
   <style>
+    /* SECURITY LOCKDOWN */
+    body {
+      -webkit-user-select: none; /* Chrome/Safari */
+      -moz-user-select: none; /* Firefox */
+      -ms-user-select: none; /* IE10+ */
+      user-select: none; /* Standard */
+      -webkit-touch-callout: none; /* iOS Safari */
+    }
+    
+    img {
+      pointer-events: none; /* Disables drag/drop and right click on images */
+      -webkit-user-drag: none;
+    }
+
     /* RESET */
     * {
       margin: 0;
@@ -80,24 +94,24 @@
     }
 
     @keyframes twinkle-strong {
-      0%   { opacity: 0.55; }
-      50%  { opacity: 1; }
+      0%    { opacity: 0.55; }
+      50%   { opacity: 1; }
       100% { opacity: 0.7; }
     }
 
     @keyframes twinkle-soft {
-      0%   { opacity: 0.5; }
-      50%  { opacity: 0.9; }
+      0%    { opacity: 0.5; }
+      50%   { opacity: 0.9; }
       100% { opacity: 0.6; }
     }
 
     @keyframes star-ascend {
-      0%   { transform: translateY(40px); }
+      0%    { transform: translateY(40px); }
       100% { transform: translateY(-160px); }
     }
 
     @keyframes star-ascend-soft {
-      0%   { transform: translateY(20px); }
+      0%    { transform: translateY(20px); }
       100% { transform: translateY(-100px); }
     }
 
@@ -451,9 +465,9 @@
     }
 
     @keyframes pulseBeat {
-      0%   { transform: scale(1); }
-      35%  { transform: scale(1.03); }
-      55%  { transform: scale(1.06); }
+      0%    { transform: scale(1); }
+      35%   { transform: scale(1.03); }
+      55%   { transform: scale(1.06); }
       100% { transform: scale(1); }
     }
 
@@ -480,6 +494,8 @@
       border-radius: 16px;
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
       display: block;
+      /* Ensure controls are still clickable despite body lock */
+      pointer-events: auto;
     }
 
     #videos .videos-grid {
@@ -512,27 +528,18 @@
     }
 
     /* VIDEO – prevent download & selection */
-.video-wrapper video {
-  width: 100%;
-  max-width: 100%;
-  border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
-  display: block;
-}
+    video {
+      -webkit-user-select: none;
+      user-select: none;
+    }
 
-video {
-  -webkit-user-select: none;
-  user-select: none;
-}
+    video::-webkit-media-controls-download-button {
+      display: none !important;
+    }
 
-video::-webkit-media-controls-download-button {
-  display: none !important;
-}
-
-video::-webkit-media-controls-enclosure {
-  overflow: hidden;
-}
-
+    video::-webkit-media-controls-enclosure {
+      overflow: hidden;
+    }
 
     /* MERCH */
     .merch-layout {
@@ -770,7 +777,6 @@ video::-webkit-media-controls-enclosure {
 
   <main>
 
-    <!-- MUSIC -->
     <section id="music">
       <h2>Music</h2>
       <p>
@@ -780,7 +786,6 @@ video::-webkit-media-controls-enclosure {
 
       <div class="embed-grid">
 
-        <!-- CARD 1 -->
         <div class="embed-wrapper" data-audio-id="track-life">
           <div class="embed-inner">
             <div class="track-cover">
@@ -801,7 +806,6 @@ video::-webkit-media-controls-enclosure {
           </div>
         </div>
 
-        <!-- CARD 2 -->
         <div class="embed-wrapper" data-audio-id="track-wake">
           <div class="embed-inner">
             <div class="track-cover">
@@ -822,7 +826,6 @@ video::-webkit-media-controls-enclosure {
           </div>
         </div>
 
-        <!-- CARD 3 -->
         <div class="embed-wrapper" data-audio-id="track-race">
           <div class="embed-inner">
             <div class="track-cover">
@@ -843,7 +846,6 @@ video::-webkit-media-controls-enclosure {
           </div>
         </div>
 
-        <!-- CARD 4 -->
         <div class="embed-wrapper" data-audio-id="track-love">
           <div class="embed-inner">
             <div class="track-cover">
@@ -867,7 +869,6 @@ video::-webkit-media-controls-enclosure {
       </div>
     </section>
 
-    <!-- VIDEOS -->
     <section id="videos">
       <h2>Videos</h2>
       <p>
@@ -884,7 +885,8 @@ video::-webkit-media-controls-enclosure {
             controls
             controlslist="nodownload noplaybackrate"
             disablepictureinpicture
-        ></video>
+            oncontextmenu="return false;"
+          ></video>
 
         </div>
 
@@ -894,12 +896,12 @@ video::-webkit-media-controls-enclosure {
             controls
             controlslist="nodownload noplaybackrate"
             disablepictureinpicture
-        ></video>
+            oncontextmenu="return false;"
+          ></video>
         </div>
       </div>
     </section>
     
-    <!-- MERCH -->
     <section id="merch">
       <h2>Merch</h2>
       <p>
@@ -946,7 +948,6 @@ video::-webkit-media-controls-enclosure {
       </div>
     </section>
 
-    <!-- ABOUT -->
     <section id="about">
       <h2>About</h2>
       <div class="about-wrap">
@@ -978,9 +979,25 @@ video::-webkit-media-controls-enclosure {
     </div>
   </footer>
 
-  <!-- AUDIO CONTROL SCRIPT -->
   <script>
     document.addEventListener('DOMContentLoaded', () => {
+      // SECURITY: PREVENT CONTEXT MENU
+      document.addEventListener('contextmenu', event => event.preventDefault());
+
+      // SECURITY: PREVENT KEYBOARD SHORTCUTS FOR INSPECTION/SAVING
+      document.onkeydown = function(e) {
+          if(e.keyCode == 123) { return false; } // Block F12
+          if(e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) { return false; } // Block Ctrl+Shift+I
+          if(e.ctrlKey && e.shiftKey && e.keyCode == 'C'.charCodeAt(0)) { return false; } // Block Ctrl+Shift+C
+          if(e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) { return false; } // Block Ctrl+Shift+J
+          if(e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) { return false; } // Block Ctrl+U
+          if(e.ctrlKey && e.keyCode == 'S'.charCodeAt(0)) { return false; } // Block Ctrl+S
+      }
+
+      // SECURITY: PREVENT DRAGGING ASSETS
+      document.ondragstart = function() { return false; };
+
+      // AUDIO PLAYER LOGIC
       const cards = document.querySelectorAll('.embed-wrapper');
       const buttons = document.querySelectorAll('.track-play');
       const audios = document.querySelectorAll('audio[id^="track-"]');
