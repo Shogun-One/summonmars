@@ -876,12 +876,22 @@
       </div>
     </section>
 
-    /* VIDEO – prevent selection */
+    /* VIDEO */
+.video-wrapper video {
+  width: 100%;
+  max-width: 100%;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+  display: block;
+}
+
+    /* VIDEO – prevent download & selection */
 video {
   -webkit-user-select: none;
   user-select: none;
 }
-    video::-webkit-media-controls-download-button {
+
+video::-webkit-media-controls-download-button {
   display: none !important;
 }
 
