@@ -30,6 +30,9 @@
       overflow: hidden; /* Keeps the glass shield contained */
       border-radius: 22px;
       background: #000;
+      /* Ensures video box is substantial */
+      width: 100%;
+      box-shadow: 0 0 50px rgba(0, 195, 255, 0.15); /* Subtle glow for hype */
     }
     
     /* THE GLASS SHIELD: 100% Coverage preventing DIRECT interaction */
@@ -1073,7 +1076,7 @@
         <div class="video-wrapper hero-video paused">
           <video
             data-vid="racetomarsforsite.mp4"
-            poster="cover-1.jpg"
+            poster="racetomars-vidpic1.png"
             disablepictureinpicture
             oncontextmenu="return false;"
           ></video>
@@ -1093,7 +1096,7 @@
         <div class="video-wrapper earth-video paused">
           <video
             data-vid="racetomars.mp4"
-            poster="cover-2.jpg"
+            poster="racetomars-vidpic2.png"
             disablepictureinpicture
             oncontextmenu="return false;"
           ></video>
@@ -1265,7 +1268,7 @@
             document.querySelectorAll('video').forEach(v => {
               if(v !== video) {
                 v.pause();
-                v.load(); // Reset others to cover
+                // We removed v.load() here so others pause normally without black screen reset
                 v.parentElement.classList.add('paused');
               }
             });
@@ -1275,7 +1278,7 @@
             playIconPath.setAttribute('d', 'M6 19h4V5H6v14zm8-14v14h4V5h-4z');
           } else {
             video.pause();
-            video.load(); // SNAP BACK TO COVER IMAGE
+            // REMOVED video.load() here so it freezes frame instead of resetting
             wrapper.classList.add('paused');
             // Change icon back to Play
             playIconPath.setAttribute('d', 'M8 5v14l11-7z');
