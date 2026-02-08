@@ -34,20 +34,12 @@
       box-shadow: 0 0 50px rgba(0, 195, 255, 0.15); /* Subtle glow for hype */
       max-width: 900px; /* Optional cap to keep it looking nice on desktop */
       margin: 0 auto;
+      /* Remove tap highlight color on mobile */
+      -webkit-tap-highlight-color: transparent;
     }
 
-    /* FULLSCREEN FIX: Ensure wrapper takes up space correctly when fullscreened */
-    .video-wrapper:fullscreen {
-      width: 100vw;
-      height: 100vh;
-      max-width: none;
-      border-radius: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: #000;
-    }
-
+    /* FULLSCREEN FIX */
+    .video-wrapper:fullscreen,
     .video-wrapper:-webkit-full-screen {
       width: 100vw;
       height: 100vh;
@@ -71,34 +63,42 @@
       background: transparent; /* Invisible wall */
     }
 
-    /* CUSTOM CONTROLS LAYER - "GHOST MODE" */
+    /* CUSTOM CONTROLS LAYER - "SMART GHOST MODE" */
     .custom-controls {
       position: absolute;
-      top: 50%;
+      /* MOVED TO BOTTOM FOR BETTER VISIBILITY */
+      bottom: 25px; 
       left: 50%;
-      transform: translate(-50%, -50%);
+      transform: translateX(-50%);
+      
       z-index: 20; /* Sits ABOVE the glass shield */
       display: flex;
-      gap: 1rem;
+      gap: 0.8rem; /* Slightly tighter gap for mobile */
       align-items: center;
-      opacity: 0; /* HIDDEN BY DEFAULT */
-      transition: opacity 0.3s ease; /* Smooth fade in/out */
-      background: rgba(0, 0, 0, 0.6);
-      padding: 1rem 1.5rem;
+      
+      /* VISIBILITY LOGIC */
+      opacity: 0; 
+      pointer-events: none; /* Prevents clicking when hidden */
+      transition: opacity 0.3s ease; 
+      
+      background: rgba(0, 0, 0, 0.75);
+      padding: 0.8rem 1.2rem;
       border-radius: 50px;
-      backdrop-filter: blur(4px);
-      border: 1px solid rgba(255,255,255,0.1);
-      pointer-events: auto; /* Ensure buttons are clickable */
+      backdrop-filter: blur(6px);
+      border: 1px solid rgba(255,255,255,0.15);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
     }
 
-    /* TRIGGER 1: Show controls when hovering anywhere on the video wrapper */
-    .video-wrapper:hover .custom-controls {
+    /* TRIGGER 1: Show controls when 'user-active' class is added via JS */
+    .video-wrapper.user-active .custom-controls {
       opacity: 1;
+      pointer-events: auto;
     }
 
-    /* TRIGGER 2: Keep controls visible if video is PAUSED (so user sees Play button) */
+    /* TRIGGER 2: Always show controls if video is PAUSED */
     .video-wrapper.paused .custom-controls {
       opacity: 1;
+      pointer-events: auto;
     }
 
     .control-btn {
@@ -111,8 +111,8 @@
       align-items: center;
       justify-content: center;
       transition: transform 0.2s ease, filter 0.2s ease;
-      width: 40px;
-      height: 40px;
+      width: 36px; /* Slightly smaller for mobile fit */
+      height: 36px;
     }
 
     .control-btn:hover {
@@ -153,8 +153,9 @@
       min-height: 100vh;
       display: flex;
       align-items: center;
-      justify-content: center; /* Center the video on the empty page */
+      justify-content: center;
       background-attachment: fixed;
+      padding: 1rem; /* Prevent edge touching on mobile */
     }
 
     /* --- BACKGROUND LAYER 1: DEEP SPACE STARS --- */
@@ -277,8 +278,7 @@
       border-radius: 22px;
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
       display: block;
-      /* Remove 'pointer-events: auto' so the shield works */
-      object-fit: contain; /* Prevents stretching in fullscreen */
+      object-fit: contain;
     }
 
     /* HIDE NATIVE CONTROLS - HARDCORE MODE */
@@ -303,7 +303,9 @@
       poster="racetomars-vidpic2.png"
       disablepictureinpicture
       oncontextmenu="return false;"
+      playsinline
     ></video>
+    
     <div class="custom-controls">
       <button class="control-btn btn-rewind" title="Rewind 10s">
         <svg viewBox="0 0 24 24"><path d="M11 18V6l-8.5 6 8.5 6zm.5-6l8.5 6V6l-8.5 6z"/></svg>
@@ -334,97 +336,115 @@
 
       /* --- SECURITY LEVEL 2: PREVENT KEYBOARD SHORTCUTS --- */
       document.onkeydown = function(e) {
-        if (e.keyCode === 123) { return false; } // F12
-        if (e.ctrlKey && e.shiftKey && e.keyCode === 'I'.charCodeAt(0)) { return false; } // Ctrl+Shift+I
-        if (e.ctrlKey && e.shiftKey && e.keyCode === 'C'.charCodeAt(0)) { return false; } // Ctrl+Shift+C
-        if (e.ctrlKey && e.shiftKey && e.keyCode === 'J'.charCodeAt(0)) { return false; } // Ctrl+Shift+J
-        if (e.ctrlKey && e.keyCode === 'U'.charCodeAt(0)) { return false; } // Ctrl+U
-        if (e.ctrlKey && e.keyCode === 'S'.charCodeAt(0)) { return false; } // Ctrl+S
+        if (e.keyCode === 123) { return false; } 
+        if (e.ctrlKey && e.shiftKey && e.keyCode === 'I'.charCodeAt(0)) { return false; }
+        if (e.ctrlKey && e.shiftKey && e.keyCode === 'C'.charCodeAt(0)) { return false; }
+        if (e.ctrlKey && e.shiftKey && e.keyCode === 'J'.charCodeAt(0)) { return false; }
+        if (e.ctrlKey && e.keyCode === 'U'.charCodeAt(0)) { return false; }
+        if (e.ctrlKey && e.keyCode === 'S'.charCodeAt(0)) { return false; }
       };
 
       /* --- SECURITY LEVEL 3: PREVENT DRAGGING ASSETS --- */
       document.ondragstart = function() { return false; };
 
-      /* --- SECURITY LEVEL 4: SOURCE OBFUSCATION (The "Iron Gate") --- */
-      /* This injects the video links AFTER load, so they don't appear in 'View Source' */
+      /* --- SECURITY LEVEL 4: SOURCE OBFUSCATION --- */
       const vids = document.querySelectorAll('video[data-vid]');
       vids.forEach(v => {
         const source = v.getAttribute('data-vid');
         if (source) v.src = source;
-        // Also force load so poster works if needed
         v.load(); 
       });
 
-      /* --- SECURITY LEVEL 5: CONSOLE CLEARING TRAP --- */
+      /* --- SECURITY LEVEL 5: CONSOLE TRAP --- */
       setInterval(function() {
         console.clear();
         console.log("%c Summon Mars Security Active", "color: red; font-size: 20px; font-weight: bold;");
       }, 2000);
 
-      /* --- CUSTOM VIDEO CONTROLS LOGIC --- */
+      /* --- WAKE & FADE LOGIC (SMART CONTROLS) --- */
       const wrappers = document.querySelectorAll('.video-wrapper');
       
       wrappers.forEach(wrapper => {
         const video = wrapper.querySelector('video');
-        const rewindBtn = wrapper.querySelector('.btn-rewind'); // <<
-        const forwardBtn = wrapper.querySelector('.btn-forward'); // >>
+        const rewindBtn = wrapper.querySelector('.btn-rewind');
+        const forwardBtn = wrapper.querySelector('.btn-forward');
         const playBtn = wrapper.querySelector('.btn-play');
         const muteBtn = wrapper.querySelector('.btn-mute');
         const fullBtn = wrapper.querySelector('.btn-fullscreen');
         const playIconPath = playBtn.querySelector('path');
         const muteIconPath = muteBtn.querySelector('path');
 
+        let activityTimeout;
+
+        // FUNCTION: Wake up controls, then fade after 2.5s if playing
+        const wakeControls = () => {
+          wrapper.classList.add('user-active');
+          clearTimeout(activityTimeout);
+          
+          if (!video.paused) {
+            activityTimeout = setTimeout(() => {
+              wrapper.classList.remove('user-active');
+            }, 2500);
+          }
+        };
+
+        // Listeners for "Waking" the controls
+        wrapper.addEventListener('mousemove', wakeControls);
+        wrapper.addEventListener('touchstart', wakeControls);
+        wrapper.addEventListener('click', wakeControls);
+
         // LOGIC: REWIND 10 SECONDS
         rewindBtn.addEventListener('click', (e) => {
           e.stopPropagation();
+          wakeControls(); // keep controls awake
           video.currentTime = Math.max(0, video.currentTime - 10);
         });
 
         // LOGIC: FORWARD 10 SECONDS
         forwardBtn.addEventListener('click', (e) => {
           e.stopPropagation();
+          wakeControls();
           video.currentTime = Math.min(video.duration, video.currentTime + 10);
         });
 
         // Play/Pause Toggle
         playBtn.addEventListener('click', (e) => {
-          e.stopPropagation(); // Stop click from hitting wrapper
+          e.stopPropagation(); 
+          wakeControls();
           if (video.paused) {
             video.play();
             wrapper.classList.remove('paused');
-            // Change icon to Pause
             playIconPath.setAttribute('d', 'M6 19h4V5H6v14zm8-14v14h4V5h-4z');
+            // Trigger fade out timer since we just started playing
+            wakeControls();
           } else {
             video.pause();
-            // REMOVED video.load() so it freezes frame instead of resetting
             wrapper.classList.add('paused');
-            // Change icon back to Play
             playIconPath.setAttribute('d', 'M8 5v14l11-7z');
           }
         });
 
-        // Volume Toggle (Mute/Unmute)
+        // Volume Toggle
         muteBtn.addEventListener('click', (e) => {
           e.stopPropagation();
+          wakeControls();
           video.muted = !video.muted;
           if (video.muted) {
-             // Muted Icon
              muteIconPath.setAttribute('d', 'M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z');
           } else {
-             // Unmuted Icon
              muteIconPath.setAttribute('d', 'M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z');
           }
         });
 
-        // Fullscreen Toggle - THE WRAPPER METHOD
+        // Fullscreen Toggle
         fullBtn.addEventListener('click', (e) => {
           e.stopPropagation();
-          // We make the WRAPPER fullscreen, not the video
+          wakeControls();
           if (wrapper.requestFullscreen) {
             wrapper.requestFullscreen();
-          } else if (wrapper.webkitRequestFullscreen) { /* Safari */
+          } else if (wrapper.webkitRequestFullscreen) { 
             wrapper.webkitRequestFullscreen();
-          } else if (wrapper.msRequestFullscreen) { /* IE11 */
+          } else if (wrapper.msRequestFullscreen) { 
             wrapper.msRequestFullscreen();
           }
         });
