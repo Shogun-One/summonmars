@@ -462,7 +462,7 @@
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 1.5rem;
       perspective: 1600px;
-      justify-items: center;
+      justify-items: center; /* CENTERED ON DESKTOP */
     }
 
     .embed-wrapper {
@@ -651,8 +651,7 @@
       position: relative;
       border-radius: 22px;
       overflow: hidden;
-      max-width: 100%; /* ENSURES FULL WIDTH */
-      width: 100%; /* FORCE WIDTH */
+      max-width: 100%;
       margin-inline: auto;
       box-shadow:
         0 0 40px rgba(119, 255, 239, 0.45),
@@ -676,7 +675,7 @@
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 1.5rem;
       perspective: 1600px;
-      justify-items: center;
+      justify-items: center; /* CENTERED ON DESKTOP */
     }
 
     .gif-card {
@@ -914,8 +913,11 @@
         height: 150px;
       }
 
+      /* MOBILE FIX: CENTER GRID ITEMS */
       .embed-grid {
         gap: 1.25rem;
+        grid-template-columns: 1fr; /* Force 1 column */
+        justify-items: center; /* Center horizontally */
       }
 
       .embed-wrapper,
@@ -925,10 +927,14 @@
       .embed-wrapper:nth-child(4) {
         transform: none;
         transform-origin: center;
+        margin: 0 auto; /* Ensure centering */
       }
 
+      /* MOBILE FIX: CENTER GIFS */
       .gif-grid {
         gap: 1.25rem;
+        grid-template-columns: 1fr; /* Force 1 column */
+        justify-items: center; /* Center horizontally */
       }
 
       .gif-card,
@@ -938,10 +944,12 @@
       .gif-card:nth-child(4) {
         transform: none;
         transform-origin: center;
+        margin: 0 auto; /* Ensure centering */
       }
     }
 
     @media (max-width: 480px) {
+      /* Just reinforcing the centering for smaller screens */
       .embed-grid {
         grid-template-columns: 1fr;
       }
@@ -1119,6 +1127,37 @@
           </div>
         </div>
 
+        <div class="video-wrapper earth-video paused">
+          <video
+            data-vid="racetomars.mp4"
+            poster="racetomars-vidpic2.png"
+            disablepictureinpicture
+            oncontextmenu="return false;"
+          ></video>
+          <div class="custom-controls">
+            <button class="control-btn btn-rewind" title="Rewind 10s">
+              <svg viewBox="0 0 24 24"><path d="M11 18V6l-8.5 6 8.5 6zm.5-6l8.5 6V6l-8.5 6z"/></svg>
+            </button>
+            
+            <button class="control-btn btn-play" title="Play">
+              <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+            </button>
+            
+            <button class="control-btn btn-forward" title="Forward 10s">
+              <svg viewBox="0 0 24 24"><path d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z"/></svg>
+            </button>
+
+            <button class="control-btn btn-mute" title="Mute/Unmute">
+              <svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+            </button>
+            
+            <button class="control-btn btn-fullscreen" title="Fullscreen">
+              <svg viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
       <div class="gif-grid">
         <div class="gif-card">
           <div class="gif-inner">
@@ -1142,12 +1181,13 @@
         </div>
       </div>
 
-        <section id="videos">
-      <h2>More Videos Coming Here</h2>
+      <br><br>
       <p>
-        Click HERE to see more original music videos.
+        <a href="videos.html" style="color: var(--accent); text-decoration: underline; font-weight: bold; font-size: 1.1rem;">
+          Click HERE to see more original music videos.
+        </a>
       </p>
-        
+
     </section>
     
     <section id="merch">
