@@ -67,7 +67,7 @@
       background: transparent; /* Invisible wall */
     }
 
-    /* CUSTOM CONTROLS LAYER */
+    /* CUSTOM CONTROLS LAYER - "GHOST MODE" */
     .custom-controls {
       position: absolute;
       top: 50%;
@@ -77,22 +77,22 @@
       display: flex;
       gap: 1.5rem;
       align-items: center;
-      opacity: 0; /* Hidden by default */
-      transition: opacity 0.3s ease;
+      opacity: 0; /* HIDDEN BY DEFAULT */
+      transition: opacity 0.3s ease; /* Smooth fade in/out */
       background: rgba(0, 0, 0, 0.6);
       padding: 1rem 1.5rem;
       border-radius: 50px;
       backdrop-filter: blur(4px);
       border: 1px solid rgba(255,255,255,0.1);
+      pointer-events: auto; /* Ensure buttons are clickable */
     }
 
-    /* Show controls when hovering the WRAPPER (not just the video) */
-    .video-wrapper:hover .custom-controls,
-    .custom-controls:hover {
+    /* TRIGGER 1: Show controls when hovering anywhere on the video wrapper */
+    .video-wrapper:hover .custom-controls {
       opacity: 1;
     }
 
-    /* Keep controls visible if video is paused */
+    /* TRIGGER 2: Keep controls visible if video is PAUSED (so user sees Play button) */
     .video-wrapper.paused .custom-controls {
       opacity: 1;
     }
