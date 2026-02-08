@@ -10,7 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Oswald:wght@300;400;500&display=swap" rel="stylesheet">
   
   <style>
-    /* SECURITY LOCKDOWN */
+    /* --- SECURITY LOCKDOWN PROTOCOLS --- */
     body {
       -webkit-user-select: none; /* Chrome/Safari */
       -moz-user-select: none;    /* Firefox */
@@ -22,6 +22,22 @@
     img {
       pointer-events: none;      /* Disables drag/drop and right click on images */
       -webkit-user-drag: none;
+    }
+
+    /* THE GLASS SHIELD: Covers the video so users click a div, not the file */
+    .video-wrapper {
+      position: relative; 
+    }
+    
+    .video-wrapper::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 85%; /* Covers the video face, leaves controls (bottom 15%) clickable */
+      z-index: 10;
+      background: transparent;
     }
 
     /* RESET */
@@ -53,7 +69,7 @@
       background-attachment: fixed;
     }
 
-    /* --- BACKGROUND LAYER 1: DEEP SPACE STARS (Slow Vertical Rise) --- */
+    /* --- BACKGROUND LAYER 1: DEEP SPACE STARS --- */
     .stars-layer {
       position: fixed;
       inset: 0;
@@ -101,7 +117,7 @@
       100% { transform: translateY(-160px); }
     }
 
-    /* --- NEW LAYER: SPORADIC SHOOTING STARS --- */
+    /* --- SHOOTING STARS --- */
     .shooting-stars {
       position: fixed;
       inset: 0;
@@ -116,34 +132,32 @@
       position: absolute;
       top: -100px;
       right: -100px;
-      width: 400px; /* Long tail */
+      width: 400px; 
       height: 2px;
-      background: linear-gradient(to left, rgba(255,255,255,0), rgba(255,255,255,0.5), var(--accent)); /* Flaming tail effect */
+      background: linear-gradient(to left, rgba(255,255,255,0), rgba(255,255,255,0.5), var(--accent));
       filter: drop-shadow(0 0 6px var(--accent));
       transform: rotate(-45deg);
       opacity: 0;
     }
 
-    /* Shooting Star 1: Fast, every 12 seconds */
     .shooting-stars::before {
       right: 15%;
       top: -10%;
       animation: shoot-diagonal 12s linear infinite;
-      animation-delay: 2s; /* Initial wait */
+      animation-delay: 2s;
     }
 
-    /* Shooting Star 2: Slower, different angle, every 18 seconds */
     .shooting-stars::after {
       right: 50%;
       top: -10%;
       animation: shoot-diagonal-wide 18s linear infinite;
-      animation-delay: 9s; /* Staggered wait */
+      animation-delay: 9s; 
     }
 
     @keyframes shoot-diagonal {
       0% { transform: translate(0, 0) rotate(-45deg); opacity: 1; }
-      5% { transform: translate(-100vw, 100vh) rotate(-45deg); opacity: 0; } /* Zoom across in 5% of time */
-      100% { transform: translate(-100vw, 100vh) rotate(-45deg); opacity: 0; } /* Stay hidden rest of time */
+      5% { transform: translate(-100vw, 100vh) rotate(-45deg); opacity: 0; }
+      100% { transform: translate(-100vw, 100vh) rotate(-45deg); opacity: 0; }
     }
 
     @keyframes shoot-diagonal-wide {
@@ -945,26 +959,6 @@
           </div>
         </div>
 
-        <div class="embed-wrapper" data-audio-id="track-love">
-          <div class="embed-inner">
-            <div class="track-cover">
-              <img src="cover-what-is-love.png" alt="What Is Love cover art">
-            </div>
-            <div class="track-meta">
-              <div class="track-title">What Is Love</div>
-              <div class="track-row">
-                <button class="track-play" type="button" aria-label="Play What Is Love">▶</button>
-                <div class="track-links">
-                  <a href="https://open.spotify.com/artist/5GohNtXpBBkQyOfYpweSnO" target="_blank" rel="noopener">SPOTIFY</a>
-                  <a href="https://music.apple.com/us/artist/summon-mars/1770939240" target="_blank" rel="noopener">APPLE</a>
-                  <a href="https://www.youtube.com/@SummonMarsOfficial" target="_blank" rel="noopener">YT</a>
-                </div>
-              </div>
-              <audio id="track-love" src="what-is-love.mp3"></audio>
-            </div>
-          </div>
-        </div>
-
         <div class="embed-wrapper" data-audio-id="track-race">
           <div class="embed-inner">
             <div class="track-cover">
@@ -985,6 +979,26 @@
           </div>
         </div>
 
+        <div class="embed-wrapper" data-audio-id="track-love">
+          <div class="embed-inner">
+            <div class="track-cover">
+              <img src="cover-what-is-love.png" alt="What Is Love cover art">
+            </div>
+            <div class="track-meta">
+              <div class="track-title">What Is Love</div>
+              <div class="track-row">
+                <button class="track-play" type="button" aria-label="Play What Is Love">▶</button>
+                <div class="track-links">
+                  <a href="https://open.spotify.com/artist/5GohNtXpBBkQyOfYpweSnO" target="_blank" rel="noopener">SPOTIFY</a>
+                  <a href="https://music.apple.com/us/artist/summon-mars/1770939240" target="_blank" rel="noopener">APPLE</a>
+                  <a href="https://www.youtube.com/@SummonMarsOfficial" target="_blank" rel="noopener">YT</a>
+                </div>
+              </div>
+              <audio id="track-love" src="what-is-love.mp3"></audio>
+            </div>
+          </div>
+        </div>
+
       </div>
     </section>
 
@@ -1000,21 +1014,25 @@
       <div class="videos-grid">
         <div class="video-wrapper hero-video">
           <video
-            src="racetomarsforsite.mp4"
+            data-vid="racetomarsforsite.mp4"
+            poster="cover-1.jpg"
             controls
             controlslist="nodownload noplaybackrate"
             disablepictureinpicture
             oncontextmenu="return false;"
+            onpause="this.load();"
           ></video>
         </div>
 
         <div class="video-wrapper earth-video">
           <video
-            src="racetomars.mp4"
+            data-vid="racetomars.mp4"
+            poster="cover-2.jpg"
             controls
             controlslist="nodownload noplaybackrate"
             disablepictureinpicture
             oncontextmenu="return false;"
+            onpause="this.load();"
           ></video>
         </div>
       </div>
@@ -1122,23 +1140,38 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      /* SECURITY: PREVENT CONTEXT MENU */
+      /* --- SECURITY LEVEL 1: PREVENT CONTEXT MENU --- */
       document.addEventListener('contextmenu', event => event.preventDefault());
 
-      /* SECURITY: PREVENT KEYBOARD SHORTCUTS FOR INSPECTION/SAVING */
+      /* --- SECURITY LEVEL 2: PREVENT KEYBOARD SHORTCUTS --- */
       document.onkeydown = function(e) {
         if (e.keyCode === 123) { return false; } // F12
-        if (e.ctrlKey && e.shiftKey && e.keyCode === 'I'.charCodeAt(0)) { return false; }
-        if (e.ctrlKey && e.shiftKey && e.keyCode === 'C'.charCodeAt(0)) { return false; }
-        if (e.ctrlKey && e.shiftKey && e.keyCode === 'J'.charCodeAt(0)) { return false; }
-        if (e.ctrlKey && e.keyCode === 'U'.charCodeAt(0)) { return false; }
-        if (e.ctrlKey && e.keyCode === 'S'.charCodeAt(0)) { return false; }
+        if (e.ctrlKey && e.shiftKey && e.keyCode === 'I'.charCodeAt(0)) { return false; } // Ctrl+Shift+I
+        if (e.ctrlKey && e.shiftKey && e.keyCode === 'C'.charCodeAt(0)) { return false; } // Ctrl+Shift+C
+        if (e.ctrlKey && e.shiftKey && e.keyCode === 'J'.charCodeAt(0)) { return false; } // Ctrl+Shift+J
+        if (e.ctrlKey && e.keyCode === 'U'.charCodeAt(0)) { return false; } // Ctrl+U
+        if (e.ctrlKey && e.keyCode === 'S'.charCodeAt(0)) { return false; } // Ctrl+S
       };
 
-      /* SECURITY: PREVENT DRAGGING ASSETS */
+      /* --- SECURITY LEVEL 3: PREVENT DRAGGING ASSETS --- */
       document.ondragstart = function() { return false; };
 
-      /* AUDIO PLAYER LOGIC */
+      /* --- SECURITY LEVEL 4: SOURCE OBFUSCATION (The "Iron Gate") --- */
+      /* This injects the video links AFTER load, so they don't appear in 'View Source' */
+      const vids = document.querySelectorAll('video[data-vid]');
+      vids.forEach(v => {
+        const source = v.getAttribute('data-vid');
+        if (source) v.src = source;
+      });
+
+      /* --- SECURITY LEVEL 5: CONSOLE CLEARING TRAP --- */
+      /* Clears console to hide file paths if someone opens Inspector */
+      setInterval(function() {
+        console.clear();
+        console.log("%c Summon Mars Security Active", "color: red; font-size: 20px; font-weight: bold;");
+      }, 2000);
+
+      /* --- AUDIO PLAYER LOGIC --- */
       const cards = document.querySelectorAll('.embed-wrapper');
       const buttons = document.querySelectorAll('.track-play');
       const audios = document.querySelectorAll('audio[id^="track-"]');
