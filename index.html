@@ -5,7 +5,6 @@
   <title>Summon Mars</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- Tab / URL icon -->
   <link rel="icon" type="image/png" sizes="32x32" href="url-logo.png" />
 
   <link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Oswald:wght@300;400;500&display=swap" rel="stylesheet">
@@ -54,7 +53,7 @@
       background-attachment: fixed;
     }
 
-    /* STARS BACKDROP */
+    /* --- BACKGROUND LAYER 1: DEEP SPACE STARS (Slow Vertical Rise) --- */
     .stars-layer {
       position: fixed;
       inset: 0;
@@ -74,10 +73,8 @@
         radial-gradient(2px 2px at 68% 78%, rgba(220, 235, 255, 0.9) 0, transparent 60%),
         radial-gradient(2.5px 2.5px at 90% 88%, rgba(255, 255, 255, 0.95) 0, transparent 60%);
       opacity: 0.9;
-      animation:
-        twinkle-strong 9s ease-in-out infinite alternate,
-        star-ascend 30s linear infinite;
-      will-change: opacity, transform;
+      animation: star-ascend 30s linear infinite;
+      will-change: transform;
     }
 
     .stars-layer::before {
@@ -90,16 +87,7 @@
         radial-gradient(1.7px 1.7px at 76% 60%, rgba(255, 255, 255, 0.8) 0, transparent 60%),
         radial-gradient(1.7px 1.7px at 40% 90%, rgba(235, 242, 255, 0.8) 0, transparent 60%);
       opacity: 0.8;
-      animation:
-        twinkle-soft 13s ease-in-out infinite alternate,
-        star-ascend-soft 45s linear infinite;
-      will-change: opacity, transform;
-    }
-
-    @keyframes twinkle-strong {
-      0%   { opacity: 0.55; }
-      50%  { opacity: 1; }
-      100% { opacity: 0.7; }
+      animation: twinkle-soft 13s ease-in-out infinite alternate;
     }
 
     @keyframes twinkle-soft {
@@ -113,9 +101,55 @@
       100% { transform: translateY(-160px); }
     }
 
-    @keyframes star-ascend-soft {
-      0%   { transform: translateY(20px); }
-      100% { transform: translateY(-100px); }
+    /* --- NEW LAYER: SPORADIC SHOOTING STARS --- */
+    .shooting-stars {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: -9;
+      overflow: hidden;
+    }
+
+    .shooting-stars::before,
+    .shooting-stars::after {
+      content: "";
+      position: absolute;
+      top: -100px;
+      right: -100px;
+      width: 400px; /* Long tail */
+      height: 2px;
+      background: linear-gradient(to left, rgba(255,255,255,0), rgba(255,255,255,0.5), var(--accent)); /* Flaming tail effect */
+      filter: drop-shadow(0 0 6px var(--accent));
+      transform: rotate(-45deg);
+      opacity: 0;
+    }
+
+    /* Shooting Star 1: Fast, every 12 seconds */
+    .shooting-stars::before {
+      right: 15%;
+      top: -10%;
+      animation: shoot-diagonal 12s linear infinite;
+      animation-delay: 2s; /* Initial wait */
+    }
+
+    /* Shooting Star 2: Slower, different angle, every 18 seconds */
+    .shooting-stars::after {
+      right: 50%;
+      top: -10%;
+      animation: shoot-diagonal-wide 18s linear infinite;
+      animation-delay: 9s; /* Staggered wait */
+    }
+
+    @keyframes shoot-diagonal {
+      0% { transform: translate(0, 0) rotate(-45deg); opacity: 1; }
+      5% { transform: translate(-100vw, 100vh) rotate(-45deg); opacity: 0; } /* Zoom across in 5% of time */
+      100% { transform: translate(-100vw, 100vh) rotate(-45deg); opacity: 0; } /* Stay hidden rest of time */
+    }
+
+    @keyframes shoot-diagonal-wide {
+      0% { transform: translate(0, 0) rotate(-45deg); opacity: 1; }
+      7% { transform: translate(-120vw, 120vh) rotate(-45deg); opacity: 0; }
+      100% { transform: translate(-120vw, 120vh) rotate(-45deg); opacity: 0; }
     }
 
     /* GLOBAL AURORA */
@@ -468,9 +502,9 @@
     }
 
     @keyframes pulseBeat {
-      0%   { transform: scale(1); }
-      35%  { transform: scale(1.03); }
-      55%  { transform: scale(1.06); }
+      0%    { transform: scale(1); }
+      35%   { transform: scale(1.03); }
+      55%   { transform: scale(1.06); }
       100% { transform: scale(1); }
     }
 
@@ -830,6 +864,7 @@
 <body>
 
   <div class="stars-layer"></div>
+  <div class="shooting-stars"></div>
   <div class="aurora-layer"></div>
 
   <header class="hero">
@@ -846,7 +881,7 @@
       </div>
       <p class="hero-tagline">Signal from the other side</p>
       <br><br>
-      <p class="hero-tagline">[Note: Everything you see and hear on this page (including the page) is created &amp; owned, copyrighted &amp; trademarked by Summon Mars ™.]</p>
+      <p class="hero-tagline">[Note: Everything you see and hear on this page (including the page) is created & owned, copyrighted & trademarked by Summon Mars ™.]</p>
       <br><br>
       <p class="hero-tagline">
         For more information or questions, email to
@@ -861,7 +896,6 @@
 
   <main>
 
-    <!-- MUSIC -->
     <section id="music">
       <h2>Music</h2>
       <p>
@@ -871,7 +905,6 @@
 
       <div class="embed-grid">
 
-        <!-- CARD 1 -->
         <div class="embed-wrapper" data-audio-id="track-life">
           <div class="embed-inner">
             <div class="track-cover">
@@ -892,7 +925,6 @@
           </div>
         </div>
 
-        <!-- CARD 2 -->
         <div class="embed-wrapper" data-audio-id="track-wake">
           <div class="embed-inner">
             <div class="track-cover">
@@ -913,28 +945,6 @@
           </div>
         </div>
 
-        <!-- CARD 3 -->
-        <div class="embed-wrapper" data-audio-id="track-love">
-          <div class="embed-inner">
-            <div class="track-cover">
-              <img src="cover-what-is-love.png" alt="What Is Love cover art">
-            </div>
-            <div class="track-meta">
-              <div class="track-title">What Is Love</div>
-              <div class="track-row">
-                <button class="track-play" type="button" aria-label="Play What Is Love">▶</button>
-                <div class="track-links">
-                  <a href="https://open.spotify.com/artist/5GohNtXpBBkQyOfYpweSnO" target="_blank" rel="noopener">SPOTIFY</a>
-                  <a href="https://music.apple.com/us/artist/summon-mars/1770939240" target="_blank" rel="noopener">APPLE</a>
-                  <a href="https://www.youtube.com/@SummonMarsOfficial" target="_blank" rel="noopener">YT</a>
-                </div>
-              </div>
-              <audio id="track-love" src="what-is-love.mp3"></audio>
-            </div>
-          </div>
-        </div>
-
-        <!-- CARD 4 -->
         <div class="embed-wrapper" data-audio-id="track-race">
           <div class="embed-inner">
             <div class="track-cover">
@@ -955,10 +965,29 @@
           </div>
         </div>
 
+        <div class="embed-wrapper" data-audio-id="track-love">
+          <div class="embed-inner">
+            <div class="track-cover">
+              <img src="cover-what-is-love.png" alt="What Is Love cover art">
+            </div>
+            <div class="track-meta">
+              <div class="track-title">What Is Love</div>
+              <div class="track-row">
+                <button class="track-play" type="button" aria-label="Play What Is Love">▶</button>
+                <div class="track-links">
+                  <a href="https://open.spotify.com/artist/5GohNtXpBBkQyOfYpweSnO" target="_blank" rel="noopener">SPOTIFY</a>
+                  <a href="https://music.apple.com/us/artist/summon-mars/1770939240" target="_blank" rel="noopener">APPLE</a>
+                  <a href="https://www.youtube.com/@SummonMarsOfficial" target="_blank" rel="noopener">YT</a>
+                </div>
+              </div>
+              <audio id="track-love" src="what-is-love.mp3"></audio>
+            </div>
+          </div>
+        </div>
+
       </div>
     </section>
 
-    <!-- VIDEOS -->
     <section id="videos">
       <h2>Videos</h2>
       <p>
@@ -968,7 +997,6 @@
         :: Don't own the highway to be the billboard. ::
       </p>
 
-      <!-- Big hero / earth videos -->
       <div class="videos-grid">
         <div class="video-wrapper hero-video">
           <video
@@ -991,7 +1019,6 @@
         </div>
       </div>
 
-      <!-- Mini GIF quad -->
       <div class="gif-grid">
         <div class="gif-card">
           <div class="gif-inner">
@@ -1016,7 +1043,6 @@
       </div>
     </section>
     
-    <!-- MERCH -->
     <section id="merch">
       <h2>Merch</h2>
       <p>
@@ -1063,7 +1089,6 @@
       </div>
     </section>
 
-    <!-- ABOUT -->
     <section id="about">
       <h2>About</h2>
       <div class="about-wrap">
