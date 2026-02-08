@@ -30,9 +30,29 @@
       overflow: hidden; /* Keeps the glass shield contained */
       border-radius: 22px;
       background: #000;
-      /* Ensures video box is substantial */
       width: 100%;
       box-shadow: 0 0 50px rgba(0, 195, 255, 0.15); /* Subtle glow for hype */
+    }
+
+    /* FULLSCREEN FIX: Ensure wrapper takes up space correctly when fullscreened */
+    .video-wrapper:fullscreen {
+      width: 100vw;
+      height: 100vh;
+      border-radius: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #000;
+    }
+
+    .video-wrapper:-webkit-full-screen {
+      width: 100vw;
+      height: 100vh;
+      border-radius: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #000;
     }
     
     /* THE GLASS SHIELD: 100% Coverage preventing DIRECT interaction */
@@ -608,6 +628,15 @@
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
       display: block;
       /* Remove 'pointer-events: auto' so the shield works */
+      object-fit: contain; /* Prevents stretching in fullscreen */
+    }
+
+    /* HIDE NATIVE CONTROLS - HARDCORE MODE */
+    video::-webkit-media-controls {
+      display: none !important;
+    }
+    video::-webkit-media-controls-enclosure {
+      display: none !important;
     }
 
     #videos .videos-grid {
@@ -637,20 +666,6 @@
 
     #videos .video-wrapper.earth-video video {
       aspect-ratio: 16 / 9;
-    }
-
-    /* VIDEO – prevent download & selection */
-    video {
-      -webkit-user-select: none;
-      user-select: none;
-    }
-
-    video::-webkit-media-controls-download-button {
-      display: none !important;
-    }
-
-    video::-webkit-media-controls-enclosure {
-      overflow: hidden;
     }
 
     /* MINI GIF QUAD – RACE TO MARS CLIPS */
@@ -1076,7 +1091,7 @@
         <div class="video-wrapper hero-video paused">
           <video
             data-vid="racetomarsforsite.mp4"
-            poster="racetomars-vidpic1.png"
+            poster="racetomars-vidpic1.jpg"
             disablepictureinpicture
             oncontextmenu="return false;"
           ></video>
@@ -1096,7 +1111,7 @@
         <div class="video-wrapper earth-video paused">
           <video
             data-vid="racetomars.mp4"
-            poster="racetomars-vidpic2.png"
+            poster="racetomars-vidpic2.jpg"
             disablepictureinpicture
             oncontextmenu="return false;"
           ></video>
@@ -1268,7 +1283,7 @@
             document.querySelectorAll('video').forEach(v => {
               if(v !== video) {
                 v.pause();
-                // We removed v.load() here so others pause normally without black screen reset
+                // Removed v.load() to keep others on current frame
                 v.parentElement.classList.add('paused');
               }
             });
@@ -1278,7 +1293,7 @@
             playIconPath.setAttribute('d', 'M6 19h4V5H6v14zm8-14v14h4V5h-4z');
           } else {
             video.pause();
-            // REMOVED video.load() here so it freezes frame instead of resetting
+            // REMOVED video.load() so it freezes frame instead of resetting
             wrapper.classList.add('paused');
             // Change icon back to Play
             playIconPath.setAttribute('d', 'M8 5v14l11-7z');
@@ -1298,15 +1313,16 @@
           }
         });
 
-        // Fullscreen Toggle
+        // Fullscreen Toggle - THE WRAPPER METHOD
         fullBtn.addEventListener('click', (e) => {
           e.stopPropagation();
-          if (video.requestFullscreen) {
-            video.requestFullscreen();
-          } else if (video.webkitRequestFullscreen) { /* Safari */
-            video.webkitRequestFullscreen();
-          } else if (video.msRequestFullscreen) { /* IE11 */
-            video.msRequestFullscreen();
+          // We make the WRAPPER fullscreen, not the video
+          if (wrapper.requestFullscreen) {
+            wrapper.requestFullscreen();
+          } else if (wrapper.webkitRequestFullscreen) { /* Safari */
+            wrapper.webkitRequestFullscreen();
+          } else if (wrapper.msRequestFullscreen) { /* IE11 */
+            wrapper.msRequestFullscreen();
           }
         });
 
