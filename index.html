@@ -67,31 +67,31 @@
       background: transparent; /* Invisible wall */
     }
 
-    /* SMART GHOST CONTROLS - MOVED TO BOTTOM & HIDDEN TIGER SHIELD*/
+    /* SMART GHOST CONTROLS - RE-CALIBRATED */
     .custom-controls {
       position: absolute;
-      bottom: 20px; 
+      bottom: 25px; 
       left: 50%;
       transform: translateX(-50%);
-      z-index: 20;
+      z-index: 30; /* Bumped up to sit ABOVE the shield (z-index 10) */
       display: flex;
       gap: 1rem;
       align-items: center;
       opacity: 0; 
-      pointer-events: none; /* Prevents blocking clicks when invisible */
+      pointer-events: none; 
       transition: opacity 0.4s ease;
-      background: rgba(0, 0, 0, 0.75);
+      background: rgba(0, 0, 0, 0.7);
       padding: 0.8rem 1.2rem;
       border-radius: 50px;
       backdrop-filter: blur(8px);
       border: 1px solid rgba(255,255,255,0.15);
     }
 
-    /* Controls only show when active or paused */
+    /* Controls only become clickable when visible */
     .video-wrapper.user-active .custom-controls,
     .video-wrapper.paused .custom-controls {
       opacity: 1;
-      pointer-events: auto;
+      pointer-events: auto; /* THIS UNLOCKS THE BUTTONS */
     }
 
     .control-btn {
@@ -99,12 +99,13 @@
       border: none;
       cursor: pointer;
       color: var(--accent);
-      width: 35px;
-      height: 35px;
+      width: 38px;
+      height: 38px;
       display: flex;
       align-items: center;
       justify-content: center;
       transition: transform 0.2s ease;
+      pointer-events: auto !important; /* Forces buttons to be active */
     }
 
     .control-btn:hover { transform: scale(1.15); }
@@ -1278,7 +1279,7 @@
         console.log("%c Summon Mars Security Active", "color: red; font-size: 20px; font-weight: bold;");
       }, 2000);
 
-      /* VIDEO LOGIC: SMART WAKE & FADE */
+      /* VIDEO LOGIC: SMART WAKE & FADE + DIRECT TOGGLE */
       const wrappers = document.querySelectorAll('.video-wrapper');
       wrappers.forEach(wrapper => {
         const video = wrapper.querySelector('video');
@@ -1287,51 +1288,67 @@
         const rewindBtn = wrapper.querySelector('.btn-rewind');
         const forwardBtn = wrapper.querySelector('.btn-forward');
         const fullBtn = wrapper.querySelector('.btn-fullscreen');
-        const playIconPath = playBtn.querySelector('path');
-        const muteIconPath = muteBtn.querySelector('path');
+        const playIconPath = playBtn ? playBtn.querySelector('path') : null;
+        const muteIconPath = muteBtn ? muteBtn.querySelector('path') : null;
         
         let activityTimeout;
 
-        // FUNCTION: Wake up controls, then fade after 2.5s if playing
         const wake = () => {
           wrapper.classList.add('user-active');
           clearTimeout(activityTimeout);
           if (!video.paused) {
-            activityTimeout = setTimeout(() => {
-              wrapper.classList.remove('user-active');
-            }, 2500);
+            activityTimeout = setTimeout(() => wrapper.classList.remove('user-active'), 2500);
           }
         };
 
-        // Listeners to "Wake" the Tiger
-        wrapper.addEventListener('mousemove', wake);
-        wrapper.addEventListener('touchstart', wake);
-        wrapper.addEventListener('click', wake);
-
-        playBtn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          if (video.paused) {
-            video.play();
-            wrapper.classList.remove('paused');
-            playIconPath.setAttribute('d', 'M6 19h4V5H6v14zm8-14v14h4V5h-4z');
-            wake();
-          } else {
-            video.pause();
-            wrapper.classList.add('paused');
-            playIconPath.setAttribute('d', 'M8 5v14l11-7z');
+        // Tap the video wrapper to Toggle Play/Pause directly
+        wrapper.addEventListener('click', (e) => {
+          // Only toggle if the user didn't click a specific button
+          if (!e.target.closest('.control-btn')) {
+            if (video.paused) {
+              video.play();
+              wrapper.classList.remove('paused');
+              if (playIconPath) playIconPath.setAttribute('d', 'M6 19h4V5H6v14zm8-14v14h4V5h-4z');
+            } else {
+              video.pause();
+              wrapper.classList.add('paused');
+              if (playIconPath) playIconPath.setAttribute('d', 'M8 5v14l11-7z');
+            }
           }
-        });
-
-        muteBtn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          video.muted = !video.muted;
-          muteIconPath.setAttribute('d', video.muted ? 'M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z' : 'M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z');
           wake();
         });
 
-        rewindBtn.addEventListener('click', (e) => { e.stopPropagation(); video.currentTime -= 10; wake(); });
-        forwardBtn.addEventListener('click', (e) => { e.stopPropagation(); video.currentTime += 10; wake(); });
-        fullBtn.addEventListener('click', (e) => { e.stopPropagation(); wrapper.requestFullscreen(); wake(); });
+        wrapper.addEventListener('mousemove', wake);
+        wrapper.addEventListener('touchstart', wake);
+
+        if(playBtn) {
+          playBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (video.paused) {
+              video.play();
+              wrapper.classList.remove('paused');
+              playIconPath.setAttribute('d', 'M6 19h4V5H6v14zm8-14v14h4V5h-4z');
+            } else {
+              video.pause();
+              wrapper.classList.add('paused');
+              playIconPath.setAttribute('d', 'M8 5v14l11-7z');
+            }
+            wake();
+          });
+        }
+
+        if(muteBtn) {
+          muteBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            video.muted = !video.muted;
+            muteIconPath.setAttribute('d', video.muted ? 'M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z' : 'M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z');
+            wake();
+          });
+        }
+
+        if(rewindBtn) rewindBtn.addEventListener('click', (e) => { e.stopPropagation(); video.currentTime -= 10; wake(); });
+        if(forwardBtn) forwardBtn.addEventListener('click', (e) => { e.stopPropagation(); video.currentTime += 10; wake(); });
+        if(fullBtn) fullBtn.addEventListener('click', (e) => { e.stopPropagation(); wrapper.requestFullscreen(); wake(); });
       });
 
         // Volume Toggle (Mute/Unmute)
