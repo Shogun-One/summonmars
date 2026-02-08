@@ -12,31 +12,39 @@
   <style>
     /* --- SECURITY LOCKDOWN PROTOCOLS --- */
     body {
-      -webkit-user-select: none;
-      -moz-user-select: none;
-      -ms-user-select: none;
-      user-select: none;
-      -webkit-touch-callout: none;
+      -webkit-user-select: none; /* Chrome/Safari */
+      -moz-user-select: none;    /* Firefox */
+      -ms-user-select: none;     /* IE10+ */
+      user-select: none;         /* Standard */
+      -webkit-touch-callout: none; /* iOS Safari */
     }
     
     img {
-      pointer-events: none;
+      pointer-events: none;      /* Disables drag/drop and right click on images */
       -webkit-user-drag: none;
     }
 
     /* THE VAULT: Video Container Styling */
     .video-wrapper {
       position: relative;
-      overflow: hidden;
+      overflow: hidden; /* Keeps the glass shield contained */
       border-radius: 22px;
       background: #000;
-      width: 100%;
-      box-shadow: 0 0 50px rgba(0, 195, 255, 0.15);
-      -webkit-tap-highlight-color: transparent;
+      width: 100%; /* FORCE FULL WIDTH */
+      box-shadow: 0 0 50px rgba(0, 195, 255, 0.15); /* Subtle glow for hype */
     }
 
-    /* FULLSCREEN FIX */
-    .video-wrapper:fullscreen,
+    /* FULLSCREEN FIX: Ensure wrapper takes up space correctly when fullscreened */
+    .video-wrapper:fullscreen {
+      width: 100vw;
+      height: 100vh;
+      border-radius: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #000;
+    }
+
     .video-wrapper:-webkit-full-screen {
       width: 100vw;
       height: 100vh;
@@ -47,6 +55,7 @@
       background: #000;
     }
     
+    /* THE GLASS SHIELD: 100% Coverage preventing DIRECT interaction */
     .video-wrapper::after {
       content: '';
       position: absolute;
@@ -54,35 +63,38 @@
       left: 0;
       width: 100%;
       height: 100%;
-      z-index: 10;
-      background: transparent;
+      z-index: 10; /* Sits above video, below controls */
+      background: transparent; /* Invisible wall */
     }
 
-    /* SMART GHOST CONTROLS - MOVED TO BOTTOM & HIDDEN TIGER SHIELD*/
+    /* CUSTOM CONTROLS LAYER - "GHOST MODE" */
     .custom-controls {
       position: absolute;
-      bottom: 20px; 
+      top: 50%;
       left: 50%;
-      transform: translateX(-50%);
-      z-index: 20;
+      transform: translate(-50%, -50%);
+      z-index: 20; /* Sits ABOVE the glass shield */
       display: flex;
       gap: 1rem;
       align-items: center;
-      opacity: 0; 
-      pointer-events: none;
-      transition: opacity 0.4s ease;
-      background: rgba(0, 0, 0, 0.7);
-      padding: 0.8rem 1.2rem;
+      opacity: 0; /* HIDDEN BY DEFAULT */
+      transition: opacity 0.3s ease; /* Smooth fade in/out */
+      background: rgba(0, 0, 0, 0.6);
+      padding: 1rem 1.5rem;
       border-radius: 50px;
-      backdrop-filter: blur(8px);
+      backdrop-filter: blur(4px);
       border: 1px solid rgba(255,255,255,0.1);
+      pointer-events: auto; /* Ensure buttons are clickable */
     }
 
-    /* Show when user is active or video is paused */
-    .video-wrapper.user-active .custom-controls,
+    /* TRIGGER 1: Show controls when hovering anywhere on the video wrapper */
+    .video-wrapper:hover .custom-controls {
+      opacity: 1;
+    }
+
+    /* TRIGGER 2: Keep controls visible if video is PAUSED (so user sees Play button) */
     .video-wrapper.paused .custom-controls {
       opacity: 1;
-      pointer-events: auto;
     }
 
     .control-btn {
@@ -90,27 +102,48 @@
       border: none;
       cursor: pointer;
       color: var(--accent);
-      width: 35px;
-      height: 35px;
+      padding: 0;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: transform 0.2s ease;
+      transition: transform 0.2s ease, filter 0.2s ease;
+      width: 40px;
+      height: 40px;
     }
 
-    .control-btn:hover { transform: scale(1.15); }
-    .control-btn svg { width: 100%; height: 100%; fill: currentColor; }
+    .control-btn:hover {
+      transform: scale(1.15);
+      filter: drop-shadow(0 0 8px var(--accent));
+    }
 
-    /* RESET & THEME */
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    .control-btn svg {
+      width: 100%;
+      height: 100%;
+      fill: currentColor;
+    }
+
+    /* RESET */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    /* THEME COLORS */
     :root {
-      --aurora-1: #77ffef; --aurora-2: #7cff5f; --aurora-3: #ff66ff;
-      --aurora-4: #00c3ff; --bg-deep: #02030a; --text-main: #fdfdfd;
-      --text-sub: #cfd9ff; --accent: #fffd9a;
+      --aurora-1: #77ffef;
+      --aurora-2: #7cff5f;
+      --aurora-3: #ff66ff;
+      --aurora-4: #00c3ff;
+      --bg-deep: #02030a;
+      --text-main: #fdfdfd;
+      --text-sub: #cfd9ff;
+      --accent: #fffd9a;
     }
 
+    /* BASE */
     body {
-      font-family: "Oswald", sans-serif;
+      font-family: "Oswald", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
       background: radial-gradient(circle at 10% 0%, #05091a 0%, #000000 60%, #02030a 100%);
       color: var(--text-main);
       min-height: 100vh;
@@ -118,62 +151,813 @@
       background-attachment: fixed;
     }
 
-    /* --- BACKGROUND ANIMATIONS --- */
+    /* --- BACKGROUND LAYER 1: DEEP SPACE STARS --- */
     .stars-layer {
-      position: fixed; inset: 0; pointer-events: none; z-index: -11;
-      background: 
-        radial-gradient(2.5px 2.5px at 8% 10%, #fff 0, transparent 60%),
-        radial-gradient(2px 2px at 20% 30%, #dcebff 0, transparent 60%),
-        radial-gradient(2.5px 2.5px at 80% 18%, #fff 0, transparent 60%);
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: -11;
+      background:
+        radial-gradient(2.5px 2.5px at 8% 10%, rgba(255, 255, 255, 0.95) 0, transparent 60%),
+        radial-gradient(2px 2px at 20% 30%, rgba(220, 235, 255, 0.9) 0, transparent 60%),
+        radial-gradient(2.5px 2.5px at 35% 15%, rgba(255, 255, 255, 0.95) 0, transparent 60%),
+        radial-gradient(2px 2px at 60% 12%, rgba(230, 240, 255, 0.9) 0, transparent 60%),
+        radial-gradient(2.5px 2.5px at 80% 18%, rgba(255, 255, 255, 0.95) 0, transparent 60%),
+        radial-gradient(2px 2px at 88% 35%, rgba(220, 235, 255, 0.9) 0, transparent 60%),
+        radial-gradient(2.5px 2.5px at 72% 52%, rgba(255, 255, 255, 0.95) 0, transparent 60%),
+        radial-gradient(2px 2px at 18% 55%, rgba(225, 238, 255, 0.9) 0, transparent 60%),
+        radial-gradient(2px 2px at 32% 72%, rgba(230, 240, 255, 0.9) 0, transparent 60%),
+        radial-gradient(2.5px 2.5px at 48% 82%, rgba(255, 255, 255, 0.95) 0, transparent 60%),
+        radial-gradient(2px 2px at 68% 78%, rgba(220, 235, 255, 0.9) 0, transparent 60%),
+        radial-gradient(2.5px 2.5px at 90% 88%, rgba(255, 255, 255, 0.95) 0, transparent 60%);
+      opacity: 0.9;
       animation: star-ascend 30s linear infinite;
-    }
-    @keyframes star-ascend { 0% { transform: translateY(40px); } 100% { transform: translateY(-160px); } }
-
-    .aurora-layer { 
-      position: fixed; inset: 0; pointer-events: none; z-index: -10; opacity: 0.5; filter: blur(5px);
-      background: radial-gradient(circle at 15% 0%, rgba(119,255,239,0.25) 0, transparent 55%);
+      will-change: transform;
     }
 
-    /* HERO & NAV */
-    .hero { position: relative; min-height: 60vh; display: flex; flex-direction: column; align-items: center; padding: 2rem 1.5rem; overflow: hidden; }
-    .hero::before { content: ""; position: absolute; inset: 0; background-image: url("astronaut-banner.jpeg"); background-size: cover; z-index: -2; filter: brightness(1.2); }
-    
-    .main-nav { display: flex; gap: 2.5rem; letter-spacing: 0.25em; text-transform: uppercase; margin-bottom: 2rem; }
-    .main-nav a { text-decoration: none; color: #fff; font-weight: 600; }
-    
-    .hero-center { display: flex; flex-direction: column; align-items: center; margin-top: 4rem; }
-    .logo { font-family: "Black Ops One"; font-size: clamp(3rem, 7vw, 5.5rem); letter-spacing: 0.3em; text-transform: uppercase; text-shadow: 0 0 15px rgba(255,255,255,0.2); }
-    .hero-tagline { letter-spacing: 0.2em; text-transform: uppercase; margin-top: 1rem; color: var(--text-main); }
+    .stars-layer::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(1.7px 1.7px at 14% 40%, rgba(255, 255, 255, 0.8) 0, transparent 60%),
+        radial-gradient(1.7px 1.7px at 55% 25%, rgba(230, 240, 255, 0.8) 0, transparent 60%),
+        radial-gradient(1.7px 1.7px at 76% 60%, rgba(255, 255, 255, 0.8) 0, transparent 60%),
+        radial-gradient(1.7px 1.7px at 40% 90%, rgba(235, 242, 255, 0.8) 0, transparent 60%);
+      opacity: 0.8;
+      animation: twinkle-soft 13s ease-in-out infinite alternate;
+    }
 
-    /* LAYOUT CENTERED */
-    main { position: relative; max-width: 1100px; width: 100%; margin: 0 auto; padding: 2rem; }
-    section { padding: 3rem 0; text-align: center; border-top: 1px solid rgba(255, 255, 255, 0.1); }
-    
-    .embed-grid { 
-      display: grid; 
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
-      gap: 2rem; 
-      justify-items: center; 
+    @keyframes twinkle-soft {
+      0%   { opacity: 0.5; }
+      50%  { opacity: 0.9; }
+      100% { opacity: 0.6; }
+    }
+
+    @keyframes star-ascend {
+      0%   { transform: translateY(40px); }
+      100% { transform: translateY(-160px); }
+    }
+
+    /* --- SHOOTING STARS --- */
+    .shooting-stars {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: -9;
+      overflow: hidden;
+    }
+
+    .shooting-stars::before,
+    .shooting-stars::after {
+      content: "";
+      position: absolute;
+      top: -100px;
+      right: -100px;
+      width: 400px; 
+      height: 2px;
+      background: linear-gradient(to left, rgba(255,255,255,0), rgba(255,255,255,0.5), var(--accent));
+      filter: drop-shadow(0 0 6px var(--accent));
+      transform: rotate(-45deg);
+      opacity: 0;
+    }
+
+    .shooting-stars::before {
+      right: 15%;
+      top: -10%;
+      animation: shoot-diagonal 12s linear infinite;
+      animation-delay: 2s;
+    }
+
+    .shooting-stars::after {
+      right: 50%;
+      top: -10%;
+      animation: shoot-diagonal-wide 18s linear infinite;
+      animation-delay: 9s; 
+    }
+
+    @keyframes shoot-diagonal {
+      0% { transform: translate(0, 0) rotate(-45deg); opacity: 1; }
+      5% { transform: translate(-100vw, 100vh) rotate(-45deg); opacity: 0; }
+      100% { transform: translate(-100vw, 100vh) rotate(-45deg); opacity: 0; }
+    }
+
+    @keyframes shoot-diagonal-wide {
+      0% { transform: translate(0, 0) rotate(-45deg); opacity: 1; }
+      7% { transform: translate(-120vw, 120vh) rotate(-45deg); opacity: 0; }
+      100% { transform: translate(-120vw, 120vh) rotate(-45deg); opacity: 0; }
+    }
+
+    /* GLOBAL AURORA */
+    .aurora-layer {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: -10;
+      background:
+        radial-gradient(circle at 15% 0%, rgba(119, 255, 239, 0.25) 0, transparent 55%),
+        radial-gradient(circle at 85% 5%, rgba(124, 255, 95, 0.2) 0, transparent 60%),
+        radial-gradient(circle at 12% 85%, rgba(255, 102, 255, 0.2) 0, transparent 60%),
+        radial-gradient(circle at 90% 80%, rgba(0, 195, 255, 0.25) 0, transparent 60%);
+      mix-blend-mode: screen;
+      opacity: 0.5;
+      filter: blur(5px);
+    }
+
+    /* HERO TOP AREA */
+    .hero {
+      position: relative;
+      min-height: 60vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      text-align: center;
+      padding: 1.25rem 1.5rem 2rem;
+      overflow: hidden;
+      z-index: 0;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image: url("astronaut-banner.jpeg");
+      background-size: cover;
+      background-position: center top;
+      filter: saturate(1.1) contrast(1.15) brightness(1.2);
+      transform: scale(1.0);
+      z-index: -2;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(
+          to bottom,
+          rgba(0, 0, 0, 0.3) 0%,
+          rgba(0, 0, 0, 0.2) 35%,
+          rgba(0, 0, 0, 0.5) 70%,
+          rgba(2, 3, 10, 1) 100%
+        );
+      z-index: -1;
+    }
+
+    /* NAV */
+    .main-nav {
+      display: flex;
+      gap: 2.5rem;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 0.75rem;
+      font-size: clamp(0.9rem, 1.5vw, 1.1rem);
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      z-index: 1;
+    }
+
+    .main-nav a {
+      text-decoration: none;
+      color: #ffffff;
+      font-weight: 600;
+      position: relative;
+      padding-bottom: 0.3rem;
+      transition: color 0.25s ease, transform 0.25s ease;
+      text-shadow:
+        0 0 4px rgba(0,0,0,0.9),
+        0 0 8px rgba(0,0,0,0.7);
+    }
+
+    .main-nav a::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      height: 2px;
+      width: 100%;
+      background: linear-gradient(90deg, var(--aurora-1), var(--aurora-3));
+      transform-origin: center;
+      transform: scaleX(0);
+      transition: transform 0.25s ease;
+    }
+
+    .main-nav a:hover {
+      color: var(--accent);
+      transform: translateY(-1px);
+    }
+
+    .main-nav a:hover::after {
+      transform: scaleX(1);
+    }
+
+    /* HERO CENTER */
+    .hero-center {
+      margin-top: clamp(5rem, 22vh, 9rem);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .logo-wrap {
+      position: relative;
+      display: inline-block;
+      margin-top: 1.5rem;
+      padding-inline: 0.25em;
+      z-index: 1;
+    }
+
+    .logo {
+      font-family: "Black Ops One", system-ui, sans-serif;
+      text-transform: uppercase;
+      font-size: clamp(3.1rem, 7vw, 5.5rem);
+      letter-spacing: 0.3em;
+      padding-inline: 0.18em;
+      color: #fdfdfd;
+      text-shadow:
+        0 1px 0 #040711,
+        0 2px 0 #050814,
+        0 0 15px rgba(255, 255, 255, 0.2);
+      transform: perspective(650px) rotateX(6deg) skewX(-3deg);
+      position: relative;
+      z-index: 2;
+    }
+
+    .hero-tagline {
+      margin-top: 0;
+      font-size: clamp(0.9rem, 1.2vw, 1rem);
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--text-main);
+      text-shadow: 0 0 10px rgba(0,0,0,0.8);
+      z-index: 1;
+    }
+
+    /* STORE ICON STRIP */
+    .store-strip {
+      margin: 1.5rem auto 0;
+      padding: 0.4rem 0.8rem;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(6px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.9);
+      max-width: min(95vw, 900px);
+      z-index: 2;
+    }
+
+    .store-strip img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    @media (min-width: 1024px) {
+      .store-strip {
+        margin-top: 2.5rem;
+      }
+    }
+
+    /* MAIN */
+    main {
+      position: relative;
+      z-index: 1;
+      padding: 1.4rem 1.5rem 3.2rem;
+      max-width: 1100px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    section {
+      padding: 2.5rem 0;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      scroll-margin-top: 80px;
+      text-align: center;
+    }
+
+    section:first-of-type {
+      border-top: none;
+    }
+
+    section h2 {
+      font-size: 1.2rem;
+      text-transform: uppercase;
+      letter-spacing: 0.25em;
+      margin-bottom: 1rem;
+      color: var(--accent);
+    }
+
+    section p {
+      max-width: 48rem;
+      color: var(--text-sub);
+      line-height: 1.6;
+      font-size: 1rem;
+      margin: 0 auto;
+    }
+
+    /* MUSIC GRID – custom players */
+    .embed-grid {
       margin-top: 2rem;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1.5rem;
+      perspective: 1600px;
+      justify-items: center; /* CENTERED ON DESKTOP */
     }
 
     .embed-wrapper {
-      border-radius: 16px; overflow: hidden; background: #000; border: 1px solid rgba(255,255,255,0.1); max-width: 320px; width: 100%;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+      background: rgba(0, 0, 0, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      transform-style: preserve-3d;
+      transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease,
+        border-color 0.25s ease;
+      cursor: pointer;
+      max-width: 320px;
+      width: 100%;
     }
 
-    .store-strip { margin: 1.5rem auto; padding: 0.5rem; background: rgba(0,0,0,0.7); border-radius: 999px; max-width: 900px; }
-    .store-strip img { width: 100%; height: auto; display: block; }
+    .embed-inner {
+      display: flex;
+      flex-direction: column;
+      border-radius: 16px;
+      overflow: hidden;
+      background: radial-gradient(circle at 20% 0%, #111, #05050a);
+    }
+
+    .track-cover {
+      width: 100%;
+      background: #000;
+    }
+
+    .track-cover img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .track-meta {
+      padding: 0.75rem 0.9rem 0.85rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+      background: linear-gradient(180deg, rgba(0,0,0,0.85), rgba(0,0,0,0.95));
+    }
+
+    .track-title {
+      font-size: 0.98rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      text-align: left;
+    }
+
+    .track-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.6rem;
+    }
+
+    .track-play {
+      flex-shrink: 0;
+      width: 40px;
+      height: 40px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.4);
+      background: radial-gradient(circle at 30% 0%, #333, #000);
+      color: var(--accent);
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+    }
+
+    .track-play:hover {
+      transform: translateY(-1px);
+      border-color: var(--accent);
+      box-shadow: 0 0 14px rgba(255, 253, 154, 0.4);
+    }
+
+    .track-links {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 0.45rem;
+      font-size: 0.7rem;
+      letter-spacing: 0.17em;
+      text-transform: uppercase;
+      opacity: 0.85;
+    }
+
+    .track-links a {
+      color: var(--text-sub);
+      text-decoration: none;
+      padding: 0.25rem 0.55rem;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(0,0,0,0.4);
+      transition: 0.15s ease;
+    }
+
+    .track-links a:hover {
+      color: var(--accent);
+      border-color: var(--accent);
+      background: rgba(255,255,255,0.06);
+    }
+
+    .embed-wrapper:nth-child(1) {
+      transform-origin: 100% 100%;
+      transform: rotateX(7deg) rotateY(-8deg);
+    }
+
+    .embed-wrapper:nth-child(2) {
+      transform-origin: 0% 100%;
+      transform: rotateX(7deg) rotateY(8deg);
+    }
+
+    .embed-wrapper:nth-child(3) {
+      transform-origin: 100% 0%;
+      transform: rotateX(-7deg) rotateY(-8deg);
+    }
+
+    .embed-wrapper:nth-child(4) {
+      transform-origin: 0% 0%;
+      transform: rotateX(-7deg) rotateY(8deg);
+    }
+
+    .embed-wrapper:hover {
+      transform: rotateX(0deg) rotateY(0deg) translateZ(6px);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.95);
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    @keyframes pulseBeat {
+      0%    { transform: scale(1); }
+      35%   { transform: scale(1.03); }
+      55%   { transform: scale(1.06); }
+      100% { transform: scale(1); }
+    }
+
+    .embed-wrapper.playing {
+      border-color: rgba(255, 253, 154, 0.85);
+      box-shadow:
+        0 0 24px rgba(124, 255, 95, 0.35),
+        0 0 60px rgba(0, 195, 255, 0.45),
+        0 18px 45px rgba(0, 0, 0, 0.95);
+    }
+
+    .embed-wrapper.playing .embed-inner {
+      animation: pulseBeat 0.9s ease-in-out infinite;
+    }
+
+    /* VIDEO */
+    .video-wrapper {
+      margin-top: 0;
+    }
+
+    .video-wrapper video {
+      width: 100%;
+      max-width: 100%;
+      border-radius: 22px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+      display: block;
+      /* Remove 'pointer-events: auto' so the shield works */
+      object-fit: contain; /* Prevents stretching in fullscreen */
+    }
+
+    /* HIDE NATIVE CONTROLS - HARDCORE MODE */
+    video::-webkit-media-controls {
+      display: none !important;
+    }
+    video::-webkit-media-controls-enclosure {
+      display: none !important;
+    }
+
+    #videos .videos-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2rem;
+      margin-top: 2rem;
+    }
+
+    #videos .video-wrapper.hero-video {
+      position: relative;
+      border-radius: 22px;
+      overflow: hidden;
+      max-width: 100%;
+      margin-inline: auto;
+      box-shadow:
+        0 0 40px rgba(119, 255, 239, 0.45),
+        0 0 80px rgba(0, 195, 255, 0.5),
+        0 18px 45px rgba(0, 0, 0, 0.95);
+    }
+
+    #videos .video-wrapper.hero-video video {
+      border-radius: 22px;
+    }
+
+    /* MINI GIF QUAD – RACE TO MARS CLIPS */
+    .gif-grid {
+      margin-top: 2.5rem;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1.5rem;
+      perspective: 1600px;
+      justify-items: center; /* CENTERED ON DESKTOP */
+    }
+
+    .gif-card {
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+      background: rgba(0, 0, 0, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      transform-style: preserve-3d;
+      transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease,
+        border-color 0.25s ease;
+      max-width: 260px;
+      width: 100%;
+      cursor: default;
+    }
+
+    .gif-inner {
+      border-radius: 16px;
+      overflow: hidden;
+      background: radial-gradient(circle at 20% 0%, #111, #05050a);
+    }
+
+    .gif-inner img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .gif-card:nth-child(1) {
+      transform-origin: 100% 100%;
+      transform: rotateX(7deg) rotateY(-8deg);
+    }
+
+    .gif-card:nth-child(2) {
+      transform-origin: 0% 100%;
+      transform: rotateX(7deg) rotateY(8deg);
+    }
+
+    .gif-card:nth-child(3) {
+      transform-origin: 100% 0%;
+      transform: rotateX(-7deg) rotateY(-8deg);
+    }
+
+    .gif-card:nth-child(4) {
+      transform-origin: 0% 0%;
+      transform: rotateX(-7deg) rotateY(8deg);
+    }
+
+    .gif-card:hover {
+      transform: rotateX(0deg) rotateY(0deg) translateZ(6px);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.95);
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    /* MERCH */
+    .merch-layout {
+      margin-top: 2.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 2.5rem;
+      align-items: center;
+    }
+
+    @media (min-width: 960px) {
+      .merch-layout {
+        flex-direction: row;
+        align-items: flex-start;
+        justify-content: center;
+      }
+    }
+
+    .merch-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.75rem;
+      width: 100%;
+      max-width: 720px;
+    }
+
+    @media (min-width: 768px) {
+      .merch-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+
+    .merch-card {
+      background: rgba(0, 0, 0, 0.65);
+      border-radius: 18px;
+      padding: 1.5rem 1.25rem 2rem;
+      box-shadow: 0 14px 40px rgba(0, 0, 0, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.1rem;
+      height: 100%;
+    }
+
+    .merch-card img {
+      width: 100%;
+      max-width: 220px;
+      height: 220px;
+      object-fit: contain;
+      display: block;
+    }
+
+    .merch-title {
+      font-size: 0.9rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .merch-button {
+      margin-top: auto;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.55rem 1.6rem;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      background: radial-gradient(circle at 20% 0%, #222, #05050a);
+      color: var(--text-main);
+      font-size: 0.8rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      text-decoration: none;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+    }
+
+    .merch-button:hover {
+      border-color: var(--accent);
+      box-shadow: 0 0 20px rgba(255, 253, 154, 0.4);
+      transform: translateY(-1px);
+    }
+
+    .merch-qr {
+      max-width: 260px;
+      width: 100%;
+      background: linear-gradient(180deg, rgba(5,10,22,0.9), rgba(2,3,10,0.9));
+      border-radius: 22px;
+      padding: 1.8rem 1.4rem 2.2rem;
+      border: 1px solid rgba(255,255,255,0.06);
+      box-shadow: 0 14px 40px rgba(0,0,0,0.85);
+      text-align: center;
+    }
+
+    .merch-qr img {
+      width: 100%;
+      max-width: 210px;
+      display: block;
+      margin: 0 auto 1rem;
+      background: #fff;
+      border-radius: 14px;
+      padding: 0.55rem;
+    }
+
+    .merch-qr p {
+      font-size: 0.82rem;
+      color: var(--text-sub);
+      line-height: 1.45;
+      margin-bottom: 1.4rem;
+    }
+
+    .qr-button {
+      display: inline-block;
+      padding: 0.55rem 1.2rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--accent);
+      border: 1px solid rgba(255,255,255,0.18);
+      background: rgba(0,0,0,0.4);
+      transition: 0.2s;
+    }
+
+    .qr-button:hover {
+      background: rgba(255,255,255,0.1);
+      border-color: var(--accent);
+      box-shadow: 0 0 16px rgba(255,253,154,0.35);
+    }
+
+    .about-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      align-items: center;
+      text-align: center;
+    }
+
+    .about-images {
+      display: flex;
+      flex-direction: row;
+      gap: 1.25rem;
+      align-items: flex-end;
+      justify-content: center;
+    }
+
+    .about-photo {
+      height: 174px;
+      width: auto;
+      border-radius: 14px;
+      box-shadow: 0 0 40px rgba(0, 0, 0, 0.8);
+      object-fit: contain;
+      display: block;
+    }
+
+    footer {
+      text-align: center;
+      padding: 3rem 1rem;
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.5);
+      background: rgba(0,0,0,0.3);
+    }
+
+    .visit-counter {
+      margin-top: 0.4rem;
+      font-size: 0.7rem;
+      color: rgba(255, 255, 255, 0.14);
+      text-align: center;
+      opacity: 0.25;
+    }
 
     /* MOBILE TWEAKS */
     @media (max-width: 768px) {
-      .embed-grid { grid-template-columns: 1fr; }
-      .logo { font-size: 2.8rem; }
+      .logo {
+        font-size: 2.8rem;
+        letter-spacing: 0.15em;
+      }
+
+      .about-photo {
+        height: 150px;
+      }
+
+      /* MOBILE FIX: CENTER GRID ITEMS */
+      .embed-grid {
+        gap: 1.25rem;
+        grid-template-columns: 1fr; /* Force 1 column */
+        justify-items: center; /* Center horizontally */
+      }
+
+      .embed-wrapper,
+      .embed-wrapper:nth-child(1),
+      .embed-wrapper:nth-child(2),
+      .embed-wrapper:nth-child(3),
+      .embed-wrapper:nth-child(4) {
+        transform: none;
+        transform-origin: center;
+        margin: 0 auto; /* Ensure centering */
+      }
+
+      /* MOBILE FIX: CENTER GIFS */
+      .gif-grid {
+        gap: 1.25rem;
+        grid-template-columns: 1fr; /* Force 1 column */
+        justify-items: center; /* Center horizontally */
+      }
+
+      .gif-card,
+      .gif-card:nth-child(1),
+      .gif-card:nth-child(2),
+      .gif-card:nth-child(3),
+      .gif-card:nth-child(4) {
+        transform: none;
+        transform-origin: center;
+        margin: 0 auto; /* Ensure centering */
+      }
+    }
+
+    @media (max-width: 480px) {
+      /* Just reinforcing the centering for smaller screens */
+      .embed-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .gif-grid {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
 <body>
 
   <div class="stars-layer"></div>
+  <div class="shooting-stars"></div>
   <div class="aurora-layer"></div>
 
   <header class="hero">
@@ -183,136 +967,433 @@
       <a href="#merch">Merch</a>
       <a href="#about">About</a>
     </nav>
+
     <div class="hero-center">
-      <h1 class="logo">Summon Mars</h1>
+      <div class="logo-wrap">
+        <h1 class="logo">Summon Mars</h1>
+      </div>
       <p class="hero-tagline">Signal from the other side</p>
+      <br><br>
+      <p class="hero-tagline">[Note: EVERYTHING here (including the page) is created & owned, copyrighted & trademarked by Summon Mars ™ ~ For you.]</p>
+      <br><br>
+      <p class="hero-tagline">
+        For more information or questions, email to
+        <a href="mailto:info@summonmars.com">info@summonmars.com</a>
+      </p>
     </div>
   </header>
 
   <div class="store-strip">
-    <img src="all-stores.png" alt="Platforms" />
+    <img src="all-stores.png" alt="Summon Mars on all major platforms" />
   </div>
 
   <main>
+
     <section id="music">
-      <h2 style="color: var(--accent); letter-spacing: 0.3em; text-transform: uppercase;">Transmissions</h2>
+      <h2>Music</h2>
+      <p>
+        Listen to the latest Summon Mars transmissions: glitchy hip-hop pulses,
+        cinematic synth storms, and everything humming between.
+      </p>
+
       <div class="embed-grid">
+
         <div class="embed-wrapper" data-audio-id="track-life">
           <div class="embed-inner">
-            <img src="cover-life-that-moves.png" style="width:100%">
-            <div style="padding:1rem; text-align:left;">
-              <p style="margin-bottom: 0.5rem;">Life That Moves</p>
-              <button class="track-play" style="background:none; border:1px solid #fff; color:#fff; padding: 5px 15px; border-radius: 20px; cursor:pointer;">▶</button>
+            <div class="track-cover">
+              <img src="cover-life-that-moves.png" alt="Life That Moves cover art">
+            </div>
+            <div class="track-meta">
+              <div class="track-title">Life That Moves</div>
+              <div class="track-row">
+                <button class="track-play" type="button" aria-label="Play Life That Moves">▶</button>
+                <div class="track-links">
+                  <a href="https://open.spotify.com/artist/5GohNtXpBBkQyOfYpweSnO" target="_blank" rel="noopener">SPOTIFY</a>
+                  <a href="https://music.apple.com/us/artist/summon-mars/1770939240" target="_blank" rel="noopener">APPLE</a>
+                  <a href="https://www.youtube.com/@SummonMarsOfficial" target="_blank" rel="noopener">YT</a>
+                </div>
+              </div>
               <audio id="track-life" src="life-that-moves.mp3"></audio>
             </div>
           </div>
         </div>
+
         <div class="embed-wrapper" data-audio-id="track-wake">
           <div class="embed-inner">
-            <img src="cover-wake-up-my-mind.png" style="width:100%">
-            <div style="padding:1rem; text-align:left;">
-              <p style="margin-bottom: 0.5rem;">Wake Up My Mind</p>
-              <button class="track-play" style="background:none; border:1px solid #fff; color:#fff; padding: 5px 15px; border-radius: 20px; cursor:pointer;">▶</button>
+            <div class="track-cover">
+              <img src="cover-wake-up-my-mind.png" alt="Wake Up My Mind cover art">
+            </div>
+            <div class="track-meta">
+              <div class="track-title">Wake Up My Mind</div>
+              <div class="track-row">
+                <button class="track-play" type="button" aria-label="Play Wake Up My Mind">▶</button>
+                <div class="track-links">
+                  <a href="https://open.spotify.com/artist/5GohNtXpBBkQyOfYpweSnO" target="_blank" rel="noopener">SPOTIFY</a>
+                  <a href="https://music.apple.com/us/artist/summon-mars/1770939240" target="_blank" rel="noopener">APPLE</a>
+                  <a href="https://www.youtube.com/@SummonMarsOfficial" target="_blank" rel="noopener">YT</a>
+                </div>
+              </div>
               <audio id="track-wake" src="wake-up-my-mind.mp3"></audio>
             </div>
           </div>
         </div>
+
+        <div class="embed-wrapper" data-audio-id="track-love">
+          <div class="embed-inner">
+            <div class="track-cover">
+              <img src="cover-what-is-love.png" alt="What Is Love cover art">
+            </div>
+            <div class="track-meta">
+              <div class="track-title">What Is Love</div>
+              <div class="track-row">
+                <button class="track-play" type="button" aria-label="Play What Is Love">▶</button>
+                <div class="track-links">
+                  <a href="https://open.spotify.com/artist/5GohNtXpBBkQyOfYpweSnO" target="_blank" rel="noopener">SPOTIFY</a>
+                  <a href="https://music.apple.com/us/artist/summon-mars/1770939240" target="_blank" rel="noopener">APPLE</a>
+                  <a href="https://www.youtube.com/@SummonMarsOfficial" target="_blank" rel="noopener">YT</a>
+                </div>
+              </div>
+              <audio id="track-love" src="what-is-love.mp3"></audio>
+            </div>
+          </div>
+        </div>
+
+        <div class="embed-wrapper" data-audio-id="track-race">
+          <div class="embed-inner">
+            <div class="track-cover">
+              <img src="cover-race-to-mars.jpg" alt="Race To Mars cover art">
+            </div>
+            <div class="track-meta">
+              <div class="track-title">Race To Mars</div>
+              <div class="track-row">
+                <button class="track-play" type="button" aria-label="Play Race To Mars">▶</button>
+                <div class="track-links">
+                  <a href="https://open.spotify.com/artist/5GohNtXpBBkQyOfYpweSnO" target="_blank" rel="noopener">SPOTIFY</a>
+                  <a href="https://music.apple.com/us/artist/summon-mars/1770939240" target="_blank" rel="noopener">APPLE</a>
+                  <a href="https://www.youtube.com/@SummonMarsOfficial" target="_blank" rel="noopener">YT</a>
+                </div>
+              </div>
+              <audio id="track-race" src="race-to-mars.mp3"></audio>
+            </div>
+          </div>
+        </div>
+
       </div>
     </section>
 
     <section id="videos">
-      <h2 style="color: var(--accent); letter-spacing: 0.3em; text-transform: uppercase;">Visuals</h2>
-      <div style="max-width: 800px; margin: 2rem auto;">
+      <h2>Videos</h2>
+      <p>
+        Portals, shorts, and weird visuals from the Summon Mars universe.
+        Broadcast from the static between channels.
+        <br><br>
+        :: Don't own the highway to be the billboard. ::
+      </p>
+
+      <div class="videos-grid">
         <div class="video-wrapper hero-video paused">
-          <video data-vid="racetomarsforsite.mp4" poster="racetomars-vidpic1.png" playsinline></video>
+          <video
+            data-vid="racetomarsforsite.mp4"
+            poster="racetomars-vidpic1.png"
+            disablepictureinpicture
+            oncontextmenu="return false;"
+          ></video>
           <div class="custom-controls">
-            <button class="control-btn btn-rewind"><svg viewBox="0 0 24 24"><path d="M11 18V6l-8.5 6 8.5 6zm.5-6l8.5 6V6l-8.5 6z"/></svg></button>
-            <button class="control-btn btn-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button>
-            <button class="control-btn btn-forward"><svg viewBox="0 0 24 24"><path d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z"/></svg></button>
-            <button class="control-btn btn-mute"><svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg></button>
-            <button class="control-btn btn-fullscreen"><svg viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg></button>
+            <button class="control-btn btn-rewind" title="Rewind 10s">
+              <svg viewBox="0 0 24 24"><path d="M11 18V6l-8.5 6 8.5 6zm.5-6l8.5 6V6l-8.5 6z"/></svg>
+            </button>
+            
+            <button class="control-btn btn-play" title="Play">
+              <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+            </button>
+            
+            <button class="control-btn btn-forward" title="Forward 10s">
+              <svg viewBox="0 0 24 24"><path d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z"/></svg>
+            </button>
+
+            <button class="control-btn btn-mute" title="Mute/Unmute">
+              <svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+            </button>
+            
+            <button class="control-btn btn-fullscreen" title="Fullscreen">
+              <svg viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
+            </button>
           </div>
         </div>
       </div>
 
-      <p style="margin-top: 2rem;">
-        <a href="videos.html" style="color: var(--accent); text-decoration: underline; font-weight: bold;">Click HERE for more music videos.</a>
-      </p>
-    </section>
+      <div class="gif-grid">
+        <div class="gif-card">
+          <div class="gif-inner">
+            <img src="rtm-clip-1.gif" alt="Race To Mars clip 1">
+          </div>
+        </div>
+        <div class="gif-card">
+          <div class="gif-inner">
+            <img src="rtm-clip-2.gif" alt="Race To Mars clip 2">
+          </div>
+        </div>
+        <div class="gif-card">
+          <div class="gif-inner">
+            <img src="rtm-clip-3.gif" alt="Race To Mars clip 3">
+          </div>
+        </div>
+        <div class="gif-card">
+          <div class="gif-inner">
+            <img src="rtm-clip-4.gif" alt="Race To Mars clip 4">
+          </div>
+        </div>
+      </div>
 
+      <br><br>
+      <p>
+        <a href="videos.html" style="color: var(--accent); text-decoration: underline; font-weight: bold; font-size: 1.1rem;">
+          Click HERE to see more original music videos.
+        </a>
+      </p>
+
+    </section>
+    
     <section id="merch">
-      <h2 style="color: var(--accent); letter-spacing: 0.3em; text-transform: uppercase;">Merch</h2>
-      <div class="store-strip" style="background:none;">
-        <a href="https://direct.distrokid.com/summonmars" class="qr-button" style="color:var(--accent); text-decoration:none; border:1px solid var(--accent); padding: 10px 20px; border-radius: 30px;">CLICK TO SHOP TRANSLATIONS</a>
+      <h2>Merch</h2>
+      <p>
+        Wear the broadcast: mugs, hoodies, tees, and glitch artifacts from future drops.
+        Minimal, bright, and loud enough to bend the signal.
+      </p>
+
+      <div class="merch-layout">
+
+        <div class="merch-qr">
+          <img src="merch-qr.png" alt="Scan Summon Mars merch QR" />
+
+          <p>
+            Click below | Scan QR with Phone<br>
+            Opens the merch store instantly.
+          </p>
+
+          <a class="qr-button" href="https://direct.distrokid.com/summonmars">
+            CLICK OR SCAN
+          </a>
+        </div>
+
+        <div class="merch-grid">
+
+          <div class="merch-card">
+            <img src="merch-tees-rtm.png" alt="Summon Mars Neon Tee" />
+            <div class="merch-title">Race To Mars - Tee</div>
+            <a class="merch-button" href="https://direct.distrokid.com/summonmars/product/1213699-race-to-mars-women-s-cut-t-shirt">Shop tees</a>
+          </div>
+
+          <div class="merch-card">
+            <img src="merch-mugs.png" alt="Summon Mars Mug" />
+            <div class="merch-title">Life That Moves - Mug</div>
+            <a class="merch-button" href="https://direct.distrokid.com/summonmars/product/1210669-life-that-moves-ceramic-mug">Shop mugs</a>
+          </div>
+
+          <div class="merch-card">
+            <img src="merch-bags.png" alt="Summon Mars Bag" />
+            <div class="merch-title">Wake Up My Mind - Bag</div>
+            <a class="merch-button" href="https://direct.distrokid.com/summonmars/product/1210591-wake-up-my-mind-tote-bag">Shop bags</a>
+          </div>
+
+        </div>
       </div>
     </section>
 
     <section id="about">
-      <h2 style="color: var(--accent); letter-spacing: 0.3em; text-transform: uppercase;">About</h2>
-      <p style="max-width: 700px; margin: 2rem auto; line-height: 1.8;">
-        Summon Mars is built with restraint and released without warning. Every track is pressure, memory, and motion held just long enough to matter.
-      </p>
+      <h2>About</h2>
+      <div class="about-wrap">
+
+        <div class="about-images">
+          <img src="marsmydog.jpg" alt="My dog Mars" class="about-photo" />
+          <img src="cancer-constellation.png" alt="Cancer constellation" class="about-photo" />
+          <img src="profile-stand.png" alt="Summon Mars" class="about-photo" />
+        </div>
+
+        <p>
+          Summon Mars is built with restraint and released without warning. Every track is pressure, memory, and motion held just long enough to matter. Nothing here is accidental. Nothing is rushed. If it found you, it was already moving your way.
+          <br><br>
+          The work lives in heavy rhythms, disciplined melodies, and lyrics shaped by experience and patience rather than noise. Every track is intentional, carrying weight meant to linger instead of flash and disappear.
+          <br><br>
+          The project is developed over years in the background where sound, visuals, and symbols evolved together. Influences run wide, but the execution stays focused.
+          <br><br>
+          If the songs feel like they arrived already in motion, that’s because they were never built to chase attention, only to hold it.
+        </p>
+      </div>
     </section>
+
   </main>
 
-  <footer style="text-align:center; padding: 4rem; opacity: 0.4; font-size: 0.8rem;">
-    © 2026 Summon Mars. Secure Signal Active.
+  <footer>
+    © 2026 Summon Mars. All rights reserved.
+    <div class="visit-counter">
+      Visitors: <span id="busuanzi_value_site_uv"></span>
+    </div>
   </footer>
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      /* SECURITY */
-      document.addEventListener('contextmenu', e => e.preventDefault());
-      document.onkeydown = e => { if([123, 73, 67, 74, 85, 83].includes(e.keyCode)) return false; };
-      setInterval(() => { console.clear(); console.log("%cSummon Mars Security Active", "color:red; font-size:20px;"); }, 2000);
+      /* --- SECURITY LEVEL 1: PREVENT CONTEXT MENU --- */
+      document.addEventListener('contextmenu', event => event.preventDefault());
 
-      /* SOURCE INJECTION */
-      document.querySelectorAll('video[data-vid]').forEach(v => { v.src = v.getAttribute('data-vid'); v.load(); });
+      /* --- SECURITY LEVEL 2: PREVENT KEYBOARD SHORTCUTS --- */
+      document.onkeydown = function(e) {
+        if (e.keyCode === 123) { return false; } // F12
+        if (e.ctrlKey && e.shiftKey && e.keyCode === 'I'.charCodeAt(0)) { return false; } // Ctrl+Shift+I
+        if (e.ctrlKey && e.shiftKey && e.keyCode === 'C'.charCodeAt(0)) { return false; } // Ctrl+Shift+C
+        if (e.ctrlKey && e.shiftKey && e.keyCode === 'J'.charCodeAt(0)) { return false; } // Ctrl+Shift+J
+        if (e.ctrlKey && e.keyCode === 'U'.charCodeAt(0)) { return false; } // Ctrl+U
+        if (e.ctrlKey && e.keyCode === 'S'.charCodeAt(0)) { return false; } // Ctrl+S
+      };
 
-      /* VIDEO LOGIC: SMART WAKE & FADE */
-      const wrappers = document.querySelectorAll('.video-wrapper');
-      wrappers.forEach(wrapper => {
-        const video = wrapper.querySelector('video');
-        const playBtn = wrapper.querySelector('.btn-play');
-        const muteBtn = wrapper.querySelector('.btn-mute');
-        const rewindBtn = wrapper.querySelector('.btn-rewind');
-        const forwardBtn = wrapper.querySelector('.btn-forward');
-        const fullBtn = wrapper.querySelector('.btn-fullscreen');
-        
-        let hideTimeout;
-        const wake = () => {
-          wrapper.classList.add('user-active');
-          clearTimeout(hideTimeout);
-          if (!video.paused) hideTimeout = setTimeout(() => wrapper.classList.remove('user-active'), 2500);
-        };
+      /* --- SECURITY LEVEL 3: PREVENT DRAGGING ASSETS --- */
+      document.ondragstart = function() { return false; };
 
-        wrapper.addEventListener('mousemove', wake);
-        wrapper.addEventListener('touchstart', wake);
-        wrapper.addEventListener('click', wake);
-
-        playBtn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          if (video.paused) { video.play(); wrapper.classList.remove('paused'); }
-          else { video.pause(); wrapper.classList.add('paused'); }
-          wake();
-        });
-
-        muteBtn.addEventListener('click', (e) => { e.stopPropagation(); video.muted = !video.muted; wake(); });
-        rewindBtn.addEventListener('click', (e) => { e.stopPropagation(); video.currentTime -= 10; wake(); });
-        forwardBtn.addEventListener('click', (e) => { e.stopPropagation(); video.currentTime += 10; wake(); });
-        fullBtn.addEventListener('click', (e) => { e.stopPropagation(); wrapper.requestFullscreen(); wake(); });
+      /* --- SECURITY LEVEL 4: SOURCE OBFUSCATION (The "Iron Gate") --- */
+      /* This injects the video links AFTER load, so they don't appear in 'View Source' */
+      const vids = document.querySelectorAll('video[data-vid]');
+      vids.forEach(v => {
+        const source = v.getAttribute('data-vid');
+        if (source) v.src = source;
+        // Also force load so poster works if needed
+        v.load(); 
       });
 
-      /* AUDIO LOGIC */
+      /* --- SECURITY LEVEL 5: CONSOLE CLEARING TRAP --- */
+      setInterval(function() {
+        console.clear();
+        console.log("%c Summon Mars Security Active", "color: red; font-size: 20px; font-weight: bold;");
+      }, 2000);
+
+      /* --- CUSTOM VIDEO CONTROLS LOGIC --- */
+      const wrappers = document.querySelectorAll('.video-wrapper');
+      
+      wrappers.forEach(wrapper => {
+        const video = wrapper.querySelector('video');
+        const rewindBtn = wrapper.querySelector('.btn-rewind'); // <<
+        const forwardBtn = wrapper.querySelector('.btn-forward'); // >>
+        const playBtn = wrapper.querySelector('.btn-play');
+        const muteBtn = wrapper.querySelector('.btn-mute');
+        const fullBtn = wrapper.querySelector('.btn-fullscreen');
+        const playIconPath = playBtn.querySelector('path');
+        const muteIconPath = muteBtn.querySelector('path');
+
+        // LOGIC: REWIND 10 SECONDS
+        rewindBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          video.currentTime = Math.max(0, video.currentTime - 10);
+        });
+
+        // LOGIC: FORWARD 10 SECONDS
+        forwardBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          video.currentTime = Math.min(video.duration, video.currentTime + 10);
+        });
+
+        // Play/Pause Toggle
+        playBtn.addEventListener('click', (e) => {
+          e.stopPropagation(); // Stop click from hitting wrapper
+          if (video.paused) {
+            // Stop other videos first
+            document.querySelectorAll('video').forEach(v => {
+              if(v !== video) {
+                v.pause();
+                // Removed v.load() to keep others on current frame
+                v.parentElement.classList.add('paused');
+              }
+            });
+            video.play();
+            wrapper.classList.remove('paused');
+            // Change icon to Pause
+            playIconPath.setAttribute('d', 'M6 19h4V5H6v14zm8-14v14h4V5h-4z');
+          } else {
+            video.pause();
+            // REMOVED video.load() so it freezes frame instead of resetting
+            wrapper.classList.add('paused');
+            // Change icon back to Play
+            playIconPath.setAttribute('d', 'M8 5v14l11-7z');
+          }
+        });
+
+        // Volume Toggle (Mute/Unmute)
+        muteBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          video.muted = !video.muted;
+          if (video.muted) {
+             // Muted Icon
+             muteIconPath.setAttribute('d', 'M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z');
+          } else {
+             // Unmuted Icon
+             muteIconPath.setAttribute('d', 'M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z');
+          }
+        });
+
+        // Fullscreen Toggle - THE WRAPPER METHOD
+        fullBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          // We make the WRAPPER fullscreen, not the video
+          if (wrapper.requestFullscreen) {
+            wrapper.requestFullscreen();
+          } else if (wrapper.webkitRequestFullscreen) { /* Safari */
+            wrapper.webkitRequestFullscreen();
+          } else if (wrapper.msRequestFullscreen) { /* IE11 */
+            wrapper.msRequestFullscreen();
+          }
+        });
+
+        // Auto-Reset UI when video ends
+        video.addEventListener('ended', () => {
+           video.load(); 
+           wrapper.classList.add('paused');
+           playIconPath.setAttribute('d', 'M8 5v14l11-7z');
+        });
+      });
+
+      /* --- AUDIO PLAYER LOGIC (EXISTING) --- */
+      const cards = document.querySelectorAll('.embed-wrapper');
       const buttons = document.querySelectorAll('.track-play');
+      const audios = document.querySelectorAll('audio[id^="track-"]');
+
+      const pauseAll = () => {
+        audios.forEach(a => {
+          a.pause();
+        });
+        cards.forEach(c => c.classList.remove('playing'));
+        buttons.forEach(b => b.textContent = '▶');
+      };
+
       buttons.forEach(btn => {
-        btn.addEventListener('click', () => {
-          const audio = btn.nextElementSibling;
-          if (audio.paused) { audio.play(); btn.textContent = '⏸'; }
-          else { audio.pause(); btn.textContent = '▶'; }
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const card = btn.closest('.embed-wrapper');
+          const audioId = card.getAttribute('data-audio-id');
+          const audio = document.getElementById(audioId);
+
+          if (!audio) return;
+
+          if (!audio.paused) {
+            audio.pause();
+            card.classList.remove('playing');
+            btn.textContent = '▶';
+          } else {
+            pauseAll();
+            audio.play();
+            card.classList.add('playing');
+            btn.textContent = '⏸';
+          }
+        });
+      });
+
+      cards.forEach(card => {
+        card.addEventListener('click', () => {
+          const btn = card.querySelector('.track-play');
+          if (btn) btn.click();
         });
       });
     });
   </script>
+
+  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
 </body>
 </html>
