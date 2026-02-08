@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Summon Mars - Race To Mars</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link rel="icon" type="image/png" sizes="32x32" href="url-logo.png" />
+
+  <link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Oswald:wght@300;400;500&display=swap" rel="stylesheet">
+  
+  <style>
+    /* --- SECURITY LOCKDOWN PROTOCOLS --- */
+    body {
+      -webkit-user-select: none; /* Chrome/Safari */
+      -moz-user-select: none;    /* Firefox */
+      -ms-user-select: none;     /* IE10+ */
+      user-select: none;         /* Standard */
+      -webkit-touch-callout: none; /* iOS Safari */
+    }
+    
+    img {
+      pointer-events: none;      /* Disables drag/drop and right click on images */
+      -webkit-user-drag: none;
+    }
+
+    /* THE VAULT: Video Container Styling */
+    .video-wrapper {
+      position: relative;
+      overflow: hidden; /* Keeps the glass shield contained */
+      border-radius: 22px;
+      background: #000;
+      width: 100%; /* FORCE FULL WIDTH */
+      box-shadow: 0 0 50px rgba(0, 195, 255, 0.15); /* Subtle glow for hype */
+      max-width: 900px; /* Optional cap to keep it looking nice on desktop */
+      margin: 0 auto;
+    }
+
+    /* FULLSCREEN FIX: Ensure wrapper takes up space correctly when fullscreened */
+    .video-wrapper:fullscreen {
+      width: 100vw;
+      height: 100vh;
+      max-width: none;
+      border-radius: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #000;
+    }
+
+    .video-wrapper:-webkit-full-screen {
+      width: 100vw;
+      height: 100vh;
+      max-width: none;
+      border-radius: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #000;
+    }
+    
+    /* THE GLASS SHIELD: 100% Coverage preventing DIRECT interaction */
+    .video-wrapper::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 10; /* Sits above video, below controls */
+      background: transparent; /* Invisible wall */
+    }
+
+    /* CUSTOM CONTROLS LAYER - "GHOST MODE" */
+    .custom-controls {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 20; /* Sits ABOVE the glass shield */
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      opacity: 0; /* HIDDEN BY DEFAULT */
+      transition: opacity 0.3s ease; /* Smooth fade in/out */
+      background: rgba(0, 0, 0, 0.6);
+      padding: 1rem 1.5rem;
+      border-radius: 50px;
+      backdrop-filter: blur(4px);
+      border: 1px solid rgba(255,255,255,0.1);
+      pointer-events: auto; /* Ensure buttons are clickable */
+    }
+
+    /* TRIGGER 1: Show controls when hovering anywhere on the video wrapper */
+    .video-wrapper:hover .custom-controls {
+      opacity: 1;
+    }
+
+    /* TRIGGER 2: Keep controls visible if video is PAUSED (so user sees Play button) */
+    .video-wrapper.paused .custom-controls {
+      opacity: 1;
+    }
+
+    .control-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--accent);
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s ease, filter 0.2s ease;
+      width: 40px;
+      height: 40px;
+    }
+
+    .control-btn:hover {
+      transform: scale(1.15);
+      filter: drop-shadow(0 0 8px var(--accent));
+    }
+
+    .control-btn svg {
+      width: 100%;
+      height: 100%;
+      fill: currentColor;
+    }
+
+    /* RESET */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    /* THEME COLORS */
+    :root {
+      --aurora-1: #77ffef;
+      --aurora-2: #7cff5f;
+      --aurora-3: #ff66ff;
+      --aurora-4: #00c3ff;
+      --bg-deep: #02030a;
+      --text-main: #fdfdfd;
+      --text-sub: #cfd9ff;
+      --accent: #fffd9a;
+    }
+
+    /* BASE */
+    body {
+      font-family: "Oswald", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: radial-gradient(circle at 10% 0%, #05091a 0%, #000000 60%, #02030a 100%);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center; /* Center the video on the empty page */
+      background-attachment: fixed;
+    }
+
+    /* --- BACKGROUND LAYER 1: DEEP SPACE STARS --- */
+    .stars-layer {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: -11;
+      background:
+        radial-gradient(2.5px 2.5px at 8% 10%, rgba(255, 255, 255, 0.95) 0, transparent 60%),
+        radial-gradient(2px 2px at 20% 30%, rgba(220, 235, 255, 0.9) 0, transparent 60%),
+        radial-gradient(2.5px 2.5px at 35% 15%, rgba(255, 255, 255, 0.95) 0, transparent 60%),
+        radial-gradient(2px 2px at 60% 12%, rgba(230, 240, 255, 0.9) 0, transparent 60%),
+        radial-gradient(2.5px 2.5px at 80% 18%, rgba(255, 255, 255, 0.95) 0, transparent 60%),
+        radial-gradient(2px 2px at 88% 35%, rgba(220, 235, 255, 0.9) 0, transparent 60%),
+        radial-gradient(2.5px 2.5px at 72% 52%, rgba(255, 255, 255, 0.95) 0, transparent 60%),
+        radial-gradient(2px 2px at 18% 55%, rgba(225, 238, 255, 0.9) 0, transparent 60%),
+        radial-gradient(2px 2px at 32% 72%, rgba(230, 240, 255, 0.9) 0, transparent 60%),
+        radial-gradient(2.5px 2.5px at 48% 82%, rgba(255, 255, 255, 0.95) 0, transparent 60%),
+        radial-gradient(2px 2px at 68% 78%, rgba(220, 235, 255, 0.9) 0, transparent 60%),
+        radial-gradient(2.5px 2.5px at 90% 88%, rgba(255, 255, 255, 0.95) 0, transparent 60%);
+      opacity: 0.9;
+      animation: star-ascend 30s linear infinite;
+      will-change: transform;
+    }
+
+    .stars-layer::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(1.7px 1.7px at 14% 40%, rgba(255, 255, 255, 0.8) 0, transparent 60%),
+        radial-gradient(1.7px 1.7px at 55% 25%, rgba(230, 240, 255, 0.8) 0, transparent 60%),
+        radial-gradient(1.7px 1.7px at 76% 60%, rgba(255, 255, 255, 0.8) 0, transparent 60%),
+        radial-gradient(1.7px 1.7px at 40% 90%, rgba(235, 242, 255, 0.8) 0, transparent 60%);
+      opacity: 0.8;
+      animation: twinkle-soft 13s ease-in-out infinite alternate;
+    }
+
+    @keyframes twinkle-soft {
+      0%   { opacity: 0.5; }
+      50%  { opacity: 0.9; }
+      100% { opacity: 0.6; }
+    }
+
+    @keyframes star-ascend {
+      0%   { transform: translateY(40px); }
+      100% { transform: translateY(-160px); }
+    }
+
+    /* --- SHOOTING STARS --- */
+    .shooting-stars {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: -9;
+      overflow: hidden;
+    }
+
+    .shooting-stars::before,
+    .shooting-stars::after {
+      content: "";
+      position: absolute;
+      top: -100px;
+      right: -100px;
+      width: 400px; 
+      height: 2px;
+      background: linear-gradient(to left, rgba(255,255,255,0), rgba(255,255,255,0.5), var(--accent));
+      filter: drop-shadow(0 0 6px var(--accent));
+      transform: rotate(-45deg);
+      opacity: 0;
+    }
+
+    .shooting-stars::before {
+      right: 15%;
+      top: -10%;
+      animation: shoot-diagonal 12s linear infinite;
+      animation-delay: 2s;
+    }
+
+    .shooting-stars::after {
+      right: 50%;
+      top: -10%;
+      animation: shoot-diagonal-wide 18s linear infinite;
+      animation-delay: 9s; 
+    }
+
+    @keyframes shoot-diagonal {
+      0% { transform: translate(0, 0) rotate(-45deg); opacity: 1; }
+      5% { transform: translate(-100vw, 100vh) rotate(-45deg); opacity: 0; }
+      100% { transform: translate(-100vw, 100vh) rotate(-45deg); opacity: 0; }
+    }
+
+    @keyframes shoot-diagonal-wide {
+      0% { transform: translate(0, 0) rotate(-45deg); opacity: 1; }
+      7% { transform: translate(-120vw, 120vh) rotate(-45deg); opacity: 0; }
+      100% { transform: translate(-120vw, 120vh) rotate(-45deg); opacity: 0; }
+    }
+
+    /* GLOBAL AURORA */
+    .aurora-layer {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: -10;
+      background:
+        radial-gradient(circle at 15% 0%, rgba(119, 255, 239, 0.25) 0, transparent 55%),
+        radial-gradient(circle at 85% 5%, rgba(124, 255, 95, 0.2) 0, transparent 60%),
+        radial-gradient(circle at 12% 85%, rgba(255, 102, 255, 0.2) 0, transparent 60%),
+        radial-gradient(circle at 90% 80%, rgba(0, 195, 255, 0.25) 0, transparent 60%);
+      mix-blend-mode: screen;
+      opacity: 0.5;
+      filter: blur(5px);
+    }
+
+    /* VIDEO */
+    .video-wrapper video {
+      width: 100%;
+      max-width: 100%;
+      border-radius: 22px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+      display: block;
+      /* Remove 'pointer-events: auto' so the shield works */
+      object-fit: contain; /* Prevents stretching in fullscreen */
+    }
+
+    /* HIDE NATIVE CONTROLS - HARDCORE MODE */
+    video::-webkit-media-controls {
+      display: none !important;
+    }
+    video::-webkit-media-controls-enclosure {
+      display: none !important;
+    }
+
+  </style>
+</head>
+<body>
+
+  <div class="stars-layer"></div>
+  <div class="shooting-stars"></div>
+  <div class="aurora-layer"></div>
+
+  <div class="video-wrapper earth-video paused">
+    <video
+      data-vid="racetomars.mp4"
+      poster="racetomars-vidpic2.png"
+      disablepictureinpicture
+      oncontextmenu="return false;"
+    ></video>
+    <div class="custom-controls">
+      <button class="control-btn btn-rewind" title="Rewind 10s">
+        <svg viewBox="0 0 24 24"><path d="M11 18V6l-8.5 6 8.5 6zm.5-6l8.5 6V6l-8.5 6z"/></svg>
+      </button>
+      
+      <button class="control-btn btn-play" title="Play">
+        <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+      </button>
+      
+      <button class="control-btn btn-forward" title="Forward 10s">
+        <svg viewBox="0 0 24 24"><path d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z"/></svg>
+      </button>
+
+      <button class="control-btn btn-mute" title="Mute/Unmute">
+        <svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+      </button>
+      
+      <button class="control-btn btn-fullscreen" title="Fullscreen">
+        <svg viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      /* --- SECURITY LEVEL 1: PREVENT CONTEXT MENU --- */
+      document.addEventListener('contextmenu', event => event.preventDefault());
+
+      /* --- SECURITY LEVEL 2: PREVENT KEYBOARD SHORTCUTS --- */
+      document.onkeydown = function(e) {
+        if (e.keyCode === 123) { return false; } // F12
+        if (e.ctrlKey && e.shiftKey && e.keyCode === 'I'.charCodeAt(0)) { return false; } // Ctrl+Shift+I
+        if (e.ctrlKey && e.shiftKey && e.keyCode === 'C'.charCodeAt(0)) { return false; } // Ctrl+Shift+C
+        if (e.ctrlKey && e.shiftKey && e.keyCode === 'J'.charCodeAt(0)) { return false; } // Ctrl+Shift+J
+        if (e.ctrlKey && e.keyCode === 'U'.charCodeAt(0)) { return false; } // Ctrl+U
+        if (e.ctrlKey && e.keyCode === 'S'.charCodeAt(0)) { return false; } // Ctrl+S
+      };
+
+      /* --- SECURITY LEVEL 3: PREVENT DRAGGING ASSETS --- */
+      document.ondragstart = function() { return false; };
+
+      /* --- SECURITY LEVEL 4: SOURCE OBFUSCATION (The "Iron Gate") --- */
+      /* This injects the video links AFTER load, so they don't appear in 'View Source' */
+      const vids = document.querySelectorAll('video[data-vid]');
+      vids.forEach(v => {
+        const source = v.getAttribute('data-vid');
+        if (source) v.src = source;
+        // Also force load so poster works if needed
+        v.load(); 
+      });
+
+      /* --- SECURITY LEVEL 5: CONSOLE CLEARING TRAP --- */
+      setInterval(function() {
+        console.clear();
+        console.log("%c Summon Mars Security Active", "color: red; font-size: 20px; font-weight: bold;");
+      }, 2000);
+
+      /* --- CUSTOM VIDEO CONTROLS LOGIC --- */
+      const wrappers = document.querySelectorAll('.video-wrapper');
+      
+      wrappers.forEach(wrapper => {
+        const video = wrapper.querySelector('video');
+        const rewindBtn = wrapper.querySelector('.btn-rewind'); // <<
+        const forwardBtn = wrapper.querySelector('.btn-forward'); // >>
+        const playBtn = wrapper.querySelector('.btn-play');
+        const muteBtn = wrapper.querySelector('.btn-mute');
+        const fullBtn = wrapper.querySelector('.btn-fullscreen');
+        const playIconPath = playBtn.querySelector('path');
+        const muteIconPath = muteBtn.querySelector('path');
+
+        // LOGIC: REWIND 10 SECONDS
+        rewindBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          video.currentTime = Math.max(0, video.currentTime - 10);
+        });
+
+        // LOGIC: FORWARD 10 SECONDS
+        forwardBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          video.currentTime = Math.min(video.duration, video.currentTime + 10);
+        });
+
+        // Play/Pause Toggle
+        playBtn.addEventListener('click', (e) => {
+          e.stopPropagation(); // Stop click from hitting wrapper
+          if (video.paused) {
+            video.play();
+            wrapper.classList.remove('paused');
+            // Change icon to Pause
+            playIconPath.setAttribute('d', 'M6 19h4V5H6v14zm8-14v14h4V5h-4z');
+          } else {
+            video.pause();
+            // REMOVED video.load() so it freezes frame instead of resetting
+            wrapper.classList.add('paused');
+            // Change icon back to Play
+            playIconPath.setAttribute('d', 'M8 5v14l11-7z');
+          }
+        });
+
+        // Volume Toggle (Mute/Unmute)
+        muteBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          video.muted = !video.muted;
+          if (video.muted) {
+             // Muted Icon
+             muteIconPath.setAttribute('d', 'M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z');
+          } else {
+             // Unmuted Icon
+             muteIconPath.setAttribute('d', 'M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z');
+          }
+        });
+
+        // Fullscreen Toggle - THE WRAPPER METHOD
+        fullBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          // We make the WRAPPER fullscreen, not the video
+          if (wrapper.requestFullscreen) {
+            wrapper.requestFullscreen();
+          } else if (wrapper.webkitRequestFullscreen) { /* Safari */
+            wrapper.webkitRequestFullscreen();
+          } else if (wrapper.msRequestFullscreen) { /* IE11 */
+            wrapper.msRequestFullscreen();
+          }
+        });
+
+        // Auto-Reset UI when video ends
+        video.addEventListener('ended', () => {
+           video.load(); 
+           wrapper.classList.add('paused');
+           playIconPath.setAttribute('d', 'M8 5v14l11-7z');
+        });
+      });
+    });
+  </script>
+
+  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+</body>
+</html>
