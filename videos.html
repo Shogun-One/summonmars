@@ -343,15 +343,19 @@
       z-index: -1;
     }
 
-    /* Simple starry divider for section separation */
+    /* --- SECTION DIVIDER BETWEEN VIDEOS & BOTTOM INFO --- */
 .section-divider {
-  border: none;
-  height: 2px;
-  background: linear-gradient(to right, transparent, rgba(0, 195, 255, 0.4), transparent);
-  margin: 4rem auto;
-  width: 70%;
-  max-width: 600px;
-  box-shadow: 0 0 20px rgba(0, 195, 255, 0.15);
+  width: 100%;
+  max-width: 960px;
+  margin: 3.5rem auto 3rem;
+  border: 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.35);
+  box-shadow: 0 0 18px rgba(0, 195, 255, 0.35);
+}
+
+/* optional: a bit of breathing room for the bottom info section */
+.video-info-section {
+  padding: 0 1rem 4rem;
 }
 
   </style>
