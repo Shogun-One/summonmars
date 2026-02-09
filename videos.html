@@ -192,7 +192,7 @@
     video::-webkit-media-controls { display: none !important; }
     video::-webkit-media-controls-enclosure { display: none !important; }
 
-    /* --- BACKGROUND LAYERS (full styles restored) --- */
+    /* --- BACKGROUND LAYERS (full s restored) --- */
     .stars-layer {
       position: fixed;
       inset: 0;
@@ -342,6 +342,18 @@
         );
       z-index: -1;
     }
+
+    /* Simple starry divider for section separation */
+.section-divider {
+  border: none;
+  height: 2px;
+  background: linear-gradient(to right, transparent, rgba(0, 195, 255, 0.4), transparent);
+  margin: 4rem auto;
+  width: 70%;
+  max-width: 600px;
+  box-shadow: 0 0 20px rgba(0, 195, 255, 0.15);
+}
+
   </style>
 </head>
 <body>
@@ -540,6 +552,8 @@
 
   </div>
 
+  <hr class="section-divider">
+
   <!-- VISIBLE DETERRENT BANNER -->
   <div class="security-banner">Summon Mars Security Active – Protected Content</div>
 
@@ -671,20 +685,21 @@
       });
     });
   </script>
-
-  </head>
-  </div>
   
-</div>
-  
-<body>
+  <!-- ADD THE DIVIDER HERE - between videos and hero/info section -->
+    <hr class="section-divider">
 
+    <!-- VISIBLE DETERRENT BANNER (keep it floating at bottom) -->
+    <div class="security-banner">SUMMON MARS SECURITY ACTIVE – PROTECTED CONTENT</div>
+
+  </body>
+
+  <!-- Background layers MUST come right after <body> opens (or even better - before the content) -->
   <div class="stars-layer"></div>
   <div class="shooting-stars"></div>
   <div class="aurora-layer"></div>
 
   <header class="hero">
-
     <div class="hero-center">
       <div class="logo-wrap">
         <h1 class="logo">Summon Mars</h1>
@@ -700,5 +715,4 @@
     </div>
   </header>
 
-</body>
 </html>
