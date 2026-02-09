@@ -24,6 +24,23 @@
       -webkit-user-drag: none;
     }
 
+    /* --- SECTION DIVIDER FOR BOTTOM TEXT ---*/
+    .section-divider {
+  width: 100%;
+  max-width: 720px;
+  height: 1px;
+  margin: 3.5rem auto;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(119, 255, 239, 0.6),
+    rgba(255, 102, 255, 0.6),
+    rgba(0, 195, 255, 0.6),
+    transparent
+  );
+  box-shadow: 0 0 18px rgba(0, 195, 255, 0.25);
+}
+
     /* THE VAULT: Video Container Styling */
     .video-wrapper {
       position: relative;
@@ -302,50 +319,6 @@
       filter: blur(5px);
     }
 
-    /* HERO BOTTOM AREA */
-    .hero {
-      position: relative;
-      min-height: 60vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-      text-align: center;
-      padding: 1.25rem 1.5rem 2rem;
-      overflow: hidden;
-      z-index: 0;
-    }
-
-    .hero::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background-image: url("astronaut-banner.jpeg");
-      background-size: cover;
-      background-position: center top;
-      filter: saturate(1.1) contrast(1.15) brightness(1.2);
-      transform: scale(1.0);
-      z-index: -2;
-    }
-
-    .hero::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background:
-        linear-gradient(
-          to bottom,
-          rgba(0, 0, 0, 0.3) 0%,
-          rgba(0, 0, 0, 0.2) 35%,
-          rgba(0, 0, 0, 0.5) 70%,
-          rgba(2, 3, 10, 1) 100%
-        );
-      z-index: -1;
-    }
-  </style>
-</head>
-<body>
-
   <div class="stars-layer"></div>
   <div class="shooting-stars"></div>
   <div class="aurora-layer"></div>
@@ -535,7 +508,9 @@
             <svg viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
           </button>
         </div>
-      </div>
+
+    <div class="section-divider"></div>
+
     </div>
 
   </div>
@@ -671,13 +646,7 @@
       });
     });
   </script>
-
-  </head>
-  </div>
-<div>  
-
-<div class="section-divider"></div>
-  
+</head>
 <body>
 
   <div class="stars-layer"></div>
