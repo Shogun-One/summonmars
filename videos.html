@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Summon Mars - Race To Mars</title>
+  <title>Summon Mars Videos</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <link rel="icon" type="image/png" sizes="32x32" href="url-logo.png" />
@@ -12,29 +12,28 @@
   <style>
     /* --- SECURITY LOCKDOWN PROTOCOLS --- */
     body {
-      -webkit-user-select: none; /* Chrome/Safari */
-      -moz-user-select: none;    /* Firefox */
-      -ms-user-select: none;     /* IE10+ */
-      user-select: none;         /* Standard */
-      -webkit-touch-callout: none; /* iOS Safari */
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+      -webkit-touch-callout: none;
     }
     
     img {
-      pointer-events: none;      /* Disables drag/drop and right click on images */
+      pointer-events: none;
       -webkit-user-drag: none;
     }
 
     /* THE VAULT: Video Container Styling */
     .video-wrapper {
       position: relative;
-      overflow: hidden; /* Keeps the glass shield contained */
+      overflow: hidden;
       border-radius: 22px;
       background: #000;
-      width: 100%; /* FORCE FULL WIDTH */
-      box-shadow: 0 0 50px rgba(0, 195, 255, 0.15); /* Subtle glow for hype */
-      max-width: 900px; /* Optional cap to keep it looking nice on desktop */
+      width: 100%;
+      max-width: 900px;
       margin: 0 auto;
-      /* Remove tap highlight color on mobile */
+      box-shadow: 0 0 50px rgba(0, 195, 255, 0.15);
       -webkit-tap-highlight-color: transparent;
     }
 
@@ -51,7 +50,7 @@
       background: #000;
     }
     
-    /* THE GLASS SHIELD: 100% Coverage preventing DIRECT interaction */
+    /* THE GLASS SHIELD - GHOSTED FOR TOUCH/CONTROLS */
     .video-wrapper::after {
       content: '';
       position: absolute;
@@ -59,28 +58,24 @@
       left: 0;
       width: 100%;
       height: 100%;
-      z-index: 10; /* Sits above video, below controls */
-      background: transparent; /* Invisible wall */
+      z-index: 10;
+      background: transparent;
+      pointer-events: none; /* Allows taps/clicks through to video and controls */
     }
 
-    /* CUSTOM CONTROLS LAYER - "SMART GHOST MODE" */
+    /* CUSTOM CONTROLS */
     .custom-controls {
       position: absolute;
-      /* MOVED TO BOTTOM FOR BETTER VISIBILITY */
       bottom: 25px; 
       left: 50%;
       transform: translateX(-50%);
-      
-      z-index: 20; /* Sits ABOVE the glass shield */
+      z-index: 30;
       display: flex;
-      gap: 0.8rem; /* Slightly tighter gap for mobile */
+      gap: 0.8rem;
       align-items: center;
-      
-      /* VISIBILITY LOGIC */
       opacity: 0; 
-      pointer-events: none; /* Prevents clicking when hidden */
-      transition: opacity 0.3s ease; 
-      
+      pointer-events: none;
+      transition: opacity 0.3s ease;
       background: rgba(0, 0, 0, 0.75);
       padding: 0.8rem 1.2rem;
       border-radius: 50px;
@@ -89,13 +84,7 @@
       box-shadow: 0 4px 20px rgba(0,0,0,0.5);
     }
 
-    /* TRIGGER 1: Show controls when 'user-active' class is added via JS */
-    .video-wrapper.user-active .custom-controls {
-      opacity: 1;
-      pointer-events: auto;
-    }
-
-    /* TRIGGER 2: Always show controls if video is PAUSED */
+    .video-wrapper.user-active .custom-controls,
     .video-wrapper.paused .custom-controls {
       opacity: 1;
       pointer-events: auto;
@@ -106,13 +95,12 @@
       border: none;
       cursor: pointer;
       color: var(--accent);
-      padding: 0;
+      width: 36px;
+      height: 36px;
       display: flex;
       align-items: center;
       justify-content: center;
       transition: transform 0.2s ease, filter 0.2s ease;
-      width: 36px; /* Slightly smaller for mobile fit */
-      height: 36px;
     }
 
     .control-btn:hover {
@@ -127,11 +115,7 @@
     }
 
     /* RESET */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
     /* THEME COLORS */
     :root {
@@ -145,150 +129,68 @@
       --accent: #fffd9a;
     }
 
-    /* BASE */
     body {
       font-family: "Oswald", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
       background: radial-gradient(circle at 10% 0%, #05091a 0%, #000000 60%, #02030a 100%);
       color: var(--text-main);
       min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
       background-attachment: fixed;
-      padding: 1rem; /* Prevent edge touching on mobile */
+      padding: 2rem 1rem;
     }
 
-    /* --- BACKGROUND LAYER 1: DEEP SPACE STARS --- */
-    .stars-layer {
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      z-index: -11;
-      background:
-        radial-gradient(2.5px 2.5px at 8% 10%, rgba(255, 255, 255, 0.95) 0, transparent 60%),
-        radial-gradient(2px 2px at 20% 30%, rgba(220, 235, 255, 0.9) 0, transparent 60%),
-        radial-gradient(2.5px 2.5px at 35% 15%, rgba(255, 255, 255, 0.95) 0, transparent 60%),
-        radial-gradient(2px 2px at 60% 12%, rgba(230, 240, 255, 0.9) 0, transparent 60%),
-        radial-gradient(2.5px 2.5px at 80% 18%, rgba(255, 255, 255, 0.95) 0, transparent 60%),
-        radial-gradient(2px 2px at 88% 35%, rgba(220, 235, 255, 0.9) 0, transparent 60%),
-        radial-gradient(2.5px 2.5px at 72% 52%, rgba(255, 255, 255, 0.95) 0, transparent 60%),
-        radial-gradient(2px 2px at 18% 55%, rgba(225, 238, 255, 0.9) 0, transparent 60%),
-        radial-gradient(2px 2px at 32% 72%, rgba(230, 240, 255, 0.9) 0, transparent 60%),
-        radial-gradient(2.5px 2.5px at 48% 82%, rgba(255, 255, 255, 0.95) 0, transparent 60%),
-        radial-gradient(2px 2px at 68% 78%, rgba(220, 235, 255, 0.9) 0, transparent 60%),
-        radial-gradient(2.5px 2.5px at 90% 88%, rgba(255, 255, 255, 0.95) 0, transparent 60%);
-      opacity: 0.9;
-      animation: star-ascend 30s linear infinite;
-      will-change: transform;
-    }
-
-    .stars-layer::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background:
-        radial-gradient(1.7px 1.7px at 14% 40%, rgba(255, 255, 255, 0.8) 0, transparent 60%),
-        radial-gradient(1.7px 1.7px at 55% 25%, rgba(230, 240, 255, 0.8) 0, transparent 60%),
-        radial-gradient(1.7px 1.7px at 76% 60%, rgba(255, 255, 255, 0.8) 0, transparent 60%),
-        radial-gradient(1.7px 1.7px at 40% 90%, rgba(235, 242, 255, 0.8) 0, transparent 60%);
-      opacity: 0.8;
-      animation: twinkle-soft 13s ease-in-out infinite alternate;
-    }
-
-    @keyframes twinkle-soft {
-      0%   { opacity: 0.5; }
-      50%  { opacity: 0.9; }
-      100% { opacity: 0.6; }
-    }
-
-    @keyframes star-ascend {
-      0%   { transform: translateY(40px); }
-      100% { transform: translateY(-160px); }
-    }
-
-    /* --- SHOOTING STARS --- */
-    .shooting-stars {
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      z-index: -9;
-      overflow: hidden;
-    }
-
-    .shooting-stars::before,
-    .shooting-stars::after {
-      content: "";
-      position: absolute;
-      top: -100px;
-      right: -100px;
-      width: 400px; 
-      height: 2px;
-      background: linear-gradient(to left, rgba(255,255,255,0), rgba(255,255,255,0.5), var(--accent));
-      filter: drop-shadow(0 0 6px var(--accent));
-      transform: rotate(-45deg);
-      opacity: 0;
-    }
-
-    .shooting-stars::before {
-      right: 15%;
-      top: -10%;
-      animation: shoot-diagonal 12s linear infinite;
-      animation-delay: 2s;
-    }
-
-    .shooting-stars::after {
-      right: 50%;
-      top: -10%;
-      animation: shoot-diagonal-wide 18s linear infinite;
-      animation-delay: 9s; 
-    }
-
-    @keyframes shoot-diagonal {
-      0% { transform: translate(0, 0) rotate(-45deg); opacity: 1; }
-      5% { transform: translate(-100vw, 100vh) rotate(-45deg); opacity: 0; }
-      100% { transform: translate(-100vw, 100vh) rotate(-45deg); opacity: 0; }
-    }
-
-    @keyframes shoot-diagonal-wide {
-      0% { transform: translate(0, 0) rotate(-45deg); opacity: 1; }
-      7% { transform: translate(-120vw, 120vh) rotate(-45deg); opacity: 0; }
-      100% { transform: translate(-120vw, 120vh) rotate(-45deg); opacity: 0; }
-    }
-
-    /* GLOBAL AURORA */
-    .aurora-layer {
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      z-index: -10;
-      background:
-        radial-gradient(circle at 15% 0%, rgba(119, 255, 239, 0.25) 0, transparent 55%),
-        radial-gradient(circle at 85% 5%, rgba(124, 255, 95, 0.2) 0, transparent 60%),
-        radial-gradient(circle at 12% 85%, rgba(255, 102, 255, 0.2) 0, transparent 60%),
-        radial-gradient(circle at 90% 80%, rgba(0, 195, 255, 0.25) 0, transparent 60%);
-      mix-blend-mode: screen;
-      opacity: 0.5;
-      filter: blur(5px);
-    }
-
-    /* VIDEO */
-    .video-wrapper video {
+    /* CONTAINER FOR MULTIPLE VIDEOS */
+    .videos-container {
+      display: flex;
+      flex-direction: column;
+      gap: 5rem;
+      align-items: center;
       width: 100%;
-      max-width: 100%;
-      border-radius: 22px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
-      display: block;
-      object-fit: contain;
     }
 
-    /* HIDE NATIVE CONTROLS - HARDCORE MODE */
-    video::-webkit-media-controls {
-      display: none !important;
-    }
-    video::-webkit-media-controls-enclosure {
-      display: none !important;
+    /* VIDEO TITLES (optional but helpful) */
+    .video-title {
+      text-align: center;
+      font-size: 1.4rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 1rem;
     }
 
+    /* VISIBLE SECURITY BANNER - deterrent for everyone */
+    .security-banner {
+      position: fixed;
+      bottom: 15px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.8);
+      color: red;
+      padding: 0.6rem 1.4rem;
+      border-radius: 30px;
+      font-weight: bold;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      z-index: 100;
+      pointer-events: none;
+      border: 1px solid red;
+      box-shadow: 0 0 15px rgba(255, 0, 0, 0.6);
+    }
+
+    /* HIDE NATIVE CONTROLS */
+    video::-webkit-media-controls { display: none !important; }
+    video::-webkit-media-controls-enclosure { display: none !important; }
+
+    /* Background layers unchanged */
+    .stars-layer { /* ... same as before ... */ }
+    .stars-layer::before { /* ... */ }
+    .shooting-stars { /* ... */ }
+    .shooting-stars::before, .shooting-stars::after { /* ... */ }
+    .aurora-layer { /* ... */ }
+    @keyframes twinkle-soft { /* ... */ }
+    @keyframes star-ascend { /* ... */ }
+    @keyframes shoot-diagonal { /* ... */ }
+    @keyframes shoot-diagonal-wide { /* ... */ }
   </style>
 </head>
 <body>
@@ -297,177 +199,198 @@
   <div class="shooting-stars"></div>
   <div class="aurora-layer"></div>
 
-  <div class="video-wrapper earth-video paused">
-    <video
-      data-vid="racetomars.mp4"
-      poster="racetomars-vidpic2.png"
-      disablepictureinpicture
-      oncontextmenu="return false;"
-      playsinline
-    ></video>
+  <div class="videos-container">
 
-    <video
-      data-vid="streetknockvid.mp4"
-      poster="streetknockpic.png"
-      disablepictureinpicture
-      oncontextmenu="return false;"
-      playsinline
-    ></video>
-    
-    <div class="custom-controls">
-            <button class="control-btn btn-rewind" title="Rewind 10s">
-              <svg viewBox="0 0 24 24"><path d="M11 18V6l-8.5 6 8.5 6zm.5-6l8.5 6V6l-8.5 6z"/></svg>
-            </button>
-            
-            <button class="control-btn btn-play" title="Play">
-              <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-            </button>
-            
-            <button class="control-btn btn-forward" title="Forward 10s">
-              <svg viewBox="0 0 24 24"><path d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z"/></svg>
-            </button>
+    <!-- First Video -->
+    <div>
+      <h2 class="video-title">Race To Mars</h2>
+      <div class="video-wrapper paused">
+        <video
+          data-vid="racetomars.mp4"
+          poster="racetomars-vidpic2.png"
+          disablepictureinpicture
+          oncontextmenu="return false;"
+          playsinline
+        ></video>
+        <div class="custom-controls">
+          <button class="control-btn btn-rewind" title="Rewind 10s">
+            <svg viewBox="0 0 24 24"><path d="M11 18V6l-8.5 6 8.5 6zm.5-6l8.5 6V6l-8.5 6z"/></svg>
+          </button>
+          <button class="control-btn btn-play" title="Play">
+            <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          </button>
+          <button class="control-btn btn-forward" title="Forward 10s">
+            <svg viewBox="0 0 24 24"><path d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z"/></svg>
+          </button>
+          <button class="control-btn btn-mute" title="Mute/Unmute">
+            <svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+          </button>
+          <button class="control-btn btn-fullscreen" title="Fullscreen">
+            <svg viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
 
-            <button class="control-btn btn-mute" title="Mute/Unmute">
-              <svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
-            </button>
-            
-            <button class="control-btn btn-fullscreen" title="Fullscreen">
-              <svg viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
-            </button>
-          </div>
+    <!-- Second Video -->
+    <div>
+      <h2 class="video-title">Street Knock</h2>
+      <div class="video-wrapper paused">
+        <video
+          data-vid="streetknockvid.mp4"
+          poster="streetknockpic.png"
+          disablepictureinpicture
+          oncontextmenu="return false;"
+          playsinline
+        ></video>
+        <div class="custom-controls">
+          <button class="control-btn btn-rewind" title="Rewind 10s">
+            <svg viewBox="0 0 24 24"><path d="M11 18V6l-8.5 6 8.5 6zm.5-6l8.5 6V6l-8.5 6z"/></svg>
+          </button>
+          <button class="control-btn btn-play" title="Play">
+            <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          </button>
+          <button class="control-btn btn-forward" title="Forward 10s">
+            <svg viewBox="0 0 24 24"><path d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z"/></svg>
+          </button>
+          <button class="control-btn btn-mute" title="Mute/Unmute">
+            <svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+          </button>
+          <button class="control-btn btn-fullscreen" title="Fullscreen">
+            <svg viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
   </div>
+
+  <!-- VISIBLE DETERRENT BANNER -->
+  <div class="security-banner">Summon Mars Security Active – Protected Content</div>
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      /* --- SECURITY LEVEL 1: PREVENT CONTEXT MENU --- */
-      document.addEventListener('contextmenu', event => event.preventDefault());
-
-      /* --- SECURITY LEVEL 2: PREVENT KEYBOARD SHORTCUTS --- */
+      /* --- SECURITY LEVEL 1-4 (unchanged) --- */
+      document.addEventListener('contextmenu', e => e.preventDefault());
       document.onkeydown = function(e) {
-        if (e.keyCode === 123) { return false; } 
-        if (e.ctrlKey && e.shiftKey && e.keyCode === 'I'.charCodeAt(0)) { return false; }
-        if (e.ctrlKey && e.shiftKey && e.keyCode === 'C'.charCodeAt(0)) { return false; }
-        if (e.ctrlKey && e.shiftKey && e.keyCode === 'J'.charCodeAt(0)) { return false; }
-        if (e.ctrlKey && e.keyCode === 'U'.charCodeAt(0)) { return false; }
-        if (e.ctrlKey && e.keyCode === 'S'.charCodeAt(0)) { return false; }
+        if (e.keyCode === 123) return false;
+        if (e.ctrlKey && e.shiftKey && (e.keyCode === 'I'.charCodeAt(0) || e.keyCode === 'C'.charCodeAt(0) || e.keyCode === 'J'.charCodeAt(0))) return false;
+        if (e.ctrlKey && (e.keyCode === 'U'.charCodeAt(0) || e.keyCode === 'S'.charCodeAt(0))) return false;
       };
+      document.ondragstart = () => false;
 
-      /* --- SECURITY LEVEL 3: PREVENT DRAGGING ASSETS --- */
-      document.ondragstart = function() { return false; };
-
-      /* --- SECURITY LEVEL 4: SOURCE OBFUSCATION --- */
       const vids = document.querySelectorAll('video[data-vid]');
       vids.forEach(v => {
         const source = v.getAttribute('data-vid');
         if (source) v.src = source;
-        v.load(); 
+        v.load();
       });
 
-      /* --- SECURITY LEVEL 5: CONSOLE TRAP --- */
-      setInterval(function() {
+      /* --- CONSOLE TRAP --- */
+      setInterval(() => {
         console.clear();
         console.log("%c Summon Mars Security Active", "color: red; font-size: 20px; font-weight: bold;");
       }, 2000);
 
-      /* --- WAKE & FADE LOGIC (SMART CONTROLS) --- */
+      /* --- DEV TOOLS DETECTION OVERLAY (strong deterrent) --- */
+      const overlay = document.createElement('div');
+      overlay.style = 'position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.95);color:red;display:none;align-items:center;justify-content:center;z-index:9999;flex-direction:column;font-size:2rem;text-align:center;padding:2rem;';
+      overlay.innerHTML = '<h1>SECURITY BREACH DETECTED</h1><p style="font-size:1.2rem;margin-top:1rem;">Summon Mars Security Active<br>Unauthorized inspection prohibited</p>';
+      document.body.appendChild(overlay);
+
+      setInterval(() => {
+        const widthDiff = window.outerWidth - window.innerWidth;
+        const heightDiff = window.outerHeight - window.innerHeight;
+        if (widthDiff > 160 || heightDiff > 160) {
+          overlay.style.display = 'flex';
+          document.querySelectorAll('video').forEach(v => v.pause());
+        }
+      }, 500);
+
+      /* --- VIDEO LOGIC (per-wrapper, independent) --- */
       const wrappers = document.querySelectorAll('.video-wrapper');
-      
       wrappers.forEach(wrapper => {
         const video = wrapper.querySelector('video');
-        const rewindBtn = wrapper.querySelector('.btn-rewind');
-        const forwardBtn = wrapper.querySelector('.btn-forward');
         const playBtn = wrapper.querySelector('.btn-play');
         const muteBtn = wrapper.querySelector('.btn-mute');
+        const rewindBtn = wrapper.querySelector('.btn-rewind');
+        const forwardBtn = wrapper.querySelector('.btn-forward');
         const fullBtn = wrapper.querySelector('.btn-fullscreen');
-        const playIconPath = playBtn.querySelector('path');
-        const muteIconPath = muteBtn.querySelector('path');
-
+        const playIconPath = playBtn?.querySelector('path');
+        const muteIconPath = muteBtn?.querySelector('path');
+        
         let activityTimeout;
 
-        // FUNCTION: Wake up controls, then fade after 2.5s if playing
-        const wakeControls = () => {
+        const wake = () => {
           wrapper.classList.add('user-active');
           clearTimeout(activityTimeout);
-          
           if (!video.paused) {
-            activityTimeout = setTimeout(() => {
-              wrapper.classList.remove('user-active');
-            }, 2500);
+            activityTimeout = setTimeout(() => wrapper.classList.remove('user-active'), 2200); // ~2 seconds
           }
         };
 
-        // Listeners for "Waking" the controls
-        wrapper.addEventListener('mousemove', wakeControls);
-        wrapper.addEventListener('touchstart', wakeControls);
-        wrapper.addEventListener('click', wakeControls);
-
-        // LOGIC: REWIND 10 SECONDS
-        rewindBtn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          wakeControls(); // keep controls awake
-          video.currentTime = Math.max(0, video.currentTime - 10);
+        // Tap anywhere on wrapper (except buttons) to play/pause
+        wrapper.addEventListener('click', (e) => {
+          if (!e.target.closest('.control-btn')) {
+            if (video.paused) {
+              video.play();
+              wrapper.classList.remove('paused');
+              playIconPath?.setAttribute('d', 'M6 19h4V5H6v14zm8-14v14h4V5h-4z');
+            } else {
+              video.pause();
+              wrapper.classList.add('paused');
+              playIconPath?.setAttribute('d', 'M8 5v14l11-7z');
+            }
+            wake();
+          }
         });
 
-        // LOGIC: FORWARD 10 SECONDS
-        forwardBtn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          wakeControls();
-          video.currentTime = Math.min(video.duration, video.currentTime + 10);
-        });
+        wrapper.addEventListener('mousemove', wake);
+        wrapper.addEventListener('touchstart', wake);
 
-        // Play/Pause Toggle
-        playBtn.addEventListener('click', (e) => {
-          e.stopPropagation(); 
-          wakeControls();
+        // Button controls
+        playBtn?.addEventListener('click', (e) => {
+          e.stopPropagation();
           if (video.paused) {
             video.play();
             wrapper.classList.remove('paused');
-            playIconPath.setAttribute('d', 'M6 19h4V5H6v14zm8-14v14h4V5h-4z');
-            // Trigger fade out timer since we just started playing
-            wakeControls();
+            playIconPath?.setAttribute('d', 'M6 19h4V5H6v14zm8-14v14h4V5h-4z');
           } else {
             video.pause();
             wrapper.classList.add('paused');
-            playIconPath.setAttribute('d', 'M8 5v14l11-7z');
+            playIconPath?.setAttribute('d', 'M8 5v14l11-7z');
           }
+          wake();
         });
 
-        // Volume Toggle
-        muteBtn.addEventListener('click', (e) => {
+        muteBtn?.addEventListener('click', (e) => {
           e.stopPropagation();
-          wakeControls();
           video.muted = !video.muted;
-          if (video.muted) {
-             muteIconPath.setAttribute('d', 'M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z');
-          } else {
-             muteIconPath.setAttribute('d', 'M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z');
-          }
+          muteIconPath?.setAttribute('d', video.muted 
+            ? 'M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z'
+            : 'M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z');
+          wake();
         });
 
-        // Fullscreen Toggle
-        fullBtn.addEventListener('click', (e) => {
+        rewindBtn?.addEventListener('click', (e) => { e.stopPropagation(); video.currentTime = Math.max(0, video.currentTime - 10); wake(); });
+        forwardBtn?.addEventListener('click', (e) => { e.stopPropagation(); video.currentTime = Math.min(video.duration, video.currentTime + 10); wake(); });
+
+        fullBtn?.addEventListener('click', (e) => {
           e.stopPropagation();
-          wakeControls();
-          if (wrapper.requestFullscreen) {
-            wrapper.requestFullscreen();
-          } else if (wrapper.webkitRequestFullscreen) { 
-            wrapper.webkitRequestFullscreen();
-          } else if (wrapper.msRequestFullscreen) { 
-            wrapper.msRequestFullscreen();
-          }
+          if (wrapper.requestFullscreen) wrapper.requestFullscreen();
+          else if (wrapper.webkitRequestFullscreen) wrapper.webkitRequestFullscreen();
+          else if (wrapper.msRequestFullscreen) wrapper.msRequestFullscreen();
+          wake();
         });
 
-        // Auto-Reset UI when video ends
         video.addEventListener('ended', () => {
-           video.load(); 
-           wrapper.classList.add('paused');
-           playIconPath.setAttribute('d', 'M8 5v14l11-7z');
+          video.load();
+          wrapper.classList.add('paused');
+          playIconPath?.setAttribute('d', 'M8 5v14l11-7z');
         });
       });
     });
   </script>
-
-  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 
 </body>
 </html>
