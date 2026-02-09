@@ -138,6 +138,28 @@
       --accent: #fffd9a;
     }
 
+    /* SECURITY BANNER */
+.security-banner {
+  position: fixed;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+
+  padding: 6px 14px;
+  font-size: 0.65rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+
+  color: #ff3b3b;
+  background: rgba(0, 0, 0, 0.55);
+  border: 1px solid rgba(255, 59, 59, 0.4);
+  border-radius: 999px;
+
+  box-shadow: 0 0 14px rgba(255, 59, 59, 0.25);
+  z-index: 9999;
+  pointer-events: none;
+}
+
     /* BASE */
     body {
       font-family: "Oswald", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
