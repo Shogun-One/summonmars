@@ -963,6 +963,9 @@
       }
     }
   </style>
+
+  
+  
 </head>
 <body>
 
@@ -1375,5 +1378,92 @@
   </script>
 
   <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  <script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const wrapper = document.querySelector('.video-wrapper.hero-video');
+    const video = wrapper.querySelector('video');
+    const controls = wrapper.querySelector('.custom-controls');
+    const btnPlay = controls.querySelector('.btn-play');
+    const btnRewind = controls.querySelector('.btn-rewind');
+    const btnForward = controls.querySelector('.btn-forward');
+    const btnMute = controls.querySelector('.btn-mute');
+    const btnFullscreen = controls.querySelector('.btn-fullscreen');
+
+    let hasInteracted = false; // Track first user gesture
+
+    // Load video source + play (only on first real user interaction)
+    const startPlayback = () => {
+      if (!hasInteracted) {
+        video.src = video.dataset.vid; // Load the actual mp4
+        hasInteracted = true;
+      }
+      video.play().catch(e => console.log('Play error:', e));
+    };
+
+    // Toggle play/pause + icon
+    const togglePlay = () => {
+      if (video.paused) {
+        startPlayback();
+        wrapper.classList.remove('paused');
+      } else {
+        video.pause();
+        wrapper.classList.add('paused');
+      }
+    };
+
+    // Show controls on user activity
+    const showControls = () => {
+      wrapper.classList.add('user-active');
+      clearTimeout(wrapper.hideTimeout);
+      wrapper.hideTimeout = setTimeout(() => {
+        wrapper.classList.remove('user-active');
+      }, 3000);
+    };
+
+    // Button handlers
+    btnPlay.addEventListener('click', togglePlay);
+
+    btnRewind.addEventListener('click', () => {
+      video.currentTime = Math.max(0, video.currentTime - 10);
+      showControls();
+    });
+
+    btnForward.addEventListener('click', () => {
+      video.currentTime = Math.min(video.duration, video.currentTime + 10);
+      showControls();
+    });
+
+    btnMute.addEventListener('click', () => {
+      video.muted = !video.muted;
+    });
+
+    btnFullscreen.addEventListener('click', () => {
+      if (wrapper.requestFullscreen) {
+        wrapper.requestFullscreen();
+      } else if (wrapper.webkitRequestFullscreen) {
+        wrapper.webkitRequestFullscreen();
+      } else if (wrapper.msRequestFullscreen) {
+        wrapper.msRequestFullscreen();
+      }
+      showControls();
+    });
+
+    // Click anywhere on wrapper = play/pause (common UX)
+    wrapper.addEventListener('click', (e) => {
+      if (e.target.closest('.custom-controls')) return; // Ignore clicks on buttons
+      togglePlay();
+      showControls();
+    });
+
+    // Show controls on mouse move / touch
+    wrapper.addEventListener('mousemove', showControls);
+    wrapper.addEventListener('touchstart', showControls);
+
+    // Initial state
+    wrapper.classList.add('paused'); // Ensure poster shows initially
+  });
+</script>
+  
 </body>
 </html>
