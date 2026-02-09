@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -23,23 +24,6 @@
       pointer-events: none;
       -webkit-user-drag: none;
     }
-
-    /* --- SECTION DIVIDER FOR BOTTOM TEXT ---*/
-    .section-divider {
-  width: 100%;
-  max-width: 720px;
-  height: 1px;
-  margin: 3.5rem auto;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(119, 255, 239, 0.6),
-    rgba(255, 102, 255, 0.6),
-    rgba(0, 195, 255, 0.6),
-    transparent
-  );
-  box-shadow: 0 0 18px rgba(0, 195, 255, 0.25);
-}
 
     /* THE VAULT: Video Container Styling */
     .video-wrapper {
@@ -318,6 +302,9 @@
       opacity: 0.5;
       filter: blur(5px);
     }
+  </style>
+</head>
+<body>
 
   <div class="stars-layer"></div>
   <div class="shooting-stars"></div>
@@ -359,7 +346,7 @@
     <!-- Second Video -->
     <div>
       <h2 class="video-title">Street Knock - Instrumental Variant</h2>
-      
+      <div class="video-wrapper paused">
         <video
           data-vid="streetknockvid.mp4"
           poster="streetknockpic.png"
@@ -390,7 +377,7 @@
     <!-- Third Video -->
     <div>
       <h2 class="video-title">Ethereal Soundtrack - Instrumental Variant</h2>
-      
+      <div class="video-wrapper paused">
         <video
           data-vid="etherealsoundtrack.mp4"
           poster="etherealsoundtrackpic.png"
@@ -421,7 +408,7 @@
     <!-- Fourth Video -->
     <div>
       <h2 class="video-title">Point Of Bloom - Archive Variant</h2>
-      
+      <div class="video-wrapper paused">
         <video
           data-vid="pointofbloom-gh.mp4"
           poster="pointofbloompic.png"
@@ -452,7 +439,7 @@
     <!-- Fifth Video -->
     <div>
       <h2 class="video-title">Night Train - Instrumental Variant</h2>
-      
+      <div class="video-wrapper paused">
         <video
           data-vid="nighttrainvid.mp4.mp4"
           poster="nighttrainpic.png"
@@ -491,7 +478,6 @@
           oncontextmenu="return false;"
           playsinline
         ></video>
-
         <div class="custom-controls">
           <button class="control-btn btn-rewind" title="Rewind 10s">
             <svg viewBox="0 0 24 24"><path d="M11 18V6l-8.5 6 8.5 6zm.5-6l8.5 6V6l-8.5 6z"/></svg>
@@ -512,7 +498,7 @@
       </div>
     </div>
 
-    <div class="section-divider"></div>
+  </div>
 
   <!-- VISIBLE DETERRENT BANNER -->
   <div class="security-banner">Summon Mars Security Active – Protected Content</div>
@@ -645,7 +631,8 @@
       });
     });
   </script>
-</head>
+
+  </head>
 <body>
 
   <div class="stars-layer"></div>
@@ -653,20 +640,26 @@
   <div class="aurora-layer"></div>
 
   <header class="hero">
+    <nav class="main-nav">
+      <a href="#music">Music</a>
+      <a href="#videos">Videos</a>
+      <a href="#merch">Merch</a>
+      <a href="#about">About</a>
+    </nav>
 
     <div class="hero-center">
       <div class="logo-wrap">
         <h1 class="logo">Summon Mars</h1>
       </div>
-      <p class="hero-tagline">Enjoy the show</p>
+      <p class="hero-tagline">Signal from the other side</p>
       <br><br>
-      <p class="hero-tagline">[Everything here (including the page) is created & owned, copyrighted & trademarked by Summon Mars ™ ~ For you.]</p>
+      <p class="hero-tagline">[Note: EVERYTHING here (including the page) is created & owned, copyrighted & trademarked by Summon Mars ™ ~ For you.]</p>
       <br><br>
       <p class="hero-tagline">
         For more information or questions, email to
         <a href="mailto:info@summonmars.com">info@summonmars.com</a>
       </p>
-    </div><
+    </div>
   </header>
 
 </body>
