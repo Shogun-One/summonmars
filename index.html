@@ -56,17 +56,9 @@
     }
     
     /* THE GLASS SHIELD: 100% Coverage preventing DIRECT interaction - NOW GHOSTED */
-    .video-wrapper::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 10; /* Sits above video, below controls */
-      background: transparent; /* Invisible wall */
-      pointer-events: none; /* CRITICAL FIX: allows taps/clicks through to controls and wrapper */
-    }
+    .video-wrapper video {
+  pointer-events: none; /* Blocks direct clicks/taps on the video itself */
+}
 
     /* SMART GHOST CONTROLS - RE-CALIBRATED */
     .custom-controls {
