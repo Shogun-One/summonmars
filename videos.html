@@ -763,5 +763,71 @@
     });
   });
 </script>
+
+<script>
+  // Create overlay
+  const overlay = document.createElement('div');
+  overlay.style = `
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0,0,0,0.95);
+    color: red;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    font-size: 2rem;
+    text-align: center;
+    padding: 2rem;
+    z-index: 999999;
+  `;
+  overlay.innerHTML = `
+    <h1>SECURITY BREACH DETECTED</h1>
+    <p style="margin-top: 1rem; font-size:1.3rem;">
+      Unauthorized inspection prohibited.<br>
+      Access denied.
+    </p>
+  `;
+  document.body.appendChild(overlay);
+
+  // Load the Nedry audio
+  const nedryAudio = new Audio("jurrasicpassword.mp3");
+
+  // Detect DevTools (F12 or devtools open)
+  let devtoolsOpen = false;
+
+  const detectDevTools = () => {
+    const widthDiff = window.outerWidth - window.innerWidth;
+    const heightDiff = window.outerHeight - window.innerHeight;
+
+    if (widthDiff > 160 || heightDiff > 160) {
+      if (!devtoolsOpen) {
+        devtoolsOpen = true;
+        overlay.style.display = "flex";
+        nedryAudio.currentTime = 0;
+        nedryAudio.play().catch(()=>{});
+      }
+    } else {
+      if (devtoolsOpen) {
+        devtoolsOpen = false;
+        overlay.style.display = "none";
+      }
+    }
+  };
+
+  setInterval(detectDevTools, 500);
+
+  // Optional: instantly trigger on F12 key
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "F12") {
+      overlay.style.display = "flex";
+      nedryAudio.currentTime = 0;
+      nedryAudio.play().catch(()=>{});
+    }
+  });
+</script>
+  
 </body>
 </html>
