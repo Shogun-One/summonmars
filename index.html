@@ -962,6 +962,37 @@
         grid-template-columns: 1fr;
       }
     }
+
+    /* --- ARCADE INSERT COIN EFFECT --- */
+.insert-coin {
+  font-family: 'Black Ops One', sans-serif;
+  color: var(--aurora-3);
+  font-size: 1.4rem;
+  font-weight: 700;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  display: block;
+  width: fit-content;
+  margin: 1rem 0;
+  animation: insertCoinBlink 0.85s steps(2, end) infinite;
+  text-shadow:
+    0 0 6px rgba(255, 80, 255, 0.9),
+    0 0 14px rgba(255, 20, 255, 0.7),
+    0 0 24px rgba(255, 0, 255, 0.4);
+}
+
+@keyframes insertCoinBlink {
+  0%, 40% {
+    opacity: 1;
+  }
+  50%, 90% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
   </style>
 
   
@@ -1165,9 +1196,9 @@
 
     <section id="games">
   <h2>Games [Under Construction]</h2>
-  <p>
-    INSERT COIN | ENTER THE CABINET
-  </p>
+  <div style="text-align:center;">
+  <p class="insert-coin">INSERT COIN</p>
+</div>
 
   <div class="merch-layout">
 
