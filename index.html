@@ -1315,16 +1315,12 @@
         'padding:2rem'
       ].join(';');
 
-      overlay.innerHTML = `
-        <h1>SYSTEM BREACH DETECTED</h1>
-        <p style="font-size:1.2rem;margin-top:1rem;">
-          Security Active<br>
-          Unauthorized inspection prohibited!
-        </p>
-      `;
-
-      document.body.appendChild(overlay);
-
+      overlay.innerHTML =
+      '<h1>SECURITY BREACH DETECTED</h1>' +
+      '<p style="font-size:1.2rem;margin-top:1rem;">' +
+      'Logging communications : Security Active<br>Unauthorized inspection prohibited!</p>';
+    document.body.appendChild(overlay);
+      
       setInterval(() => {
         const widthDiff  = window.outerWidth  - window.innerWidth;
         const heightDiff = window.outerHeight - window.innerHeight;
