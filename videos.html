@@ -643,7 +643,7 @@
     setInterval(() => {
       const widthDiff  = window.outerWidth  - window.innerWidth;
       const heightDiff = window.outerHeight - window.innerHeight;
-      if (widthDiff > 160 || heightDiff > 160) {
+      if (widthDiff > 260 || heightDiff > 260) {
         overlay.style.display = 'flex';
         document.querySelectorAll('video').forEach(v => v.pause());
       } else {
@@ -794,7 +794,7 @@
     const widthDiff = window.outerWidth - window.innerWidth;
     const heightDiff = window.outerHeight - window.innerHeight;
 
-    if (widthDiff > 160 || heightDiff > 160) {
+    if (widthDiff > 260 || heightDiff > 260) {
       if (!devtoolsOpen) {
         devtoolsOpen = true;
         overlay.style.display = "flex";
