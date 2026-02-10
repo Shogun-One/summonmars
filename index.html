@@ -971,9 +971,12 @@
   font-weight: 700;
   letter-spacing: 0.25em;
   text-transform: uppercase;
+
+  /* FIX: THIS is what centers it */
+  margin: 1rem auto;  /* auto left/right centers the block */
+
   display: block;
-  width: fit-content;
-  margin: 1rem 0;
+  text-align: center; /* ensures glow + letters center nicely */
   animation: insertCoinBlink 0.85s steps(2, end) infinite;
   text-shadow:
     0 0 6px rgba(255, 80, 255, 0.9),
