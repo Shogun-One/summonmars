@@ -1314,12 +1314,6 @@
         'text-align:center',
         'padding:2rem'
       ].join(';');
-
-      overlay.innerHTML =
-      '<h1>SECURITY BREACH DETECTED</h1>' +
-      '<p style="font-size:1.2rem;margin-top:1rem;">' +
-      'Logging communications : Security Active<br>Unauthorized inspection prohibited!</p>';
-    document.body.appendChild(overlay);
       
       setInterval(() => {
         const widthDiff  = window.outerWidth  - window.innerWidth;
@@ -1482,7 +1476,11 @@
     padding: 2rem;
     z-index: 999999;
   `;
-  document.body.appendChild(overlay);
+  overlay.innerHTML =
+      '<h1>SECURITY BREACH DETECTED</h1>' +
+      '<p style="font-size:1.2rem;margin-top:1rem;">' +
+      'Logging communications : Security Active<br>Unauthorized inspection prohibited!</p>';
+    document.body.appendChild(overlay);
 
   // Load the Nedry audio
   const nedryAudio = new Audio("jurrasicpassword.mp3");
