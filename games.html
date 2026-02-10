@@ -2,133 +2,13 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Summon Mars Videos</title>
+  <title>Summon Mars | Games</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <link rel="icon" type="image/png" sizes="32x32" href="url-logo.png" />
-
+  <!-- Same fonts as main site -->
   <link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Oswald:wght@300;400;500&display=swap" rel="stylesheet">
-  
+
   <style>
-    /* --- SECURITY LOCKDOWN PROTOCOLS --- */
-    body {
-      -webkit-user-select: none;
-      -moz-user-select: none;
-      -ms-user-select: none;
-      user-select: none;
-      -webkit-touch-callout: none;
-    }
-    
-    img {
-      pointer-events: none;
-      -webkit-user-drag: none;
-    }
-
-    /* THE VAULT: Video Container Styling */
-    .video-wrapper {
-      position: relative;
-      overflow: hidden;
-      border-radius: 22px;
-      background: rgba(0, 0, 0, 0.20);
-      width: 100%;
-      max-width: 900px;
-      margin: 0 auto;
-      box-shadow: 0 0 50px rgba(0, 195, 255, 0.15);
-      -webkit-tap-highlight-color: transparent;
-      aspect-ratio: 16 / 9; /* Default fallback ratio (most music videos are ~16:9) */
-    }
-
-    /* Video element - fills wrapper while preserving original ratio */
-    .video-wrapper video {
-      width: 100%;
-      height: 100%;
-      object-fit: contain; /* Shows full video with letterbox bars if needed - preserves original rectangle */
-      display: block;
-      border-radius: 22px;
-    }
-
-    /* FULLSCREEN FIX */
-    .video-wrapper:fullscreen,
-    .video-wrapper:-webkit-full-screen {
-      width: 100vw;
-      height: 100vh;
-      max-width: none;
-      border-radius: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: #000;
-      aspect-ratio: auto; /* Let fullscreen use native ratio */
-    }
-    
-    /* THE GLASS SHIELD - GHOSTED FOR TOUCH/CONTROLS */
-    .video-wrapper::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 10;
-      background: transparent;
-      pointer-events: none;
-    }
-
-    /* CUSTOM CONTROLS */
-    .custom-controls {
-      position: absolute;
-      bottom: 25px; 
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 30;
-      display: flex;
-      gap: 0.8rem;
-      align-items: center;
-      opacity: 0; 
-      pointer-events: none;
-      transition: opacity 0.3s ease;
-      background: rgba(0, 0, 0, 0.75);
-      padding: 0.8rem 1.2rem;
-      border-radius: 50px;
-      backdrop-filter: blur(6px);
-      border: 1px solid rgba(255,255,255,0.15);
-      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-    }
-
-    .video-wrapper.user-active .custom-controls,
-    .video-wrapper.paused .custom-controls {
-      opacity: 1;
-      pointer-events: auto;
-    }
-
-    .control-btn {
-      background: rgba(0, 0, 0, 0.9);
-      border: none;
-      cursor: pointer;
-      color: var(--accent);
-      width: 36px;
-      height: 36px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: transform 0.2s ease, filter 0.2s ease;
-    }
-
-    .control-btn:hover {
-      transform: scale(1.15);
-      filter: drop-shadow(0 0 8px var(--accent));
-    }
-
-    .control-btn svg {
-      width: 100%;
-      height: 100%;
-      fill: currentColor;
-    }
-
-    /* RESET */
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
-    /* THEME COLORS */
     :root {
       --aurora-1: #77ffef;
       --aurora-2: #7cff5f;
@@ -136,690 +16,390 @@
       --aurora-4: #00c3ff;
       --bg-deep: #02030a;
       --text-main: #fdfdfd;
-      --text-sub: #cfd9ff;
-      --accent: #fffd9a;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
 
     body {
-      font-family: "Oswald", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-      background: radial-gradient(circle at 10% 0%, #05091a 0%, #000000 60%, #02030a 100%);
+      font-family: "Oswald", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #060b2b 0%, #02030a 55%, #000000 100%);
       color: var(--text-main);
       min-height: 100vh;
-      background-attachment: fixed;
-      padding: 2rem 1rem;
-    }
-
-    /* CONTAINER FOR MULTIPLE VIDEOS */
-    .videos-container {
       display: flex;
       flex-direction: column;
-      gap: 5rem;
       align-items: center;
-      width: 100%;
+      padding: 1.5rem 1rem 3rem;
     }
 
-    /* VIDEO TITLES */
-    .video-title {
+    header {
       text-align: center;
-      font-size: 1.4rem;
+      margin-bottom: 2.5rem;
+      max-width: 720px;
+    }
+
+    header h1 {
+      font-family: "Black Ops One", system-ui, sans-serif;
+      font-size: clamp(2.1rem, 4vw, 2.8rem);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      background: linear-gradient(120deg, var(--aurora-1), var(--aurora-4), var(--aurora-3));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      text-shadow: 0 0 10px rgba(0, 0, 0, 0.9);
+    }
+
+    header p {
+      margin-top: 0.75rem;
+      font-size: 0.95rem;
+      color: rgba(235, 240, 255, 0.85);
+    }
+
+    .subline {
+      margin-top: 0.4rem;
+      font-size: 0.8rem;
       letter-spacing: 0.2em;
       text-transform: uppercase;
-      color: var(--accent);
-      margin-bottom: 1rem;
+      color: rgba(180, 220, 255, 0.7);
     }
 
-    /* SECURITY BANNER */
-.security-banner {
-  position: fixed;
-  bottom: 14px;
-  left: 50%;
-  transform: translateX(-50%);
-
-  padding: 6px 14px;
-  font-size: 0.65rem;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-
-  color: #ff3b3b;
-  background: rgba(0, 0, 0, 0.55);
-  border: 1px solid rgba(255, 59, 59, 0.4);
-  border-radius: 999px;
-
-  box-shadow: 0 0 14px rgba(255, 59, 59, 0.25);
-  z-index: 9999;
-  pointer-events: none;
-}
-
-    /* HIDE NATIVE CONTROLS */
-    video::-webkit-media-controls { display: none !important; }
-    video::-webkit-media-controls-enclosure { display: none !important; }
-
-    /* --- BACKGROUND LAYERS (full s restored) --- */
-    .stars-layer {
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      z-index: -11;
-      background:
-        radial-gradient(2.5px 2.5px at 8% 10%, rgba(255, 255, 255, 0.95) 0, transparent 60%),
-        radial-gradient(2px 2px at 20% 30%, rgba(220, 235, 255, 0.9) 0, transparent 60%),
-        radial-gradient(2.5px 2.5px at 35% 15%, rgba(255, 255, 255, 0.95) 0, transparent 60%),
-        radial-gradient(2px 2px at 60% 12%, rgba(230, 240, 255, 0.9) 0, transparent 60%),
-        radial-gradient(2.5px 2.5px at 80% 18%, rgba(255, 255, 255, 0.95) 0, transparent 60%),
-        radial-gradient(2px 2px at 88% 35%, rgba(220, 235, 255, 0.9) 0, transparent 60%),
-        radial-gradient(2.5px 2.5px at 72% 52%, rgba(255, 255, 255, 0.95) 0, transparent 60%),
-        radial-gradient(2px 2px at 18% 55%, rgba(225, 238, 255, 0.9) 0, transparent 60%),
-        radial-gradient(2px 2px at 32% 72%, rgba(230, 240, 255, 0.9) 0, transparent 60%),
-        radial-gradient(2.5px 2.5px at 48% 82%, rgba(255, 255, 255, 0.95) 0, transparent 60%),
-        radial-gradient(2px 2px at 68% 78%, rgba(220, 235, 255, 0.9) 0, transparent 60%),
-        radial-gradient(2.5px 2.5px at 90% 88%, rgba(255, 255, 255, 0.95) 0, transparent 60%);
-      opacity: 0.9;
-      animation: star-ascend 30s linear infinite;
-    }
-
-    .stars-layer::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background:
-        radial-gradient(1.7px 1.7px at 14% 40%, rgba(255, 255, 255, 0.8) 0, transparent 60%),
-        radial-gradient(1.7px 1.7px at 55% 25%, rgba(230, 240, 255, 0.8) 0, transparent 60%),
-        radial-gradient(1.7px 1.7px at 76% 60%, rgba(255, 255, 255, 0.8) 0, transparent 60%),
-        radial-gradient(1.7px 1.7px at 40% 90%, rgba(235, 242, 255, 0.8) 0, transparent 60%);
-      opacity: 0.8;
-      animation: twinkle-soft 13s ease-in-out infinite alternate;
-    }
-
-    @keyframes twinkle-soft {
-      0%   { opacity: 0.5; }
-      50%  { opacity: 0.9; }
-      100% { opacity: 0.6; }
-    }
-
-    @keyframes star-ascend {
-      0%   { transform: translateY(40px); }
-      100% { transform: translateY(-160px); }
-    }
-
-    .shooting-stars {
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      z-index: -9;
-      overflow: hidden;
-    }
-
-    .shooting-stars::before,
-    .shooting-stars::after {
-      content: "";
-      position: absolute;
-      top: -100px;
-      right: -100px;
-      width: 400px; 
-      height: 2px;
-      background: linear-gradient(to left, rgba(255,255,255,0), rgba(255,255,255,0.5), var(--accent));
-      filter: drop-shadow(0 0 6px var(--accent));
-      transform: rotate(-45deg);
-      opacity: 0;
-    }
-
-    .shooting-stars::before {
-      right: 15%;
-      top: -10%;
-      animation: shoot-diagonal 12s linear infinite;
-      animation-delay: 2s;
-    }
-
-    .shooting-stars::after {
-      right: 50%;
-      top: -10%;
-      animation: shoot-diagonal-wide 18s linear infinite;
-      animation-delay: 9s; 
-    }
-
-    @keyframes shoot-diagonal {
-      0% { transform: translate(0, 0) rotate(-45deg); opacity: 1; }
-      5% { transform: translate(-100vw, 100vh) rotate(-45deg); opacity: 0; }
-      100% { transform: translate(-100vw, 100vh) rotate(-45deg); opacity: 0; }
-    }
-
-    @keyframes shoot-diagonal-wide {
-      0% { transform: translate(0, 0) rotate(-45deg); opacity: 1; }
-      7% { transform: translate(-120vw, 120vh) rotate(-45deg); opacity: 0; }
-      100% { transform: translate(-120vw, 120vh) rotate(-45deg); opacity: 0; }
-    }
-
-    .aurora-layer {
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      z-index: -10;
-      background:
-        radial-gradient(circle at 15% 0%, rgba(119, 255, 239, 0.25) 0, transparent 55%),
-        radial-gradient(circle at 85% 5%, rgba(124, 255, 95, 0.2) 0, transparent 60%),
-        radial-gradient(circle at 12% 85%, rgba(255, 102, 255, 0.2) 0, transparent 60%),
-        radial-gradient(circle at 90% 80%, rgba(0, 195, 255, 0.25) 0, transparent 60%);
-      mix-blend-mode: screen;
-      opacity: 0.5;
-      filter: blur(5px);
-    }
-
-    /* HERO BOTTOM AREA */
-    .hero {
-      position: relative;
-      min-height: 60vh;
+    main {
+      width: 100%;
+      max-width: 1100px;
       display: flex;
       flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-      text-align: center;
-      padding: 1.25rem 1.5rem 2rem;
-      overflow: hidden;
-      z-index: 0;
+      gap: 2rem;
     }
 
-    .hero::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background-image: url("astronaut-banner.jpeg");
-      background-size: cover;
-      background-position: center top;
-      filter: saturate(1.1) contrast(1.15) brightness(1.2);
-      transform: scale(1.0);
-      z-index: -2;
-    }
-
-    .hero::after {
-      content: "";
-      position: absolute;
-      inset: 0;
+    /* HERO GAME PANELS */
+    .game-hero {
+      display: flex;
+      flex-direction: column;
+      gap: 1.1rem;
+      padding: 1.3rem;
+      border-radius: 1.4rem;
       background:
-        linear-gradient(
-          to bottom,
-          rgba(0, 0, 0, 0.3) 0%,
-          rgba(0, 0, 0, 0.2) 35%,
-          rgba(0, 0, 0, 0.5) 70%,
-          rgba(2, 3, 10, 1) 100%
-        );
-      z-index: -1;
+        radial-gradient(circle at top left, rgba(119, 255, 239, 0.18), transparent 60%),
+        radial-gradient(circle at bottom right, rgba(255, 102, 255, 0.16), transparent 60%),
+        linear-gradient(135deg, rgba(5, 10, 35, 0.98), rgba(0, 0, 0, 0.96));
+      border: 1px solid rgba(150, 255, 255, 0.22);
+      box-shadow:
+        0 0 0 1px rgba(0, 0, 0, 0.7),
+        0 26px 40px rgba(0, 0, 0, 0.9);
+      position: relative;
+      overflow: hidden;
     }
 
-    /* --- SECTION DIVIDER BETWEEN VIDEOS & BOTTOM INFO --- */
-.section-divider {
-  width: 100%;
-  max-width: 960px;
-  margin: 3.5rem auto 3rem;
-  border: 0;
-  border-top: 1px solid rgba(255, 255, 255, 0.35);
-  box-shadow: 0 0 18px rgba(0, 195, 255, 0.35);
-}
+    @media (min-width: 860px) {
+      .game-hero {
+        flex-direction: row;
+        align-items: stretch;
+      }
+    }
 
-/* optional: a bit of breathing room for the bottom info section */
-.video-info-section {
-  padding: 0 1rem 4rem;
-}
+    .game-visual {
+      flex: 1.1;
+      border-radius: 1rem;
+      position: relative;
+      overflow: hidden;
+      background-size: cover;
+      background-position: center;
+      min-height: 220px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: flex-start;
+      padding: 1rem;
+    }
 
+    .game-visual::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top, rgba(0, 0, 0, 0.1), transparent 55%) ,
+                  linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent 55%);
+      pointer-events: none;
+    }
+
+    .game-visual-label {
+      position: relative;
+      z-index: 1;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      padding: 0.3rem 0.9rem;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      color: rgba(235, 255, 255, 0.9);
+    }
+
+    /* Different vibes per game visual */
+    .game-visual.runner {
+      background-image:
+        linear-gradient(135deg, rgba(0, 195, 255, 0.65), rgba(2, 3, 10, 0.95)),
+        url("runner-placeholder.png");
+    }
+
+    .game-visual.king {
+      background-image:
+        linear-gradient(135deg, rgba(255, 203, 77, 0.7), rgba(8, 5, 20, 0.96)),
+        url("kings-placeholder.png");
+    }
+
+    .game-visual.orbital {
+      background-image:
+        linear-gradient(135deg, rgba(200, 100, 255, 0.7), rgba(3, 5, 25, 0.96)),
+        url("orbital-placeholder.png");
+    }
+
+    /* If you don't have images yet, these still look good with gradients alone */
+
+    .game-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      justify-content: center;
+      padding: 0.2rem 0 0;
+    }
+
+    @media (min-width: 860px) {
+      .game-info {
+        padding: 0.2rem 0 0 1.1rem;
+      }
+    }
+
+    .game-tag {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      color: rgba(190, 220, 255, 0.9);
+    }
+
+    .game-title {
+      font-family: "Black Ops One", system-ui, sans-serif;
+      font-size: 1.5rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .game-desc {
+      font-size: 0.95rem;
+      color: rgba(230, 235, 255, 0.9);
+      line-height: 1.5;
+    }
+
+    .game-meta {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: rgba(170, 200, 255, 0.8);
+      margin-top: 0.1rem;
+    }
+
+    .game-actions {
+      margin-top: 0.9rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.7rem;
+      align-items: center;
+    }
+
+    .btn-play {
+      text-decoration: none;
+      padding: 0.6rem 1.4rem;
+      border-radius: 999px;
+      border: 1px solid rgba(0, 195, 255, 0.9);
+      background:
+        radial-gradient(circle at 15% 0%, rgba(0, 195, 255, 0.3), transparent 55%),
+        linear-gradient(120deg, rgba(11, 26, 80, 0.98), rgba(4, 9, 35, 0.98));
+      color: #e9f9ff;
+      font-size: 0.85rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    .btn-play:hover {
+      filter: brightness(1.08);
+      transform: translateY(-1px);
+    }
+
+    .pill {
+      font-size: 0.75rem;
+      padding: 0.4rem 0.9rem;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      background: rgba(0, 0, 0, 0.55);
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: rgba(215, 225, 255, 0.9);
+    }
+
+    /* QR SECTION */
+
+    .qr-section {
+      margin-top: 2.5rem;
+      text-align: center;
+    }
+
+    .qr-section h2 {
+      font-family: "Black Ops One", system-ui, sans-serif;
+      font-size: 1.3rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      margin-bottom: 0.6rem;
+    }
+
+    .qr-section p {
+      font-size: 0.9rem;
+      color: rgba(215, 225, 255, 0.86);
+      max-width: 520px;
+      margin: 0 auto 1.1rem;
+    }
+
+    .qr-frame {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.9rem 1.1rem;
+      border-radius: 1.2rem;
+      border: 1px dashed rgba(150, 255, 255, 0.5);
+      background:
+        radial-gradient(circle at top, rgba(119, 255, 239, 0.12), transparent 60%),
+        radial-gradient(circle at bottom, rgba(255, 102, 255, 0.09), transparent 65%),
+        rgba(2, 5, 20, 0.96);
+    }
+
+    .qr-frame img {
+      width: 150px;
+      height: 150px;
+      object-fit: contain;
+      image-rendering: crisp-edges;
+      border-radius: 0.5rem;
+      background: #ffffff;
+    }
+
+    .qr-url {
+      font-size: 0.75rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(190, 220, 255, 0.9);
+      word-break: break-all;
+    }
+
+    footer {
+      margin-top: 2.5rem;
+      text-align: center;
+      font-size: 0.8rem;
+      color: rgba(160, 180, 210, 0.8);
+    }
+
+    footer a {
+      color: var(--aurora-1);
+      text-decoration: none;
+    }
   </style>
 </head>
 <body>
-
-  <div class="stars-layer"></div>
-  <div class="shooting-stars"></div>
-  <div class="aurora-layer"></div>
-
-  <div class="videos-container">
-
-    <!-- First Video -->
-    <div>
-      <h2 class="video-title">Race To Mars - Instrumental Variant</h2>
-      <div class="video-wrapper paused">
-        <video
-          data-vid="racetomars.mp4"
-          poster="racetomars-vidpic2.png"
-          disablepictureinpicture
-          oncontextmenu="return false;"
-          playsinline
-        ></video>
-        <div class="custom-controls">
-          <button class="control-btn btn-rewind" title="Rewind 10s">
-            <svg viewBox="0 0 24 24"><path d="M11 18V6l-8.5 6 8.5 6zm.5-6l8.5 6V6l-8.5 6z"/></svg>
-          </button>
-          <button class="control-btn btn-play" title="Play">
-            <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-          </button>
-          <button class="control-btn btn-forward" title="Forward 10s">
-            <svg viewBox="0 0 24 24"><path d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z"/></svg>
-          </button>
-          <button class="control-btn btn-mute" title="Mute/Unmute">
-            <svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
-          </button>
-          <button class="control-btn btn-fullscreen" title="Fullscreen">
-            <svg viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Second Video -->
-    <div>
-      <h2 class="video-title">Point Of Bloom - Archive Variant</h2>
-      <div class="video-wrapper paused">
-        <video
-          data-vid="pointofbloom-gh.mp4"
-          poster="pointofbloompic.png"
-          disablepictureinpicture
-          oncontextmenu="return false;"
-          playsinline
-        ></video>
-        <div class="custom-controls">
-          <button class="control-btn btn-rewind" title="Rewind 10s">
-            <svg viewBox="0 0 24 24"><path d="M11 18V6l-8.5 6 8.5 6zm.5-6l8.5 6V6l-8.5 6z"/></svg>
-          </button>
-          <button class="control-btn btn-play" title="Play">
-            <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-          </button>
-          <button class="control-btn btn-forward" title="Forward 10s">
-            <svg viewBox="0 0 24 24"><path d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z"/></svg>
-          </button>
-          <button class="control-btn btn-mute" title="Mute/Unmute">
-            <svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
-          </button>
-          <button class="control-btn btn-fullscreen" title="Fullscreen">
-            <svg viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Third Video -->
-    <div>
-    <h2 class="video-title">Head's Pace - Instrumental Variant</h2>
-    <div class="video-wrapper paused">
-      <video
-        data-vid="headspacevid.mp4"
-        poster="headspacepic.png"
-        disablepictureinpicture
-        oncontextmenu="return false;"
-        playsinline
-      ></video>
-      <div class="custom-controls">
-        <button class="control-btn btn-rewind" title="Rewind 10s">
-          <svg viewBox="0 0 24 24"><path d="M11 18V6l-8.5 6 8.5 6zm.5-6l8.5 6V6l-8.5 6z"/></svg>
-        </button>
-        <button class="control-btn btn-play" title="Play">
-          <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-        </button>
-        <button class="control-btn btn-forward" title="Forward 10s">
-          <svg viewBox="0 0 24 24"><path d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z"/></svg>
-        </button>
-        <button class="control-btn btn-mute" title="Mute/Unmute">
-          <svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
-        </button>
-        <button class="control-btn btn-fullscreen" title="Fullscreen">
-          <svg viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
-        </button>
-      </div>
-    </div>
-  </div>
-
-    <!-- Fourth Video -->
-    <div>
-      <h2 class="video-title">Street Knock - Instrumental Variant</h2>
-      <div class="video-wrapper paused">
-        <video
-          data-vid="streetknockvid.mp4"
-          poster="streetknockpic.png"
-          disablepictureinpicture
-          oncontextmenu="return false;"
-          playsinline
-        ></video>
-        <div class="custom-controls">
-          <button class="control-btn btn-rewind" title="Rewind 10s">
-            <svg viewBox="0 0 24 24"><path d="M11 18V6l-8.5 6 8.5 6zm.5-6l8.5 6V6l-8.5 6z"/></svg>
-          </button>
-          <button class="control-btn btn-play" title="Play">
-            <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-          </button>
-          <button class="control-btn btn-forward" title="Forward 10s">
-            <svg viewBox="0 0 24 24"><path d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z"/></svg>
-          </button>
-          <button class="control-btn btn-mute" title="Mute/Unmute">
-            <svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
-          </button>
-          <button class="control-btn btn-fullscreen" title="Fullscreen">
-            <svg viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Fifth Video -->
-    <div>
-      <h2 class="video-title">Night Train - Instrumental Variant</h2>
-      <div class="video-wrapper paused">
-        <video
-          data-vid="nighttrainvid.mp4"
-          poster="nighttrainpic.png"
-          disablepictureinpicture
-          oncontextmenu="return false;"
-          playsinline
-        ></video>
-        <div class="custom-controls">
-          <button class="control-btn btn-rewind" title="Rewind 10s">
-            <svg viewBox="0 0 24 24"><path d="M11 18V6l-8.5 6 8.5 6zm.5-6l8.5 6V6l-8.5 6z"/></svg>
-          </button>
-          <button class="control-btn btn-play" title="Play">
-            <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-          </button>
-          <button class="control-btn btn-forward" title="Forward 10s">
-            <svg viewBox="0 0 24 24"><path d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z"/></svg>
-          </button>
-          <button class="control-btn btn-mute" title="Mute/Unmute">
-            <svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
-          </button>
-          <button class="control-btn btn-fullscreen" title="Fullscreen">
-            <svg viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
-          </button>
-        </div>
-      </div>
-    </div>
-
-      <!-- Sixth Video -->
-    <div>
-      <h2 class="video-title">Ethereal Soundtrack - Instrumental Variant</h2>
-      <div class="video-wrapper paused">
-        <video
-          data-vid="etherealsoundtrack.mp4"
-          poster="etherealsoundtrackpic.png"
-          disablepictureinpicture
-          oncontextmenu="return false;"
-          playsinline
-        ></video>
-        <div class="custom-controls">
-          <button class="control-btn btn-rewind" title="Rewind 10s">
-            <svg viewBox="0 0 24 24"><path d="M11 18V6l-8.5 6 8.5 6zm.5-6l8.5 6V6l-8.5 6z"/></svg>
-          </button>
-          <button class="control-btn btn-play" title="Play">
-            <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-          </button>
-          <button class="control-btn btn-forward" title="Forward 10s">
-            <svg viewBox="0 0 24 24"><path d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z"/></svg>
-          </button>
-          <button class="control-btn btn-mute" title="Mute/Unmute">
-            <svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
-          </button>
-          <button class="control-btn btn-fullscreen" title="Fullscreen">
-            <svg viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
-          </button>
-        </div>
-      </div>
-    </div>
-</div> <!-- closes the main videos container
-
-<!-- REAL SECTION BREAK BETWEEN VIDEOS AND INFO -->
-<hr class="section-divider">
-
-<!-- INFO / HERO SECTION AT BOTTOM -->
-<section class="video-info-section">
-  <header class="hero">
-    <div class="hero-center">
-      <div class="logo-wrap">
-        <h1 class="logo">Summon Mars</h1>
-      </div>
-      <p class="hero-tagline">Enjoy the show</p>
-      <br><br>
-      <p class="hero-tagline">
-        [Everything here (including the page) is created &amp; owned,
-        copyrighted &amp; trademarked by Summon Mars ™]
-      </p>
-      <br><br>
-      <p class="hero-tagline">
-        For more information or questions, email to
-      </p>
-        <a href="mailto:info@summonmars.com" style="color:#ff2b2b;">
-          info@summonmars.com
-        </a>
-      </p>
-    </div>
+  <header>
+    <h1>Summon Mars Games</h1>
+    <p>
+      The cabinet booted, the screen flickered on, and now the living room is the arcade.
+      Pick a signal and hit start.
+    </p>
+    <p class="subline">Three worlds. One universe.</p>
   </header>
-</section>
 
-<!-- VISIBLE DETERRENT BANNER -->
-<div class="security-banner">
-  Protected From Bad Vibes
-</div>
+  <main>
+    <!-- GAME 1 -->
+    <section class="game-hero">
+      <div class="game-visual runner">
+        <div class="game-visual-label">LIVE TRANSMISSION · GAME 01</div>
+      </div>
+      <div class="game-info">
+        <div class="game-tag">One-button · Endless</div>
+        <h2 class="game-title">Infinite Runner</h2>
+        <p class="game-desc">
+          A single button, an endless neon highway. Streetlights blur, satellites fall,
+          and the beat keeps sprinting while you dodge the static eating the horizon.
+        </p>
+        <p class="game-meta">Mode: Reflex · Style: Glitchy Hip-Hop Cityscape</p>
+        <div class="game-actions">
+          <!-- Update href once the game page exists -->
+          <a href="infinite-runner.html" class="btn-play">Play</a>
+          <span class="pill">Highly Addictive</span>
+        </div>
+      </div>
+    </section>
 
-<script>
-  document.addEventListener('DOMContentLoaded', () => {
-    /* --- SECURITY LEVEL 1-4 --- */
-    document.addEventListener('contextmenu', e => e.preventDefault());
-    document.onkeydown = function(e) {
-      if (e.keyCode === 123) return false;
-      if (e.ctrlKey && e.shiftKey &&
-          (e.keyCode === 'I'.charCodeAt(0) ||
-           e.keyCode === 'C'.charCodeAt(0) ||
-           e.keyCode === 'J'.charCodeAt(0))) return false;
-      if (e.ctrlKey &&
-          (e.keyCode === 'U'.charCodeAt(0) ||
-           e.keyCode === 'S'.charCodeAt(0))) return false;
-    };
-    document.ondragstart = () => false;
+    <!-- GAME 2 -->
+    <section class="game-hero">
+      <div class="game-visual king">
+        <div class="game-visual-label">CURATED SIGNAL · GAME 02</div>
+      </div>
+      <div class="game-info">
+        <div class="game-tag">Selector · Ambient</div>
+        <h2 class="game-title">King's Cabinet</h2>
+        <p class="game-desc">
+          Spin through a wall of glowing tiles, secret slots, and hidden tracks.
+          It’s part jukebox, part relic vault, and part Summon Mars lore machine.
+        </p>
+        <p class="game-meta">Mode: Chill · Style: Retro Cabinet &amp; Cosmic Archive</p>
+        <div class="game-actions">
+          <a href="kings-cabinet.html" class="btn-play">Enter</a>
+          <span class="pill">Vibes Over Stress</span>
+        </div>
+      </div>
+    </section>
 
-    const vids = document.querySelectorAll('video[data-vid]');
-    vids.forEach(v => {
-      const source = v.getAttribute('data-vid');
-      if (source) v.src = source;
-      v.load();
-    });
+    <!-- GAME 3 -->
+    <section class="game-hero">
+      <div class="game-visual orbital">
+        <div class="game-visual-label">DEEP ORBIT · GAME 03</div>
+      </div>
+      <div class="game-info">
+        <div class="game-tag">Skill · Drift</div>
+        <h2 class="game-title">Orbital Test</h2>
+        <p class="game-desc">
+          Pilot a fragile signal around fractured planets, catching clean sound and dodging noise storms.
+          Survive long enough and the universe answers back.
+        </p>
+        <p class="game-meta">Mode: Precision · Style: Cosmic Puzzle &amp; Sound Lab</p>
+        <div class="game-actions">
+          <a href="orbital-test.html" class="btn-play">Enter Orbit</a>
+          <span class="pill">Tricky · Rewarding</span>
+        </div>
+      </div>
+    </section>
 
-    /* --- CONSOLE TRAP --- */
-    setInterval(() => {
-      console.clear();
-      console.log("%c TRACKING...",
-        "color: red; font-size: 20px; font-weight: bold;");
-    }, 2000);
+    <!-- QR SECTION -->
+    <section class="qr-section">
+      <h2>Scan To Enter The Cabinet</h2>
+      <p>
+        Use this code on posters, shirts, or screens. It jumps straight to this arcade page,
+        so anyone with a camera can land in the living room universe with you.
+      </p>
 
-    /* --- DEV TOOLS DETECTION OVERLAY --- */
-    const overlay = document.createElement('div');
-    overlay.style = [
-      'position:fixed',
-      'top:0',
-      'left:0',
-      'width:100vw',
-      'height:100vh',
-      'background:rgba(0,0,0,0.95)',
-      'color:red',
-      'display:none',
-      'align-items:center',
-      'justify-content:center',
-      'z-index:9999',
-      'flex-direction:column',
-      'font-size:2rem',
-      'text-align:center',
-      'padding:2rem'
-    ].join(';');
+      <div class="qr-frame">
+        <!-- Generate this QR yourself for: https://summonmars.com/games.html -->
+        <img src="games-qr.png" alt="QR code linking to Summon Mars games page">
+        <div class="qr-url">https://summonmars.com/games.html</div>
+      </div>
+    </section>
+  </main>
 
-    setInterval(() => {
-      const widthDiff  = window.outerWidth  - window.innerWidth;
-      const heightDiff = window.outerHeight - window.innerHeight;
-      if (widthDiff > 260 || heightDiff > 260) {
-        overlay.style.display = 'flex';
-        document.querySelectorAll('video').forEach(v => v.pause());
-      } else {
-        overlay.style.display = 'none';
-      }
-    }, 500);
-
-    /* --- VIDEO LOGIC (unchanged) --- */
-    const wrappers = document.querySelectorAll('.video-wrapper');
-    wrappers.forEach(wrapper => {
-      const video = wrapper.querySelector('video');
-      const playBtn = wrapper.querySelector('.btn-play');
-      const muteBtn = wrapper.querySelector('.btn-mute');
-      const rewindBtn = wrapper.querySelector('.btn-rewind');
-      const forwardBtn = wrapper.querySelector('.btn-forward');
-      const fullBtn = wrapper.querySelector('.btn-fullscreen');
-      const playIconPath = playBtn?.querySelector('path');
-      const muteIconPath = muteBtn?.querySelector('path');
-
-      let activityTimeout;
-
-      video.addEventListener('loadedmetadata', () => {
-        if (video.videoWidth && video.videoHeight) {
-          wrapper.style.aspectRatio =
-            `${video.videoWidth} / ${video.videoHeight}`;
-        }
-      });
-
-      const wake = () => {
-        wrapper.classList.add('user-active');
-        clearTimeout(activityTimeout);
-        if (!video.paused) {
-          activityTimeout =
-            setTimeout(() => wrapper.classList.remove('user-active'), 2200);
-        }
-      };
-
-      wrapper.addEventListener('click', (e) => {
-        if (!e.target.closest('.control-btn')) {
-          if (video.paused) {
-            video.play();
-            wrapper.classList.remove('paused');
-            playIconPath?.setAttribute(
-              'd', 'M6 19h4V5H6v14zm8-14v14h4V5h-4z'
-            );
-          } else {
-            video.pause();
-            wrapper.classList.add('paused');
-            playIconPath?.setAttribute('d', 'M8 5v14l11-7z');
-          }
-          wake();
-        }
-      });
-
-      wrapper.addEventListener('mousemove', wake);
-      wrapper.addEventListener('touchstart', wake);
-
-      playBtn?.addEventListener('click', (e) => {
-        e.stopPropagation();
-        if (video.paused) {
-          video.play();
-          wrapper.classList.remove('paused');
-          playIconPath?.setAttribute(
-            'd', 'M6 19h4V5H6v14zm8-14v14h4V5h-4z'
-          );
-        } else {
-          video.pause();
-          wrapper.classList.add('paused');
-          playIconPath?.setAttribute('d', 'M8 5v14l11-7z');
-        }
-        wake();
-      });
-
-      muteBtn?.addEventListener('click', (e) => {
-        e.stopPropagation();
-        video.muted = !video.muted;
-        muteIconPath?.setAttribute(
-          'd',
-          video.muted
-            ? 'M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z'
-            : 'M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z'
-        );
-        wake();
-      });
-
-      rewindBtn?.addEventListener('click', (e) => {
-        e.stopPropagation();
-        video.currentTime = Math.max(0, video.currentTime - 10);
-        wake();
-      });
-
-      forwardBtn?.addEventListener('click', (e) => {
-        e.stopPropagation();
-        video.currentTime =
-          Math.min(video.duration, video.currentTime + 10);
-        wake();
-      });
-
-      fullBtn?.addEventListener('click', (e) => {
-        e.stopPropagation();
-        if (wrapper.requestFullscreen) wrapper.requestFullscreen();
-        else if (wrapper.webkitRequestFullscreen) wrapper.webkitRequestFullscreen();
-        else if (wrapper.msRequestFullscreen) wrapper.msRequestFullscreen();
-        wake();
-      });
-
-      video.addEventListener('ended', () => {
-        video.load();
-        wrapper.classList.add('paused');
-        playIconPath?.setAttribute('d', 'M8 5v14l11-7z');
-      });
-    });
-  });
-</script>
-
-<script>
-  // Create overlay
-  const overlay = document.createElement('div');
-  overlay.style = `
-    position: fixed;
-    top: 0; left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0,0,0,0.95);
-    color: red;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    font-size: 2rem;
-    text-align: center;
-    padding: 2rem;
-    z-index: 999999;
-  `;
-  overlay.innerHTML =
-      '<h1>SECURITY BREACH DETECTED</h1>' +
-      '<p style="font-size:1.2rem;margin-top:1rem;">' +
-      '| Logging communications |<br>Unauthorized inspection prohibited!</p>';
-    document.body.appendChild(overlay);
-
-  // Load the Nedry audio
-  const nedryAudio = new Audio("jurrasicpassword.mp3");
-
-  // Detect DevTools (F12 or devtools open)
-  let devtoolsOpen = false;
-
-  const detectDevTools = () => {
-    const widthDiff = window.outerWidth - window.innerWidth;
-    const heightDiff = window.outerHeight - window.innerHeight;
-
-    if (widthDiff > 260 || heightDiff > 260) {
-      if (!devtoolsOpen) {
-        devtoolsOpen = true;
-        overlay.style.display = "flex";
-        nedryAudio.currentTime = 0;
-        nedryAudio.play().catch(()=>{});
-      }
-    } else {
-      if (devtoolsOpen) {
-        devtoolsOpen = false;
-        overlay.style.display = "none";
-      }
-    }
-  };
-
-  setInterval(detectDevTools, 500);
-
-  // Optional: instantly trigger on F12 key
-  window.addEventListener("keydown", (e) => {
-    if (e.key === "F12") {
-      overlay.style.display = "flex";
-      nedryAudio.currentTime = 0;
-      nedryAudio.play().catch(()=>{});
-    }
-  });
-</script>
-  
+  <footer>
+    <p>
+      &larr; <a href="index.html">Return to SummonMars.com</a><br />
+      © 2026 Summon Mars ™. All rights reserved.
+    </p>
+  </footer>
 </body>
 </html>
