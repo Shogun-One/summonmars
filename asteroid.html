@@ -11,8 +11,6 @@
       --accent: #ff3b82;
       --accent-soft: #ff8ac0;
       --hud: #e4e4ff;
-      --asteroid-outer: #8a2be2;
-      --asteroid-inner: #ffe7ff;
     }
 
     * {
@@ -35,6 +33,7 @@
       flex-direction: column;
       align-items: center;
       gap: 0.5rem;
+      padding: 0.8rem;
     }
 
     h1 {
@@ -142,22 +141,18 @@
   </div>
 
   <script>
-    // Grab elements
     const canvas = document.getElementById('game');
     const ctx = canvas.getContext('2d');
     const scoreEl = document.getElementById('score');
     const bestEl = document.getElementById('best');
     const resetBtn = document.getElementById('reset-btn');
 
-    // Neon space field size
     const width = canvas.width;
     const height = canvas.height;
 
-    // Persistent best score
-    let bestScore = Number(localStorage.getItem('asteroidBestV2') || 0);
+    let bestScore = 0; // keeping it simple for now, no localStorage
     bestEl.textContent = bestScore;
 
-    // Core game state
     const ship = {
       x: width / 2,
       y: height / 2,
@@ -174,10 +169,9 @@
     let running = true;
     let lastTime = 0;
     let shootCooldown = 0;
-    const shootDelay = 180; // ms between shots
+    const shootDelay = 180; // ms
     const asteroidCount = 9;
 
-    // Utility
     function randRange(min, max) {
       return Math.random() * (max - min) + min;
     }
@@ -186,7 +180,6 @@
       let x, y, angle;
       const radius = randRange(18, 40);
       if (edgeSpawn) {
-        // spawn at edges
         const edge = Math.floor(Math.random() * 4);
         if (edge === 0) { // top
           x = randRange(0, width);
@@ -236,7 +229,6 @@
 
     resetBtn.addEventListener('click', resetGame);
 
-    // Input: keyboard
     document.addEventListener('keydown', (e) => {
       keys[e.key] = true;
       if (e.key === ' ') {
@@ -249,7 +241,6 @@
       keys[e.key] = false;
     });
 
-    // Input: touch / mouse
     let pointerActive = false;
     let pointerPos = { x: ship.x, y: ship.y };
     let shootRequested = false;
@@ -292,7 +283,6 @@
       setPointerFromEvent(e);
       pointerActive = true;
 
-      // quick tap = shoot
       if (now - lastTapTime < 260) {
         shootRequested = true;
       }
@@ -309,10 +299,8 @@
       pointerActive = false;
     }, { passive: false });
 
-    // Shooting
     function shoot() {
       const speed = 6.2;
-      // aim toward nearest asteroid or straight up if none
       let angle;
       if (asteroids.length > 0) {
         let closest = asteroids[0];
@@ -336,15 +324,13 @@
         y: ship.y,
         vx: Math.cos(angle) * speed,
         vy: Math.sin(angle) * speed,
-        life: 1600, // ms
+        life: 1600,
       });
     }
 
-    // Main update
     function update(dt) {
       if (!running) return;
 
-      // Movement: keyboard
       let mvx = 0;
       let mvy = 0;
       if (keys['ArrowLeft'] || keys['a'] || keys['A']) mvx -= 1;
@@ -358,7 +344,6 @@
         mvy /= len;
       }
 
-      // Movement: pointer drag (touch/mouse)
       if (pointerActive) {
         const dx = pointerPos.x - ship.x;
         const dy = pointerPos.y - ship.y;
@@ -375,13 +360,11 @@
       ship.x += ship.vx;
       ship.y += ship.vy;
 
-      // clamp inside bounds
       if (ship.x < ship.radius) ship.x = ship.radius;
       if (ship.x > width - ship.radius) ship.x = width - ship.radius;
       if (ship.y < ship.radius) ship.y = ship.radius;
       if (ship.y > height - ship.radius) ship.y = height - ship.radius;
 
-      // Shooting cooldown
       shootCooldown -= dt;
       if (shootCooldown < 0) shootCooldown = 0;
 
@@ -393,7 +376,6 @@
         shootRequested = false;
       }
 
-      // Update bullets
       for (let i = bullets.length - 1; i >= 0; i--) {
         const b = bullets[i];
         b.x += b.vx;
@@ -408,20 +390,17 @@
         }
       }
 
-      // Update asteroids
       for (let i = asteroids.length - 1; i >= 0; i--) {
         const a = asteroids[i];
         a.x += a.vx;
         a.y += a.vy;
 
-        // wrap edges
         if (a.x < -a.radius) a.x = width + a.radius;
         if (a.x > width + a.radius) a.x = -a.radius;
         if (a.y < -a.radius) a.y = height + a.radius;
         if (a.y > height + a.radius) a.y = -a.radius;
       }
 
-      // Bullet vs asteroid collision
       outerLoop: for (let i = asteroids.length - 1; i >= 0; i--) {
         const a = asteroids[i];
         for (let j = bullets.length - 1; j >= 0; j--) {
@@ -438,17 +417,14 @@
             if (score > bestScore) {
               bestScore = score;
               bestEl.textContent = bestScore;
-              localStorage.setItem('asteroidBestV2', String(bestScore));
             }
 
-            // spawn a fresh one at edge
             spawnAsteroid(true);
             break outerLoop;
           }
         }
       }
 
-      // Ship vs asteroid collision
       for (const a of asteroids) {
         const dx = ship.x - a.x;
         const dy = ship.y - a.y;
@@ -460,12 +436,10 @@
       }
     }
 
-    // Drawing
     function drawShip() {
       ctx.save();
       ctx.translate(ship.x, ship.y);
 
-      // glowing ring
       const grad = ctx.createRadialGradient(0, 0, 4, 0, 0, ship.radius + 8);
       grad.addColorStop(0, 'rgba(255,255,255,0.9)');
       grad.addColorStop(0.25, 'rgba(255,59,130,0.9)');
@@ -475,7 +449,6 @@
       ctx.arc(0, 0, ship.radius + 8, 0, Math.PI * 2);
       ctx.fill();
 
-      // core triangle
       ctx.fillStyle = '#ffffff';
       ctx.beginPath();
       ctx.moveTo(0, -ship.radius);
@@ -494,15 +467,14 @@
           a.x, a.y, a.radius
         );
         grad.addColorStop(0, '#ffffff');
-        grad.addColorStop(0.3, 'var(--asteroid-inner)');
-        grad.addColorStop(1, 'var(--asteroid-outer)');
+        grad.addColorStop(0.3, '#ffe7ff');
+        grad.addColorStop(1, '#8a2be2');
 
         ctx.fillStyle = grad;
         ctx.beginPath();
         ctx.arc(a.x, a.y, a.radius, 0, Math.PI * 2);
         ctx.fill();
 
-        // subtle cracks
         ctx.strokeStyle = 'rgba(5,0,20,0.5)';
         ctx.lineWidth = 2;
         ctx.beginPath();
@@ -536,7 +508,6 @@
       ctx.restore();
     }
 
-    // Main loop
     function loop(timestamp) {
       if (!lastTime) lastTime = timestamp;
       const dt = timestamp - lastTime;
@@ -553,7 +524,6 @@
       requestAnimationFrame(loop);
     }
 
-    // Init
     resetGame();
     requestAnimationFrame(loop);
   </script>
