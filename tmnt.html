@@ -69,6 +69,15 @@
         0 0 60px rgba(0, 0, 0, 0.9);
       background: #000;
     }
+
+    /* Optional tiny legal text at the bottom */
+    .legal {
+      margin-top: 10px;
+      font-size: 0.7rem;
+      color: #888;
+      max-width: 520px;
+      line-height: 1.3;
+    }
   </style>
 </head>
 <body>
@@ -89,6 +98,13 @@
   >
     Tap here to activate keyboard controls on mobile
   </a>
+
+  <div class="legal">
+    This is a fan-made, non-commercial educational game inspired by the
+    Teenage Mutant Ninja Turtles universe. All characters, names, and
+    related elements are the property of their respective copyright
+    holders. No affiliation or endorsement is implied.
+  </div>
 
   <!-- =========================================================
        RESOURCES.JS - image loader and cache
@@ -169,7 +185,7 @@
       app.Enemy = function (y) {
         this.y = y;
         this.randomStartPos();
-        this.sprite = "images/enemy-bug.png";
+        this.sprite = "images/enemy-bug.png"; // replace with your TMNT enemy sprite if you like
         this.updateVelocityRandomizer();
       };
 
@@ -207,7 +223,7 @@
         this.score = 0;
         this.x = 200;
         this.y = 350;
-        this.sprite = "images/char-boy.png";
+        this.sprite = "images/char-boy.png"; // swap this with your turtle sprite
       };
 
       app.Player.prototype.renderText = function () {
