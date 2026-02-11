@@ -253,16 +253,17 @@
 
     // Global game state: track level & difficulty
     app.GameState = {
-      level: 1,
-      updateFromScore: function (score) {
-        // 1 slice = 1 level for now
-        this.level = Math.max(1, score);
-      },
-      getDifficultyTier: function () {
-  // Difficulty bumps every 5 levels now:
-  // 1–5 => tier 0, 6–10 => tier 1, 11–15 => tier 2, etc.
-  return Math.floor((this.level - 1) / 5);
-}
+  level: 1,
+  updateFromScore: function (score) {
+    // 1 slice = 1 level for now
+    this.level = Math.max(1, score);
+  },
+  getDifficultyTier: function () {
+    // Difficulty bumps every 5 levels now:
+    // 1–5 => tier 0, 6–10 => tier 1, 11–15 => tier 2, etc.
+    return Math.floor((this.level - 1) / 5);
+  }
+};
 
     // Enemies we can use as traffic hazards (ALL legit filenames)
     app.ENEMY_SPRITES = [
