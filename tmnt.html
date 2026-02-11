@@ -7,6 +7,7 @@
     content="width=device-width, initial-scale=1, user-scalable=no"
   />
   <title>TMNT - Get That Slice!</title>
+  <link rel="icon" href="images/tmnticon.png" />
 
   <style>
     /* --- BASIC PAGE LAYOUT --- */
@@ -40,6 +41,16 @@
       max-width: 480px;
       font-size: 0.9rem;
       color: #ddd;
+    }
+
+    .banner {
+      margin-top: 6px;
+      max-width: 480px;
+      width: 100%;
+      border-radius: 6px;
+      box-shadow:
+        0 0 20px rgba(0, 255, 100, 0.4),
+        0 0 40px rgba(0, 0, 0, 0.9);
     }
 
     /* Invisible input for mobile keyboard trigger */
@@ -78,17 +89,62 @@
       max-width: 520px;
       line-height: 1.3;
     }
+
+    /* Character select overlay */
+    #character-select-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.9);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    #character-select-overlay h2 {
+      margin: 0 0 8px;
+      color: #7bff7b;
+    }
+
+    #character-select-overlay p {
+      margin-bottom: 12px;
+    }
+
+    .char-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      max-width: 420px;
+      width: 100%;
+    }
+
+    .char-btn {
+      padding: 8px 10px;
+      border-radius: 6px;
+      border: 2px solid #7bff7b;
+      background: #111;
+      color: #f5f5f5;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+
+    .char-btn:hover {
+      background: #1b1b1b;
+    }
   </style>
 </head>
 <body>
   <h1>TMNT - Get That Slice!</h1>
   <p>
-    Use <strong>↑ ↓ ← →</strong> or <strong>W A S D</strong> to dodge traffic and grab gems.
+    Use <strong>↑ ↓ ← →</strong> or <strong>W A S D</strong> to dodge traffic and grab pizza slices.
     Score points, earn hearts, and do not get splatted in front of the pizza shop.
   </p>
   <p>
     On mobile Safari: tap the link below once to pop the keyboard so controls work.
   </p>
+
+  <img class="banner" src="images/banner.png" alt="TMNT Banner" />
 
   <input type="text" id="keyboard" />
   <a
@@ -98,6 +154,20 @@
   >
     Tap here to activate keyboard controls on mobile
   </a>
+
+  <div id="character-select-overlay">
+    <h2>Choose Your Hero</h2>
+    <p>Select a character, then dodge traffic and grab that pizza!</p>
+    <div class="char-grid">
+      <button class="char-btn" data-sprite="images/leo-ico.png">Leo</button>
+      <button class="char-btn" data-sprite="images/raph-ico.png">Raph</button>
+      <button class="char-btn" data-sprite="images/mikey-ico.png">Mikey</button>
+      <button class="char-btn" data-sprite="images/Casey-Jones.png">Casey</button>
+      <button class="char-btn" data-sprite="images/april-ico.png">April</button>
+      <button class="char-btn" data-sprite="images/splinter-ico.png">Splinter</button>
+      <button class="char-btn" data-sprite="images/baxter.png">Baxter</button>
+    </div>
+  </div>
 
   <div class="legal">
     This is a fan-made, non-commercial educational game inspired by the
@@ -175,20 +245,49 @@
   </script>
 
   <!-- =========================================================
-       APP.JS - enemies, player, gem, heart, input
+       APP.JS - enemies, player, pizza, heart, input
   ========================================================== -->
   <script>
     var app = app || {};
+
+    // Global game state: track level & difficulty
+    app.GameState = {
+      level: 1,
+      updateFromScore: function (score) {
+        // 1 slice = 1 level for now
+        this.level = Math.max(1, score);
+      },
+      getDifficultyTier: function () {
+        // Difficulty bumps every 5 levels:
+        // 1–5 => tier 0, 6–10 => tier 1, 11–15 => tier 2, etc
+        return Math.floor((this.level - 1) / 5);
+      }
+    };
+
+    // Enemies we can use as traffic hazards (ALL legit filenames)
+    app.ENEMY_SPRITES = [
+      "images/fsoldier1.png",
+      "images/fsoldier2.png",
+      "images/bebop.png",
+      "images/Rocksteady2.png",
+      "images/shredder-ico.png",
+      "images/krang.png",
+      "images/shark.png",
+      "images/boo.png",
+      "images/TurtleVan-ico.png",
+      "images/Rock.png",
+      "images/RiggsCat.png"
+    ];
 
     // Enemy constructor
     app.Enemy = function (y) {
       this.y = y;
       this.randomStartPos();
-      this.sprite = "images/fsoldier1.png"; // TMNT foot soldier
+      this.chooseSprite();
       this.updateVelocityRandomizer();
     };
 
-    app.Enemy.prototype.update = function (dt) {
+    app.Enemy.prototype.update = function () {
       this.randomSpeed();
       if (this.x > 600) {
         this.newWave();
@@ -198,6 +297,7 @@
     app.Enemy.prototype.newWave = function () {
       this.randomStartPos();
       this.updateVelocityRandomizer();
+      this.chooseSprite();
     };
 
     app.Enemy.prototype.randomSpeed = function () {
@@ -205,11 +305,24 @@
     };
 
     app.Enemy.prototype.updateVelocityRandomizer = function () {
-      this.randomVelocity = Math.random() * 5;
+      var tier = app.GameState.getDifficultyTier();
+      // Base speed ~1.5–4
+      var base = 1.5 + Math.random() * 2.5;
+      // Every difficulty tier makes them ~40% faster
+      var multiplier = 1 + tier * 0.4;
+      this.randomVelocity = base * multiplier;
     };
 
     app.Enemy.prototype.randomStartPos = function () {
       this.x = -(Math.random() * 400);
+    };
+
+    app.Enemy.prototype.chooseSprite = function () {
+      // Unlock more enemies as difficulty goes up
+      var tier = app.GameState.getDifficultyTier();
+      var unlockedCount = Math.min(app.ENEMY_SPRITES.length, 1 + tier);
+      var index = Math.floor(Math.random() * unlockedCount);
+      this.sprite = app.ENEMY_SPRITES[index];
     };
 
     app.Enemy.prototype.render = function () {
@@ -217,26 +330,37 @@
     };
 
     // Player constructor
-    app.Player = function () {
+    app.Player = function (sprite) {
       this.life = 3;
-      this.score = 0;
+      this.score = 0; // slices
       this.x = 200;
       this.y = 350;
-      this.sprite = "images/leo-ico.png"; // TMNT Leo
+      this.sprite = sprite || "images/leo-ico.png"; // default Leo
+      app.GameState.updateFromScore(this.score);
     };
 
     app.Player.prototype.renderText = function () {
-      app.ctx.fillStyle = "#DDD";
-      app.ctx.fillRect(0, 0, 510, 50);
-      app.ctx.font = "32px serif";
-      app.ctx.fillStyle = "white";
-      app.ctx.strokeStyle = "black";
+      var ctx = app.ctx;
+      ctx.fillStyle = "#DDD";
+      ctx.fillRect(0, 0, 510, 50);
+      ctx.font = "24px serif";
+      ctx.fillStyle = "white";
+      ctx.strokeStyle = "black";
 
-      app.ctx.fillText("Score: " + this.score, 10, 36, 200);
-      app.ctx.strokeText("Score: " + this.score, 10, 36, 200);
+      ctx.fillText("Slices: " + this.score, 10, 32, 200);
+      ctx.strokeText("Slices: " + this.score, 10, 32, 200);
 
-      app.ctx.fillText("Life: " + this.life, 360, 36);
-      app.ctx.strokeText("Life: " + this.life, 360, 36);
+      ctx.fillText("Level: " + app.GameState.level, 200, 32, 150);
+      ctx.strokeText("Level: " + app.GameState.level, 200, 32, 150);
+
+      ctx.fillText("Life: " + this.life, 380, 32);
+      ctx.strokeText("Life: " + this.life, 380, 32);
+
+      // Show the current pizza value badge (100 / 150 / 200)
+      var pizza = app.ACTORS && app.ACTORS.pizza;
+      if (pizza && pizza.pointsIcon) {
+        ctx.drawImage(Resources.get(pizza.pointsIcon), 320, 0, 64, 32);
+      }
     };
 
     app.Player.prototype.render = function () {
@@ -258,33 +382,55 @@
       }
     };
 
-    // Gem constructor
-    app.Gem = function () {
+    // Pizza constructor (collectible)
+    app.Pizza = function () {
       this.y = 70;
-      this.x =
-        app.GAME_CONFIG.TILE_WIDTH * Math.floor(Math.random() * 5);
-      this.upgrade = 0;
-      this.gems = ["Gem Blue", "Gem Green", "Gem Orange", "Star"];
-      this.sprite = "images/" + this.gems[this.upgrade] + ".png";
+      this.x = app.GAME_CONFIG.TILE_WIDTH * Math.floor(Math.random() * 5);
+
+      // three pizza tiers mapped to your images + score badges
+      this.pizzaTypes = [
+        {
+          sprite: "images/pizza-ico.png",
+          value: 1,
+          icon: "images/100pts.png"
+        },
+        {
+          sprite: "images/pizza-box.png",
+          value: 2,
+          icon: "images/150pts.png"
+        },
+        {
+          sprite: "images/pizzacomp.png",
+          value: 3,
+          icon: "images/200pts.png"
+        }
+      ];
+
+      this.typeIndex = 0;
+      this.sprite = this.pizzaTypes[this.typeIndex].sprite;
+      this.pointsIcon = this.pizzaTypes[this.typeIndex].icon;
     };
 
-    app.Gem.prototype.update = function () {
-      var player = app.ACTORS.player;
-      var gem = app.ACTORS.gem;
+    app.Pizza.prototype.update = function () {
+      var level = app.GameState.level;
 
-      if (
-        player.score === 5 ||
-        player.score === 10 ||
-        player.score === 15
-      ) {
-        gem.upgrade++;
+      // Pizza tier by level ranges
+      // 1–10: slice, 11–20: box, 21+: party pizza
+      if (level <= 10) {
+        this.typeIndex = 0;
+      } else if (level <= 20) {
+        this.typeIndex = 1;
+      } else {
+        this.typeIndex = 2;
       }
-      this.sprite = "images/" + this.gems[this.upgrade] + ".png";
-      this.x =
-        app.GAME_CONFIG.TILE_WIDTH * Math.floor(Math.random() * 5);
+
+      var current = this.pizzaTypes[this.typeIndex];
+      this.sprite = current.sprite;
+      this.pointsIcon = current.icon;
+      this.x = app.GAME_CONFIG.TILE_WIDTH * Math.floor(Math.random() * 5);
     };
 
-    app.Gem.prototype.render = function () {
+    app.Pizza.prototype.render = function () {
       app.ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
     };
 
@@ -358,7 +504,7 @@
           new app.Enemy(140),
           new app.Enemy(210)
         ],
-        gem: new app.Gem(),
+        pizza: new app.Pizza(),
         heart: new app.Heart()
       };
 
@@ -401,7 +547,7 @@
         var allEnemies = app.ACTORS.allEnemies;
         var player = app.ACTORS.player;
         var heart = app.ACTORS.heart;
-        var gem = app.ACTORS.gem;
+        var pizza = app.ACTORS.pizza;
 
         allEnemies.forEach(function (enemy) {
           if (
@@ -414,11 +560,13 @@
         });
 
         if (
-          between(player.x, gem.x - 60, gem.x + 60) &&
-          between(player.y, gem.y - 10, gem.y + 10)
+          between(player.x, pizza.x - 60, pizza.x + 60) &&
+          between(player.y, pizza.y - 10, pizza.y + 10)
         ) {
-          player.score++;
-          gem.update();
+          var currentType = pizza.pizzaTypes[pizza.typeIndex];
+          player.score += currentType.value;
+          app.GameState.updateFromScore(player.score);
+          pizza.update();
           init();
         }
 
@@ -436,6 +584,17 @@
         var allEnemies = app.ACTORS.allEnemies;
         var heart = app.ACTORS.heart;
 
+        // Add extra enemies as difficulty grows
+        // base is 3, then +1 at tier 1, +2 at tier 2, etc (capped at +2)
+        var extraCount = Math.min(2, app.GameState.getDifficultyTier());
+        var desiredCount = 3 + extraCount;
+
+        while (allEnemies.length < desiredCount) {
+          var laneIndex = allEnemies.length % 3; // rotate lanes 0,1,2
+          var laneY = 70 + laneIndex * app.GAME_CONFIG.TILE_HEIGHT;
+          allEnemies.push(new app.Enemy(laneY));
+        }
+
         allEnemies.forEach(function (enemy) {
           enemy.update(dt);
         });
@@ -443,12 +602,13 @@
       }
 
       function render() {
+        // Use your actual tile art
         var rowImages = [
           "images/water-block.png",
           "images/stone-block.png",
           "images/stone-block.png",
           "images/stone-block.png",
-          "images/grass-block.png",
+          "images/grass-block1.png",
           "images/grass-block.png"
         ];
         var numRows = 6;
@@ -472,9 +632,9 @@
         var allEnemies = app.ACTORS.allEnemies;
         var player = app.ACTORS.player;
         var heart = app.ACTORS.heart;
-        var gem = app.ACTORS.gem;
+        var pizza = app.ACTORS.pizza;
 
-        gem.render();
+        pizza.render();
         heart.render();
 
         allEnemies.forEach(function (enemy) {
@@ -501,17 +661,59 @@
         win.cancelAnimationFrame(requestAnimationFrameID);
       }
 
+      // PRELOAD *EVERY* IMAGE FROM YOUR LIST SO IT ALL SHOWS UP IN THE CODE
       Resources.load([
-        "images/stone-block.png",
+        // Tiles & basic art
         "images/water-block.png",
+        "images/stone-block.png",
         "images/grass-block.png",
-        "images/fsoldier1.png",
+        "images/grass-block1.png",
+
+        // Logo/UI
+        "images/tmnticon.png",
+        "images/logo-ico.png",
+        "images/banner.png",
+        "images/Selector.png",
+
+        // Player sprites (character select)
         "images/leo-ico.png",
+        "images/raph-ico.png",
+        "images/mikey-ico.png",
+        "images/splinter-ico.png",
+        "images/april-ico.png",
+        "images/Casey-Jones.png",
+        "images/baxter.png",
+
+        // Enemies / traffic
+        "images/fsoldier1.png",
+        "images/fsoldier2.png",
+        "images/bebop.png",
+        "images/Rocksteady2.png",
+        "images/shredder-ico.png",
+        "images/krang.png",
+        "images/shark.png",
+        "images/boo.png",
+        "images/TurtleVan-ico.png",
+        "images/Rock.png",
+        "images/RiggsCat.png",
+
+        // Collectibles & UI extras
+        "images/pizza-ico.png",
+        "images/pizza-box.png",
+        "images/pizzacomp.png",
+        "images/money-ico.png",
+        "images/Heart.png",
+        "images/Key.png",
+        "images/Star.png",
+        "images/100pts.png",
+        "images/150pts.png",
+        "images/200pts.png",
+
+        // Remaining sprite files from the folder
+        "images/manhole-game-ico.png",
         "images/Gem Blue.png",
         "images/Gem Green.png",
-        "images/Gem Orange.png",
-        "images/Star.png",
-        "images/Heart.png"
+        "images/Gem Orange.png"
       ]);
 
       Resources.onReady(init);
@@ -536,6 +738,39 @@
 
       window.addEventListener("resize", showKeyboardLink);
       showKeyboardLink();
+    })();
+  </script>
+
+  <!-- =========================================================
+       CHARACTER SELECT HOOKUP
+  ========================================================== -->
+  <script>
+    (function () {
+      var overlay = document.getElementById("character-select-overlay");
+      var buttons = overlay.querySelectorAll(".char-btn");
+
+      function startWithCharacter(sprite) {
+        if (window.app && app.ACTORS && app.ACTORS.player) {
+          app.ACTORS.player.sprite = sprite;
+          app.ACTORS.player.life = 3;
+          app.ACTORS.player.score = 0;
+          app.GameState.updateFromScore(0);
+        }
+        overlay.style.display = "none";
+      }
+
+      buttons.forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          startWithCharacter(this.getAttribute("data-sprite"));
+        });
+      });
+
+      // Press "N" any time to pick a new character (new game)
+      document.addEventListener("keyup", function (e) {
+        if (e.key === "n" || e.key === "N") {
+          overlay.style.display = "flex";
+        }
+      });
     })();
   </script>
 </body>
