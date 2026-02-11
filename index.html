@@ -754,12 +754,14 @@
     }
 
     .merch-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 1.75rem;
-      width: 100%;
-      max-width: 720px;
-    }
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem; /* or whatever spacing you want */
+  flex-wrap: wrap; /* keeps it clean on mobile */
+  width: 100%; 
+  text-align: center;
+}
 
     @media (min-width: 768px) {
       .merch-grid {
