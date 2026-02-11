@@ -620,36 +620,135 @@
         "color: red; font-size: 20px; font-weight: bold;");
     }, 2000);
 
-    /* --- DEV TOOLS DETECTION OVERLAY --- */
-    const overlay = document.createElement('div');
-    overlay.style = [
-      'position:fixed',
-      'top:0',
-      'left:0',
-      'width:100vw',
-      'height:100vh',
-      'background:rgba(0,0,0,0.95)',
-      'color:red',
-      'display:none',
-      'align-items:center',
-      'justify-content:center',
-      'z-index:9999',
-      'flex-direction:column',
-      'font-size:2rem',
-      'text-align:center',
-      'padding:2rem'
-    ].join(';');
+    <script>
+  (function () {
+    // Wait until body exists
+    function init() {
+      if (!document.body) {
+        window.addEventListener('load', init, { once: true });
+        return;
+      }
 
-    setInterval(() => {
-      const widthDiff  = window.outerWidth  - window.innerWidth;
-      const heightDiff = window.outerHeight - window.innerHeight;
-      if (widthDiff > 260 || heightDiff > 260) {
-        overlay.style.display = 'flex';
+      // === OVERLAY + AUDIO ===
+      const overlay = document.createElement('div');
+      overlay.style = [
+        'position:fixed',
+        'top:0',
+        'left:0',
+        'width:100vw',
+        'height:100vh',
+        'background:rgba(0,0,0,0.95)',
+        'color:red',
+        'display:none',
+        'align-items:center',
+        'justify-content:center',
+        'flex-direction:column',
+        'font-size:2rem',
+        'text-align:center',
+        'padding:2rem',
+        'z-index:999999'
+      ].join(';');
+
+      overlay.innerHTML =
+        '<h1>SECURITY BREACH DETECTED</h1>' +
+        '<p style="font-size:1.2rem;margin-top:1rem;">' +
+        'Logging communications : Security Active<br>' +
+        'Unauthorized inspection prohibited!' +
+        '</p>';
+
+      document.body.appendChild(overlay);
+
+      const nedryAudio = new Audio('jurrasicpassword.mp3');
+      let devtoolsOpen = false;
+
+      function pauseAllVideo() {
         document.querySelectorAll('video').forEach(v => v.pause());
-      } else {
+      }
+
+      function showOverlay() {
+        if (devtoolsOpen) return;
+        devtoolsOpen = true;
+        overlay.style.display = 'flex';
+        pauseAllVideo();
+        nedryAudio.currentTime = 0;
+        nedryAudio.play().catch(() => {});
+      }
+
+      function hideOverlay() {
+        if (!devtoolsOpen) return;
+        devtoolsOpen = false;
         overlay.style.display = 'none';
       }
-    }, 500);
+
+      // === BASELINE: how big is the window *normally*? ===
+      const baseOuterW = window.outerWidth;
+      const baseOuterH = window.outerHeight;
+      const baseInnerW = window.innerWidth;
+      const baseInnerH = window.innerHeight;
+
+      const baseWidthRatio  = baseInnerW / baseOuterW;
+      const baseHeightRatio = baseInnerH / baseOuterH;
+      const baseArea        = baseInnerW * baseInnerH;
+
+      function detectDevToolsOrZoom() {
+        const outerW = window.outerWidth;
+        const outerH = window.outerHeight;
+        const innerW = window.innerWidth;
+        const innerH = window.innerHeight;
+
+        // Current ratios vs shell
+        const widthRatio  = innerW / outerW;
+        const heightRatio = innerH / outerH;
+
+        // How much did ratios drop vs baseline?
+        const widthDrop  = baseWidthRatio  - widthRatio;
+        const heightDrop = baseHeightRatio - heightRatio;
+
+        // Area drop (dev tools eat a chunk of area)
+        const area       = innerW * innerH;
+        const areaDrop   = 1 - (area / baseArea);
+
+        // Phone zoom / heavy zoom detection:
+        // if inner width is much smaller than on load (e.g. 150%+ zoom)
+        const zoomLikely = innerW < baseInnerW * 0.7;
+
+        // Dev tools likely if:
+        //  - ratios fell hard, OR
+        //  - a big chunk of area is gone
+        const devtoolsLikely =
+          widthDrop  > 0.18 ||
+          heightDrop > 0.18 ||
+          areaDrop   > 0.25;
+
+        if (devtoolsLikely || zoomLikely) {
+          showOverlay();
+        } else {
+          hideOverlay();
+        }
+      }
+
+      // Check periodically + on resize
+      setInterval(detectDevToolsOrZoom, 600);
+      window.addEventListener('resize', detectDevToolsOrZoom);
+
+      // Instant manual trip on F12 or Ctrl+Shift+I
+      window.addEventListener('keydown', (e) => {
+        const key = e.key || e.keyCode;
+
+        const isF12 = key === 'F12' || key === 123;
+        const isCtrlShiftI =
+          e.ctrlKey && e.shiftKey &&
+          (key === 'I' || key === 'i' || key === 73);
+
+        if (isF12 || isCtrlShiftI) {
+          showOverlay();
+        }
+      });
+    }
+
+    init();
+  })();
+</script>
 
     /* --- VIDEO LOGIC (unchanged) --- */
     const wrappers = document.querySelectorAll('.video-wrapper');
