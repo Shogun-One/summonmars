@@ -24,6 +24,7 @@
       align-items: center;
       justify-content: flex-start;
       min-height: 100vh;
+      overflow: hidden; /* prevent the whole page from scrolling */
     }
 
     h1 {
@@ -260,7 +261,7 @@
       getDifficultyTier: function () {
         // Difficulty bumps every 5 levels:
         // 1–5 => tier 0, 6–10 => tier 1, 11–15 => tier 2, etc
-        return Math.floor((this.level - 1) / 5);
+        return Math.floor((this.level - 1) / 3);
       }
     };
 
@@ -459,6 +460,14 @@
       app.ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
     };
 
+    // Block browser scrolling for movement keys
+document.addEventListener("keydown", function (e) {
+  var blockKeys = [37, 38, 39, 40, 65, 68, 83, 87]; // arrows + WASD
+  if (blockKeys.indexOf(e.keyCode) !== -1) {
+    e.preventDefault();
+  }
+});
+    
     // Input handling
     document.addEventListener("keyup", function (e) {
       var allowedKeys = {
@@ -602,6 +611,9 @@
       }
 
       function render() {
+        // Clear the whole canvas first to avoid ghost images
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
         // Use your actual tile art
         var rowImages = [
           "images/water-block.png",
