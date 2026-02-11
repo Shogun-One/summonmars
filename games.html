@@ -4,516 +4,145 @@
   <meta charset="UTF-8" />
   <title>Summon Mars Games</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <!-- Favicon -->
   <link rel="icon" type="image/png" sizes="32x32" href="url-logo.png" />
-
-  <!-- Fonts -->
-  <link
-    href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Oswald:wght@300;400;500&display=swap"
-    rel="stylesheet"
-  />
-
+  <link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Oswald:wght@300;400;500&display=swap" rel="stylesheet">
   <style>
-    /* RESET */
-    *, *::before, *::after {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    :root {
-      --aurora-1: #77ffef;
-      --aurora-2: #7cff5f;
-      --aurora-3: #ff66ff;
-      --aurora-4: #00c3ff;
-      --bg-deep: #02030a;
-      --text-main: #fdfdfd;
-      --text-sub: #cfd9ff;
-      --accent: #fffd9a;
-      --accent-strong: #ff2b2b;
-    }
-
-    body {
-      font-family: "Oswald", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-      background: radial-gradient(circle at 10% 0%, #05091a 0%, #000000 60%, #02030a 100%);
-      color: var(--text-main);
-      min-height: 100vh;
-      background-attachment: fixed;
-      padding: 2.5rem 1.25rem 4.5rem;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-rendering: optimizeLegibility;
-    }
-
-    /* BACKGROUND LAYERS */
-    .stars-layer {
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      z-index: -11;
-      background:
-        radial-gradient(2px 2px at 8% 10%, rgba(255, 255, 255, 0.95) 0, transparent 60%),
-        radial-gradient(2px 2px at 20% 30%, rgba(220, 235, 255, 0.9) 0, transparent 60%),
-        radial-gradient(2px 2px at 35% 15%, rgba(255, 255, 255, 0.95) 0, transparent 60%),
-        radial-gradient(2px 2px at 60% 12%, rgba(230, 240, 255, 0.9) 0, transparent 60%),
-        radial-gradient(2px 2px at 80% 18%, rgba(255, 255, 255, 0.95) 0, transparent 60%),
-        radial-gradient(2px 2px at 18% 55%, rgba(225, 238, 255, 0.9) 0, transparent 60%),
-        radial-gradient(2px 2px at 32% 72%, rgba(230, 240, 255, 0.9) 0, transparent 60%),
-        radial-gradient(2px 2px at 68% 78%, rgba(220, 235, 255, 0.9) 0, transparent 60%);
-      opacity: 0.9;
-      animation: star-ascend 30s linear infinite;
-    }
-
-    .stars-layer::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background:
-        radial-gradient(1.7px 1.7px at 14% 40%, rgba(255, 255, 255, 0.8) 0, transparent 60%),
-        radial-gradient(1.7px 1.7px at 55% 25%, rgba(230, 240, 255, 0.8) 0, transparent 60%),
-        radial-gradient(1.7px 1.7px at 76% 60%, rgba(255, 255, 255, 0.8) 0, transparent 60%);
-      opacity: 0.8;
-      animation: twinkle-soft 13s ease-in-out infinite alternate;
-    }
-
-    @keyframes twinkle-soft {
-      0%   { opacity: 0.5; }
-      50%  { opacity: 0.9; }
-      100% { opacity: 0.6; }
-    }
-
-    @keyframes star-ascend {
-      0%   { transform: translateY(40px); }
-      100% { transform: translateY(-160px); }
-    }
-
-    .aurora-layer {
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      z-index: -10;
-      background:
-        radial-gradient(circle at 15% 0%, rgba(119, 255, 239, 0.22) 0, transparent 55%),
-        radial-gradient(circle at 85% 5%, rgba(124, 255, 95, 0.18) 0, transparent 60%),
-        radial-gradient(circle at 12% 85%, rgba(255, 102, 255, 0.2) 0, transparent 60%),
-        radial-gradient(circle at 90% 80%, rgba(0, 195, 255, 0.22) 0, transparent 60%);
-      mix-blend-mode: screen;
-      opacity: 0.6;
-      filter: blur(4px);
-    }
-
-    /* HEADER / HERO */
-    .games-hero {
-      max-width: 960px;
-      width: 100%;
-      text-align: center;
-      margin-bottom: 2.5rem;
-    }
-
-    .games-eyebrow {
-      font-size: 0.9rem;
-      letter-spacing: 0.22em;
-      text-transform: uppercase;
-      color: var(--accent);
-      margin-bottom: 0.75rem;
-    }
-
-    .games-title {
-      font-family: "Black Ops One", system-ui, sans-serif;
-      font-size: clamp(2.2rem, 4vw, 3rem);
-      letter-spacing: 0.25em;
-      text-transform: uppercase;
-      text-shadow: 0 0 24px rgba(0, 0, 0, 0.7);
-      margin-bottom: 0.5rem;
-    }
-
-    .games-subtitle {
-      font-size: 1rem;
-      color: var(--text-sub);
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      margin-bottom: 0.75rem;
-    }
-
-    .games-note {
-      font-size: 0.85rem;
-      color: var(--text-sub);
-      opacity: 0.9;
-    }
-
-    /* GRID */
-    .game-grid {
-      max-width: 1080px;
-      width: 100%;
-      display: grid;
-      gap: 1.75rem;
-      margin-bottom: 3rem;
-    }
-
-    @media (min-width: 920px) {
-      .game-grid {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-      }
-    }
-
-    @media (min-width: 640px) and (max-width: 919px) {
-      .game-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-    }
-
-    .game-card {
-      position: relative;
-      border-radius: 24px;
-      padding: 1.3rem 1.2rem 1.4rem;
-      background: radial-gradient(circle at top left, rgba(255,255,255,0.05), rgba(0,0,0,0.85));
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      box-shadow:
-        0 0 32px rgba(0, 195, 255, 0.22),
-        0 18px 40px rgba(0, 0, 0, 0.75);
-      backdrop-filter: blur(10px);
-      display: flex;
-      flex-direction: column;
-      gap: 0.85rem;
-    }
-
-    .game-label {
-      font-size: 0.85rem;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: var(--accent);
-      opacity: 0.95;
-    }
-
-    .game-name {
-      font-size: 1.25rem;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-    }
-
-    .game-status {
-      font-size: 0.8rem;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: var(--text-sub);
-    }
-
-    .game-tagline {
-      font-size: 0.9rem;
-      color: var(--text-sub);
-      line-height: 1.5;
-    }
-
-    /* Placeholder "screens" */
-    .placeholder-screen {
-      margin-top: 0.25rem;
-      border-radius: 18px;
-      height: 190px;
-      background:
-        linear-gradient(135deg, rgba(255,253,154,0.1), rgba(0,195,255,0.2)),
-        repeating-linear-gradient(
-          135deg,
-          rgba(0,0,0,0.85),
-          rgba(0,0,0,0.85) 2px,
-          rgba(0,0,0,0.9) 4px
-        );
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 1.2rem;
-      border: 1px dashed rgba(255, 255, 255, 0.35);
-    }
-
-    .placeholder-text {
-      font-size: 0.9rem;
-      line-height: 1.5;
-      color: var(--text-main);
-      text-transform: uppercase;
-      letter-spacing: 0.16em;
-    }
-
-    .placeholder-text span {
-      font-size: 0.75rem;
-      display: block;
-      margin-top: 0.35rem;
-      color: var(--text-sub);
-      letter-spacing: 0.2em;
-    }
-
-    /* Buttons */
-    .btn-strip {
-      display: flex;
-      gap: 0.6rem;
-      flex-wrap: wrap;
-      margin-top: 0.4rem;
-    }
-
-    .btn-pill,
-    .btn-primary {
-      border-radius: 999px;
-      padding: 0.5rem 0.95rem;
-      font-size: 0.8rem;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      border: 1px solid rgba(255, 255, 255, 0.28);
-      background: rgba(0,0,0,0.7);
-      color: var(--text-main);
-      cursor: default;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      text-decoration: none;
-      transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
-      white-space: nowrap;
-    }
-
-    .btn-pill[disabled] {
-      opacity: 0.6;
-    }
-
-    .btn-primary {
-      background: linear-gradient(90deg, var(--accent-strong), #fffd9a);
-      color: #000;
-      border-color: rgba(0, 0, 0, 0.7);
-      cursor: pointer;
-      margin-top: 0.4rem;
-    }
-
-    .btn-primary:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 8px 22px rgba(0, 0, 0, 0.7);
-    }
-
-    /* Asteroid window */
-    .asteroid-card {
-      border-color: rgba(255, 253, 154, 0.3);
-      box-shadow:
-        0 0 40px rgba(255, 253, 154, 0.25),
-        0 18px 40px rgba(0, 0, 0, 0.85);
-    }
-
-    .asteroid-window {
-      margin-top: 0.4rem;
-      border-radius: 18px;
-      overflow: hidden;
-      border: 1px solid rgba(255, 255, 255, 0.4);
-      background: radial-gradient(circle at top, rgba(0,195,255,0.24), #000);
-      position: relative;
-      height: 260px;
-    }
-
-    .asteroid-window iframe {
-      width: 100%;
-      height: 100%;
-      border: none;
-      display: block;
-      background: #000;
-    }
-
-    .asteroid-hint {
-      font-size: 0.75rem;
-      color: var(--text-sub);
-      margin-top: 0.4rem;
-    }
-
-    /* BOTTOM INFO */
-    .bottom-info {
-      max-width: 960px;
-      width: 100%;
-      text-align: center;
-      margin-top: 0.5rem;
-    }
-
-    .bottom-logo {
-      font-family: "Black Ops One", system-ui, sans-serif;
-      font-size: 1.4rem;
-      letter-spacing: 0.22em;
-      text-transform: uppercase;
-      margin-bottom: 0.25rem;
-    }
-
-    .bottom-tagline {
-      font-size: 0.95rem;
-      color: var(--text-sub);
-      margin-bottom: 1.4rem;
-    }
-
-    .legal-text {
-      font-size: 0.8rem;
-      color: var(--text-sub);
-      margin-bottom: 0.8rem;
-      line-height: 1.5;
-    }
-
-    .legal-text strong {
-      color: var(--accent-strong);
-      font-weight: 500;
-    }
-
-    .contact {
-      font-size: 0.85rem;
-      color: var(--text-sub);
-    }
-
-    .contact a {
-      color: var(--accent-strong);
-      text-decoration: none;
-    }
-
-    .contact a:hover {
-      text-decoration: underline;
-    }
-
-    /* SECURITY BANNER */
-    .security-banner {
-      position: fixed;
-      bottom: 14px;
-      left: 50%;
-      transform: translateX(-50%);
-      padding: 6px 14px;
-      font-size: 0.65rem;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: #ff3b3b;
-      background: rgba(0, 0, 0, 0.55);
-      border: 1px solid rgba(255, 59, 59, 0.4);
-      border-radius: 999px;
-      box-shadow: 0 0 14px rgba(255, 59, 59, 0.25);
-      z-index: 9999;
-      pointer-events: none;
-    }
-
-    @media (max-width: 480px) {
-      body {
-        padding: 1.75rem 1rem 4.25rem;
-      }
-
-      .placeholder-screen {
-        height: 160px;
-      }
-
-      .asteroid-window {
-        height: 220px;
-      }
-
-      .security-banner {
-        font-size: 0.6rem;
-      }
-    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --aurora-1:#77ffef; --aurora-2:#7cff5f; --aurora-3:#ff66ff; --aurora-4:#00c3ff; --bg-deep:#02030a; --text-main:#fdfdfd; --text-sub:#cfd9ff; --accent:#fffd9a; --accent-strong:#ff2b2b; }
+    body { font-family:"Oswald", system-ui, -apple-system, BlinkMacSystemFont, sans-serif; background: radial-gradient(circle at 10% 0%, #05091a 0%, #000000 60%, #02030a 100%); color: var(--text-main); min-height: 100vh; background-attachment: fixed; padding: 2.5rem 1.25rem 4.5rem; display:flex; flex-direction: column; align-items:center; }
+    .stars-layer { position: fixed; inset:0; pointer-events:none; z-index:-11; background: radial-gradient(2px 2px at 8% 10%, rgba(255,255,255,0.95) 0, transparent 60%), radial-gradient(2px 2px at 20% 30%, rgba(220,235,255,0.9) 0, transparent 60%), radial-gradient(2px 2px at 35% 15%, rgba(255,255,255,0.95) 0, transparent 60%), radial-gradient(2px 2px at 60% 12%, rgba(230,240,255,0.9) 0, transparent 60%), radial-gradient(2px 2px at 80% 18%, rgba(255,255,255,0.95) 0, transparent 60%), radial-gradient(2px 2px at 18% 55%, rgba(225,238,255,0.9) 0, transparent 60%), radial-gradient(2px 2px at 32% 72%, rgba(230,240,255,0.9) 0, transparent 60%), radial-gradient(2px 2px at 68% 78%, rgba(220,235,255,0.9) 0, transparent 60%); opacity:0.9; animation: star-ascend 30s linear infinite; }
+    .stars-layer::before { content:""; position:absolute; inset:0; background: radial-gradient(1.7px 1.7px at 14% 40%, rgba(255,255,255,0.8) 0, transparent 60%), radial-gradient(1.7px 1.7px at 55% 25%, rgba(230,240,255,0.8) 0, transparent 60%), radial-gradient(1.7px 1.7px at 76% 60%, rgba(255,255,255,0.8) 0, transparent 60%); opacity:0.8; animation: twinkle-soft 13s ease-in-out infinite alternate; }
+    @keyframes twinkle-soft {0%{opacity:0.5;}50%{opacity:0.9;}100%{opacity:0.6;}}
+    @keyframes star-ascend {0%{transform:translateY(40px);}100%{transform:translateY(-160px);}}
+    .aurora-layer { position:fixed; inset:0; pointer-events:none; z-index:-10; background: radial-gradient(circle at 15% 0%, rgba(119,255,239,0.22) 0, transparent 55%), radial-gradient(circle at 85% 5%, rgba(124,255,95,0.18) 0, transparent 60%), radial-gradient(circle at 12% 85%, rgba(255,102,255,0.2) 0, transparent 60%), radial-gradient(circle at 90% 80%, rgba(0,195,255,0.22) 0, transparent 60%); mix-blend-mode: screen; opacity:0.6; filter: blur(4px); }
+    .games-hero { max-width:960px; width:100%; text-align:center; margin-bottom:2.5rem; }
+    .games-eyebrow { font-size:0.9rem; letter-spacing:0.22em; text-transform:uppercase; color: var(--accent); margin-bottom:0.75rem; }
+    .games-title { font-family:"Black Ops One", system-ui, sans-serif; font-size:clamp(2.2rem,4vw,3rem); letter-spacing:0.25em; text-transform:uppercase; text-shadow:0 0 24px rgba(0,0,0,0.7); margin-bottom:0.5rem; }
+    .games-subtitle { font-size:1rem; color:var(--text-sub); letter-spacing:0.12em; text-transform:uppercase; margin-bottom:0.75rem; }
+    .games-note { font-size:0.85rem; color:var(--text-sub); opacity:0.9; }
+    .game-grid { max-width:1080px; width:100%; display:grid; gap:1.75rem; margin-bottom:3rem; }
+    @media (min-width:920px){ .game-grid{ grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+    @media (min-width:640px) and (max-width:919px){ .game-grid{ grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    .game-card { position:relative; border-radius:24px; padding:1.3rem 1.2rem 1.4rem; background: radial-gradient(circle at top left, rgba(255,255,255,0.05), rgba(0,0,0,0.85)); border:1px solid rgba(255,255,255,0.08); box-shadow: 0 0 32px rgba(0,195,255,0.22), 0 18px 40px rgba(0,0,0,0.75); backdrop-filter: blur(10px); display:flex; flex-direction:column; gap:0.85rem; }
+    .game-label { font-size:0.85rem; letter-spacing:0.18em; text-transform:uppercase; color: var(--accent); opacity:0.95; }
+    .game-name { font-size:1.25rem; text-transform:uppercase; letter-spacing:0.12em; }
+    .game-status { font-size:0.8rem; letter-spacing:0.18em; text-transform:uppercase; color: var(--text-sub); }
+    .game-tagline { font-size:0.9rem; color:var(--text-sub); line-height:1.5; }
+    .placeholder-screen { margin-top:0.25rem; border-radius:18px; height:190px; background: linear-gradient(135deg, rgba(255,253,154,0.1), rgba(0,195,255,0.2)), repeating-linear-gradient(135deg, rgba(0,0,0,0.85), rgba(0,0,0,0.85) 2px, rgba(0,0,0,0.9) 4px); display:flex; align-items:center; justify-content:center; text-align:center; padding:1.2rem; border:1px dashed rgba(255,255,255,0.35); }
+    .placeholder-text { font-size:0.9rem; line-height:1.5; color:var(--text-main); text-transform:uppercase; letter-spacing:0.16em; }
+    .placeholder-text span { font-size:0.75rem; display:block; margin-top:0.35rem; color:var(--text-sub); letter-spacing:0.2em; }
+    .btn-strip { display:flex; gap:0.6rem; flex-wrap:wrap; margin-top:0.4rem; }
+    .btn-pill, .btn-primary { border-radius:999px; padding:0.5rem 0.95rem; font-size:0.8rem; letter-spacing:0.14em; text-transform:uppercase; border:1px solid rgba(255,255,255,0.28); background: rgba(0,0,0,0.7); color: var(--text-main); cursor:default; display:inline-flex; align-items:center; justify-content:center; text-decoration:none; transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease; white-space:nowrap; }
+    .btn-pill[disabled]{opacity:0.6;}
+    .btn-primary { background: linear-gradient(90deg, var(--accent-strong), #fffd9a); color:#000; border-color: rgba(0,0,0,0.7); cursor:pointer; margin-top:0.4rem; }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow:0 8px 22px rgba(0,0,0,0.7); }
+    .asteroid-card { border-color: rgba(255,253,154,0.3); box-shadow: 0 0 40px rgba(255,253,154,0.25), 0 18px 40px rgba(0,0,0,0.85); }
+    .asteroid-window { margin-top:0.4rem; border-radius:18px; overflow:hidden; border:1px solid rgba(255,255,255,0.4); background: radial-gradient(circle at top, rgba(0,195,255,0.24), #000); position:relative; height:260px; }
+    .asteroid-window iframe { width:100%; height:100%; border:none; display:block; background:#000; }
+    .asteroid-hint { font-size:0.75rem; color:var(--text-sub); margin-top:0.4rem; }
+    .bottom-info { max-width:960px; width:100%; text-align:center; margin-top:0.5rem; }
+    .bottom-logo { font-family:"Black Ops One", system-ui, sans-serif; font-size:1.4rem; letter-spacing:0.22em; text-transform:uppercase; margin-bottom:0.25rem; }
+    .bottom-tagline { font-size:0.95rem; color: var(--text-sub); margin-bottom:1.4rem; }
+    .legal-text { font-size:0.8rem; color: var(--text-sub); margin-bottom:0.8rem; line-height:1.5; }
+    .legal-text strong { color: var(--accent-strong); font-weight:500; }
+    .contact { font-size:0.85rem; color: var(--text-sub); }
+    .contact a { color: var(--accent-strong); text-decoration:none; }
+    .contact a:hover { text-decoration:underline; }
+    .security-banner { position:fixed; bottom:14px; left:50%; transform:translateX(-50%); padding:6px 14px; font-size:0.65rem; letter-spacing:0.18em; text-transform:uppercase; color:#ff3b3b; background: rgba(0,0,0,0.55); border:1px solid rgba(255,59,59,0.4); border-radius:999px; box-shadow:0 0 14px rgba(255,59,59,0.25); z-index:9999; pointer-events:none; }
+    @media (max-width:480px){ body{ padding:1.75rem 1rem 4.25rem; } .placeholder-screen{ height:160px; } .asteroid-window{ height:220px; } .security-banner{ font-size:0.6rem; } }
   </style>
 </head>
 <body>
   <div class="stars-layer"></div>
   <div class="aurora-layer"></div>
-
   <header class="games-hero">
     <div class="games-eyebrow">[COMING SOON]</div>
     <h1 class="games-title">Summon Mars Arcade</h1>
     <p class="games-subtitle">Pick a window. Break orbit.</p>
-    <p class="games-note">
-      Two prototypes warming up // one live field ready: Asteroid Drift.
-    </p>
+    <p class="games-note">Two prototypes warming up // one live field ready: Asteroid Drift.</p>
   </header>
-
   <main class="game-grid">
     <!-- GAME 01 PLACEHOLDER -->
     <section class="game-card">
       <div class="game-label">Game 01</div>
       <h2 class="game-name">Incoming Transmission</h2>
       <p class="game-status">Status: In development</p>
-      <p class="game-tagline">
-        Early build running in the background. This slot will light up when the first
-        full arcade prototype is ready.
-      </p>
-
+      <p class="game-tagline">Early build running in the background. This slot will light up when the first full arcade prototype is ready.</p>
       <div class="placeholder-screen">
-        <div class="placeholder-text">
-          GAME 01
-          <span>Prototype orbiting • Not playable yet</span>
-        </div>
+        <div class="placeholder-text">GAME 01<span>Prototype orbiting • Not playable yet</span></div>
       </div>
-
-      <div class="btn-strip">
-        <button class="btn-pill" disabled>Coming soon</button>
-      </div>
+      <div class="btn-strip"><button class="btn-pill" disabled>Coming soon</button></div>
     </section>
-
     <!-- GAME 02 PLACEHOLDER -->
     <section class="game-card">
       <div class="game-label">Game 02</div>
       <h2 class="game-name">Queued For Launch</h2>
       <p class="game-status">Status: Concept locked</p>
-      <p class="game-tagline">
-        Second cabinet reserved. Mechanics and music are being wired together off-screen.
-      </p>
-
+      <p class="game-tagline">Second cabinet reserved. Mechanics and music are being wired together off-screen.</p>
       <div class="placeholder-screen">
-        <div class="placeholder-text">
-          GAME 02
-          <span>Next up in the arcade rotation</span>
-        </div>
+        <div class="placeholder-text">GAME 02<span>Next up in the arcade rotation</span></div>
       </div>
-
-      <div class="btn-strip">
-        <button class="btn-pill" disabled>Coming soon</button>
-      </div>
+      <div class="btn-strip"><button class="btn-pill" disabled>Coming soon</button></div>
     </section>
-
     <!-- ASTEROID DRIFT GAME WINDOW -->
     <section class="game-card asteroid-card">
       <div class="game-label">Live Game</div>
       <h2 class="game-name">Asteroid Drift</h2>
       <p class="game-status">Status: Playable now</p>
-      <p class="game-tagline">
-        Neon field. Heavy debris. You are the last signal in orbit. Dodge, drift, and see
-        how long you can keep the broadcast alive.
-      </p>
-
+      <p class="game-tagline">Neon field. Heavy debris. You are the last signal in orbit. Dodge, drift, and see how long you can keep the broadcast alive.</p>
       <div class="asteroid-window">
-        <!-- Embedded game instead of a video -->
-        <iframe
-          src="asteroid.html"
-          title="Asteroid Drift"
-          loading="lazy"
-          allowfullscreen
-        ></iframe>
+        <iframe src="asteroid.html" title="Asteroid Drift" loading="lazy" allowfullscreen></iframe>
       </div>
-
-      <p class="asteroid-hint">
-        Tip: For the cleanest run, rotate your phone to landscape or
-        <a href="asteroid.html" target="_blank" rel="noopener noreferrer" style="color: var(--accent); text-decoration: underline;">open Asteroid Drift in its own tab</a>.
-      </p>
-
-      <a
-        class="btn-primary"
-        href="asteroid.html"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        Open full Asteroid Drift
-      </a>
+      <p class="asteroid-hint">Tip: For the cleanest run, rotate your phone to landscape or <a href="asteroid.html" target="_blank" rel="noopener noreferrer" style="color: var(--accent); text-decoration: underline;">open Asteroid Drift in its own tab</a>.</p>
+      <a class="btn-primary" href="asteroid.html" target="_blank" rel="noopener noreferrer">Open full Asteroid Drift</a>
     </section>
   </main>
-
   <section class="bottom-info">
     <div class="bottom-logo">Summon Mars</div>
     <p class="bottom-tagline">Enjoy the show</p>
-
-    <p class="legal-text">
-      <strong>[Everything here (including this page) is created &amp; owned, copyrighted &amp; trademarked by Summon Mars™]</strong>
-    </p>
-
-    <p class="contact">
-      For more information or questions, email:
-      <a href="mailto:info@summonmars.com">info@summonmars.com</a>
-    </p>
+    <p class="legal-text"><strong>[Everything here (including this page) is created &amp; owned, copyrighted &amp; trademarked by Summon Mars™]</strong></p>
+    <p class="contact">For more information or questions, email: <a href="mailto:info@summonmars.com">info@summonmars.com</a></p>
   </section>
-
-  <div class="security-banner">
-    Protected From Bad Vibes
-  </div>
+  <div class="security-banner">Protected From Bad Vibes</div>
+  <script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // Level 1: basic protection
+    document.addEventListener('contextmenu', e => e.preventDefault());
+    document.addEventListener('dragstart', e => e.preventDefault());
+    document.addEventListener('keydown', e => {
+      const key = e.key || e.keyCode;
+      if (key === 'F12' || key === 123) { e.preventDefault(); return false; }
+      if (e.ctrlKey && e.shiftKey && (key === 'I' || key === 'i' || key === 73 || key === 'J' || key === 'j' || key === 74 || key === 'C' || key === 'c' || key === 67)) { e.preventDefault(); return false; }
+      if (e.ctrlKey && (key === 'S' || key === 's' || key === 83 || key === 'U' || key === 'u' || key === 85)) { e.preventDefault(); return false; }
+    });
+    // console ping
+    setInterval(() => { console.clear(); console.log('%cTRACKING SIGNAL...', 'color:red;font-size:16px;font-weight:bold;'); }, 4000);
+    // Level 2: zoom detection (>150%)
+    const overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.95);color:#ff4b4b;display:none;align-items:center;justify-content:center;flex-direction:column;font-size:2rem;text-align:center;padding:2rem;z-index:999999';
+    overlay.innerHTML = '<h1>SECURITY BREACH DETECTED</h1><p style="font-size:1.2rem;margin-top:1rem;">Zoom level too high<br>Logging communications | Unauthorized inspection prohibited!</p>';
+    document.body.appendChild(overlay);
+    const alertAudio = new Audio('jurrasicpassword.mp3');
+    let overlayVisible = false;
+    const baseWidth = window.innerWidth || document.documentElement.clientWidth;
+    function checkZoom() {
+      const currentWidth = window.innerWidth || document.documentElement.clientWidth;
+      const ratio = currentWidth / baseWidth;
+      const zoomedIn = ratio < 1 / 1.5;
+      if (zoomedIn && !overlayVisible) {
+        overlayVisible = true;
+        overlay.style.display = 'flex';
+        document.querySelectorAll('video').forEach(v => v.pause());
+        alertAudio.currentTime = 0;
+        alertAudio.play().catch(() => {});
+      } else if (!zoomedIn && overlayVisible) {
+        overlayVisible = false;
+        overlay.style.display = 'none';
+      }
+    }
+    window.addEventListener('resize', checkZoom);
+    setInterval(checkZoom, 1000);
+  });
+  </script>
 </body>
 </html>
