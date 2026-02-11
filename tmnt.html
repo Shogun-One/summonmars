@@ -180,14 +180,13 @@
   <script>
     var app = app || {};
 
-    (function () {
-      // Enemy constructor
-      app.Enemy = function (y) {
-        this.y = y;
-        this.randomStartPos();
-        this.sprite = "images/enemy-bug.png"; // replace with your TMNT enemy sprite if you like
-        this.updateVelocityRandomizer();
-      };
+    // Enemy constructor
+app.Enemy = function (y) {
+  this.y = y;
+  this.randomStartPos();
+  this.sprite = "images/fsoldier1.png"; // NEW TMNT SPRITE
+  this.updateVelocityRandomizer();
+};
 
       app.Enemy.prototype.update = function () {
         this.randomSpeed();
@@ -218,13 +217,13 @@
       };
 
       // Player constructor
-      app.Player = function () {
-        this.life = 3;
-        this.score = 0;
-        this.x = 200;
-        this.y = 350;
-        this.sprite = "images/char-boy.png"; // swap this with your turtle sprite
-      };
+app.Player = function () {
+  this.life = 3;
+  this.score = 0;
+  this.x = 200;
+  this.y = 350;
+  this.sprite = "images/leo-ico.png"; // NEW TMNT SPRITE
+};
 
       app.Player.prototype.renderText = function () {
         app.ctx.fillStyle = "#DDD";
@@ -504,17 +503,18 @@
       }
 
       Resources.load([
-        "images/stone-block.png",
-        "images/water-block.png",
-        "images/grass-block.png",
-        "images/enemy-bug.png",
-        "images/char-boy.png",
-        "images/Gem Blue.png",
-        "images/Gem Green.png",
-        "images/Gem Orange.png",
-        "images/Star.png",
-        "images/Heart.png"
-      ]);
+  "images/stone-block.png",
+  "images/water-block.png",
+  "images/grass-block.png",
+  "images/fsoldier1.png",  // NEW
+  "images/leo-ico.png",    // NEW
+  "images/Gem Blue.png",
+  "images/Gem Green.png",
+  "images/Gem Orange.png",
+  "images/Star.png",
+  "images/Heart.png"
+]);
+
       Resources.onReady(init);
     })(this);
   </script>
