@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Asteroid Drift – Summon Mars</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      margin: 0;
+      background: radial-gradient(circle at top, #1a1630, #05030a);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      color: #f5f5f5;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+    }
+
+    .wrapper {
+      margin-top: 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    h1 {
+      font-size: 1.4rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin: 0.5rem 0 0;
+      text-align: center;
+    }
+
+    .subtitle {
+      font-size: 0.85rem;
+      opacity: 0.8;
+      text-align: center;
+      margin-bottom: 0.5rem;
+    }
+
+    canvas {
+      border-radius: 16px;
+      background: radial-gradient(circle at top, #15132a, #050309);
+      box-shadow: 0 0 25px rgba(0, 0, 0, 0.75);
+      display: block;
+    }
+
+    .hud {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      max-width: 480px;
+      font-size: 0.85rem;
+      opacity: 0.9;
+    }
+
+    .controls {
+      font-size: 0.8rem;
+      opacity: 0.8;
+      text-align: center;
+      margin-top: 0.25rem;
+    }
+
+    button {
+      margin-top: 0.35rem;
+      padding: 0.35rem 0.75rem;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      background: #ff3366;
+      color: #fff;
+      font-size: 0.8rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    button:hover {
+      filter: brightness(1.1);
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <h1>ASTEROID DRIFT</h1>
+    <div class="subtitle">Summon Mars mini-arcade • Use ◀ ▶ to dodge</div>
+
+    <!-- MUSIC: point this src at your instrumental track -->
+    <audio id="bg-music" loop>
+     <source src="media/asteroid-track.mp3" type="audio/mpeg" />
+    </audio>
+
+    <div class="hud">
+      <div>Score: <span id="score">0</span></div>
+      <div>Best: <span id="best">0</span></div>
+    </div>
+
+    <canvas id="game" width="480" height="640"></canvas>
+
+    <div class="controls">
+      ◀ ▶ to move • Avoid the glowing rocks<br />
+      <button id="music-toggle">Play Music</button>
+      <button id="restart-btn">Restart</button>
+    </div>
+  </div>
+
+  <script>
+    // ---------- MUSIC HANDLING ----------
+    const music = document.getElementById('bg-music');
+    const musicToggle = document.getElementById('music-toggle');
+    let musicPlaying = false;
+
+    musicToggle.addEventListener('click', async () => {
+      try {
+        if (!music.src) {
+          // TODO: update this path once you add your MP3 to the repo
+          // Example: music.src = 'media/asteroid-track.mp3';
+          alert('No music file linked yet. Ask your AI fren where to plug it in 🎧');
+          return;
+        }
+
+        if (!musicPlaying) {
+          await music.play();
+          musicPlaying = true;
+          musicToggle.textContent = 'Pause Music';
+        } else {
+          music.pause();
+          musicPlaying = false;
+          musicToggle.textContent = 'Play Music';
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    });
+
+    // ---------- GAME SETUP ----------
+    const canvas = document.getElementById('game');
+    const ctx = canvas.getContext('2d');
+
+    const scoreEl = document.getElementById('score');
+    const bestEl = document.getElementById('best');
+
+    let bestScore = Number(localStorage.getItem('asteroidBest') || 0);
+    bestEl.textContent = bestScore;
+
+    const width = canvas.width;
+    const height = canvas.height;
+
+    const ship = {
+      x: width / 2,
+      y: height - 60,
+      width: 40,
+      height: 20,
+      speed: 6,
+      dx: 0,
+    };
+
+    let asteroids = [];
+    let lastTime = 0;
+    let spawnTimer = 0;
+    let spawnInterval = 900; // ms
+    let score = 0;
+    let running = true;
+
+    const keys = {
+      ArrowLeft: false,
+      ArrowRight: false,
+      a: false,
+      d: false,
+    };
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key in keys) {
+        keys[e.key] = true;
+      }
+    });
+
+    document.addEventListener('keyup', (e) => {
+      if (e.key in keys) {
+        keys[e.key] = false;
+      }
+    });
+
+    // For mobile users, you could later add on-screen buttons.
+
+    function resetGame() {
+      asteroids = [];
+      score = 0;
+      scoreEl.textContent = score;
+      spawnTimer = 0;
+      spawnInterval = 900;
+      running = true;
+      ship.x = width / 2;
+    }
+
+    document.getElementById('restart-btn').addEventListener('click', resetGame);
+
+    function spawnAsteroid() {
+      const radius = 15 + Math.random() * 20;
+      const x = radius + Math.random() * (width - 2 * radius);
+      const speed = 2 + Math.random() * 3;
+      asteroids.push({
+        x,
+        y: -radius,
+        radius,
+        speed,
+      });
+    }
+
+    function update(dt) {
+      if (!running) return;
+
+      // Ship movement
+      ship.dx = 0;
+      if (keys.ArrowLeft || keys.a) ship.dx = -ship.speed;
+      if (keys.ArrowRight || keys.d) ship.dx = ship.speed;
+
+      ship.x += ship.dx;
+
+      // Keep ship inside bounds
+      const halfW = ship.width / 2;
+      if (ship.x < halfW) ship.x = halfW;
+      if (ship.x > width - halfW) ship.x = width - halfW;
+
+      // Asteroid spawn
+      spawnTimer += dt;
+      if (spawnTimer >= spawnInterval) {
+        spawnAsteroid();
+        spawnTimer = 0;
+
+        // Gradually increase difficulty
+        if (spawnInterval > 400) {
+          spawnInterval -= 15;
+        }
+      }
+
+      // Move asteroids
+      for (let i = asteroids.length - 1; i >= 0; i--) {
+        const a = asteroids[i];
+        a.y += a.speed;
+
+        // Off-screen cleanup
+        if (a.y - a.radius > height) {
+          asteroids.splice(i, 1);
+          score++;
+          scoreEl.textContent = score;
+          if (score > bestScore) {
+            bestScore = score;
+            bestEl.textContent = bestScore;
+            localStorage.setItem('asteroidBest', bestScore);
+          }
+        }
+      }
+
+      // Collision detection (ship rectangle vs asteroid circle)
+      for (const a of asteroids) {
+        const closestX = clamp(a.x, ship.x - halfW, ship.x + halfW);
+        const closestY = clamp(
+          a.y,
+          ship.y - ship.height / 2,
+          ship.y + ship.height / 2
+        );
+        const dx = a.x - closestX;
+        const dy = a.y - closestY;
+        const distSq = dx * dx + dy * dy;
+        if (distSq < a.radius * a.radius) {
+          running = false;
+          // Small screen flash or message could be added here
+        }
+      }
+    }
+
+    function clamp(v, min, max) {
+      return v < min ? min : v > max ? max : v;
+    }
+
+    function drawShip() {
+      ctx.save();
+      ctx.translate(ship.x, ship.y);
+      ctx.fillStyle = '#ff4d88';
+      ctx.beginPath();
+      ctx.moveTo(0, -ship.height / 2);
+      ctx.lineTo(ship.width / 2, ship.height / 2);
+      ctx.lineTo(-ship.width / 2, ship.height / 2);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    }
+
+    function drawAsteroids() {
+      for (const a of asteroids) {
+        const gradient = ctx.createRadialGradient(
+          a.x,
+          a.y,
+          a.radius * 0.1,
+          a.x,
+          a.y,
+          a.radius
+        );
+        gradient.addColorStop(0, '#ffffff');
+        gradient.addColorStop(0.3, '#ffe7ff');
+        gradient.addColorStop(1, '#8a2be2');
+
+        ctx.fillStyle = gradient;
+        ctx.beginPath();
+        ctx.arc(a.x, a.y, a.radius, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    function drawOverlay() {
+      if (running) return;
+      ctx.save();
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.65)';
+      ctx.fillRect(0, 0, width, height);
+      ctx.fillStyle = '#ffffff';
+      ctx.textAlign = 'center';
+      ctx.font = '24px system-ui';
+      ctx.fillText('Impact detected.', width / 2, height / 2 - 10);
+      ctx.font = '16px system-ui';
+      ctx.fillText('Press "Restart" to try again', width / 2, height / 2 + 20);
+      ctx.restore();
+    }
+
+    function render() {
+      ctx.clearRect(0, 0, width, height);
+      drawAsteroids();
+      drawShip();
+      drawOverlay();
+    }
+
+    function loop(timestamp) {
+      if (!lastTime) lastTime = timestamp;
+      const dt = timestamp - lastTime;
+      lastTime = timestamp;
+
+      update(dt);
+      render();
+      requestAnimationFrame(loop);
+    }
+
+    requestAnimationFrame(loop);
+  </script>
+</body>
+</html>
