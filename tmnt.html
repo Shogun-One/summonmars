@@ -1,120 +1,527 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0">
-    <title>TMNT - Get That Slice!</title>
+  <meta charset="UTF-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, user-scalable=no"
+  />
+  <title>TMNT - Get That Slice!</title>
 
-    <!-- Favicon -->
-    <link rel="icon" href="tmnticon.ico" type="image/x-icon">
+  <style>
+    /* --- BASIC PAGE LAYOUT --- */
+    body {
+      margin: 0;
+      padding: 0;
+      text-align: center;
+      background: #111;
+      color: #f5f5f5;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+    }
 
-    <!-- Game styles -->
-    <link rel="stylesheet" href="css/style.css">
+    h1 {
+      margin-top: 16px;
+      margin-bottom: 4px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      font-size: 1.4rem;
+      color: #7bff7b;
+      text-shadow: 0 0 8px rgba(0, 255, 100, 0.6);
+    }
 
-    <!-- Font Awesome for pizza slice bullets in the modal -->
-    <link
-        rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
-    >
+    p {
+      margin: 4px 16px 10px;
+      max-width: 480px;
+      font-size: 0.9rem;
+      color: #ddd;
+    }
+
+    /* Invisible input for mobile keyboard trigger */
+    #keyboard {
+      opacity: 0;
+      height: 0;
+      border: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .keyboard-link {
+      display: none;
+      color: #7bff7b;
+      text-decoration: underline;
+      font-size: 0.9rem;
+      margin-bottom: 8px;
+      cursor: pointer;
+    }
+
+    /* Canvas styling - give it that arcade cabinet look */
+    canvas {
+      margin-top: 10px;
+      border-radius: 6px;
+      box-shadow:
+        0 0 20px rgba(0, 255, 100, 0.7),
+        0 0 60px rgba(0, 0, 0, 0.9);
+      background: #000;
+    }
+  </style>
 </head>
 <body>
+  <h1>TMNT - Get That Slice!</h1>
+  <p>
+    Use <strong>↑ ↓ ← →</strong> or <strong>W A S D</strong> to dodge traffic and grab gems.
+    Score points, earn hearts, and do not get splatted in front of the pizza shop.
+  </p>
+  <p>
+    On mobile Safari: tap the link below once to pop the keyboard so controls work.
+  </p>
 
-<!-- Header Section -->
-<header>
-    <img src="images/banner.png" alt="Ninja Turtles Logo" class="logo">
-    <h1>Get That Slice!</h1>
-    <h2>Presented by Ninja Turtles Pizza Company</h2>
+  <input type="text" id="keyboard" />
+  <a
+    class="keyboard-link"
+    href="#"
+    onclick="document.getElementById('keyboard').focus(); return false;"
+  >
+    Tap here to activate keyboard controls on mobile
+  </a>
 
-    <!-- Buttons -->
-    <button id="resetButton" class="button-reset">Reset</button>
-    <button id="instructionsButton" class="button-instructions">Instructions</button>
-</header>
+  <!-- =========================================================
+       RESOURCES.JS - image loader and cache
+  ========================================================== -->
+  <script>
+    (function () {
+      var resourceCache = {};
+      var readyCallbacks = [];
 
-<!-- Pop-up modal for instructions -->
-<div id="instructionsModal" class="modal">
-    <button class="close">Close</button>
-    <div class="modal-content">
-        <h2>Instructions</h2>
+      function load(urlOrArr) {
+        if (urlOrArr instanceof Array) {
+          urlOrArr.forEach(function (url) {
+            _load(url);
+          });
+        } else {
+          _load(urlOrArr);
+        }
+      }
 
-        <section>
-            <h3>Objective:</h3>
-            <p>
-                The goal of the game is to collect as many pizza slices as possible while avoiding obstacles.
-                As you collect pizza slices you’ll begin to level up and different collection items will
-                start showing up … some <i>easter eggs</i> and special characters!
-            </p>
-        </section>
+      function _load(url) {
+        if (resourceCache[url]) {
+          return resourceCache[url];
+        } else {
+          var img = new Image();
+          img.onload = function () {
+            resourceCache[url] = img;
 
-        <section>
-            <h3>Controls:</h3>
-            <ul>
-                <li>
-                    Use the arrow keys on your keyboard to control the movement of your Ninja Turtle.
-                    W, A, S, D also work to move Leonardo.
-                </li>
-                <li>Move up, down, left, and right to navigate through the pizza-filled maze.</li>
-            </ul>
-        </section>
+            if (isReady()) {
+              readyCallbacks.forEach(function (func) {
+                func();
+              });
+            }
+          };
 
-        <section>
-            <h3>Gameplay:</h3>
-            <ul>
-                <li>Your Ninja Turtle will move in the direction you press.</li>
-                <li>Collect as many pizza slices and other items as you can to earn points.</li>
-                <li>Beware of The Evil Shredder zooming by on his motorbike!</li>
-                <li>If you touch Shredder, you lose a life.</li>
-                <li>You have three lives, so use them wisely!</li>
-                <li>Your score is displayed at the top of the game screen.</li>
-            </ul>
-        </section>
+          resourceCache[url] = false;
+          img.src = url;
+        }
+      }
 
-        <section>
-            <h3>Special Power-ups:</h3>
-            <ul>
-                <li>Look out for power-up items that may appear throughout the game.</li>
-                <li>Power-ups provide you with extra lives.</li>
-                <li>These power ups come in the form of a heart – collect them to keep going!</li>
-            </ul>
-        </section>
+      function get(url) {
+        return resourceCache[url];
+      }
 
-        <section>
-            <h3>Winning the Game:</h3>
-            <ul>
-                <li>The game continues until you lose all your lives.</li>
-                <li>Challenge yourself to get the highest score and become a pizza-eating champion!</li>
-            </ul>
-        </section>
+      function isReady() {
+        var ready = true;
+        for (var k in resourceCache) {
+          if (
+            Object.prototype.hasOwnProperty.call(resourceCache, k) &&
+            !resourceCache[k]
+          ) {
+            ready = false;
+          }
+        }
+        return ready;
+      }
 
-        <section>
-            <h3>Tips:</h3>
-            <ul>
-                <li>Plan your moves to avoid enemies and grab pizza efficiently.</li>
-                <li>Watch enemy patterns and adjust your strategy.</li>
-                <li>Use power-ups strategically to maximize your score.</li>
-            </ul>
+      function onReady(func) {
+        readyCallbacks.push(func);
+      }
 
-            <a
-                rel="Copyright Information"
-                href="https://github.com/SeanRiggs/HTML5-TMNT-Themed-browser-game/blob/master/TMNT_Game_Theme/Legal-README.md"
-                target="_blank"
-            >
-                Copyright Information
-            </a>
-        </section>
-    </div>
-</div>
+      window.Resources = {
+        load: load,
+        get: get,
+        onReady: onReady,
+        isReady: isReady
+      };
+    })();
+  </script>
 
-<!-- Hidden input + link for mobile “open keyboard” trick -->
-<input type="text" id="keyboard">
-<a class="keyboard-link" href="#">
-    click here to get keyboard (if you are on mobile)
-</a>
+  <!-- =========================================================
+       APP.JS - enemies, player, gem, heart, input
+  ========================================================== -->
+  <script>
+    var app = app || {};
 
-<!-- Game + UI scripts -->
-<script src="js/resources.js"></script>
-<script src="js/app.js"></script>
-<script src="js/engine.js"></script>
-<script src="js/script.js"></script>
+    (function () {
+      // Enemy constructor
+      app.Enemy = function (y) {
+        this.y = y;
+        this.randomStartPos();
+        this.sprite = "images/enemy-bug.png";
+        this.updateVelocityRandomizer();
+      };
 
+      app.Enemy.prototype.update = function () {
+        this.randomSpeed();
+        if (this.x > 600) {
+          this.newWave();
+        }
+      };
+
+      app.Enemy.prototype.newWave = function () {
+        this.randomStartPos();
+        this.updateVelocityRandomizer();
+      };
+
+      app.Enemy.prototype.randomSpeed = function () {
+        this.x = this.x + this.randomVelocity;
+      };
+
+      app.Enemy.prototype.updateVelocityRandomizer = function () {
+        this.randomVelocity = Math.random() * 5;
+      };
+
+      app.Enemy.prototype.randomStartPos = function () {
+        this.x = -(Math.random() * 400);
+      };
+
+      app.Enemy.prototype.render = function () {
+        app.ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+      };
+
+      // Player constructor
+      app.Player = function () {
+        this.life = 3;
+        this.score = 0;
+        this.x = 200;
+        this.y = 350;
+        this.sprite = "images/char-boy.png";
+      };
+
+      app.Player.prototype.renderText = function () {
+        app.ctx.fillStyle = "#DDD";
+        app.ctx.fillRect(0, 0, 510, 50);
+        app.ctx.font = "32px serif";
+        app.ctx.fillStyle = "white";
+        app.ctx.strokeStyle = "black";
+
+        app.ctx.fillText("Score: " + this.score, 10, 36, 200);
+        app.ctx.strokeText("Score: " + this.score, 10, 36, 200);
+
+        app.ctx.fillText("Life: " + this.life, 360, 36);
+        app.ctx.strokeText("Life: " + this.life, 360, 36);
+      };
+
+      app.Player.prototype.render = function () {
+        app.ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+      };
+
+      app.Player.prototype.handleInput = function (keyCode) {
+        if (keyCode === "up" && this.y > 0) {
+          this.y = this.y - app.GAME_CONFIG.TILE_HEIGHT;
+        }
+        if (keyCode === "down" && this.y < 400) {
+          this.y = this.y + app.GAME_CONFIG.TILE_HEIGHT;
+        }
+        if (keyCode === "right" && this.x < 400) {
+          this.x = this.x + app.GAME_CONFIG.TILE_WIDTH;
+        }
+        if (keyCode === "left" && this.x > 0) {
+          this.x = this.x - app.GAME_CONFIG.TILE_WIDTH;
+        }
+      };
+
+      // Gem constructor
+      app.Gem = function () {
+        this.y = 70;
+        this.x =
+          app.GAME_CONFIG.TILE_WIDTH * Math.floor(Math.random() * 5);
+        this.upgrade = 0;
+        this.gems = ["Gem Blue", "Gem Green", "Gem Orange", "Star"];
+        this.sprite = "images/" + this.gems[this.upgrade] + ".png";
+      };
+
+      app.Gem.prototype.update = function () {
+        var player = app.ACTORS.player;
+        var gem = app.ACTORS.gem;
+
+        if (
+          player.score === 5 ||
+          player.score === 10 ||
+          player.score === 15
+        ) {
+          gem.upgrade++;
+        }
+        this.sprite = "images/" + this.gems[this.upgrade] + ".png";
+        this.x =
+          app.GAME_CONFIG.TILE_WIDTH * Math.floor(Math.random() * 5);
+      };
+
+      app.Gem.prototype.render = function () {
+        app.ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+      };
+
+      // Heart constructor
+      app.Heart = function () {
+        this.y = 70;
+        this.notVisible = true;
+        this.sprite = "images/Heart.png";
+      };
+
+      app.Heart.prototype.update = function () {
+        var player = app.ACTORS.player;
+
+        if (
+          this.notVisible &&
+          (player.score % player.life) % 2 &&
+          player.score > player.life
+        ) {
+          this.notVisible = false;
+          this.x =
+            app.GAME_CONFIG.TILE_WIDTH * Math.floor(Math.random() * 5);
+        }
+      };
+
+      app.Heart.prototype.render = function () {
+        app.ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+      };
+
+      // Input handling
+      document.addEventListener("keyup", function (e) {
+        var allowedKeys = {
+          37: "left",
+          38: "up",
+          39: "right",
+          40: "down",
+          65: "left",
+          87: "up",
+          68: "right",
+          83: "down"
+        };
+
+        var dir = allowedKeys[e.keyCode];
+        if (dir && app.ACTORS && app.ACTORS.player) {
+          app.ACTORS.player.handleInput(dir);
+        }
+      });
+    })();
+  </script>
+
+  <!-- =========================================================
+       ENGINE.JS - game loop, collisions, rendering
+  ========================================================== -->
+  <script>
+    var app = app || {};
+
+    function between(x, min, max) {
+      return x >= min && x <= max;
+    }
+
+    (function (global) {
+      app.GAME_CONFIG = {
+        CANVAS_WIDTH: 505,
+        CANVAS_HEIGHT: 606,
+        TILE_HEIGHT: 70,
+        TILE_WIDTH: 100
+      };
+
+      app.ACTORS = {
+        player: new app.Player(),
+        allEnemies: [
+          new app.Enemy(70),
+          new app.Enemy(140),
+          new app.Enemy(210)
+        ],
+        gem: new app.Gem(),
+        heart: new app.Heart()
+      };
+
+      var doc = global.document;
+      var win = global.window;
+      var canvas = doc.createElement("canvas");
+      var ctx = canvas.getContext("2d");
+      var lastTime;
+      var requestAnimationFrameID;
+
+      app.ctx = ctx;
+
+      canvas.width = app.GAME_CONFIG.CANVAS_WIDTH;
+      canvas.height = app.GAME_CONFIG.CANVAS_HEIGHT;
+      doc.body.appendChild(canvas);
+
+      function main() {
+        var now = Date.now();
+        var dt = (now - lastTime) / 1000;
+
+        update(dt);
+        render();
+
+        lastTime = now;
+        requestAnimationFrameID = win.requestAnimationFrame(main);
+      }
+
+      function init() {
+        reset();
+        lastTime = Date.now();
+        main();
+      }
+
+      function update(dt) {
+        updateEntities(dt);
+        checkCollisions();
+      }
+
+      function checkCollisions() {
+        var allEnemies = app.ACTORS.allEnemies;
+        var player = app.ACTORS.player;
+        var heart = app.ACTORS.heart;
+        var gem = app.ACTORS.gem;
+
+        allEnemies.forEach(function (enemy) {
+          if (
+            between(player.x, enemy.x - 60, enemy.x + 60) &&
+            between(player.y, enemy.y - 10, enemy.y + 10)
+          ) {
+            player.life--;
+            init();
+          }
+        });
+
+        if (
+          between(player.x, gem.x - 60, gem.x + 60) &&
+          between(player.y, gem.y - 10, gem.y + 10)
+        ) {
+          player.score++;
+          gem.update();
+          init();
+        }
+
+        if (
+          between(player.x, heart.x - 60, heart.x + 60) &&
+          between(player.y, heart.y - 10, heart.y + 10)
+        ) {
+          player.life++;
+          heart.notVisible = true;
+          reset();
+        }
+      }
+
+      function updateEntities(dt) {
+        var allEnemies = app.ACTORS.allEnemies;
+        var heart = app.ACTORS.heart;
+
+        allEnemies.forEach(function (enemy) {
+          enemy.update(dt);
+        });
+        heart.update();
+      }
+
+      function render() {
+        var rowImages = [
+          "images/water-block.png",
+          "images/stone-block.png",
+          "images/stone-block.png",
+          "images/stone-block.png",
+          "images/grass-block.png",
+          "images/grass-block.png"
+        ];
+        var numRows = 6;
+        var numCols = 5;
+        var row, col;
+
+        for (row = 0; row < numRows; row++) {
+          for (col = 0; col < numCols; col++) {
+            ctx.drawImage(
+              Resources.get(rowImages[row]),
+              col * 101,
+              row * 83
+            );
+          }
+        }
+
+        renderEntities();
+      }
+
+      function renderEntities() {
+        var allEnemies = app.ACTORS.allEnemies;
+        var player = app.ACTORS.player;
+        var heart = app.ACTORS.heart;
+        var gem = app.ACTORS.gem;
+
+        gem.render();
+        heart.render();
+
+        allEnemies.forEach(function (enemy) {
+          enemy.render();
+        });
+
+        player.renderText();
+        player.render();
+      }
+
+      function reset() {
+        var allEnemies = app.ACTORS.allEnemies;
+        var player = app.ACTORS.player;
+        var heart = app.ACTORS.heart;
+
+        player.x = 200;
+        player.y = 350;
+        heart.x = -100;
+
+        allEnemies.forEach(function (enemy) {
+          enemy.newWave();
+        });
+
+        win.cancelAnimationFrame(requestAnimationFrameID);
+      }
+
+      Resources.load([
+        "images/stone-block.png",
+        "images/water-block.png",
+        "images/grass-block.png",
+        "images/enemy-bug.png",
+        "images/char-boy.png",
+        "images/Gem Blue.png",
+        "images/Gem Green.png",
+        "images/Gem Orange.png",
+        "images/Star.png",
+        "images/Heart.png"
+      ]);
+      Resources.onReady(init);
+    })(this);
+  </script>
+
+  <!-- =========================================================
+       MOBILE KEYBOARD HELPER
+  ========================================================== -->
+  <script>
+    (function () {
+      var keyboardElm =
+        document.getElementsByClassName("keyboard-link")[0];
+
+      function showKeyboardLink() {
+        if (window.innerWidth < 700) {
+          keyboardElm.style.display = "block";
+        } else {
+          keyboardElm.style.display = "none";
+        }
+      }
+
+      window.addEventListener("resize", showKeyboardLink);
+      showKeyboardLink();
+    })();
+  </script>
 </body>
 </html>
