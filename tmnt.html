@@ -181,157 +181,156 @@
     var app = app || {};
 
     // Enemy constructor
-app.Enemy = function (y) {
-  this.y = y;
-  this.randomStartPos();
-  this.sprite = "images/fsoldier1.png"; // NEW TMNT SPRITE
-  this.updateVelocityRandomizer();
-};
+    app.Enemy = function (y) {
+      this.y = y;
+      this.randomStartPos();
+      this.sprite = "images/fsoldier1.png"; // TMNT foot soldier
+      this.updateVelocityRandomizer();
+    };
 
-      app.Enemy.prototype.update = function () {
-        this.randomSpeed();
-        if (this.x > 600) {
-          this.newWave();
-        }
-      };
+    app.Enemy.prototype.update = function (dt) {
+      this.randomSpeed();
+      if (this.x > 600) {
+        this.newWave();
+      }
+    };
 
-      app.Enemy.prototype.newWave = function () {
-        this.randomStartPos();
-        this.updateVelocityRandomizer();
-      };
+    app.Enemy.prototype.newWave = function () {
+      this.randomStartPos();
+      this.updateVelocityRandomizer();
+    };
 
-      app.Enemy.prototype.randomSpeed = function () {
-        this.x = this.x + this.randomVelocity;
-      };
+    app.Enemy.prototype.randomSpeed = function () {
+      this.x = this.x + this.randomVelocity;
+    };
 
-      app.Enemy.prototype.updateVelocityRandomizer = function () {
-        this.randomVelocity = Math.random() * 5;
-      };
+    app.Enemy.prototype.updateVelocityRandomizer = function () {
+      this.randomVelocity = Math.random() * 5;
+    };
 
-      app.Enemy.prototype.randomStartPos = function () {
-        this.x = -(Math.random() * 400);
-      };
+    app.Enemy.prototype.randomStartPos = function () {
+      this.x = -(Math.random() * 400);
+    };
 
-      app.Enemy.prototype.render = function () {
-        app.ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
-      };
+    app.Enemy.prototype.render = function () {
+      app.ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+    };
 
-      // Player constructor
-app.Player = function () {
-  this.life = 3;
-  this.score = 0;
-  this.x = 200;
-  this.y = 350;
-  this.sprite = "images/leo-ico.png"; // NEW TMNT SPRITE
-};
+    // Player constructor
+    app.Player = function () {
+      this.life = 3;
+      this.score = 0;
+      this.x = 200;
+      this.y = 350;
+      this.sprite = "images/leo-ico.png"; // TMNT Leo
+    };
 
-      app.Player.prototype.renderText = function () {
-        app.ctx.fillStyle = "#DDD";
-        app.ctx.fillRect(0, 0, 510, 50);
-        app.ctx.font = "32px serif";
-        app.ctx.fillStyle = "white";
-        app.ctx.strokeStyle = "black";
+    app.Player.prototype.renderText = function () {
+      app.ctx.fillStyle = "#DDD";
+      app.ctx.fillRect(0, 0, 510, 50);
+      app.ctx.font = "32px serif";
+      app.ctx.fillStyle = "white";
+      app.ctx.strokeStyle = "black";
 
-        app.ctx.fillText("Score: " + this.score, 10, 36, 200);
-        app.ctx.strokeText("Score: " + this.score, 10, 36, 200);
+      app.ctx.fillText("Score: " + this.score, 10, 36, 200);
+      app.ctx.strokeText("Score: " + this.score, 10, 36, 200);
 
-        app.ctx.fillText("Life: " + this.life, 360, 36);
-        app.ctx.strokeText("Life: " + this.life, 360, 36);
-      };
+      app.ctx.fillText("Life: " + this.life, 360, 36);
+      app.ctx.strokeText("Life: " + this.life, 360, 36);
+    };
 
-      app.Player.prototype.render = function () {
-        app.ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
-      };
+    app.Player.prototype.render = function () {
+      app.ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+    };
 
-      app.Player.prototype.handleInput = function (keyCode) {
-        if (keyCode === "up" && this.y > 0) {
-          this.y = this.y - app.GAME_CONFIG.TILE_HEIGHT;
-        }
-        if (keyCode === "down" && this.y < 400) {
-          this.y = this.y + app.GAME_CONFIG.TILE_HEIGHT;
-        }
-        if (keyCode === "right" && this.x < 400) {
-          this.x = this.x + app.GAME_CONFIG.TILE_WIDTH;
-        }
-        if (keyCode === "left" && this.x > 0) {
-          this.x = this.x - app.GAME_CONFIG.TILE_WIDTH;
-        }
-      };
+    app.Player.prototype.handleInput = function (keyCode) {
+      if (keyCode === "up" && this.y > 0) {
+        this.y = this.y - app.GAME_CONFIG.TILE_HEIGHT;
+      }
+      if (keyCode === "down" && this.y < 400) {
+        this.y = this.y + app.GAME_CONFIG.TILE_HEIGHT;
+      }
+      if (keyCode === "right" && this.x < 400) {
+        this.x = this.x + app.GAME_CONFIG.TILE_WIDTH;
+      }
+      if (keyCode === "left" && this.x > 0) {
+        this.x = this.x - app.GAME_CONFIG.TILE_WIDTH;
+      }
+    };
 
-      // Gem constructor
-      app.Gem = function () {
-        this.y = 70;
+    // Gem constructor
+    app.Gem = function () {
+      this.y = 70;
+      this.x =
+        app.GAME_CONFIG.TILE_WIDTH * Math.floor(Math.random() * 5);
+      this.upgrade = 0;
+      this.gems = ["Gem Blue", "Gem Green", "Gem Orange", "Star"];
+      this.sprite = "images/" + this.gems[this.upgrade] + ".png";
+    };
+
+    app.Gem.prototype.update = function () {
+      var player = app.ACTORS.player;
+      var gem = app.ACTORS.gem;
+
+      if (
+        player.score === 5 ||
+        player.score === 10 ||
+        player.score === 15
+      ) {
+        gem.upgrade++;
+      }
+      this.sprite = "images/" + this.gems[this.upgrade] + ".png";
+      this.x =
+        app.GAME_CONFIG.TILE_WIDTH * Math.floor(Math.random() * 5);
+    };
+
+    app.Gem.prototype.render = function () {
+      app.ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+    };
+
+    // Heart constructor
+    app.Heart = function () {
+      this.y = 70;
+      this.notVisible = true;
+      this.sprite = "images/Heart.png";
+    };
+
+    app.Heart.prototype.update = function () {
+      var player = app.ACTORS.player;
+
+      if (
+        this.notVisible &&
+        (player.score % player.life) % 2 &&
+        player.score > player.life
+      ) {
+        this.notVisible = false;
         this.x =
           app.GAME_CONFIG.TILE_WIDTH * Math.floor(Math.random() * 5);
-        this.upgrade = 0;
-        this.gems = ["Gem Blue", "Gem Green", "Gem Orange", "Star"];
-        this.sprite = "images/" + this.gems[this.upgrade] + ".png";
+      }
+    };
+
+    app.Heart.prototype.render = function () {
+      app.ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+    };
+
+    // Input handling
+    document.addEventListener("keyup", function (e) {
+      var allowedKeys = {
+        37: "left",
+        38: "up",
+        39: "right",
+        40: "down",
+        65: "left",
+        87: "up",
+        68: "right",
+        83: "down"
       };
 
-      app.Gem.prototype.update = function () {
-        var player = app.ACTORS.player;
-        var gem = app.ACTORS.gem;
-
-        if (
-          player.score === 5 ||
-          player.score === 10 ||
-          player.score === 15
-        ) {
-          gem.upgrade++;
-        }
-        this.sprite = "images/" + this.gems[this.upgrade] + ".png";
-        this.x =
-          app.GAME_CONFIG.TILE_WIDTH * Math.floor(Math.random() * 5);
-      };
-
-      app.Gem.prototype.render = function () {
-        app.ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
-      };
-
-      // Heart constructor
-      app.Heart = function () {
-        this.y = 70;
-        this.notVisible = true;
-        this.sprite = "images/Heart.png";
-      };
-
-      app.Heart.prototype.update = function () {
-        var player = app.ACTORS.player;
-
-        if (
-          this.notVisible &&
-          (player.score % player.life) % 2 &&
-          player.score > player.life
-        ) {
-          this.notVisible = false;
-          this.x =
-            app.GAME_CONFIG.TILE_WIDTH * Math.floor(Math.random() * 5);
-        }
-      };
-
-      app.Heart.prototype.render = function () {
-        app.ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
-      };
-
-      // Input handling
-      document.addEventListener("keyup", function (e) {
-        var allowedKeys = {
-          37: "left",
-          38: "up",
-          39: "right",
-          40: "down",
-          65: "left",
-          87: "up",
-          68: "right",
-          83: "down"
-        };
-
-        var dir = allowedKeys[e.keyCode];
-        if (dir && app.ACTORS && app.ACTORS.player) {
-          app.ACTORS.player.handleInput(dir);
-        }
-      });
-    })();
+      var dir = allowedKeys[e.keyCode];
+      if (dir && app.ACTORS && app.ACTORS.player) {
+        app.ACTORS.player.handleInput(dir);
+      }
+    });
   </script>
 
   <!-- =========================================================
@@ -503,17 +502,17 @@ app.Player = function () {
       }
 
       Resources.load([
-  "images/stone-block.png",
-  "images/water-block.png",
-  "images/grass-block.png",
-  "images/fsoldier1.png",  // NEW
-  "images/leo-ico.png",    // NEW
-  "images/Gem Blue.png",
-  "images/Gem Green.png",
-  "images/Gem Orange.png",
-  "images/Star.png",
-  "images/Heart.png"
-]);
+        "images/stone-block.png",
+        "images/water-block.png",
+        "images/grass-block.png",
+        "images/fsoldier1.png",
+        "images/leo-ico.png",
+        "images/Gem Blue.png",
+        "images/Gem Green.png",
+        "images/Gem Orange.png",
+        "images/Star.png",
+        "images/Heart.png"
+      ]);
 
       Resources.onReady(init);
     })(this);
