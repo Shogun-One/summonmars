@@ -259,11 +259,10 @@
         this.level = Math.max(1, score);
       },
       getDifficultyTier: function () {
-        // Difficulty bumps every 5 levels:
-        // 1–5 => tier 0, 6–10 => tier 1, 11–15 => tier 2, etc
-        return Math.floor((this.level - 1) / 3);
-      }
-    };
+  // Difficulty bumps every 5 levels now:
+  // 1–5 => tier 0, 6–10 => tier 1, 11–15 => tier 2, etc.
+  return Math.floor((this.level - 1) / 5);
+}
 
     // Enemies we can use as traffic hazards (ALL legit filenames)
     app.ENEMY_SPRITES = [
@@ -319,12 +318,19 @@
     };
 
     app.Enemy.prototype.chooseSprite = function () {
-      // Unlock more enemies as difficulty goes up
-      var tier = app.GameState.getDifficultyTier();
-      var unlockedCount = Math.min(app.ENEMY_SPRITES.length, 1 + tier);
-      var index = Math.floor(Math.random() * unlockedCount);
-      this.sprite = app.ENEMY_SPRITES[index];
-    };
+  var level = app.GameState.level;
+
+  // Enemies unlocked in batches every 3 levels
+  // Level 1–3  → first 3 enemies
+  // Level 4–6  → first 5 enemies
+  // Level 7–9  → first 7 enemies
+  // Level 10–12 → first 9 enemies
+  // Level 13+  → all enemies unlocked
+  var batchSize = Math.min(app.ENEMY_SPRITES.length, 3 + Math.floor(level / 3) * 2);
+
+  var index = Math.floor(Math.random() * batchSize);
+  this.sprite = app.ENEMY_SPRITES[index];
+};
 
     app.Enemy.prototype.render = function () {
       app.ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
