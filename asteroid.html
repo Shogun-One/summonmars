@@ -461,6 +461,33 @@
       .security-banner{ bottom:10px; font-size:.7rem; }
       h1{ font-size:1.5rem; }
     }
+
+    /* --- FOOTER POSITIONING --- */
+footer {
+  position: fixed;
+  bottom: 48px; /* just above red security banner */
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  color: rgba(255,255,255,0.85);
+  z-index: 6;
+  pointer-events: none;
+}
+
+.visit-counter {
+  position: fixed;
+  bottom: 8px;
+  right: 14px;
+  font-size: 0.6rem;
+  opacity: 0.22;
+  letter-spacing: 0.05em;
+  color: rgba(255,255,255,0.6);
+  pointer-events: none;
+  z-index: 6;
+}
+    
   </style>
 </head>
 
