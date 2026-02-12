@@ -45,7 +45,7 @@
       pointer-events:none;
     }
 
-    /* NEW: impact FX overlay (broken glass + flash) */
+    /* impact FX overlay (broken glass + flash) */
     #impactFx{
       position:fixed;
       inset:0;
@@ -59,9 +59,7 @@
       background-size:cover;
       filter: drop-shadow(0 0 18px rgba(255,59,130,.12));
     }
-    #impactFx.active{
-      opacity:1;
-    }
+    #impactFx.active{ opacity:1; }
     #impactFx.glass{
       background-image:
         radial-gradient(circle at 50% 40%, rgba(255,255,255,.10), rgba(0,0,0,0) 55%),
@@ -106,7 +104,6 @@
       max-width:420px;
     }
 
-    /* MOVED: instructions now directly under subtitle */
     .controls{
       font-size:.82rem;
       opacity:.9;
@@ -370,7 +367,7 @@
     }
 
     button#reset-btn{
-      margin-top:.0;
+      margin-top:0;
       padding:.4rem .9rem;
       border-radius:999px;
       border:none;
@@ -543,9 +540,10 @@
       bottom: calc(12px + env(safe-area-inset-bottom));
     }
 
+    /* consolidated (was duplicated) */
     @media (max-width:520px){
       .wrapper{ padding:.6rem; gap:.4rem; }
-      h1{ font-size:1.35rem; }
+      h1{ font-size:1.5rem; } /* kept the larger one from your later duplicate */
       .subtitle{ font-size:.78rem; }
       .controls{ font-size:.78rem; }
 
@@ -562,7 +560,7 @@
       .mini-bubble .label{ bottom:40px; }
       .music-btn .label{ bottom:60px; }
       .difficulty-btn .label{ bottom:60px; }
-      .security-banner{ font-size:.7rem; }
+      .security-banner{ bottom:10px; font-size:.7rem; }
     }
 
     @media (max-height:740px){
@@ -582,24 +580,11 @@
         max-height: calc(100dvh - 160px);
       }
     }
-
-    @media (max-width:520px){
-      .music-btn{ bottom:12px; right:12px; width:52px; height:52px; }
-      .difficulty-btn{ bottom:12px; left:12px; width:52px; height:52px; }
-      .center-controls{ bottom:12px; width:52px; height:52px; }
-      .mini-bubble{ width:33px; height:33px; }
-      .mini-bubble .label{ bottom:40px; }
-      .music-btn .label{ bottom:60px; }
-      .difficulty-btn .label{ bottom:60px; }
-      .security-banner{ bottom:10px; font-size:.7rem; }
-      h1{ font-size:1.5rem; }
-    }
   </style>
 </head>
 
 <body>
   <canvas id="bgfx" aria-hidden="true"></canvas>
-  <!-- NEW: broken glass / flash overlay -->
   <div id="impactFx" aria-hidden="true"></div>
 
   <div class="security-banner">Protected From Bad Vibes</div>
@@ -637,7 +622,6 @@
       <div class="pill">Hits: <span id="hits">0</span>/<span id="hitsMax">5</span></div>
       <div class="pill">To Next: <span id="toNext">0</span>/<span id="toNextMax">10</span></div>
 
-      <!-- NEW: boss kills centered between To Next and Reset (order does the trick) -->
       <div class="pill">Boss Kills: <span id="bossKills">0</span></div>
 
       <div class="pill pill-reset">
@@ -713,17 +697,17 @@
           return;
         }
 
-        // --- IMPORTANT: disable devtools/zoom detection on phones/tablets ---
+        // disable devtools/zoom detection on phones/tablets
         const isMobileLike =
           window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
-
-        if (isMobileLike) {
-          return;
-        }
+        if (isMobileLike) return;
 
         const securityOverlay = document.getElementById('securityOverlay');
         const securityReloadBtn = document.getElementById('securityReloadBtn');
         const securityDismissBtn = document.getElementById('securityDismissBtn');
+
+        // Guard (prevents hard crashes if any IDs are missing)
+        if (!securityOverlay || !securityReloadBtn || !securityDismissBtn) return;
 
         const nedryAudio = new Audio('jurrasicpassword.mp3');
         let devtoolsOpen = false;
@@ -811,7 +795,6 @@
     const bg = document.getElementById('bgfx');
     const bgc = bg.getContext('2d', { alpha: true });
 
-    // NEW: outer-background impact overlay controller
     const impactFxEl = document.getElementById('impactFx');
     let impactTimeout = null;
 
@@ -987,7 +970,7 @@
 
     const pauseBtn = document.getElementById('pauseBtn');
     const joystickEl = document.getElementById('joystick');
-    const stickEl = joystickEl.querySelector('.stick');
+    const stickEl = joystickEl ? joystickEl.querySelector('.stick') : null;
 
     const width = canvas.width;
     const height = canvas.height;
@@ -997,19 +980,18 @@
     const music = new Audio('asteroid-track.mp3');
 
     // Boss incoming sting
-    const bossSting = new Audio('boss-sting.mp3'); // <-- upload this file next to asteroid-track.mp3
+    const bossSting = new Audio('boss-sting.mp3');
     bossSting.preload = 'auto';
     bossSting.volume = 0.85;
 
     // Micro screen shake (canvas)
-    let shakeT = 0;          // ms remaining
-    let shakeMag = 0;        // px max
+    let shakeT = 0;
+    let shakeMag = 0;
     function addShake(mag = 2, ms = 160){
       shakeMag = Math.max(shakeMag, mag);
       shakeT = Math.max(shakeT, ms);
     }
 
-    // Ensure sting only plays once per "INCOMING BOSS" event
     let bossIncomingDidSting = false;
 
     window.__marsMusic = music;
@@ -1074,7 +1056,6 @@
       setDifficultyUI();
       softRestart();
     }
-
     difficultyBtn.addEventListener('click', (e) => { e.preventDefault(); cycleDifficulty(); });
 
     // Game state
@@ -1092,7 +1073,7 @@
     const shipImg = new Image();
     shipImg.decoding = "async";
     shipImg.loading = "eager";
-    shipImg.src = "images/spaceship.png"; // YOU will upload this
+    shipImg.src = "images/spaceship.png";
     let shipImgReady = false;
     shipImg.onload = () => { shipImgReady = true; };
     shipImg.onerror = () => { shipImgReady = false; };
@@ -1142,10 +1123,7 @@
     let preStartTimer = 0;
     const PRESTART_MS = 2200;
 
-    // NEW: level-up toast timer (no countdown on level ups)
     let levelUpTimer = 0;
-
-    // NEW: boss incoming toast timer (no pause)
     let bossIncomingTimer = 0;
 
     let lastTime = 0;
@@ -1164,11 +1142,12 @@
       img.src = "images/" + fn;
       return img;
     });
+
     function getBossImageForLevel(lvl){
-  const BOSS_INTERVAL = 5;
-  const idx = clamp(Math.floor(lvl / BOSS_INTERVAL) - 1, 0, 9);
-  return bossImgs[idx];
-}
+      const BOSS_INTERVAL = 5;
+      const idx = clamp(Math.floor(lvl / BOSS_INTERVAL) - 1, 0, 9);
+      return bossImgs[idx];
+    }
     function pickRandomBossImage(){
       return bossImgs[Math.floor(Math.random()*bossImgs.length)];
     }
@@ -1197,32 +1176,31 @@
     ];
 
     function difficulty(){
-  const l = level;
-  const m = diffMult();
+      const l = level;
+      const m = diffMult();
 
-  // Slower ramp (less "sudden pain")
-  const baseAstTarget = 4 + Math.floor(l * 0.20);
-  const baseEnemyCap  = 1 + Math.floor(l * 0.085);
-  const baseSpawnCh   = 0.0038 + l * 0.00014;
+      const baseAstTarget = 4 + Math.floor(l * 0.20);
+      const baseEnemyCap  = 1 + Math.floor(l * 0.085);
+      const baseSpawnCh   = 0.0038 + l * 0.00014;
 
-  return {
-    asteroidTarget: clamp(Math.floor(baseAstTarget * m), 3, 20),
-    asteroidSpeedMin: (0.70 + l*0.020) * (0.92 + m*0.18),
-    asteroidSpeedMax: (1.55 + l*0.038) * (0.92 + m*0.18),
+      return {
+        asteroidTarget: clamp(Math.floor(baseAstTarget * m), 3, 20),
+        asteroidSpeedMin: (0.70 + l*0.020) * (0.92 + m*0.18),
+        asteroidSpeedMax: (1.55 + l*0.038) * (0.92 + m*0.18),
 
-    enemyCap: clamp(Math.floor(baseEnemyCap * m), 1, 9),
-    enemySpawnChance: clamp(baseSpawnCh * m, 0.0035, 0.016),
+        enemyCap: clamp(Math.floor(baseEnemyCap * m), 1, 9),
+        enemySpawnChance: clamp(baseSpawnCh * m, 0.0035, 0.016),
 
-    enemyBulletSpeed: (3.0 + l*0.030) * (0.90 + m*0.22),
-    enemyShootMin: clamp((1180 - l*10) / (0.88 + m*0.24), 560, 1400),
-    enemyShootMax: clamp((1750 - l*13) / (0.88 + m*0.24), 840, 1900),
+        enemyBulletSpeed: (3.0 + l*0.030) * (0.90 + m*0.22),
+        enemyShootMin: clamp((1180 - l*10) / (0.88 + m*0.24), 560, 1400),
+        enemyShootMax: clamp((1750 - l*13) / (0.88 + m*0.24), 840, 1900),
 
-    shouterChance: clamp(0.22 + l*0.0020 + (m-1)*0.10, 0.18, 0.52),
+        shouterChance: clamp(0.22 + l*0.0020 + (m-1)*0.10, 0.18, 0.52),
 
-    bossBulletSpeed: (3.25 + l*0.026) * (0.90 + m*0.24),
-    bossHpMult: clamp(0.92 + (m-1)*0.28, 0.85, 1.35)
-  };
-}
+        bossBulletSpeed: (3.25 + l*0.026) * (0.90 + m*0.24),
+        bossHpMult: clamp(0.92 + (m-1)*0.28, 0.85, 1.35)
+      };
+    }
 
     function spawnEnemy(){
       const edge = Math.floor(Math.random()*4);
@@ -1303,7 +1281,6 @@
       const d = difficulty();
       const speed = d.bossBulletSpeed;
 
-      // NEW: boss smack talk randomly while attacking
       if(Math.random() < 0.33){
         b.taunt = BOSS_TAUNTS[Math.floor(Math.random()*BOSS_TAUNTS.length)];
         b.tauntLife = rand(650, 1100);
@@ -1397,7 +1374,6 @@
       }
     }
 
-    // NEW: beginLevel supports "levelUp" mode (no countdown)
     function beginLevel(lvl, opts = {}){
       level = lvl;
       levelEl.textContent = level;
@@ -1405,7 +1381,6 @@
       toNextEl.textContent = killsThisLevel;
 
       const d = difficulty();
-
       while(asteroids.length < d.asteroidTarget) spawnAsteroid(true);
       while(asteroids.length > d.asteroidTarget) asteroids.pop();
 
@@ -1413,20 +1388,17 @@
       while(enemies.length < minEnemies) spawnEnemy();
 
       const BOSS_INTERVAL = 5;
-
-if (level % BOSS_INTERVAL === 0) {
-  spawnBossPackForLevel(level);
-  bossIncomingTimer = 1100;
-  bossIncomingDidSting = false; // reset so sting plays every boss
-} else {
-  bosses = [];
-}
+      if (level % BOSS_INTERVAL === 0) {
+        spawnBossPackForLevel(level);
+        bossIncomingTimer = 1100;
+        bossIncomingDidSting = false;
+      } else {
+        bosses = [];
+      }
 
       if(opts && opts.levelUp){
-        // NO countdown pause on level up
         preStartTimer = 0;
         running = true;
-        // Show LEVEL UP toast
         levelUpTimer = 900;
       } else {
         startGracePeriod();
@@ -1514,7 +1486,6 @@ if (level % BOSS_INTERVAL === 0) {
 
     document.addEventListener('keydown', (e) => {
       keysDown[e.key] = true;
-
       if(e.key === 'p' || e.key === 'P'){
         e.preventDefault();
         if(!gameOver) setPaused(!paused);
@@ -1534,6 +1505,7 @@ if (level % BOSS_INTERVAL === 0) {
     let joyTapStartY = 0;
 
     function setStickVisual(nx, ny){
+      if(!stickEl) return;
       const max = 10;
       stickEl.style.transform = `translate(calc(-50% + ${nx*max}px), calc(-50% + ${ny*max}px))`;
     }
@@ -1617,9 +1589,7 @@ if (level % BOSS_INTERVAL === 0) {
     // =========================
     // Shooting (AUTO FIRE)
     // =========================
-    function forwardAngle(){
-      return ship.angle - Math.PI/2;
-    }
+    function forwardAngle(){ return ship.angle - Math.PI/2; }
 
     function pushBullet(px,py, ang, speed, life=1500, r=3){
       bullets.push({ x:px, y:py, vx: Math.cos(ang)*speed, vy: Math.sin(ang)*speed, life, r });
@@ -1687,7 +1657,6 @@ if (level % BOSS_INTERVAL === 0) {
       if(ship.invuln > 0) return;
       if(ship.exploding > 0) return;
 
-      // NEW: broken glass effect on outer background every hit
       triggerImpactGlass(1200);
 
       hits++;
@@ -1701,7 +1670,6 @@ if (level % BOSS_INTERVAL === 0) {
         ship.exploding = 700;
         spawnExplosion(ship.x, ship.y, 1.35);
 
-        // NEW: brief outer flash on explosion
         triggerBoomFlash(160);
 
         hits = 0;
@@ -1852,7 +1820,6 @@ if (level % BOSS_INTERVAL === 0) {
       if(levelUpTimer > 0) levelUpTimer -= dt;
       if(levelUpTimer < 0) levelUpTimer = 0;
 
-      // decay screen shake
       if (shakeT > 0) {
         shakeT -= dt;
         if (shakeT <= 0) {
@@ -2006,7 +1973,7 @@ if (level % BOSS_INTERVAL === 0) {
       updatePickups(dt);
       updateParticles(dt);
 
-      // CHANGED: Pickups are collected by flying over them (ship collision), not by shooting
+      // Pickups are collected by flying over them (ship collision)
       for(let i=pickups.length-1;i>=0;i--){
         const p = pickups[i];
         if(ship.exploding === 0 && Math.hypot(ship.x - p.x, ship.y - p.y) < ship.radius + p.r){
@@ -2078,7 +2045,6 @@ if (level % BOSS_INTERVAL === 0) {
               bosses.splice(i,1);
               awardScore(250 + Math.floor(level*8));
 
-              // NEW: count boss kill when the pack is fully defeated
               if(bosses.length === 0){
                 bossKills++;
                 bossKillsEl.textContent = bossKills;
@@ -2090,7 +2056,6 @@ if (level % BOSS_INTERVAL === 0) {
         }
       }
 
-      // Enemies shooting you SHOULD hurt you (already handled here)
       for(let i=enemyBullets.length-1;i>=0;i--){
         const eb = enemyBullets[i];
         if(ship.exploding === 0 && Math.hypot(eb.x - ship.x, eb.y - ship.y) < ship.radius + eb.r){
@@ -2145,169 +2110,158 @@ if (level % BOSS_INTERVAL === 0) {
     }
 
     function drawShip(){
-  if (ship.exploding > 0) return;
+      if (ship.exploding > 0) return;
 
-  ctx.save();
-  ctx.translate(ship.x, ship.y);
-  ctx.rotate(ship.angle || 0);
+      ctx.save();
+      ctx.translate(ship.x, ship.y);
+      ctx.rotate(ship.angle || 0);
 
-  const glow = ctx.createRadialGradient(0, 0, 4, 0, 0, ship.radius + 18);
-  glow.addColorStop(0, 'rgba(255,255,255,0.55)');
-  glow.addColorStop(0.28, 'rgba(255,59,130,0.45)');
-  glow.addColorStop(1, 'rgba(10,0,20,0)');
-  ctx.fillStyle = glow;
-  ctx.beginPath();
-  ctx.arc(0, 0, ship.radius + 18, 0, Math.PI * 2);
-  ctx.fill();
+      const glow = ctx.createRadialGradient(0, 0, 4, 0, 0, ship.radius + 18);
+      glow.addColorStop(0, 'rgba(255,255,255,0.55)');
+      glow.addColorStop(0.28, 'rgba(255,59,130,0.45)');
+      glow.addColorStop(1, 'rgba(10,0,20,0)');
+      ctx.fillStyle = glow;
+      ctx.beginPath();
+      ctx.arc(0, 0, ship.radius + 18, 0, Math.PI * 2);
+      ctx.fill();
 
-  if (ship.invuln > 0) {
-    const pulse = 0.35 + 0.25 * Math.sin(performance.now() / 90);
-    ctx.strokeStyle = `rgba(255,231,255,${pulse})`;
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.arc(0, 0, ship.radius + 6, 0, Math.PI * 2);
-    ctx.stroke();
-  }
+      if (ship.invuln > 0) {
+        const pulse = 0.35 + 0.25 * Math.sin(performance.now() / 90);
+        ctx.strokeStyle = `rgba(255,231,255,${pulse})`;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(0, 0, ship.radius + 6, 0, Math.PI * 2);
+        ctx.stroke();
+      }
 
-  if (shipImgReady && shipImg.naturalWidth > 0) {
-    const s = ship.radius * 3.0;
-    ctx.globalAlpha = 0.98;
-    ctx.drawImage(shipImg, -s/2, -s/2, s, s);
-    ctx.globalAlpha = 1;
-  } else {
-    const bodyGrad = ctx.createLinearGradient(0, -ship.radius, 0, ship.radius);
-    bodyGrad.addColorStop(0, 'rgba(255,255,255,0.98)');
-    bodyGrad.addColorStop(1, 'rgba(230,200,255,0.78)');
-    ctx.fillStyle = bodyGrad;
+      if (shipImgReady && shipImg.naturalWidth > 0) {
+        const s = ship.radius * 3.0;
+        ctx.globalAlpha = 0.98;
+        ctx.drawImage(shipImg, -s/2, -s/2, s, s);
+        ctx.globalAlpha = 1;
+      } else {
+        const bodyGrad = ctx.createLinearGradient(0, -ship.radius, 0, ship.radius);
+        bodyGrad.addColorStop(0, 'rgba(255,255,255,0.98)');
+        bodyGrad.addColorStop(1, 'rgba(230,200,255,0.78)');
+        ctx.fillStyle = bodyGrad;
 
-    ctx.beginPath();
-    ctx.moveTo(0, -ship.radius * 1.15);
-    ctx.quadraticCurveTo(ship.radius * 0.95, 0, 0, ship.radius * 1.25);
-    ctx.quadraticCurveTo(-ship.radius * 0.95, 0, 0, -ship.radius * 1.15);
-    ctx.closePath();
-    ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(0, -ship.radius * 1.15);
+        ctx.quadraticCurveTo(ship.radius * 0.95, 0, 0, ship.radius * 1.25);
+        ctx.quadraticCurveTo(-ship.radius * 0.95, 0, 0, -ship.radius * 1.15);
+        ctx.closePath();
+        ctx.fill();
 
-    ctx.fillStyle = 'rgba(138,43,226,0.55)';
-    ctx.strokeStyle = 'rgba(255,231,255,0.55)';
-    ctx.lineWidth = 1.5;
-    ctx.beginPath();
-    ctx.ellipse(0, -ship.radius * 0.22, ship.radius * 0.32, ship.radius * 0.42, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.stroke();
-  }
+        ctx.fillStyle = 'rgba(138,43,226,0.55)';
+        ctx.strokeStyle = 'rgba(255,231,255,0.55)';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.ellipse(0, -ship.radius * 0.22, ship.radius * 0.32, ship.radius * 0.42, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+      }
 
-  ctx.restore();
-}
+      ctx.restore();
+    }
 
     function drawAsteroids(){
-  for (const a of asteroids) {
+      for (const a of asteroids) {
+        if (!a._shape) {
+          const pts = [];
+          const n = Math.floor(9 + Math.random() * 6);
+          for (let i = 0; i < n; i++) {
+            const t = (i / n) * Math.PI * 2;
+            const rr = a.radius * (0.72 + Math.random() * 0.38);
+            pts.push({ x: Math.cos(t) * rr, y: Math.sin(t) * rr });
+          }
+          a._shape = pts;
+        }
 
-    // --- one-time per-asteroid setup (stable, no flicker) ---
-    if (!a._shape) {
-      const pts = [];
-      const n = Math.floor(9 + Math.random() * 6); // 9–14 points
-      for (let i = 0; i < n; i++) {
-        const t = (i / n) * Math.PI * 2;
-        const rr = a.radius * (0.72 + Math.random() * 0.38);
-        pts.push({ x: Math.cos(t) * rr, y: Math.sin(t) * rr });
+        if (a._rot == null) a._rot = Math.random() * Math.PI * 2;
+        if (a._spin == null) a._spin = (Math.random() * 2 - 1) * 0.0035;
+        if (a._tone == null) a._tone = 55 + Math.floor(Math.random() * 35);
+        if (!a._veins) a._veins = Array.from({ length: 5 }, () => Math.random() * Math.PI * 2);
+
+        if (!a._specks) {
+          a._specks = Array.from({ length: 14 }, () => ({
+            x: (Math.random() - 0.5) * a.radius * 1.15,
+            y: (Math.random() - 0.5) * a.radius * 1.15,
+            r: 0.6 + Math.random() * 1.6
+          }));
+        }
+
+        ctx.save();
+        ctx.translate(a.x, a.y);
+
+        a._rot += a._spin;
+        ctx.rotate(a._rot);
+
+        const s = a._shape;
+
+        const tone = a._tone;
+        const baseGrad = ctx.createRadialGradient(
+          -a.radius * 0.25, -a.radius * 0.25, a.radius * 0.18,
+          0, 0, a.radius * 1.18
+        );
+        baseGrad.addColorStop(0, `rgba(${tone+35},${tone+18},${tone+18},0.98)`);
+        baseGrad.addColorStop(0.45, `rgba(${tone-8},${tone-22},${tone-22},0.98)`);
+        baseGrad.addColorStop(1, `rgba(10,8,12,1)`);
+        ctx.fillStyle = baseGrad;
+
+        ctx.beginPath();
+        ctx.moveTo(s[0].x, s[0].y);
+        for (let i = 1; i < s.length; i++) ctx.lineTo(s[i].x, s[i].y);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.globalAlpha = 0.32;
+        ctx.fillStyle = 'rgba(0,0,0,0.92)';
+        for (const sp of a._specks) {
+          ctx.beginPath();
+          ctx.arc(sp.x, sp.y, sp.r, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = 'rgba(255, 59, 130, 0.22)';
+        ctx.shadowColor = 'rgba(255, 59, 130, 0.18)';
+        ctx.shadowBlur = 10;
+        ctx.beginPath();
+        ctx.moveTo(s[0].x, s[0].y);
+        for (let i = 1; i < s.length; i++) ctx.lineTo(s[i].x, s[i].y);
+        ctx.closePath();
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+
+        for (const ang of a._veins) {
+          const x1 = Math.cos(ang) * a.radius * 0.10;
+          const y1 = Math.sin(ang) * a.radius * 0.10;
+          const x2 = Math.cos(ang) * a.radius * 0.95;
+          const y2 = Math.sin(ang) * a.radius * 0.95;
+
+          const vg = ctx.createLinearGradient(x1, y1, x2, y2);
+          vg.addColorStop(0, 'rgba(255,120,40,0.00)');
+          vg.addColorStop(0.55,'rgba(255,120,40,0.16)');
+          vg.addColorStop(1, 'rgba(255,80,20,0.38)');
+
+          ctx.strokeStyle = vg;
+          ctx.lineWidth = 1.5;
+          ctx.beginPath();
+          ctx.moveTo(x1, y1);
+          ctx.lineTo(x2, y2);
+          ctx.stroke();
+        }
+
+        ctx.strokeStyle = 'rgba(0,0,0,0.55)';
+        ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        ctx.arc(-a.radius*0.15, -a.radius*0.10, a.radius*0.25, 0, Math.PI*1.7);
+        ctx.stroke();
+
+        ctx.restore();
       }
-      a._shape = pts;
     }
-
-    if (a._rot == null) a._rot = Math.random() * Math.PI * 2;
-    if (a._spin == null) a._spin = (Math.random() * 2 - 1) * 0.0035; // slow
-    if (a._tone == null) a._tone = 55 + Math.floor(Math.random() * 35); // rock tone
-
-    if (!a._veins) a._veins = Array.from({ length: 5 }, () => Math.random() * Math.PI * 2);
-
-    if (!a._specks) {
-      a._specks = Array.from({ length: 14 }, () => ({
-        x: (Math.random() - 0.5) * a.radius * 1.15,
-        y: (Math.random() - 0.5) * a.radius * 1.15,
-        r: 0.6 + Math.random() * 1.6
-      }));
-    }
-
-    // --- draw ---
-    ctx.save();
-    ctx.translate(a.x, a.y);
-
-    // optional slow rotation (stable)
-    a._rot += a._spin;
-    ctx.rotate(a._rot);
-
-    const s = a._shape;
-
-    // Charred rocky fill (volcanic-ish)
-    const tone = a._tone;
-    const baseGrad = ctx.createRadialGradient(
-      -a.radius * 0.25, -a.radius * 0.25, a.radius * 0.18,
-      0, 0, a.radius * 1.18
-    );
-    baseGrad.addColorStop(0, `rgba(${tone+35},${tone+18},${tone+18},0.98)`);
-    baseGrad.addColorStop(0.45, `rgba(${tone-8},${tone-22},${tone-22},0.98)`);
-    baseGrad.addColorStop(1, `rgba(10,8,12,1)`);
-    ctx.fillStyle = baseGrad;
-
-    // jagged silhouette
-    ctx.beginPath();
-    ctx.moveTo(s[0].x, s[0].y);
-    for (let i = 1; i < s.length; i++) ctx.lineTo(s[i].x, s[i].y);
-    ctx.closePath();
-    ctx.fill();
-
-    // soot specks (stable)
-    ctx.globalAlpha = 0.32;
-    ctx.fillStyle = 'rgba(0,0,0,0.92)';
-    for (const sp of a._specks) {
-      ctx.beginPath();
-      ctx.arc(sp.x, sp.y, sp.r, 0, Math.PI * 2);
-      ctx.fill();
-    }
-    ctx.globalAlpha = 1;
-
-    // faint neon rim lighting (subtle, not a purple orb)
-    ctx.lineWidth = 2;
-    ctx.strokeStyle = 'rgba(255, 59, 130, 0.22)';
-    ctx.shadowColor = 'rgba(255, 59, 130, 0.18)';
-    ctx.shadowBlur = 10;
-    ctx.beginPath();
-    ctx.moveTo(s[0].x, s[0].y);
-    for (let i = 1; i < s.length; i++) ctx.lineTo(s[i].x, s[i].y);
-    ctx.closePath();
-    ctx.stroke();
-    ctx.shadowBlur = 0;
-
-    // lava-ish veins (faint glowing cracks, stable angles)
-    for (const ang of a._veins) {
-      const x1 = Math.cos(ang) * a.radius * 0.10;
-      const y1 = Math.sin(ang) * a.radius * 0.10;
-      const x2 = Math.cos(ang) * a.radius * 0.95;
-      const y2 = Math.sin(ang) * a.radius * 0.95;
-
-      const vg = ctx.createLinearGradient(x1, y1, x2, y2);
-      vg.addColorStop(0, 'rgba(255,120,40,0.00)');
-      vg.addColorStop(0.55,'rgba(255,120,40,0.16)');
-      vg.addColorStop(1, 'rgba(255,80,20,0.38)');
-
-      ctx.strokeStyle = vg;
-      ctx.lineWidth = 1.5;
-      ctx.beginPath();
-      ctx.moveTo(x1, y1);
-      ctx.lineTo(x2, y2);
-      ctx.stroke();
-    }
-
-    // crater-ish shadow stroke
-    ctx.strokeStyle = 'rgba(0,0,0,0.55)';
-    ctx.lineWidth = 1.2;
-    ctx.beginPath();
-    ctx.arc(-a.radius*0.15, -a.radius*0.10, a.radius*0.25, 0, Math.PI*1.7);
-    ctx.stroke();
-
-    ctx.restore();
-  }
-}
 
     function drawPickups(){
       for(const p of pickups){
@@ -2483,7 +2437,6 @@ if (level % BOSS_INTERVAL === 0) {
           ctx.fill();
         }
 
-        // NEW: boss smack talk bubble
         if(b.tauntLife && b.tauntLife > 0){
           const msg = b.taunt;
           ctx.font = '13px system-ui';
@@ -2504,7 +2457,6 @@ if (level % BOSS_INTERVAL === 0) {
           ctx.fillText(msg, 0, by + h/2 + 1);
         }
 
-        // HP bar
         const bw = 120, bh = 10;
         const hpRatio = clamp(b.hp / b.hpMax, 0, 1);
         ctx.fillStyle = 'rgba(0,0,0,0.45)';
@@ -2567,7 +2519,6 @@ if (level % BOSS_INTERVAL === 0) {
       ctx.restore();
     }
 
-    // NEW: LEVEL UP toast (no pause)
     function drawLevelUp(){
       if(levelUpTimer <= 0 || gameOver) return;
 
@@ -2575,7 +2526,6 @@ if (level % BOSS_INTERVAL === 0) {
       const t = clamp(levelUpTimer / 900, 0, 1);
       const a = clamp(0.25 + (1-t)*0.25, 0.18, 0.55);
 
-      // subtle spotlight
       const g = ctx.createRadialGradient(width/2, height/2, 10, width/2, height/2, 260);
       g.addColorStop(0, `rgba(255,59,130,${0.18*a})`);
       g.addColorStop(1, 'rgba(0,0,0,0)');
@@ -2599,11 +2549,9 @@ if (level % BOSS_INTERVAL === 0) {
       ctx.restore();
     }
 
-    // NEW: INCOMING BOSS toast (no pause)
     function drawBossIncoming(){
       if(bossIncomingTimer <= 0 || gameOver) return;
 
-      // One-time sting + micro-shake when the warning first appears
       if (!bossIncomingDidSting) {
         bossIncomingDidSting = true;
         addShake(2, 160);
@@ -2617,7 +2565,6 @@ if (level % BOSS_INTERVAL === 0) {
       const t = clamp(bossIncomingTimer / 1100, 0, 1);
       const a = clamp(0.25 + (1-t)*0.25, 0.18, 0.60);
 
-      // punchier spotlight
       const g = ctx.createRadialGradient(width/2, height/2, 10, width/2, height/2, 280);
       g.addColorStop(0, `rgba(255,42,42,${0.22*a})`);
       g.addColorStop(1, 'rgba(0,0,0,0)');
@@ -2683,10 +2630,9 @@ if (level % BOSS_INTERVAL === 0) {
 
       ctx.clearRect(0,0,width,height);
 
-      // Apply tiny camera shake to gameplay layer
       let sx = 0, sy = 0;
       if (shakeT > 0) {
-        const t = Math.max(0, Math.min(1, shakeT / 160)); // normalize
+        const t = Math.max(0, Math.min(1, shakeT / 160));
         const m = shakeMag * t;
         sx = (Math.random() * 2 - 1) * m;
         sy = (Math.random() * 2 - 1) * m;
@@ -2695,7 +2641,6 @@ if (level % BOSS_INTERVAL === 0) {
       }
 
       drawBackgroundInGame();
-
       drawAsteroids();
       drawEnemies();
       drawBosses();
@@ -2708,18 +2653,16 @@ if (level % BOSS_INTERVAL === 0) {
       if (shakeT > 0) ctx.restore();
 
       drawDamageFlash();
-
-      drawLevelUp();        // NEW
-      drawBossIncoming();   // NEW
+      drawLevelUp();
+      drawBossIncoming();
 
       if(gameOver) drawGameOver();
-      drawCountdown();      // still used for start + respawn grace
+      drawCountdown();
       drawPaused();
 
       requestAnimationFrame(loop);
     }
 
-    // start
     resetRun(true);
     beginLevel(1);
     requestAnimationFrame(loop);
