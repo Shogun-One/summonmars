@@ -175,6 +175,68 @@
       pointer-events:none;
     }
 
+    /* round, transparent Restart button (symmetry with music) */
+    .restart-btn{
+      position:absolute;
+      bottom:14px;
+      left:14px;
+      width:54px;
+      height:54px;
+      border-radius:999px;
+      border:1px solid rgba(255,138,192,.45);
+      background:radial-gradient(circle at 30% 30%, rgba(255,255,255,.10), rgba(255,59,130,.05) 55%, rgba(0,0,0,.22));
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      box-shadow:0 0 18px rgba(255,59,130,.22);
+      cursor:pointer;
+      display:grid;
+      place-items:center;
+      user-select:none;
+      z-index:3;
+    }
+    .restart-btn:hover{ filter:brightness(1.08); }
+    .restart-btn:active{ transform:translateY(1px); }
+    .restart-btn .ring{
+      width:38px;height:38px;border-radius:999px;
+      border:1px solid rgba(228,228,255,.30);
+      display:grid;place-items:center;
+      box-shadow: inset 0 0 14px rgba(255,138,192,.10);
+      position:relative;
+    }
+    .restart-btn .icon{
+      width:14px;height:14px;border-radius:999px;
+      border:2px solid rgba(255,231,255,.92);
+      position:relative;
+      box-shadow:0 0 10px rgba(255,138,192,.25);
+    }
+    .restart-btn .icon:after{
+      content:'';
+      position:absolute;
+      width:7px;height:7px;
+      border-top:2px solid rgba(255,231,255,.92);
+      border-right:2px solid rgba(255,231,255,.92);
+      right:-1px; top:-2px;
+      transform:rotate(35deg);
+    }
+    .restart-btn .label{
+      position:absolute;
+      bottom:62px;
+      left:0;
+      font-size:.7rem;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      color:rgba(228,228,255,.85);
+      background:rgba(0,0,0,.25);
+      border:1px solid rgba(255,138,192,.22);
+      padding:.22rem .5rem;
+      border-radius:999px;
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      white-space:nowrap;
+      opacity:.9;
+      pointer-events:none;
+    }
+
     .controls{
       font-size:.8rem;
       opacity:.88;
@@ -203,10 +265,10 @@
     }
     button#reset-btn:hover{ filter:brightness(1.08); }
 
-    /* VISIBLE DETERRENT BANNER */
+    /* VISIBLE DETERRENT BANNER (MOVED TO BOTTOM) */
     .security-banner{
       position:fixed;
-      top:12px;
+      bottom:12px;
       left:50%;
       transform:translateX(-50%);
       padding:.35rem .75rem;
@@ -298,8 +360,10 @@
 
     @media (max-width:520px){
       .music-btn{ bottom:12px; right:12px; width:52px; height:52px; }
+      .restart-btn{ bottom:12px; left:12px; width:52px; height:52px; }
       .music-btn .label{ bottom:60px; }
-      .security-banner{ top:10px; font-size:.7rem; }
+      .restart-btn .label{ bottom:60px; }
+      .security-banner{ bottom:10px; font-size:.7rem; }
     }
   </style>
 </head>
@@ -336,11 +400,20 @@
     <div class="hud">
       <div class="pill">Score: <span id="score">0</span></div>
       <div class="pill">Best: <span id="best">0</span></div>
-      <div class="pill">Hits: <span id="hits">0</span>/<span id="hitsMax">10</span></div>
+      <div class="pill">Level: <span id="level">1</span></div>
+      <div class="pill">Lives: <span id="lives">5</span></div>
+      <div class="pill">Hits: <span id="hits">0</span>/<span id="hitsMax">5</span></div>
+      <div class="pill">To Next: <span id="toNext">0</span>/<span id="toNextMax">10</span></div>
     </div>
 
     <div class="game-shell">
       <canvas id="game" width="480" height="640"></canvas>
+
+      <!-- Restart bubble -->
+      <button id="restartBtn" class="restart-btn" type="button" aria-label="Restart" title="Restart">
+        <span class="label">Restart</span>
+        <span class="ring"><span class="icon"></span></span>
+      </button>
 
       <!-- Music On/Off button -->
       <button id="musicBtn" class="music-btn" type="button" aria-label="Music On/Off" title="Music On/Off">
@@ -353,7 +426,7 @@
       Move with <strong>WASD</strong> or <strong>Arrow Keys</strong> •
       Fire with <strong>Space</strong> or <strong>tap</strong><br />
       On mobile: drag to move your ship, tap to blast.
-      <div class="hint">10 hits and you get bonked back to zero score. Highest score wins. 🧠</div>
+      <div class="hint">Beat 10 asteroids to level up. Every 10th level is a boss. 😈</div>
       <button id="reset-btn">Reset Field</button>
     </div>
   </div>
@@ -378,12 +451,13 @@
              e.keyCode === 'S'.charCodeAt(0))) return false;
       };
 
-      /* --- CONSOLE TRAP --- */
+      /* --- CONSOLE TRAP (lighter, avoids freeze spikes) --- */
       setInterval(() => {
-        console.clear();
-        console.log("%c TRACKING...",
-          "color: red; font-size: 20px; font-weight: bold;");
-      }, 2000);
+        try{
+          console.log("%c TRACKING...",
+            "color: red; font-size: 20px; font-weight: bold;");
+        }catch{}
+      }, 3000);
     });
 
     (function () {
@@ -416,7 +490,7 @@
             nedryAudio.currentTime = 0;
             nedryAudio.play().catch(() => {});
           } catch {}
-          // freeze the game loop
+          // freeze the game loop (game logic only)
           window.__securityFreeze = true;
         }
 
@@ -431,17 +505,30 @@
         securityReloadBtn.addEventListener('click', () => location.reload());
         securityDismissBtn.addEventListener('click', hideOverlay);
 
-        // === BASELINE ===
-        const baseOuterW = window.outerWidth;
-        const baseOuterH = window.outerHeight;
-        const baseInnerW = window.innerWidth;
-        const baseInnerH = window.innerHeight;
+        // === BASELINE (stabilize after load to avoid “freeze after a few seconds”) ===
+        let baselineReady = false;
+        let baseOuterW = 0, baseOuterH = 0, baseInnerW = 0, baseInnerH = 0;
+        let baseWidthRatio = 0, baseHeightRatio = 0, baseArea = 0;
 
-        const baseWidthRatio  = baseInnerW / baseOuterW;
-        const baseHeightRatio = baseInnerH / baseOuterH;
-        const baseArea        = baseInnerW * baseInnerH;
+        function setBaseline(){
+          baseOuterW = window.outerWidth;
+          baseOuterH = window.outerHeight;
+          baseInnerW = window.innerWidth;
+          baseInnerH = window.innerHeight;
+          baseWidthRatio  = baseInnerW / baseOuterW;
+          baseHeightRatio = baseInnerH / baseOuterH;
+          baseArea        = baseInnerW * baseInnerH;
+          baselineReady = true;
+        }
+
+        // wait a moment so browser UI settles (GX, mobile bars, etc.)
+        window.addEventListener('load', () => {
+          setTimeout(setBaseline, 700);
+        }, { once:true });
 
         function detectDevToolsOrZoom() {
+          if(!baselineReady) return;
+
           const outerW = window.outerWidth;
           const outerH = window.outerHeight;
           const innerW = window.innerWidth;
@@ -460,15 +547,15 @@
           const zoomLikely = innerW < baseInnerW * 0.7;
 
           const devtoolsLikely =
-            widthDrop  > 0.18 ||
-            heightDrop > 0.18 ||
-            areaDrop   > 0.25;
+            widthDrop  > 0.20 ||
+            heightDrop > 0.20 ||
+            areaDrop   > 0.28;
 
           if (devtoolsLikely || zoomLikely) showOverlay();
           else hideOverlay();
         }
 
-        setInterval(detectDevToolsOrZoom, 600);
+        setInterval(detectDevToolsOrZoom, 700);
         window.addEventListener('resize', detectDevToolsOrZoom);
 
         window.addEventListener('keydown', (e) => {
@@ -632,6 +719,12 @@
     const hitsEl = document.getElementById('hits');
     const hitsMaxEl = document.getElementById('hitsMax');
     const resetBtn = document.getElementById('reset-btn');
+    const restartBtn = document.getElementById('restartBtn');
+
+    const levelEl = document.getElementById('level');
+    const livesEl = document.getElementById('lives');
+    const toNextEl = document.getElementById('toNext');
+    const toNextMaxEl = document.getElementById('toNextMax');
 
     const width = canvas.width;
     const height = canvas.height;
@@ -684,17 +777,22 @@
     let bestScore = Number(localStorage.getItem('asteroidBest') || 0);
     bestEl.textContent = bestScore;
 
-    const MAX_HITS = 10;
+    const MAX_HITS = 5;
+    const MAX_LIVES = 5;
+    const KILLS_TO_LEVEL = 10;
+
     hitsMaxEl.textContent = MAX_HITS;
+    toNextMaxEl.textContent = KILLS_TO_LEVEL;
 
     const ship = {
       x: width / 2,
       y: height / 2,
       radius: 16,
-      speed: 4.4,
+      speed: 4.6,
       vx: 0,
       vy: 0,
-      invuln: 0
+      invuln: 0,
+      exploding: 0
     };
 
     const keysDown = {};
@@ -702,13 +800,48 @@
     let asteroids = [];
     let enemies = [];
     let enemyBullets = [];
+    let bosses = [];
+    let particles = [];
+
     let score = 0;
     let hits = 0;
+    let lives = MAX_LIVES;
+
+    let level = 1;
+    let killsThisLevel = 0;
+
     let running = true;
+    let gameOver = false;
+
     let lastTime = 0;
     let shootCooldown = 0;
-    const shootDelay = 180; // ms
-    const asteroidCount = 9;
+    const shootDelay = 170; // ms (feels snappier)
+
+    // --------------------------------------------
+    // Assets: Boss images (Images/boss-one.png ... boss-ten.png)
+    // --------------------------------------------
+    const bossFiles = [
+      "boss-one.png","boss-two.png","boss-three.png","boss-four.png","boss-five.png",
+      "boss-six.png","boss-seven.png","boss-eight.png","boss-nine.png","boss-ten.png"
+    ];
+
+    const bossImgs = bossFiles.map(fn => {
+      const img = new Image();
+      img.decoding = "async";
+      img.loading = "eager";
+      img.src = "Images/" + fn;
+      return img;
+    });
+
+    function getBossImageForLevel(lvl){
+      // level 10 -> index 0, 20 -> index 1 ... 100 -> index 9
+      const idx = clamp(Math.floor(lvl/10) - 1, 0, 9);
+      return bossImgs[idx];
+    }
+
+    function pickRandomBossImage(){
+      return bossImgs[Math.floor(Math.random()*bossImgs.length)];
+    }
 
     // --------------------------------------------
     // Purple enemy ships (some “shout” and insta-kill on contact)
@@ -722,6 +855,23 @@
       "CATCH THESE LASERS."
     ];
 
+    function difficulty(){
+      // Smooth scaling: nothing goes “brick wall” suddenly.
+      const l = level;
+      return {
+        asteroidTarget: clamp(7 + Math.floor(l*0.35), 7, 22),
+        asteroidSpeedMin: 0.85 + l*0.03,
+        asteroidSpeedMax: 2.0 + l*0.06,
+        enemyCap: clamp(4 + Math.floor(l*0.18), 4, 10),
+        enemySpawnChance: clamp(0.006 + l*0.00035, 0.006, 0.018),
+        enemyBulletSpeed: 3.4 + l*0.045,
+        enemyShootMin: clamp(980 - l*18, 420, 980),
+        enemyShootMax: clamp(1550 - l*22, 650, 1550),
+        shouterChance: clamp(0.36 + l*0.003, 0.36, 0.55),
+        bossBulletSpeed: 3.6 + l*0.035
+      };
+    }
+
     function spawnEnemy(){
       const edge = Math.floor(Math.random()*4);
       const pad = 40;
@@ -731,90 +881,176 @@
       else if(edge===2){ x=rand(-pad, width+pad); y=height+pad; }
       else { x=-pad; y=rand(-pad, height+pad); }
 
-      const shouter = Math.random() < 0.45; // “some of them”
+      const d = difficulty();
+      const shouter = Math.random() < d.shouterChance;
+
       enemies.push({
         x,y,
         r: shouter ? 16 : 14,
-        vx: rand(-1.3, 1.3),
-        vy: rand(-1.1, 1.6),
+        vx: rand(-1.2, 1.2),
+        vy: rand(-1.0, 1.4),
         hp: shouter ? 2 : 1,
         shouter,
         taunt: TAUNTS[Math.floor(Math.random()*TAUNTS.length)],
         tauntTimer: rand(800, 1800),
         tauntLife: 0,
-        shootTimer: rand(650, 1300)
+        shootTimer: rand(d.enemyShootMin, d.enemyShootMax)
       });
     }
 
     function fireEnemyBullet(ex){
+      const d = difficulty();
       const dx = ship.x - ex.x;
       const dy = ship.y - ex.y;
-      const d = Math.hypot(dx,dy) || 1;
-      const spd = 3.7;
+      const dist = Math.hypot(dx,dy) || 1;
+      const spd = d.enemyBulletSpeed;
+
       enemyBullets.push({
         x: ex.x,
         y: ex.y,
-        vx: (dx/d)*spd,
-        vy: (dy/d)*spd,
-        life: 2600,
-        r: 3.2
+        vx: (dx/dist)*spd,
+        vy: (dy/dist)*spd,
+        life: 2800,
+        r: 3.2,
+        kind: "enemy"
       });
     }
 
-    function resetRun(keepBest = true){
-      score = 0;
-      hits = 0;
-      running = true;
-      ship.x = width/2;
-      ship.y = height/2;
-      ship.vx = 0;
-      ship.vy = 0;
-      ship.invuln = 900;
+    // --------------------------------------------
+    // Bosses (every 10th level)
+    // --------------------------------------------
+    function spawnBossPackForLevel(lvl){
+      bosses = [];
 
-      bullets = [];
-      enemyBullets = [];
-      asteroids = [];
-      enemies = [];
+      const spawnOne = (img) => {
+        const baseHp = 20 + Math.floor(lvl*1.6);     // tougher with level
+        const r = 44 + Math.floor(lvl*0.15);         // a little bigger over time
+        const type = (Math.floor(lvl/10)-1) % 10;    // 0..9 gives variety
+        bosses.push({
+          x: width/2 + rand(-60,60),
+          y: 110,
+          r,
+          hp: baseHp,
+          hpMax: baseHp,
+          img,
+          type,
+          t: rand(0, 999),
+          shootTimer: 900,
+          burst: 0
+        });
+      };
 
-      for(let i=0;i<asteroidCount;i++) spawnAsteroid(false);
-      for(let i=0;i<4;i++) spawnEnemy();
-
-      scoreEl.textContent = score;
-      hitsEl.textContent = hits;
-
-      if(!keepBest){
-        bestScore = 0;
-        localStorage.setItem('asteroidBest', '0');
-        bestEl.textContent = bestScore;
+      if(lvl >= 100){
+        // two random bosses at a time every tenth level
+        spawnOne(pickRandomBossImage());
+        spawnOne(pickRandomBossImage());
+      } else {
+        spawnOne(getBossImageForLevel(lvl));
       }
     }
 
-    function applyHit(reason){
-      if(ship.invuln > 0) return;
-      hits++;
-      ship.invuln = 850;
-      hitsEl.textContent = hits;
+    function bossAlive(){
+      return bosses.length > 0;
+    }
 
-      // silly little “bonk” flash
-      flashTimer = 120;
+    function fireBossShot(b){
+      const d = difficulty();
+      const speed = d.bossBulletSpeed;
+      const aimed = (sx,sy,tx,ty,spd) => {
+        const dx = tx-sx, dy = ty-sy;
+        const dist = Math.hypot(dx,dy) || 1;
+        enemyBullets.push({
+          x:sx,y:sy,
+          vx:(dx/dist)*spd,
+          vy:(dy/dist)*spd,
+          life: 3800,
+          r: 4.2,
+          kind: "boss"
+        });
+      };
 
-      if(hits >= MAX_HITS){
-        // score gets nuked, best stays (so high-score chasing still makes sense)
-        score = 0;
-        scoreEl.textContent = score;
-        // soft restart the run state
-        ship.x = width/2;
-        ship.y = height/2;
-        ship.vx = ship.vy = 0;
-        ship.invuln = 1200;
-        hits = 0;
-        hitsEl.textContent = hits;
+      // Different attack “personalities” by type (0..9)
+      const t = b.type;
 
-        // shuffle threat set
-        bullets = [];
-        enemyBullets = [];
-        enemies = [];
-        for(let i=0;i<4;i++) spawnEnemy();
+      if(t === 0){
+        // aimed burst x3
+        aimed(b.x, b.y+b.r*0.35, ship.x, ship.y, speed);
+        aimed(b.x-12, b.y+b.r*0.35, ship.x, ship.y, speed*0.96);
+        aimed(b.x+12, b.y+b.r*0.35, ship.x, ship.y, speed*0.96);
+      } else if(t === 1){
+        // spread fan
+        const baseAng = Math.atan2(ship.y - b.y, ship.x - b.x);
+        const spread = 0.22;
+        for(let k=-2;k<=2;k++){
+          const ang = baseAng + k*spread;
+          enemyBullets.push({
+            x:b.x,y:b.y+b.r*0.2,
+            vx:Math.cos(ang)*speed,
+            vy:Math.sin(ang)*speed,
+            life: 3600,
+            r: 3.8,
+            kind: "boss"
+          });
+        }
+      } else if(t === 2){
+        // ring pulse (but with a “missing slice” so it’s dodgeable)
+        const count = 14;
+        const holeStart = rand(0, Math.PI*2);
+        const holeSize = 0.7;
+        for(let k=0;k<count;k++){
+          const ang = (k/count)*Math.PI*2;
+          const diff = Math.abs(((ang - holeStart + Math.PI*3)%(Math.PI*2)) - Math.PI);
+          if(diff < holeSize/2) continue;
+          enemyBullets.push({
+            x:b.x,y:b.y,
+            vx:Math.cos(ang)*(speed*0.92),
+            vy:Math.sin(ang)*(speed*0.92),
+            life: 3200,
+            r: 3.6,
+            kind: "boss"
+          });
+        }
+      } else if(t === 3){
+        // zig-zag two-lane shots
+        aimed(b.x-40, b.y+b.r*0.1, ship.x, ship.y, speed*0.98);
+        aimed(b.x+40, b.y+b.r*0.1, ship.x, ship.y, speed*0.98);
+      } else if(t === 4){
+        // “drip” stream
+        aimed(b.x, b.y+b.r*0.45, ship.x + rand(-60,60), ship.y, speed*0.9);
+      } else if(t === 5){
+        // tight spiral-ish (approx with rotating angles)
+        const base = (performance.now()/140) % (Math.PI*2);
+        for(let k=0;k<6;k++){
+          const ang = base + k*(Math.PI*2/6);
+          enemyBullets.push({
+            x:b.x,y:b.y,
+            vx:Math.cos(ang)*(speed*0.85),
+            vy:Math.sin(ang)*(speed*0.85),
+            life: 2900,
+            r: 3.5,
+            kind:"boss"
+          });
+        }
+      } else if(t === 6){
+        // fast aimed single
+        aimed(b.x, b.y+b.r*0.25, ship.x, ship.y, speed*1.15);
+      } else if(t === 7){
+        // “cross” shots
+        const sp = speed*0.9;
+        const dirs = [[1,0],[-1,0],[0,1],[0,-1]];
+        for(const [ux,uy] of dirs){
+          enemyBullets.push({ x:b.x,y:b.y, vx:ux*sp, vy:uy*sp, life:2400, r:3.3, kind:"boss" });
+        }
+        aimed(b.x, b.y, ship.x, ship.y, speed*0.95);
+      } else if(t === 8){
+        // triple aimed with jitter
+        for(let i=0;i<3;i++){
+          aimed(b.x + rand(-18,18), b.y + rand(-8,8), ship.x + rand(-28,28), ship.y + rand(-28,28), speed*0.98);
+        }
+      } else {
+        // “heavy” slow orbs
+        aimed(b.x-26, b.y+b.r*0.2, ship.x, ship.y, speed*0.78);
+        aimed(b.x+26, b.y+b.r*0.2, ship.x, ship.y, speed*0.78);
       }
     }
 
@@ -838,7 +1074,8 @@
         angle = rand(0, Math.PI * 2);
       }
 
-      const speed = rand(0.9, 2.2);
+      const d = difficulty();
+      const speed = rand(d.asteroidSpeedMin, d.asteroidSpeedMax);
       asteroids.push({
         x, y, radius,
         vx: Math.cos(angle) * speed,
@@ -846,7 +1083,127 @@
       });
     }
 
+    // --------------------------------------------
+    // Reset / Restart
+    // --------------------------------------------
+    function resetRun(keepBest = true){
+      score = 0;
+      hits = 0;
+      lives = MAX_LIVES;
+      level = 1;
+      killsThisLevel = 0;
+
+      running = true;
+      gameOver = false;
+
+      ship.x = width/2;
+      ship.y = height/2;
+      ship.vx = 0;
+      ship.vy = 0;
+      ship.invuln = 1100;
+      ship.exploding = 0;
+
+      bullets = [];
+      enemyBullets = [];
+      asteroids = [];
+      enemies = [];
+      bosses = [];
+      particles = [];
+
+      const d = difficulty();
+      for(let i=0;i<d.asteroidTarget;i++) spawnAsteroid(false);
+      for(let i=0;i<4;i++) spawnEnemy();
+
+      scoreEl.textContent = score;
+      hitsEl.textContent = hits;
+      livesEl.textContent = lives;
+      levelEl.textContent = level;
+      toNextEl.textContent = killsThisLevel;
+
+      if(!keepBest){
+        bestScore = 0;
+        localStorage.setItem('asteroidBest', '0');
+        bestEl.textContent = bestScore;
+      }
+    }
+
+    function softRestartFromButton(){
+      // Player asked to restart the run (keeps best)
+      resetRun(true);
+    }
+
     resetBtn.addEventListener('click', () => resetRun(true));
+    restartBtn.addEventListener('click', (e) => { e.preventDefault(); softRestartFromButton(); });
+
+    // --------------------------------------------
+    // Lives / Hits / Explosion
+    // --------------------------------------------
+    let flashTimer = 0;
+
+    function spawnExplosion(x,y, power=1){
+      const count = Math.floor(26 * power);
+      for(let i=0;i<count;i++){
+        const ang = rand(0, Math.PI*2);
+        const spd = rand(1.2, 6.8) * power;
+        particles.push({
+          x,y,
+          vx: Math.cos(ang)*spd,
+          vy: Math.sin(ang)*spd,
+          life: rand(420, 900),
+          maxLife: 900,
+          r: rand(1.2, 3.2),
+          hot: Math.random() < 0.35
+        });
+      }
+    }
+
+    function applyHit(reason){
+      if(gameOver) return;
+      if(ship.invuln > 0) return;
+      if(ship.exploding > 0) return;
+
+      hits++;
+      hitsEl.textContent = hits;
+
+      flashTimer = 140;
+
+      if(hits >= MAX_HITS){
+        // BOOM, lose a life
+        lives--;
+        livesEl.textContent = lives;
+
+        // explode and respawn
+        ship.exploding = 700;
+        spawnExplosion(ship.x, ship.y, 1.35);
+
+        hits = 0;
+        hitsEl.textContent = hits;
+
+        ship.invuln = 0; // invuln starts AFTER respawn
+
+        if(lives <= 0){
+          gameOver = true;
+          running = false;
+          // no hard stop to music; player can toggle
+          return;
+        }
+
+        // respawn after explosion window
+        setTimeout(() => {
+          if(gameOver) return;
+          ship.x = width/2;
+          ship.y = height/2;
+          ship.vx = ship.vy = 0;
+          ship.invuln = 1400;
+          ship.exploding = 0;
+
+          // clear bullets so it feels fair
+          enemyBullets = [];
+        }, 650);
+      }else{
+        ship.invuln = 900;
+      }
+    }
 
     // --------------------------------------------
     // Input (keyboard + pointer)
@@ -922,18 +1279,29 @@
     // Shooting
     // --------------------------------------------
     function shoot(){
-      const speed = 6.2;
+      if(gameOver) return;
+      if(ship.exploding > 0) return;
+
+      const speed = 6.4;
       let angle;
 
-      // aim at closest threat (enemy > asteroid)
+      // aim priority: boss > enemy > asteroid
       let target = null;
       let bestD2 = Infinity;
 
-      for(const en of enemies){
-        const dx = en.x - ship.x;
-        const dy = en.y - ship.y;
+      for(const b of bosses){
+        const dx = b.x - ship.x;
+        const dy = b.y - ship.y;
         const d2 = dx*dx + dy*dy;
-        if(d2 < bestD2){ bestD2 = d2; target = en; }
+        if(d2 < bestD2){ bestD2 = d2; target = b; }
+      }
+      if(!target){
+        for(const en of enemies){
+          const dx = en.x - ship.x;
+          const dy = en.y - ship.y;
+          const d2 = dx*dx + dy*dy;
+          if(d2 < bestD2){ bestD2 = d2; target = en; }
+        }
       }
       if(!target){
         for(const a of asteroids){
@@ -955,16 +1323,52 @@
         y: ship.y,
         vx: Math.cos(angle) * speed,
         vy: Math.sin(angle) * speed,
-        life: 1400,
+        life: 1500,
         r: 3
       });
     }
 
     // --------------------------------------------
+    // Level progression
+    // --------------------------------------------
+    function beginLevel(lvl){
+      level = lvl;
+      levelEl.textContent = level;
+      killsThisLevel = 0;
+      toNextEl.textContent = killsThisLevel;
+
+      // tune threats smoothly
+      const d = difficulty();
+
+      // keep asteroid count near target
+      while(asteroids.length < d.asteroidTarget) spawnAsteroid(true);
+      while(asteroids.length > d.asteroidTarget) asteroids.pop();
+
+      // ensure some enemies exist
+      while(enemies.length < Math.min(4, d.enemyCap)) spawnEnemy();
+
+      // boss levels
+      if(level % 10 === 0){
+        spawnBossPackForLevel(level);
+      } else {
+        bosses = [];
+      }
+    }
+
+    function awardScore(points){
+      score += points;
+      scoreEl.textContent = score;
+
+      if(score > bestScore){
+        bestScore = score;
+        bestEl.textContent = bestScore;
+        localStorage.setItem('asteroidBest', String(bestScore));
+      }
+    }
+
+    // --------------------------------------------
     // Update + collisions
     // --------------------------------------------
-    let flashTimer = 0;
-
     function update(dt){
       // freeze everything if cosplay security overlay is up
       if(window.__securityFreeze) return;
@@ -972,38 +1376,51 @@
       // background (outside game window)
       updateSky(dt);
 
+      if(gameOver) {
+        // still animate particles a bit for drama
+        updateParticles(dt);
+        return;
+      }
+
       if(!running) return;
 
       ship.invuln -= dt;
       if(ship.invuln < 0) ship.invuln = 0;
 
-      // movement
-      let mvx = 0, mvy = 0;
-      if(keysDown['ArrowLeft'] || keysDown['a'] || keysDown['A']) mvx -= 1;
-      if(keysDown['ArrowRight'] || keysDown['d'] || keysDown['D']) mvx += 1;
-      if(keysDown['ArrowUp'] || keysDown['w'] || keysDown['W']) mvy -= 1;
-      if(keysDown['ArrowDown'] || keysDown['s'] || keysDown['S']) mvy += 1;
-
-      const len = Math.hypot(mvx, mvy);
-      if(len > 0){ mvx /= len; mvy /= len; }
-
-      if(pointerActive){
-        const dx = pointerPos.x - ship.x;
-        const dy = pointerPos.y - ship.y;
-        const dist = Math.hypot(dx, dy);
-        if(dist > 4){ mvx = dx / dist; mvy = dy / dist; }
+      if(ship.exploding > 0){
+        ship.exploding -= dt;
+        if(ship.exploding < 0) ship.exploding = 0;
       }
 
-      ship.vx = mvx * ship.speed;
-      ship.vy = mvy * ship.speed;
+      // movement (disabled while exploding)
+      if(ship.exploding === 0){
+        let mvx = 0, mvy = 0;
+        if(keysDown['ArrowLeft'] || keysDown['a'] || keysDown['A']) mvx -= 1;
+        if(keysDown['ArrowRight'] || keysDown['d'] || keysDown['D']) mvx += 1;
+        if(keysDown['ArrowUp'] || keysDown['w'] || keysDown['W']) mvy -= 1;
+        if(keysDown['ArrowDown'] || keysDown['s'] || keysDown['S']) mvy += 1;
 
-      ship.x += ship.vx;
-      ship.y += ship.vy;
+        const len = Math.hypot(mvx, mvy);
+        if(len > 0){ mvx /= len; mvy /= len; }
 
-      if(ship.x < ship.radius) ship.x = ship.radius;
-      if(ship.x > width - ship.radius) ship.x = width - ship.radius;
-      if(ship.y < ship.radius) ship.y = ship.radius;
-      if(ship.y > height - ship.radius) ship.y = height - ship.radius;
+        if(pointerActive){
+          const dx = pointerPos.x - ship.x;
+          const dy = pointerPos.y - ship.y;
+          const dist = Math.hypot(dx, dy);
+          if(dist > 4){ mvx = dx / dist; mvy = dy / dist; }
+        }
+
+        ship.vx = mvx * ship.speed;
+        ship.vy = mvy * ship.speed;
+
+        ship.x += ship.vx;
+        ship.y += ship.vy;
+
+        if(ship.x < ship.radius) ship.x = ship.radius;
+        if(ship.x > width - ship.radius) ship.x = width - ship.radius;
+        if(ship.y < ship.radius) ship.y = ship.radius;
+        if(ship.y > height - ship.radius) ship.y = height - ship.radius;
+      }
 
       // player shooting cooldown
       shootCooldown -= dt;
@@ -1041,7 +1458,10 @@
       }
 
       // enemies + enemy bullets
-      if(enemies.length < 6 && Math.random() < 0.010) spawnEnemy();
+      const d = difficulty();
+      if(enemies.length < d.enemyCap && Math.random() < d.enemySpawnChance && !bossAlive()){
+        spawnEnemy();
+      }
 
       for(const en of enemies){
         // drift
@@ -1051,13 +1471,13 @@
         // steer lightly toward ship
         const dx = ship.x - en.x;
         const dy = ship.y - en.y;
-        const d = Math.hypot(dx,dy) || 1;
-        en.vx += (dx/d)*0.015;
-        en.vy += (dy/d)*0.015;
+        const dist = Math.hypot(dx,dy) || 1;
+        en.vx += (dx/dist)*0.015;
+        en.vy += (dy/dist)*0.015;
 
         // clamp velocity
-        en.vx = clamp(en.vx, -2.2, 2.2);
-        en.vy = clamp(en.vy, -2.2, 2.2);
+        en.vx = clamp(en.vx, -2.25, 2.25);
+        en.vy = clamp(en.vy, -2.25, 2.25);
 
         // wrap
         if(en.x < -60) en.x = width+60;
@@ -1067,9 +1487,9 @@
 
         // shoot timer
         en.shootTimer -= dt;
-        if(en.shootTimer <= 0){
+        if(en.shootTimer <= 0 && ship.exploding === 0){
           fireEnemyBullet(en);
-          en.shootTimer = en.shouter ? rand(520, 980) : rand(820, 1500);
+          en.shootTimer = en.shouter ? rand(d.enemyShootMin*0.7, d.enemyShootMax*0.8) : rand(d.enemyShootMin, d.enemyShootMax);
 
           // taunt sometimes
           if(en.shouter){
@@ -1083,15 +1503,66 @@
         if(en.tauntLife > 0) en.tauntLife -= dt;
       }
 
+      // Boss update + attacks
+      for(const b of bosses){
+        b.t += dt;
+
+        // movement “personality”
+        const phase = b.t/1000;
+        if(b.type === 0){
+          b.x = width/2 + Math.sin(phase*1.2)*130;
+          b.y = 110 + Math.sin(phase*0.8)*14;
+        } else if(b.type === 1){
+          b.x = width/2 + Math.sin(phase*1.6)*160;
+          b.y = 105 + Math.cos(phase*1.1)*18;
+        } else if(b.type === 2){
+          b.x = width/2 + Math.sin(phase*0.9)*110;
+          b.y = 120 + Math.abs(Math.sin(phase*0.7))*34;
+        } else if(b.type === 3){
+          b.x = width/2 + Math.sin(phase*1.4)*150;
+          b.y = 95 + Math.sin(phase*2.2)*10;
+        } else if(b.type === 4){
+          b.x = width/2 + Math.sin(phase*1.0)*90;
+          b.y = 120 + Math.cos(phase*0.9)*22;
+        } else if(b.type === 5){
+          b.x = width/2 + Math.sin(phase*1.9)*140;
+          b.y = 110 + Math.sin(phase*1.3)*14;
+        } else if(b.type === 6){
+          b.x = width/2 + Math.sin(phase*0.7)*80;
+          b.y = 110 + Math.sin(phase*0.7)*18;
+        } else if(b.type === 7){
+          b.x = width/2 + Math.sin(phase*1.1)*170;
+          b.y = 115 + Math.cos(phase*0.8)*16;
+        } else if(b.type === 8){
+          b.x = width/2 + Math.sin(phase*1.3)*120;
+          b.y = 105 + Math.cos(phase*1.6)*14;
+        } else {
+          b.x = width/2 + Math.sin(phase*0.95)*150;
+          b.y = 115 + Math.sin(phase*0.55)*20;
+        }
+
+        b.shootTimer -= dt;
+        const shootBase = clamp(950 - level*12, 360, 950);
+        if(b.shootTimer <= 0 && ship.exploding === 0){
+          fireBossShot(b);
+          // bosses get slightly faster attack cadence as they get damaged
+          const hpRatio = b.hp / b.hpMax;
+          b.shootTimer = shootBase * (0.75 + hpRatio*0.65);
+        }
+      }
+
       for(let i=enemyBullets.length-1;i>=0;i--){
         const eb = enemyBullets[i];
         eb.x += eb.vx;
         eb.y += eb.vy;
         eb.life -= dt;
-        if(eb.life <= 0 || eb.x < -40 || eb.x > width+40 || eb.y < -40 || eb.y > height+40){
+        if(eb.life <= 0 || eb.x < -60 || eb.x > width+60 || eb.y < -80 || eb.y > height+80){
           enemyBullets.splice(i,1);
         }
       }
+
+      // particles
+      updateParticles(dt);
 
       // collisions: bullets vs asteroids
       outerA: for(let i=asteroids.length-1;i>=0;i--){
@@ -1104,16 +1575,17 @@
             bullets.splice(j,1);
             asteroids.splice(i,1);
 
-            score += 10;
-            scoreEl.textContent = score;
-
-            if(score > bestScore){
-              bestScore = score;
-              bestEl.textContent = bestScore;
-              localStorage.setItem('asteroidBest', String(bestScore));
-            }
+            awardScore(10);
+            killsThisLevel++;
+            toNextEl.textContent = killsThisLevel;
 
             spawnAsteroid(true);
+
+            // Level up only if not on a boss gate
+            if(!bossAlive() && killsThisLevel >= KILLS_TO_LEVEL){
+              beginLevel(level + 1);
+            }
+
             break outerA;
           }
         }
@@ -1130,26 +1602,47 @@
             bullets.splice(j,1);
             en.hp -= 1;
 
-            // shouter: if YOU hit it (your bullet), it “kills you” (counts as a hit)
+            // shouter: if YOU hit it (your bullet), it still hurts you (counts as a hit)
             if(en.shouter){
               applyHit('hit-shouter');
             }
 
             if(en.hp <= 0){
               enemies.splice(i,1);
+              awardScore(en.shouter ? 35 : 20);
+              spawnExplosion(en.x, en.y, en.shouter ? 1.05 : 0.85);
 
-              score += en.shouter ? 35 : 20;
-              scoreEl.textContent = score;
-
-              if(score > bestScore){
-                bestScore = score;
-                bestEl.textContent = bestScore;
-                localStorage.setItem('asteroidBest', String(bestScore));
-              }
-              // replace
-              if(enemies.length < 6) spawnEnemy();
+              // replace if under cap and no boss
+              if(!bossAlive() && enemies.length < difficulty().enemyCap) spawnEnemy();
             }
             break outerE;
+          }
+        }
+      }
+
+      // collisions: bullets vs bosses
+      outerB: for(let i=bosses.length-1;i>=0;i--){
+        const bo = bosses[i];
+        for(let j=bullets.length-1;j>=0;j--){
+          const b = bullets[j];
+          const dx = b.x - bo.x;
+          const dy = b.y - bo.y;
+          if(Math.hypot(dx,dy) < bo.r*0.85){
+            bullets.splice(j,1);
+            bo.hp -= 1;
+            flashTimer = 70;
+
+            if(bo.hp <= 0){
+              spawnExplosion(bo.x, bo.y, 2.0);
+              bosses.splice(i,1);
+              awardScore(250 + Math.floor(level*8));
+
+              // boss defeated: advance to next level immediately
+              if(bosses.length === 0){
+                beginLevel(level + 1);
+              }
+            }
+            break outerB;
           }
         }
       }
@@ -1159,34 +1652,61 @@
         const eb = enemyBullets[i];
         const dx = eb.x - ship.x;
         const dy = eb.y - ship.y;
-        if(Math.hypot(dx,dy) < ship.radius + eb.r){
+        if(ship.exploding === 0 && Math.hypot(dx,dy) < ship.radius + eb.r){
           enemyBullets.splice(i,1);
-          applyHit('enemy-bullet');
+          applyHit(eb.kind === "boss" ? 'boss-bullet' : 'enemy-bullet');
         }
       }
 
-      // collisions: ship vs asteroids / enemies
-      for(const a of asteroids){
-        const dx = ship.x - a.x;
-        const dy = ship.y - a.y;
-        if(Math.hypot(dx,dy) < ship.radius + a.radius*0.7){
-          applyHit('asteroid');
-          break;
+      // collisions: ship vs asteroids / enemies / bosses
+      if(ship.exploding === 0){
+        for(const a of asteroids){
+          const dx = ship.x - a.x;
+          const dy = ship.y - a.y;
+          if(Math.hypot(dx,dy) < ship.radius + a.radius*0.7){
+            applyHit('asteroid');
+            break;
+          }
         }
-      }
 
-      for(const en of enemies){
-        const dx = ship.x - en.x;
-        const dy = ship.y - en.y;
-        if(Math.hypot(dx,dy) < ship.radius + en.r*0.85){
-          // any ship collision hurts; shouter hurts too (same rule)
-          applyHit(en.shouter ? 'shouter-ram' : 'enemy-ram');
-          break;
+        for(const en of enemies){
+          const dx = ship.x - en.x;
+          const dy = ship.y - en.y;
+          if(Math.hypot(dx,dy) < ship.radius + en.r*0.85){
+            applyHit(en.shouter ? 'shouter-ram' : 'enemy-ram');
+            break;
+          }
+        }
+
+        for(const bo of bosses){
+          const dx = ship.x - bo.x;
+          const dy = ship.y - bo.y;
+          if(Math.hypot(dx,dy) < ship.radius + bo.r*0.75){
+            applyHit('boss-ram');
+            break;
+          }
         }
       }
 
       if(flashTimer > 0) flashTimer -= dt;
       if(flashTimer < 0) flashTimer = 0;
+
+      // keep asteroid count near target each frame (smooth scaling)
+      const dd = difficulty();
+      while(asteroids.length < dd.asteroidTarget) spawnAsteroid(true);
+      while(asteroids.length > dd.asteroidTarget + 2) asteroids.pop(); // tiny buffer
+    }
+
+    function updateParticles(dt){
+      for(let i=particles.length-1;i>=0;i--){
+        const p = particles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vx *= 0.985;
+        p.vy *= 0.985;
+        p.life -= dt;
+        if(p.life <= 0) particles.splice(i,1);
+      }
     }
 
     // --------------------------------------------
@@ -1203,17 +1723,44 @@
       ctx.restore();
     }
 
+    function roundRect(c, x, y, w, h, r, fill, stroke) {
+      c.beginPath();
+      c.moveTo(x + r, y);
+      c.arcTo(x + w, y, x + w, y + h, r);
+      c.arcTo(x + w, y + h, x, y + h, r);
+      c.arcTo(x, y + h, x, y, r);
+      c.arcTo(x, y, x + w, y, r);
+      c.closePath();
+      if(fill) c.fill();
+      if(stroke) c.stroke();
+    }
+
     function drawShip(){
+      if(ship.exploding > 0) return;
+
       ctx.save();
       ctx.translate(ship.x, ship.y);
 
-      const glow = ctx.createRadialGradient(0,0,4, 0,0, ship.radius+10);
+      // direction based on velocity (or point-to-pointer)
+      let ang = -Math.PI/2;
+      const vmag = Math.hypot(ship.vx, ship.vy);
+      if(vmag > 0.2){
+        ang = Math.atan2(ship.vy, ship.vx) + Math.PI/2;
+      } else if(pointerActive){
+        const dx = pointerPos.x - ship.x;
+        const dy = pointerPos.y - ship.y;
+        if(Math.hypot(dx,dy) > 2) ang = Math.atan2(dy, dx) + Math.PI/2;
+      }
+      ctx.rotate(ang);
+
+      // glow
+      const glow = ctx.createRadialGradient(0,0,4, 0,0, ship.radius+14);
       glow.addColorStop(0, 'rgba(255,255,255,0.95)');
       glow.addColorStop(0.25, 'rgba(255,59,130,0.92)');
       glow.addColorStop(1, 'rgba(10,0,20,0)');
       ctx.fillStyle = glow;
       ctx.beginPath();
-      ctx.arc(0,0, ship.radius+10, 0, Math.PI*2);
+      ctx.arc(0,0, ship.radius+14, 0, Math.PI*2);
       ctx.fill();
 
       // invuln shimmer
@@ -1222,16 +1769,57 @@
         ctx.strokeStyle = `rgba(255,231,255,${pulse})`;
         ctx.lineWidth = 2;
         ctx.beginPath();
-        ctx.arc(0,0, ship.radius+4, 0, Math.PI*2);
+        ctx.arc(0,0, ship.radius+5, 0, Math.PI*2);
         ctx.stroke();
       }
 
-      ctx.fillStyle = '#ffffff';
+      // spaceship body (not cursor)
+      // fuselage
+      const bodyGrad = ctx.createLinearGradient(0, -ship.radius, 0, ship.radius);
+      bodyGrad.addColorStop(0, 'rgba(255,255,255,0.98)');
+      bodyGrad.addColorStop(1, 'rgba(230,200,255,0.78)');
+      ctx.fillStyle = bodyGrad;
       ctx.beginPath();
-      ctx.moveTo(0, -ship.radius);
-      ctx.lineTo(ship.radius*0.7, ship.radius*0.9);
-      ctx.lineTo(-ship.radius*0.7, ship.radius*0.9);
+      ctx.moveTo(0, -ship.radius*1.05);
+      ctx.quadraticCurveTo(ship.radius*0.9, 0, 0, ship.radius*1.15);
+      ctx.quadraticCurveTo(-ship.radius*0.9, 0, 0, -ship.radius*1.05);
       ctx.closePath();
+      ctx.fill();
+
+      // cockpit
+      ctx.fillStyle = 'rgba(138,43,226,0.55)';
+      ctx.strokeStyle = 'rgba(255,231,255,0.55)';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.ellipse(0, -ship.radius*0.22, ship.radius*0.32, ship.radius*0.42, 0, 0, Math.PI*2);
+      ctx.fill();
+      ctx.stroke();
+
+      // wings
+      ctx.fillStyle = 'rgba(255,231,255,0.85)';
+      ctx.beginPath();
+      ctx.moveTo(-ship.radius*0.15, ship.radius*0.25);
+      ctx.lineTo(-ship.radius*1.15, ship.radius*0.85);
+      ctx.lineTo(-ship.radius*0.25, ship.radius*0.95);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.moveTo(ship.radius*0.15, ship.radius*0.25);
+      ctx.lineTo(ship.radius*1.15, ship.radius*0.85);
+      ctx.lineTo(ship.radius*0.25, ship.radius*0.95);
+      ctx.closePath();
+      ctx.fill();
+
+      // engine flame (subtle)
+      const flame = 0.6 + 0.4*Math.sin(performance.now()/60);
+      const fg = ctx.createRadialGradient(0, ship.radius*1.28, 1, 0, ship.radius*1.35, ship.radius*0.85);
+      fg.addColorStop(0, `rgba(255,231,255,${0.85*flame})`);
+      fg.addColorStop(0.5, `rgba(255,59,130,${0.6*flame})`);
+      fg.addColorStop(1, 'rgba(10,0,20,0)');
+      ctx.fillStyle = fg;
+      ctx.beginPath();
+      ctx.ellipse(0, ship.radius*1.35, ship.radius*0.22, ship.radius*0.62, 0, 0, Math.PI*2);
       ctx.fill();
 
       ctx.restore();
@@ -1274,9 +1862,9 @@
     function drawEnemyBullets(){
       ctx.save();
       for(const eb of enemyBullets){
-        const g = ctx.createRadialGradient(eb.x, eb.y, 1, eb.x, eb.y, 10);
-        g.addColorStop(0, 'rgba(255,231,255,0.95)');
-        g.addColorStop(1, 'rgba(138,43,226,0.05)');
+        const g = ctx.createRadialGradient(eb.x, eb.y, 1, eb.x, eb.y, 12);
+        g.addColorStop(0, eb.kind === "boss" ? 'rgba(255,231,255,0.95)' : 'rgba(255,231,255,0.90)');
+        g.addColorStop(1, eb.kind === "boss" ? 'rgba(255,59,130,0.08)' : 'rgba(138,43,226,0.05)');
         ctx.fillStyle = g;
         ctx.beginPath();
         ctx.arc(eb.x, eb.y, eb.r, 0, Math.PI*2);
@@ -1338,35 +1926,109 @@
       }
     }
 
-    function roundRect(c, x, y, w, h, r, fill, stroke) {
-      c.beginPath();
-      c.moveTo(x + r, y);
-      c.arcTo(x + w, y, x + w, y + h, r);
-      c.arcTo(x + w, y + h, x, y + h, r);
-      c.arcTo(x, y + h, x, y, r);
-      c.arcTo(x, y, x + w, y, r);
-      c.closePath();
-      if(fill) c.fill();
-      if(stroke) c.stroke();
+    function drawBosses(){
+      for(const b of bosses){
+        ctx.save();
+        ctx.translate(b.x, b.y);
+
+        // aura
+        const aura = ctx.createRadialGradient(0,0,8, 0,0, b.r+26);
+        aura.addColorStop(0, `rgba(255,59,130,0.28)`);
+        aura.addColorStop(0.55, `rgba(138,43,226,0.22)`);
+        aura.addColorStop(1, `rgba(10,0,20,0)`);
+        ctx.fillStyle = aura;
+        ctx.beginPath();
+        ctx.arc(0,0, b.r+26, 0, Math.PI*2);
+        ctx.fill();
+
+        // draw image if loaded, else a “placeholder beast”
+        const img = b.img;
+        const loaded = img && img.complete && img.naturalWidth > 0;
+
+        if(loaded){
+          const w = b.r*2.2;
+          const h = b.r*2.0;
+          ctx.globalAlpha = 0.95;
+          ctx.drawImage(img, -w/2, -h/2, w, h);
+          ctx.globalAlpha = 1;
+        } else {
+          // fallback monster-ship blob
+          const g = ctx.createRadialGradient(0,0,5, 0,0, b.r);
+          g.addColorStop(0, 'rgba(255,231,255,0.95)');
+          g.addColorStop(1, 'rgba(138,43,226,0.55)');
+          ctx.fillStyle = g;
+          ctx.beginPath();
+          ctx.arc(0,0, b.r, 0, Math.PI*2);
+          ctx.fill();
+
+          ctx.strokeStyle = 'rgba(255,59,130,0.55)';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.arc(0,0, b.r*0.78, 0, Math.PI*2);
+          ctx.stroke();
+        }
+
+        // HP bar
+        const bw = 120;
+        const bh = 10;
+        const hpRatio = clamp(b.hp / b.hpMax, 0, 1);
+        ctx.fillStyle = 'rgba(0,0,0,0.45)';
+        ctx.strokeStyle = 'rgba(255,138,192,0.22)';
+        ctx.lineWidth = 1;
+        roundRect(ctx, -bw/2, b.r+16, bw, bh, 8, true, true);
+
+        ctx.fillStyle = `rgba(255,59,130,${0.65 + 0.25*(1-hpRatio)})`;
+        roundRect(ctx, -bw/2+2, b.r+18, (bw-4)*hpRatio, bh-4, 6, true, false);
+
+        ctx.restore();
+      }
+    }
+
+    function drawParticles(){
+      for(const p of particles){
+        const t = clamp(p.life / p.maxLife, 0, 1);
+        const a = 0.85 * t;
+        ctx.fillStyle = p.hot ? `rgba(255,59,130,${a})` : `rgba(255,231,255,${a})`;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+        ctx.fill();
+      }
     }
 
     function drawDamageFlash(){
       if(flashTimer <= 0) return;
       ctx.save();
-      const a = clamp(flashTimer/120, 0, 1) * 0.35;
+      const a = clamp(flashTimer/140, 0, 1) * 0.35;
       ctx.fillStyle = `rgba(255,42,42,${a})`;
       ctx.fillRect(0,0,width,height);
       ctx.restore();
     }
 
     function drawGameOver(){
-      // we no longer hard game-over; we do 10-hit reset instead
-      // (keeping function in case you want to bring it back later)
+      ctx.save();
+      ctx.fillStyle = 'rgba(0,0,0,0.62)';
+      ctx.fillRect(0,0,width,height);
+
+      const title = "GAME OVER";
+      const sub = "Hit Restart (left bubble) to run it back.";
+
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+
+      ctx.fillStyle = 'rgba(255,231,255,0.95)';
+      ctx.font = '900 34px system-ui';
+      ctx.fillText(title, width/2, height/2 - 18);
+
+      ctx.fillStyle = 'rgba(228,228,255,0.85)';
+      ctx.font = '14px system-ui';
+      ctx.fillText(sub, width/2, height/2 + 18);
+
+      ctx.restore();
     }
 
     function loop(timestamp){
       if(!lastTime) lastTime = timestamp;
-      const dt = timestamp - lastTime;
+      const dt = clamp(timestamp - lastTime, 0, 40); // clamp prevents “spiral of death” stutter
       lastTime = timestamp;
 
       update(dt);
@@ -1379,16 +2041,21 @@
       drawBackgroundInGame();
       drawAsteroids();
       drawEnemies();
+      drawBosses();
       drawEnemyBullets();
       drawBullets();
+      drawParticles();
       drawShip();
       drawDamageFlash();
+
+      if(gameOver) drawGameOver();
 
       requestAnimationFrame(loop);
     }
 
     // start
     resetRun(true);
+    beginLevel(1);
     requestAnimationFrame(loop);
   </script>
 </body>
