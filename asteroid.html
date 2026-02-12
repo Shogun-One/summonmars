@@ -79,6 +79,16 @@
       max-width:420px;
     }
 
+    /* MOVED: instructions now directly under subtitle */
+    .controls{
+      font-size:.82rem;
+      opacity:.9;
+      text-align:center;
+      margin-top:.15rem;
+      line-height:1.35;
+      max-width:460px;
+    }
+
     .hud{
       display:flex;
       justify-content:space-between;
@@ -86,7 +96,7 @@
       max-width:480px;
       font-size:.85rem;
       opacity:.92;
-      margin-top:.3rem;
+      margin-top:.15rem;
       gap:.6rem;
       flex-wrap:wrap;
     }
@@ -148,17 +158,13 @@
       user-select:none;
       z-index:3;
     }
-
     .music-btn:hover{ filter:brightness(1.08); }
     .music-btn:active{ transform:translateY(1px); }
 
     .music-btn .ring{
-      width:38px;
-      height:38px;
-      border-radius:999px;
+      width:38px;height:38px;border-radius:999px;
       border:1px solid rgba(228,228,255,.35);
-      display:grid;
-      place-items:center;
+      display:grid;place-items:center;
       box-shadow: inset 0 0 14px rgba(255,138,192,.16);
       position:relative;
     }
@@ -272,6 +278,7 @@
       place-items:center;
       user-select:none;
       pointer-events:auto;
+      touch-action:none;
     }
     .mini-bubble:hover{ filter:brightness(1.08); }
     .mini-bubble:active{ transform:translateY(1px); }
@@ -316,7 +323,6 @@
     /* Mini Joystick */
     .mini-joystick{
       position:relative;
-      touch-action:none;
       overflow:hidden;
     }
     .mini-joystick .stick{
@@ -333,18 +339,8 @@
       box-shadow:0 0 12px rgba(255,138,192,.35);
     }
 
-    .controls{
-      font-size:.8rem;
-      opacity:.88;
-      text-align:center;
-      margin-top:.3rem;
-      line-height:1.45;
-    }
-    .controls strong{ color:var(--accent-soft); }
-    .hint{ font-size:.75rem; opacity:.72; margin-top:.2rem; }
-
     button#reset-btn{
-      margin-top:.4rem;
+      margin-top:.35rem;
       padding:.4rem .9rem;
       border-radius:999px;
       border:none;
@@ -517,6 +513,12 @@
     <h1>ASTEROID DRIFT</h1>
     <div class="subtitle">Neon field. Heavy debris. Purple ships with loud opinions.</div>
 
+    <!-- MOVED + simplified per request -->
+    <div class="controls">
+      Use the joystick to drive your ship through the carnage, maybe get highest score
+      <button id="reset-btn">Reset Field</button>
+    </div>
+
     <div class="hud">
       <div class="pill">Score: <span id="score">0</span></div>
       <div class="pill">Best: <span id="best">0</span></div>
@@ -549,12 +551,6 @@
         <span class="label">Music</span>
         <span class="ring"><span class="dot"></span></span>
       </button>
-    </div>
-
-    <div class="controls">
-      Use the joystick to drive your ship through the carnage, maybe get highest score
-      <div class="hint">Beat 10 asteroids to level up. Every 10th level is a boss. 😈</div>
-      <button id="reset-btn">Reset Field</button>
     </div>
   </div>
 
@@ -922,15 +918,25 @@
     hitsMaxEl.textContent = MAX_HITS;
     toNextMaxEl.textContent = KILLS_TO_LEVEL;
 
+    // Ship sprite
+    const shipImg = new Image();
+    shipImg.decoding = "async";
+    shipImg.loading = "eager";
+    shipImg.src = "images/spaceship.png"; // YOU will upload this
+    let shipImgReady = false;
+    shipImg.onload = () => { shipImgReady = true; };
+    shipImg.onerror = () => { shipImgReady = false; };
+
     const ship = {
       x: width / 2,
       y: height / 2,
-      radius: 16,
-      speed: 4.6,
+      radius: 18,          // visual/col radius
+      speed: 4.6,          // legacy, but kept
       vx: 0, vy: 0,
       invuln: 0,
       exploding: 0,
-      angle: 0
+      angle: 0,
+      aimX: 0, aimY: -1    // last aim direction (normalized)
     };
 
     const keysDown = {};
@@ -1230,6 +1236,7 @@
       ship.invuln = 1100;
       ship.exploding = 0;
       ship.angle = 0;
+      ship.aimX = 0; ship.aimY = -1;
 
       bullets = [];
       enemyBullets = [];
@@ -1277,13 +1284,14 @@
       paused = p;
       pauseBtn.classList.toggle('on', paused);
       pauseBtn.querySelector('.label').textContent = paused ? 'Paused' : 'Pause';
-      // keep running false while paused
       if(paused) running = false;
       else if(preStartTimer <= 0 && !gameOver) running = true;
     }
 
-    pauseBtn.addEventListener('click', (e) => {
+    // FIX: pause responds on pointerdown (more reliable on mobile)
+    pauseBtn.addEventListener('pointerdown', (e) => {
       e.preventDefault();
+      e.stopPropagation();
       if(gameOver) return;
       setPaused(!paused);
     });
@@ -1303,10 +1311,14 @@
     // =========================
     let joyActive = false;
     let joyVec = { x: 0, y: 0 };
-    const JOY_MAX = 10; // pixel-ish internal limit
+    const DEADZONE = 0.08;
+
+    // Tap joystick quickly to toggle pause (requested)
+    let joyTapStartT = 0;
+    let joyTapStartX = 0;
+    let joyTapStartY = 0;
 
     function setStickVisual(nx, ny){
-      // nx,ny in [-1,1]
       const max = 10;
       stickEl.style.transform = `translate(calc(-50% + ${nx*max}px), calc(-50% + ${ny*max}px))`;
     }
@@ -1328,16 +1340,21 @@
       let dx = clientX - cx;
       let dy = clientY - cy;
 
+      const maxDist = Math.max(8, Math.min(r.width, r.height) * 0.30);
       const dist = Math.hypot(dx,dy) || 1;
-      const maxDist = Math.min(r.width, r.height) * 0.30; // keep it inside bubble
 
       if(dist > maxDist){
         dx = (dx/dist) * maxDist;
         dy = (dy/dist) * maxDist;
       }
 
-      const nx = clamp(dx / maxDist, -1, 1);
-      const ny = clamp(dy / maxDist, -1, 1);
+      let nx = clamp(dx / maxDist, -1, 1);
+      let ny = clamp(dy / maxDist, -1, 1);
+
+      // deadzone (prevents tiny “left drift” nonsense)
+      if(Math.hypot(nx, ny) < DEADZONE){
+        nx = 0; ny = 0;
+      }
 
       joyVec.x = nx;
       joyVec.y = ny;
@@ -1353,24 +1370,42 @@
 
     joystickEl.addEventListener('pointerdown', (e) => {
       e.preventDefault();
+      e.stopPropagation();
       joystickEl.setPointerCapture(e.pointerId);
       joyActive = true;
+      joyTapStartT = performance.now();
+      joyTapStartX = e.clientX;
+      joyTapStartY = e.clientY;
       joyFromEvent(e);
     });
 
     joystickEl.addEventListener('pointermove', (e) => {
       if(!joyActive) return;
       e.preventDefault();
+      e.stopPropagation();
       joyFromEvent(e);
     });
 
-    joystickEl.addEventListener('pointerup', (e) => { e.preventDefault(); joyEnd(); });
-    joystickEl.addEventListener('pointercancel', (e) => { e.preventDefault(); joyEnd(); });
+    joystickEl.addEventListener('pointerup', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      // quick tap toggles pause
+      const dt = performance.now() - joyTapStartT;
+      const moved = Math.hypot((e.clientX - joyTapStartX), (e.clientY - joyTapStartY));
+      if(dt < 220 && moved < 10 && !gameOver){
+        setPaused(!paused);
+      }
+
+      joyEnd();
+    });
+    joystickEl.addEventListener('pointercancel', (e) => { e.preventDefault(); e.stopPropagation(); joyEnd(); });
 
     // =========================
     // Shooting (AUTO FIRE)
     // =========================
     function forwardAngle(){
+      // ship.angle is "nose up" friendly, we keep the original bullet math
       return ship.angle - Math.PI/2;
     }
 
@@ -1390,11 +1425,11 @@
 
       const px = -fy, py = fx;
 
-      const noseX = ship.x + fx*(ship.radius*1.10);
-      const noseY = ship.y + fy*(ship.radius*1.10);
+      const noseX = ship.x + fx*(ship.radius*1.20);
+      const noseY = ship.y + fy*(ship.radius*1.20);
 
-      const tailX = ship.x - fx*(ship.radius*1.05);
-      const tailY = ship.y - fy*(ship.radius*1.05);
+      const tailX = ship.x - fx*(ship.radius*1.10);
+      const tailY = ship.y - fy*(ship.radius*1.10);
 
       if(weaponMode === "dual"){
         const off = 6.2;
@@ -1531,6 +1566,73 @@
     }
 
     // =========================
+    // Movement physics (real ship)
+    // =========================
+    const SHIP_ACCEL = 0.022;      // per ms-ish
+    const SHIP_MAXSPD = 5.2;
+    const SHIP_FRICTION = 0.985;   // per frame
+
+    function updateShip(dt){
+      if(ship.exploding !== 0) return;
+
+      // input vector from keyboard + joystick
+      let ix = 0, iy = 0;
+
+      if(keysDown['ArrowLeft'] || keysDown['a'] || keysDown['A']) ix -= 1;
+      if(keysDown['ArrowRight'] || keysDown['d'] || keysDown['D']) ix += 1;
+      if(keysDown['ArrowUp'] || keysDown['w'] || keysDown['W']) iy -= 1;
+      if(keysDown['ArrowDown'] || keysDown['s'] || keysDown['S']) iy += 1;
+
+      if(joyActive && (Math.abs(joyVec.x) > 0.01 || Math.abs(joyVec.y) > 0.01)){
+        ix = joyVec.x;
+        iy = joyVec.y;
+      }
+
+      // normalize
+      const il = Math.hypot(ix, iy);
+      if(il > 1e-6){
+        ix /= il; iy /= il;
+
+        // update aim direction (so ship rotates properly even if friction slows it down)
+        ship.aimX = ix;
+        ship.aimY = iy;
+      }
+
+      // thrust
+      const thrust = (il > 1e-6) ? 1 : 0;
+      ship.vx += ix * (SHIP_ACCEL * dt) * thrust;
+      ship.vy += iy * (SHIP_ACCEL * dt) * thrust;
+
+      // friction
+      ship.vx *= Math.pow(SHIP_FRICTION, dt/16.67);
+      ship.vy *= Math.pow(SHIP_FRICTION, dt/16.67);
+
+      // clamp speed
+      const sp = Math.hypot(ship.vx, ship.vy);
+      if(sp > SHIP_MAXSPD){
+        ship.vx = (ship.vx/sp) * SHIP_MAXSPD;
+        ship.vy = (ship.vy/sp) * SHIP_MAXSPD;
+      }
+
+      ship.x += ship.vx;
+      ship.y += ship.vy;
+
+      // bounds
+      if(ship.x < ship.radius) ship.x = ship.radius;
+      if(ship.x > width - ship.radius) ship.x = width - ship.radius;
+      if(ship.y < ship.radius) ship.y = ship.radius;
+      if(ship.y > height - ship.radius) ship.y = height - ship.radius;
+
+      // rotate toward aim if we have it; otherwise toward velocity
+      const aimMag = Math.hypot(ship.aimX, ship.aimY);
+      if(aimMag > 0.5){
+        ship.angle = Math.atan2(ship.aimY, ship.aimX) + Math.PI/2;
+      } else if(sp > 0.25){
+        ship.angle = Math.atan2(ship.vy, ship.vx) + Math.PI/2;
+      }
+    }
+
+    // =========================
     // Update loop
     // =========================
     function update(dt){
@@ -1584,40 +1686,8 @@
         nextLifeAt = now + rand(16000, 26000);
       }
 
-      if(ship.exploding === 0){
-        let mvx = 0, mvy = 0;
-
-        // keyboard
-        if(keysDown['ArrowLeft'] || keysDown['a'] || keysDown['A']) mvx -= 1;
-        if(keysDown['ArrowRight'] || keysDown['d'] || keysDown['D']) mvx += 1;
-        if(keysDown['ArrowUp'] || keysDown['w'] || keysDown['W']) mvy -= 1;
-        if(keysDown['ArrowDown'] || keysDown['s'] || keysDown['S']) mvy += 1;
-
-        // joystick overrides if active
-        if(joyActive && (Math.abs(joyVec.x) > 0.05 || Math.abs(joyVec.y) > 0.05)){
-          mvx = joyVec.x;
-          mvy = joyVec.y;
-        }
-
-        const len = Math.hypot(mvx, mvy);
-        if(len > 0){ mvx /= len; mvy /= len; }
-
-        ship.vx = mvx * ship.speed;
-        ship.vy = mvy * ship.speed;
-
-        ship.x += ship.vx;
-        ship.y += ship.vy;
-
-        if(ship.x < ship.radius) ship.x = ship.radius;
-        if(ship.x > width - ship.radius) ship.x = width - ship.radius;
-        if(ship.y < ship.radius) ship.y = ship.radius;
-        if(ship.y > height - ship.radius) ship.y = height - ship.radius;
-
-        const vmag = Math.hypot(ship.vx, ship.vy);
-        if(vmag > 0.2){
-          ship.angle = Math.atan2(ship.vy, ship.vx) + Math.PI/2;
-        }
-      }
+      // REAL ship movement
+      updateShip(dt);
 
       // AUTO FIRE
       shootCooldown -= dt;
@@ -1862,13 +1932,14 @@
       ctx.translate(ship.x, ship.y);
       ctx.rotate(ship.angle || 0);
 
-      const glow = ctx.createRadialGradient(0,0,4, 0,0, ship.radius+14);
-      glow.addColorStop(0, 'rgba(255,255,255,0.95)');
-      glow.addColorStop(0.25, 'rgba(255,59,130,0.92)');
+      // glow aura
+      const glow = ctx.createRadialGradient(0,0,4, 0,0, ship.radius+18);
+      glow.addColorStop(0, 'rgba(255,255,255,0.55)');
+      glow.addColorStop(0.28, 'rgba(255,59,130,0.45)');
       glow.addColorStop(1, 'rgba(10,0,20,0)');
       ctx.fillStyle = glow;
       ctx.beginPath();
-      ctx.arc(0,0, ship.radius+14, 0, Math.PI*2);
+      ctx.arc(0,0, ship.radius+18, 0, Math.PI*2);
       ctx.fill();
 
       if(ship.invuln > 0){
@@ -1876,28 +1947,37 @@
         ctx.strokeStyle = `rgba(255,231,255,${pulse})`;
         ctx.lineWidth = 2;
         ctx.beginPath();
-        ctx.arc(0,0, ship.radius+5, 0, Math.PI*2);
+        ctx.arc(0,0, ship.radius+6, 0, Math.PI*2);
         ctx.stroke();
       }
 
-      const bodyGrad = ctx.createLinearGradient(0, -ship.radius, 0, ship.radius);
-      bodyGrad.addColorStop(0, 'rgba(255,255,255,0.98)');
-      bodyGrad.addColorStop(1, 'rgba(230,200,255,0.78)');
-      ctx.fillStyle = bodyGrad;
-      ctx.beginPath();
-      ctx.moveTo(0, -ship.radius*1.05);
-      ctx.quadraticCurveTo(ship.radius*0.9, 0, 0, ship.radius*1.15);
-      ctx.quadraticCurveTo(-ship.radius*0.9, 0, 0, -ship.radius*1.05);
-      ctx.closePath();
-      ctx.fill();
+      // sprite (preferred)
+      if(shipImgReady && shipImg.naturalWidth > 0){
+        const s = ship.radius * 3.0; // size tuning
+        ctx.globalAlpha = 0.98;
+        ctx.drawImage(shipImg, -s/2, -s/2, s, s);
+        ctx.globalAlpha = 1;
+      } else {
+        // fallback vector ship (only if sprite missing)
+        const bodyGrad = ctx.createLinearGradient(0, -ship.radius, 0, ship.radius);
+        bodyGrad.addColorStop(0, 'rgba(255,255,255,0.98)');
+        bodyGrad.addColorStop(1, 'rgba(230,200,255,0.78)');
+        ctx.fillStyle = bodyGrad;
+        ctx.beginPath();
+        ctx.moveTo(0, -ship.radius*1.15);
+        ctx.quadraticCurveTo(ship.radius*0.95, 0, 0, ship.radius*1.25);
+        ctx.quadraticCurveTo(-ship.radius*0.95, 0, 0, -ship.radius*1.15);
+        ctx.closePath();
+        ctx.fill();
 
-      ctx.fillStyle = 'rgba(138,43,226,0.55)';
-      ctx.strokeStyle = 'rgba(255,231,255,0.55)';
-      ctx.lineWidth = 1.5;
-      ctx.beginPath();
-      ctx.ellipse(0, -ship.radius*0.22, ship.radius*0.32, ship.radius*0.42, 0, 0, Math.PI*2);
-      ctx.fill();
-      ctx.stroke();
+        ctx.fillStyle = 'rgba(138,43,226,0.55)';
+        ctx.strokeStyle = 'rgba(255,231,255,0.55)';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.ellipse(0, -ship.radius*0.22, ship.radius*0.32, ship.radius*0.42, 0, 0, Math.PI*2);
+        ctx.fill();
+        ctx.stroke();
+      }
 
       ctx.restore();
     }
@@ -2171,7 +2251,7 @@
       ctx.fillText('PAUSED', width/2, height/2);
       ctx.fillStyle='rgba(228,228,255,0.85)';
       ctx.font='13px system-ui';
-      ctx.fillText('Tap Pause to resume', width/2, height/2 + 30);
+      ctx.fillText('Tap Pause (or tap joystick) to resume', width/2, height/2 + 30);
       ctx.restore();
     }
 
