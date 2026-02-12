@@ -1110,11 +1110,13 @@ footer {
 
       app.ACTORS = {
         player: new app.Player(),
-        allEnemies: [
-          new app.Enemy(70),
-          new app.Enemy(140),
-          new app.Enemy(210)
-        ],
+          allEnemies: [
+    new app.Enemy(70),
+    new app.Enemy(140),
+    new app.Enemy(210),
+    new app.Enemy(280)
+  ],
+
         pizza: new app.Pizza(),
         heart: new app.Heart()
       };
@@ -1170,10 +1172,11 @@ footer {
         app.GameState.updateFromScore(0);
 
         app.ACTORS.allEnemies = [
-          new app.Enemy(70),
-          new app.Enemy(140),
-          new app.Enemy(210)
-        ];
+  new app.Enemy(70),
+  new app.Enemy(140),
+  new app.Enemy(210),
+  new app.Enemy(280) // NEW lane
+];
 
         app.ACTORS.pizza = new app.Pizza();
         app.ACTORS.heart = new app.Heart();
@@ -1281,13 +1284,13 @@ if (player.y <= 0) {
         var baseExtra = Math.min(2, app.GameState.getDifficultyTier()); // from original
         var extraFromDiff = diff.extraEnemiesCap;                      // from bubble
         var extraCount = Math.min(3, baseExtra + extraFromDiff);
-        var desiredCount = 3 + extraCount;
+        var desiredCount = 4 + extraCount;
 
         // gently cap total enemies so it never becomes instant chaos
         desiredCount = Math.min(desiredCount, 8);
 
         while (allEnemies.length < desiredCount) {
-          var laneIndex = allEnemies.length % 3;
+          var laneIndex = allEnemies.length % 4;
           var laneY = 70 + laneIndex * app.GAME_CONFIG.TILE_HEIGHT;
           allEnemies.push(new app.Enemy(laneY));
         }
@@ -1306,10 +1309,11 @@ if (player.y <= 0) {
           "images/stone-block.png",
           "images/stone-block.png",
           "images/stone-block.png",
+          "images/stone-block.png",   // NEW lane
           "images/grass-block1.png",
           "images/grass-block.png"
         ];
-        var numRows = 6;
+        var numRows = 7;
         var numCols = 5;
 
         for (var row = 0; row < numRows; row++) {
