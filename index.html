@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <title>Summon Mars</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 
   <link rel="icon" type="image/png" sizes="32x32" href="url-logo.png" />
 
@@ -117,6 +117,12 @@
       padding: 0;
       box-sizing: border-box;
     }
+
+    /* STOP SIDEWAYS SCROLL (MOBILE FIX) */
+    html, body{
+  max-width: 100%;
+  overflow-x: hidden;
+}
 
     /* THEME COLORS */
     :root {
@@ -627,6 +633,18 @@
       animation: pulseBeat 0.9s ease-in-out infinite;
     }
 
+    /* --- RESPONSIVE LAYOUT FOUNDATION --- */
+:root{
+  --maxw: 1100px;
+  --pad: clamp(14px, 3vw, 28px);
+}
+
+.container{
+  width: min(var(--maxw), 100%);
+  margin: 0 auto;
+  padding: 0 var(--pad);
+}
+    
     /* VIDEO */
     .video-wrapper {
       margin-top: 0;
@@ -1040,6 +1058,8 @@
   <div class="shooting-stars"></div>
   <div class="aurora-layer"></div>
 
+  <div class="container">
+
   <header class="hero">
     <nav class="main-nav">
       <a href="#music">Music</a>
@@ -1232,39 +1252,31 @@
     </section>
 
     <section id="games">
-  <h2>Games</h2>    
+  <h2>Games</h2>
   <h2>"ENTER THE CABINET"</h2>
-  
+
   <p class="insert-coin">INSERT COIN</p>
-</div>
 
-    <div class="merch-grid">
+  <div class="merch-grid">
 
-      <div class="merch-card">
-        <img src="random-gametag.png" alt="Game One" />
-        <div class="merch-title">GAME 01 - SOON!</div>
-        <a class="merch-button" href="#">
-          Play Soon!
-        </a>
-      </div>
-
-      <div class="merch-card asteroid-showcase">
-        <img src="asteroids-game.png" alt="Asteroid Drift" />
-        <div class="merch-title">Asteroid Drift</div>
-        <a class="merch-button" href="asteroid.html">
-          Play Now!
-        </a>
-      </div>
-
-      <div class="merch-card">
-       <img src="tmnt-gametag.png" alt="TMNT" />
-       <div class="merch-title">TMNT – Get That Slice!</div>
-       <a class="merch-button" href="tmnt.html">
-          Play Now!
-     </a>
-   </div>
-
+    <div class="merch-card">
+      <img src="random-gametag.png" alt="Game One" />
+      <div class="merch-title">GAME 01 - SOON!</div>
+      <a class="merch-button" href="#">Play Soon!</a>
     </div>
+
+    <div class="merch-card asteroid-showcase">
+      <img src="asteroids-game.png" alt="Asteroid Drift" />
+      <div class="merch-title">Asteroid Drift</div>
+      <a class="merch-button" href="asteroids.html">Play Now!</a>
+    </div>
+
+    <div class="merch-card">
+      <img src="tmnt-gametag.png" alt="TMNT" />
+      <div class="merch-title">TMNT – Get That Slice!</div>
+      <a class="merch-button" href="tmnt.html">Play Now!</a>
+    </div>
+
   </div>
 </section>
 
@@ -1658,6 +1670,7 @@
     wrapper.classList.add('paused'); // Ensure poster shows initially
   });
 </script> 
-  
+
+</div>    
 </body>
 </html>
