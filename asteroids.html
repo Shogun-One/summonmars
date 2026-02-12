@@ -675,7 +675,6 @@
 
   <footer>
     © 2026 Summon Mars ™. All rights reserved.
-    </div>
   </footer>
   <div class="visit-counter">
     Visitors: <span id="busuanzi_value_site_uv"></span>
@@ -996,6 +995,23 @@
     // Music
     const musicBtn = document.getElementById('musicBtn');
     const music = new Audio('asteroid-track.mp3');
+
+    // Boss incoming sting
+    const bossSting = new Audio('boss-sting.mp3'); // <-- upload this file next to asteroid-track.mp3
+    bossSting.preload = 'auto';
+    bossSting.volume = 0.85;
+
+    // Micro screen shake (canvas)
+    let shakeT = 0;          // ms remaining
+    let shakeMag = 0;        // px max
+    function addShake(mag = 2, ms = 160){
+      shakeMag = Math.max(shakeMag, mag);
+      shakeT = Math.max(shakeT, ms);
+    }
+
+    // Ensure sting only plays once per "INCOMING BOSS" event
+    let bossIncomingDidSting = false;
+
     window.__marsMusic = music;
     music.loop = true;
     music.preload = 'auto';
@@ -1128,6 +1144,9 @@
 
     // NEW: level-up toast timer (no countdown on level ups)
     let levelUpTimer = 0;
+
+    // NEW: boss incoming toast timer (no pause)
+    let bossIncomingTimer = 0;
 
     let lastTime = 0;
     let shootCooldown = 0;
@@ -1390,8 +1409,13 @@
       const minEnemies = clamp(Math.floor(d.enemyCap * 0.55), 1, 4);
       while(enemies.length < minEnemies) spawnEnemy();
 
-      if(level % 10 === 0) spawnBossPackForLevel(level);
-      else bosses = [];
+      if (level % 10 === 0) {
+        spawnBossPackForLevel(level);
+        bossIncomingTimer = 1100;
+        bossIncomingDidSting = false; // reset so sting plays every boss
+      } else {
+        bosses = [];
+      }
 
       if(opts && opts.levelUp){
         // NO countdown pause on level up
@@ -1822,6 +1846,18 @@
 
       if(levelUpTimer > 0) levelUpTimer -= dt;
       if(levelUpTimer < 0) levelUpTimer = 0;
+
+      // decay screen shake
+      if (shakeT > 0) {
+        shakeT -= dt;
+        if (shakeT <= 0) {
+          shakeT = 0;
+          shakeMag = 0;
+        }
+      }
+
+      if(bossIncomingTimer > 0) bossIncomingTimer -= dt;
+      if(bossIncomingTimer < 0) bossIncomingTimer = 0;
 
       if(paused){
         updateParticles(dt);
@@ -2472,6 +2508,48 @@
       ctx.restore();
     }
 
+    // NEW: INCOMING BOSS toast (no pause)
+    function drawBossIncoming(){
+      if(bossIncomingTimer <= 0 || gameOver) return;
+
+      // One-time sting + micro-shake when the warning first appears
+      if (!bossIncomingDidSting) {
+        bossIncomingDidSting = true;
+        addShake(2, 160);
+        try {
+          bossSting.currentTime = 0;
+          bossSting.play().catch(() => {});
+        } catch {}
+      }
+
+      ctx.save();
+      const t = clamp(bossIncomingTimer / 1100, 0, 1);
+      const a = clamp(0.25 + (1-t)*0.25, 0.18, 0.60);
+
+      // punchier spotlight
+      const g = ctx.createRadialGradient(width/2, height/2, 10, width/2, height/2, 280);
+      g.addColorStop(0, `rgba(255,42,42,${0.22*a})`);
+      g.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = g;
+      ctx.fillRect(0,0,width,height);
+
+      ctx.textAlign='center';
+      ctx.textBaseline='middle';
+
+      ctx.fillStyle = `rgba(255,231,255,0.96)`;
+      ctx.font='900 42px Orbitron, system-ui';
+      ctx.shadowColor = 'rgba(255,42,42,0.55)';
+      ctx.shadowBlur = 18;
+      ctx.fillText('INCOMING BOSS', width/2, height/2 - 8);
+
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = 'rgba(228,228,255,0.84)';
+      ctx.font='12px system-ui';
+      ctx.fillText('Brace for loud opinions.', width/2, height/2 + 30);
+
+      ctx.restore();
+    }
+
     function drawPaused(){
       if(!paused || gameOver) return;
       ctx.save();
@@ -2513,7 +2591,20 @@
       drawSky();
 
       ctx.clearRect(0,0,width,height);
+
+      // Apply tiny camera shake to gameplay layer
+      let sx = 0, sy = 0;
+      if (shakeT > 0) {
+        const t = Math.max(0, Math.min(1, shakeT / 160)); // normalize
+        const m = shakeMag * t;
+        sx = (Math.random() * 2 - 1) * m;
+        sy = (Math.random() * 2 - 1) * m;
+        ctx.save();
+        ctx.translate(sx, sy);
+      }
+
       drawBackgroundInGame();
+
       drawAsteroids();
       drawEnemies();
       drawBosses();
@@ -2522,9 +2613,13 @@
       drawBullets();
       drawParticles();
       drawShip();
+
+      if (shakeT > 0) ctx.restore();
+
       drawDamageFlash();
 
       drawLevelUp();        // NEW
+      drawBossIncoming();   // NEW
 
       if(gameOver) drawGameOver();
       drawCountdown();      // still used for start + respawn grace
