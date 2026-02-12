@@ -2,255 +2,514 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1, maximum-scale=1"
-  />
-  <title>TMNT - Get That Slice!</title>
+  <title>TMNT - Get That Slice! - Summon Mars Arcade</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="icon" href="images/tmnticon.png" />
 
+  <!-- Spacey title + clean HUD fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+
   <style>
-    /* --- SECURITY LOCKDOWN PROTOCOLS (copied from videos.html) --- */
-    body {
-      -webkit-user-select: none;
-      -moz-user-select: none;
-      -ms-user-select: none;
-      user-select: none;
-      -webkit-touch-callout: none;
+    :root{
+      --bg1:#05030b;
+      --bg2:#0b2a12;
+      --accent:#3cff9c;         /* neon green */
+      --accent-soft:#9dffbf;    /* softer green */
+      --hud:#e4e4ff;
+      --danger:#ff2a2a;
+      --ink:#07060a;
     }
 
-    img {
-      pointer-events: none;
-      -webkit-user-drag: none;
+    *{ box-sizing:border-box; }
+
+    body{
+      margin:0;
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-family:Rajdhani, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background:radial-gradient(circle at top, var(--bg2), var(--bg1));
+      color:var(--hud);
+      overflow:hidden;
+
+      /* --- SECURITY LOCKDOWN PROTOCOLS (like your other pages) --- */
+      -webkit-user-select:none;
+      -moz-user-select:none;
+      -ms-user-select:none;
+      user-select:none;
+      -webkit-touch-callout:none;
     }
 
-    /* --- BASIC PAGE LAYOUT --- */
-    body {
-      margin: 0;
-      padding: 0;
-      text-align: center;
-      background: #111;
-      color: #f5f5f5;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-        sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-      min-height: 100vh;
-      overflow-x: hidden;
-      overflow-y: auto; /* allow scroll if needed on small screens */
+    img{
+      pointer-events:none;
+      -webkit-user-drag:none;
+      user-drag:none;
     }
 
-    h1 {
-      margin-top: 16px;
-      margin-bottom: 4px;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      font-size: 1.4rem;
-      color: #7bff7b;
-      text-shadow: 0 0 8px rgba(0, 255, 100, 0.6);
+    /* full-page background canvas (outside the game window) */
+    #bgfx{
+      position:fixed;
+      inset:0;
+      width:100vw;
+      height:100vh;
+      z-index:0;
+      pointer-events:none;
     }
 
-    p {
-      margin: 4px 16px 10px;
-      max-width: 480px;
-      font-size: 0.9rem;
-      color: #ddd;
+    .wrapper{
+      position:relative;
+      z-index:2;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:.55rem;
+      padding:.85rem;
+      width:min(560px, 100vw);
     }
 
-    .banner {
-      margin-top: 6px;
-      max-width: 480px;
-      width: 100%;
-      border-radius: 6px;
-      box-shadow:
-        0 0 20px rgba(0, 255, 100, 0.4),
-        0 0 40px rgba(0, 0, 0, 0.9);
+    h1{
+      margin:0;
+      font-family:Orbitron, system-ui, sans-serif;
+      font-size:1.55rem;
+      letter-spacing:.14em;
+      text-transform:uppercase;
+      text-align:center;
+      color:var(--accent-soft);
+      text-shadow:0 0 18px rgba(60,255,156,.22);
     }
 
-    /* Canvas: original resolution but responsive width */
-    #game {
-      margin-top: 10px;
-      border-radius: 6px;
-      box-shadow:
-        0 0 20px rgba(0, 255, 100, 0.7),
-        0 0 60px rgba(0, 0, 0, 0.9);
-      background: #000;
-      width: 100%;
-      max-width: 505px;
-      height: auto; /* scales with width */
-      display: block;
+    .subtitle{
+      font-size:.95rem;
+      opacity:.88;
+      text-align:center;
+      max-width:520px;
+      line-height:1.25;
+    }
+    .subtitle strong{ color:var(--accent-soft); font-weight:800; }
+
+    .hud{
+      display:flex;
+      justify-content:space-between;
+      width:100%;
+      max-width:520px;
+      font-size:.95rem;
+      opacity:.95;
+      margin-top:.2rem;
+      gap:.55rem;
+      flex-wrap:wrap;
     }
 
-    /* Optional tiny legal text at the bottom */
-    .legal {
-      margin-top: 10px;
-      font-size: 0.7rem;
-      color: #888;
-      max-width: 520px;
-      line-height: 1.3;
-      padding-bottom: 16px;
+    .hud .pill{
+      background:rgba(0,0,0,.22);
+      border:1px solid rgba(157,255,191,.18);
+      border-radius:999px;
+      padding:.3rem .65rem;
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+    }
+
+    .hud .pill b{
+      font-family:Orbitron, system-ui, sans-serif;
+      letter-spacing:.06em;
+      color:var(--accent-soft);
+      font-weight:800;
+    }
+
+    .game-shell{
+      position:relative;
+      width:100%;
+      display:flex;
+      justify-content:center;
+      margin-top:.3rem;
+    }
+
+    canvas#game{
+      border-radius:18px;
+      background:
+        radial-gradient(circle at top, rgba(26, 56, 34, 0.85), rgba(5, 2, 10, 0.95)),
+        repeating-radial-gradient(circle at center, rgba(255,255,255,0.05), rgba(255,255,255,0.05) 1px, transparent 1px, transparent 3px);
+      box-shadow:0 0 25px rgba(0,0,0,.8), 0 0 26px rgba(60,255,156,.35);
+      touch-action:none;
+      width:100%;
+      max-width:520px;
+      height:auto;
+      display:block;
+      position:relative;
+      z-index:2;
+    }
+
+    /* --- Round transparent bubbles (bottom aligned like Asteroids) --- */
+    .bubble-btn{
+      position:absolute;
+      bottom:14px;
+      width:54px;
+      height:54px;
+      border-radius:999px;
+      border:1px solid rgba(157,255,191,.45);
+      background:radial-gradient(circle at 30% 30%, rgba(255,255,255,.10), rgba(60,255,156,.05) 55%, rgba(0,0,0,.22));
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      box-shadow:0 0 18px rgba(60,255,156,.18);
+      cursor:pointer;
+      display:grid;
+      place-items:center;
+      user-select:none;
+      z-index:3;
+      padding:0;
+    }
+    .bubble-btn:hover{ filter:brightness(1.08); }
+    .bubble-btn:active{ transform:translateY(1px); }
+
+    .bubble-btn .ring{
+      width:38px;
+      height:38px;
+      border-radius:999px;
+      border:1px solid rgba(228,228,255,.30);
+      display:grid;
+      place-items:center;
+      box-shadow: inset 0 0 14px rgba(157,255,191,.12);
+      position:relative;
+    }
+
+    .bubble-btn .label{
+      position:absolute;
+      bottom:62px;
+      left:50%;
+      transform:translateX(-50%);
+      font-size:.72rem;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      color:rgba(228,228,255,.85);
+      background:rgba(0,0,0,.25);
+      border:1px solid rgba(157,255,191,.18);
+      padding:.22rem .55rem;
+      border-radius:999px;
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      white-space:nowrap;
+      opacity:.95;
+      pointer-events:none;
+    }
+
+    /* Difficulty bubble (bottom-left) */
+    .difficulty-btn{ left:14px; }
+    .difficulty-btn .dot{
+      width:10px;height:10px;border-radius:999px;
+      background:rgba(157,255,191,.95);
+      box-shadow:0 0 10px rgba(60,255,156,.55);
+    }
+
+    /* Restart bubble (bottom-center) */
+    .restart-btn{
+      left:50%;
+      transform:translateX(-50%);
+    }
+    .restart-btn:active{ transform:translateX(-50%) translateY(1px); }
+    .restart-btn .icon{
+      width:14px;height:14px;border-radius:999px;
+      border:2px solid rgba(255,231,255,.92);
+      position:relative;
+      box-shadow:0 0 10px rgba(157,255,191,.2);
+    }
+    .restart-btn .icon:after{
+      content:'';
+      position:absolute;
+      width:7px;height:7px;
+      border-top:2px solid rgba(255,231,255,.92);
+      border-right:2px solid rgba(255,231,255,.92);
+      right:-1px; top:-2px;
+      transform:rotate(35deg);
+    }
+
+    /* Music bubble (bottom-right) */
+    .music-btn{ right:14px; }
+    .music-btn .dot{
+      width:8px;height:8px;border-radius:999px;
+      background:rgba(157,255,191,.95);
+      box-shadow:0 0 10px rgba(60,255,156,.65);
+      opacity:.35;
+      transition:opacity .2s ease;
+    }
+    .music-btn.on .dot{ opacity:1; }
+
+    .controls{
+      font-size:.9rem;
+      opacity:.9;
+      text-align:center;
+      margin-top:.15rem;
+      line-height:1.35;
+      max-width:520px;
+    }
+    .controls strong{ color:var(--accent-soft); }
+
+    .hint{
+      font-size:.82rem;
+      opacity:.74;
+      margin-top:.2rem;
+    }
+
+    /* VISIBLE DETERRENT BANNER (BOTTOM) */
+    .security-banner{
+      position:fixed;
+      bottom:12px;
+      left:50%;
+      transform:translateX(-50%);
+      padding:.35rem .75rem;
+      border-radius:999px;
+      border:1px solid rgba(157,255,191,.18);
+      background:rgba(0,0,0,.28);
+      color:rgba(228,228,255,.92);
+      letter-spacing:.12em;
+      text-transform:uppercase;
+      font-size:.72rem;
+      z-index:5;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      box-shadow:0 0 18px rgba(0,0,0,.35);
+      user-select:none;
+      pointer-events:none;
+    }
+
+    /* cosplay security overlay */
+    .security-overlay{
+      position:fixed;
+      inset:0;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      background:rgba(0,0,0,.92);
+      z-index:999999;
+      padding:2rem;
+      text-align:center;
+    }
+    .security-overlay.active{ display:flex; }
+
+    .security-card{
+      width:min(720px, 92vw);
+      border-radius:22px;
+      border:1px solid rgba(255,42,42,.35);
+      background:radial-gradient(circle at 20% 10%, rgba(255,42,42,.18), rgba(0,0,0,.75) 55%, rgba(0,0,0,.92));
+      box-shadow:0 0 40px rgba(255,42,42,.14), inset 0 0 24px rgba(255,42,42,.08);
+      padding:1.4rem 1.2rem;
+    }
+    .security-title{
+      margin:0;
+      font-family:Orbitron, system-ui, sans-serif;
+      font-size:1.65rem;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+      color:rgba(255,80,80,.95);
+      text-shadow:0 0 18px rgba(255,42,42,.35);
+    }
+    .security-sub{
+      margin:.6rem 0 0;
+      color:rgba(255,230,230,.92);
+      opacity:.9;
+      line-height:1.5;
+      font-size:1rem;
+    }
+    .security-small{
+      margin:.8rem 0 0;
+      font-size:.9rem;
+      color:rgba(228,228,255,.8);
+      opacity:.85;
+    }
+    .security-actions{
+      margin-top:1rem;
+      display:flex;
+      gap:.6rem;
+      justify-content:center;
+      flex-wrap:wrap;
+    }
+    .security-actions button{
+      padding:.45rem 1rem;
+      border-radius:999px;
+      border:none;
+      cursor:pointer;
+      font-weight:900;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      font-family:Rajdhani, system-ui, sans-serif;
+    }
+    .security-actions .danger{
+      background:rgba(255,42,42,.95);
+      color:#120006;
+      box-shadow:0 0 14px rgba(255,42,42,.35);
+    }
+    .security-actions .secondary{
+      background:rgba(228,228,255,.12);
+      color:rgba(228,228,255,.92);
+      border:1px solid rgba(228,228,255,.25);
+      box-shadow:none;
     }
 
     /* Character select overlay */
-    #character-select-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.9);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
+    #character-select-overlay{
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,.90);
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      z-index:1000;
+      padding:1.2rem;
+      text-align:center;
     }
-
-    #character-select-overlay h2 {
-      margin: 0 0 8px;
-      color: #7bff7b;
+    #character-select-overlay h2{
+      margin:0 0 8px;
+      font-family:Orbitron, system-ui, sans-serif;
+      color:var(--accent-soft);
+      letter-spacing:.1em;
+      text-transform:uppercase;
     }
-
-    #character-select-overlay p {
-      margin-bottom: 12px;
+    #character-select-overlay p{
+      margin:.1rem 0 1rem;
+      opacity:.9;
+      max-width:520px;
     }
-
-    .char-grid {
-      display: grid;
+    .char-grid{
+      display:grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 8px;
-      max-width: 420px;
-      width: 100%;
+      gap:10px;
+      max-width:520px;
+      width:100%;
+    }
+    .char-btn{
+      padding:10px 10px;
+      border-radius:12px;
+      border:1px solid rgba(157,255,191,.42);
+      background:rgba(0,0,0,.28);
+      color:rgba(228,228,255,.95);
+      cursor:pointer;
+      font-size:1rem;
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      box-shadow:0 0 14px rgba(60,255,156,.12);
+    }
+    .char-btn:hover{ filter:brightness(1.08); }
+
+    /* Start countdown overlay (in-game) */
+    #startOverlay{
+      position:absolute;
+      inset:0;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      flex-direction:column;
+      text-align:center;
+      background:rgba(0,0,0,.35);
+      z-index:4;
+      border-radius:18px;
+      pointer-events:none;
+    }
+    #startOverlay.active{ display:flex; }
+    #startOverlay .big{
+      font-family:Orbitron, system-ui, sans-serif;
+      font-size:1.7rem;
+      letter-spacing:.12em;
+      color:rgba(157,255,191,.95);
+      text-shadow:0 0 18px rgba(60,255,156,.25);
+      margin:0;
+    }
+    #startOverlay .small{
+      margin-top:.4rem;
+      opacity:.9;
+      font-size:1rem;
     }
 
-    .char-btn {
-      padding: 8px 10px;
-      border-radius: 6px;
-      border: 2px solid #7bff7b;
-      background: #111;
-      color: #f5f5f5;
-      cursor: pointer;
-      font-size: 0.9rem;
-    }
-
-    .char-btn:hover {
-      background: #1b1b1b;
-    }
-
-    /* --- VIRTUAL GAMEPAD / D-PAD --- */
-    .touch-controls {
-      margin-top: 10px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      user-select: none;
-      -webkit-user-select: none;
-      touch-action: manipulation;
-    }
-
-    .touch-controls-label {
-      font-size: 0.8rem;
-      color: #aaa;
-    }
-
-    .dpad {
-      display: grid;
-      grid-template-columns: repeat(3, 52px);
-      grid-template-rows: repeat(3, 52px);
-      gap: 6px;
-    }
-
-    .dpad button {
-      border-radius: 8px;
-      border: 1px solid #3cff9c;
-      background: #1a1a1a;
-      color: #e8ffe8;
-      font-size: 1.2rem;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 0 8px rgba(0, 255, 100, 0.5);
-    }
-
-    .dpad button:active {
-      transform: scale(0.96);
-      box-shadow: 0 0 4px rgba(0, 255, 100, 0.3);
-      background: #0f0f0f;
-    }
-
-    .dpad .empty {
-      background: transparent;
-      border: none;
-      box-shadow: none;
-      pointer-events: none;
-    }
-
-    /* Hide D-pad on bigger screens (desktop) if you want keyboard only */
-    @media (min-width: 900px) {
-      .touch-controls {
-        display: none;
-      }
-    }
-
-    /* --- SECURITY BANNER (copied from videos.html) --- */
-    .security-banner {
-      position: fixed;
-      bottom: 14px;
-      left: 50%;
-      transform: translateX(-50%);
-
-      padding: 6px 14px;
-      font-size: 0.65rem;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-
-      color: #ff3b3b;
-      background: rgba(0, 0, 0, 0.55);
-      border: 1px solid rgba(255, 59, 59, 0.4);
-      border-radius: 999px;
-
-      box-shadow: 0 0 14px rgba(255, 59, 59, 0.25);
-      z-index: 9999;
-      pointer-events: none;
+    /* Small screens tuning */
+    @media (max-width:560px){
+      h1{ font-size:1.35rem; }
+      .subtitle{ font-size:.9rem; }
+      .bubble-btn{ bottom:12px; width:52px; height:52px; }
+      .difficulty-btn{ left:12px; }
+      .music-btn{ right:12px; }
+      .bubble-btn .label{ bottom:60px; }
+      .security-banner{ bottom:10px; font-size:.7rem; }
     }
   </style>
 </head>
+
 <body>
-  <h1>TMNT - Get That Slice!</h1>
-  <p>
-    Use <strong>↑ ↓ ← →</strong> or <strong>W A S D</strong> to dodge traffic and grab pizza slices.
-    Score points, earn hearts, and do not get splatted in front of the pizza shop.
-  </p>
-  <p>
-    On mobile, use the on-screen arrows below the game to move your hero.
-  </p>
+  <!-- Background FX canvas (outside game window) -->
+  <canvas id="bgfx" aria-hidden="true"></canvas>
 
-  <img class="banner" src="images/banner.png" alt="TMNT Banner" />
-
-  <!-- VISIBLE DETERRENT BANNER (copied from videos.html) -->
+  <!-- VISIBLE DETERRENT BANNER -->
   <div class="security-banner">Protected From Bad Vibes</div>
 
-  <!-- The game canvas (we bind to this in JS instead of creating dynamically) -->
-  <canvas id="game" width="505" height="606"></canvas>
-
-  <!-- Virtual Gamepad / D-Pad -->
-  <div class="touch-controls">
-    <div class="touch-controls-label">Tap arrows to move</div>
-    <div class="dpad">
-      <button class="empty" disabled></button>
-      <button data-dir="up">▲</button>
-      <button class="empty" disabled></button>
-      <button data-dir="left">◀</button>
-      <button class="empty" disabled></button>
-      <button data-dir="right">▶</button>
-      <button class="empty" disabled></button>
-      <button data-dir="down">▼</button>
-      <button class="empty" disabled></button>
+  <!-- cosplay security overlay -->
+  <div id="securityOverlay" class="security-overlay" aria-hidden="true">
+    <div class="security-card" role="dialog" aria-modal="true" aria-label="Security Breach">
+      <h2 class="security-title">SECURITY BREACH DETECTED</h2>
+      <p class="security-sub">
+        Logging communications : Security Active<br/>
+        Unauthorized inspection prohibited!
+      </p>
+      <p class="security-small">
+        Tip: close DevTools / return to normal view / reduce zoom.
+      </p>
+      <div class="security-actions">
+        <button id="securityReloadBtn" class="danger" type="button">Reload</button>
+        <button id="securityDismissBtn" class="secondary" type="button">Dismiss</button>
+      </div>
     </div>
   </div>
 
+  <div class="wrapper">
+    <h1>TMNT · GET THAT SLICE!</h1>
+    <div class="subtitle">
+      Dodge traffic. Snag pizza. Stack <strong>Slices</strong> like you’re speedrunning lunchtime.
+      <br/>Swipe on mobile or use <strong>WASD</strong>/<strong>Arrow Keys</strong>.
+    </div>
+
+    <div class="hud">
+      <div class="pill">Slices: <b id="score">0</b></div>
+      <div class="pill">Best: <b id="best">0</b></div>
+      <div class="pill">Level: <b id="level">1</b></div>
+      <div class="pill">Lives: <b id="lives">3</b></div>
+      <div class="pill">Difficulty: <b id="diffLabel">Easy Peasy</b></div>
+    </div>
+
+    <div class="game-shell">
+      <canvas id="game" width="505" height="606"></canvas>
+
+      <!-- Start overlay (2-second grace to toggle music) -->
+      <div id="startOverlay" aria-hidden="true">
+        <p class="big">GET READY</p>
+        <div class="small">Music bubble is waiting patiently 😌</div>
+      </div>
+
+      <!-- Difficulty bubble (bottom-left) -->
+      <button id="difficultyBtn" class="bubble-btn difficulty-btn" type="button" aria-label="Difficulty" title="Difficulty">
+        <span class="label">Difficulty</span>
+        <span class="ring"><span class="dot"></span></span>
+      </button>
+
+      <!-- Restart bubble (bottom-center) -->
+      <button id="restartBtn" class="bubble-btn restart-btn" type="button" aria-label="Restart" title="Restart">
+        <span class="label">Restart</span>
+        <span class="ring"><span class="icon"></span></span>
+      </button>
+
+      <!-- Music bubble (bottom-right) -->
+      <button id="musicBtn" class="bubble-btn music-btn" type="button" aria-label="Music On/Off" title="Music On/Off">
+        <span class="label" id="musicLabel">Music Off</span>
+        <span class="ring"><span class="dot"></span></span>
+      </button>
+    </div>
+
+    <div class="controls">
+      Desktop: move with <strong>WASD</strong> / <strong>Arrow Keys</strong>.
+      Mobile: <strong>swipe</strong> on the game to move one tile.
+      <div class="hint">Pro tip: if you get splatted, the pizza judges you silently. 🍕</div>
+    </div>
+  </div>
+
+  <!-- Character select overlay -->
   <div id="character-select-overlay">
     <h2>Choose Your Hero</h2>
     <p>Select a character, then dodge traffic and grab that pizza!</p>
@@ -265,200 +524,361 @@
     </div>
   </div>
 
-  <div class="legal">
-    This is a fan-made, non-commercial educational game inspired by the
-    Teenage Mutant Ninja Turtles universe. All characters, names, and
-    related elements are the property of their respective copyright
-    holders. No affiliation or endorsement is implied.
-  </div>
-
-  <!-- =========================================================
-       SECURITY LAYER (copied/cleaned from videos.html)
-       - disables right-click, drag, common devtools shortcuts
-       - console trap
-       - devtools/zoom overlay + sound + pauses gameplay (best-effort)
-  ========================================================== -->
   <script>
+    // =========================
+    // “Cosplay Security” scripts (same vibe as Asteroids)
+    // =========================
+    document.addEventListener('DOMContentLoaded', () => {
+      document.addEventListener('contextmenu', e => e.preventDefault());
+      document.ondragstart = () => false;
+
+      document.onkeydown = function(e) {
+        if (e.keyCode === 123) return false; // F12
+        if (e.ctrlKey && e.shiftKey &&
+            (e.keyCode === 'I'.charCodeAt(0) ||
+             e.keyCode === 'C'.charCodeAt(0) ||
+             e.keyCode === 'J'.charCodeAt(0))) return false;
+        if (e.ctrlKey &&
+            (e.keyCode === 'U'.charCodeAt(0) ||
+             e.keyCode === 'S'.charCodeAt(0))) return false;
+      };
+
+      // lighter console ping (avoid freeze spikes)
+      setInterval(() => {
+        try{
+          console.log("%c TRACKING...",
+            "color: red; font-size: 20px; font-weight: bold;");
+        }catch{}
+      }, 3000);
+    });
+
     (function () {
-      // Right-click off
-      document.addEventListener("contextmenu", function (e) {
-        e.preventDefault();
-      });
-
-      // Drag off
-      document.ondragstart = function () { return false; };
-
-      // Block common inspect/save/view-source shortcuts + F12
-      document.addEventListener("keydown", function (e) {
-        const key = e.key || "";
-        const keyCode = e.keyCode || 0;
-
-        // F12
-        if (key === "F12" || keyCode === 123) {
-          e.preventDefault();
-          return false;
+      function initSecurity() {
+        if (!document.body) {
+          window.addEventListener('load', initSecurity, { once: true });
+          return;
         }
 
-        // Ctrl+Shift+I/C/J
-        if (e.ctrlKey && e.shiftKey) {
-          const upper = String(key).toUpperCase();
-          if (upper === "I" || upper === "C" || upper === "J") {
-            e.preventDefault();
-            return false;
-          }
-        }
+        const securityOverlay = document.getElementById('securityOverlay');
+        const securityReloadBtn = document.getElementById('securityReloadBtn');
+        const securityDismissBtn = document.getElementById('securityDismissBtn');
 
-        // Ctrl+U / Ctrl+S
-        if (e.ctrlKey) {
-          const upper = String(key).toUpperCase();
-          if (upper === "U" || upper === "S") {
-            e.preventDefault();
-            return false;
-          }
-        }
-      }, { capture: true });
-
-      // Console trap
-      setInterval(function () {
-        console.clear();
-        console.log(
-          "%c TRACKING...",
-          "color: red; font-size: 20px; font-weight: bold;"
-        );
-      }, 2000);
-
-      // Breach overlay + audio + devtools/zoom detection
-      function initBreachOverlay() {
-        if (!document.body) return;
-
-        const overlay = document.createElement("div");
-        overlay.style.cssText = [
-          "position:fixed",
-          "top:0",
-          "left:0",
-          "width:100vw",
-          "height:100vh",
-          "background:rgba(0,0,0,0.95)",
-          "color:red",
-          "display:none",
-          "align-items:center",
-          "justify-content:center",
-          "flex-direction:column",
-          "font-size:2rem",
-          "text-align:center",
-          "padding:2rem",
-          "z-index:999999"
-        ].join(";");
-
-        overlay.innerHTML =
-          "<h1>SECURITY BREACH DETECTED</h1>" +
-          '<p style="font-size:1.2rem;margin-top:1rem;">' +
-          "Logging communications : Security Active<br>" +
-          "Unauthorized inspection prohibited!" +
-          "</p>";
-
-        document.body.appendChild(overlay);
-
-        const nedryAudio = new Audio("jurrasicpassword.mp3");
+        const nedryAudio = new Audio('jurrasicpassword.mp3');
         let devtoolsOpen = false;
-
-        function pauseGameBestEffort() {
-          // Your TMNT game is RAF-driven; easiest “pause” is just stop updates by canceling RAF.
-          // We don't have direct access to requestAnimationFrameID in closure, so we do best-effort:
-          // freeze input feel by showing overlay + optionally blur focus.
-          // (If you want a true pause, we can refactor the engine to expose pause/resume.)
-          try { document.activeElement && document.activeElement.blur && document.activeElement.blur(); } catch (_) {}
-        }
 
         function showOverlay() {
           if (devtoolsOpen) return;
           devtoolsOpen = true;
-          overlay.style.display = "flex";
-          pauseGameBestEffort();
-          nedryAudio.currentTime = 0;
-          nedryAudio.play().catch(function () {});
+          securityOverlay.classList.add('active');
+          securityOverlay.setAttribute('aria-hidden','false');
+
+          // pause music if playing
+          try { if (window.__tmntMusic && !window.__tmntMusic.paused) window.__tmntMusic.pause(); } catch {}
+          try {
+            nedryAudio.currentTime = 0;
+            nedryAudio.play().catch(() => {});
+          } catch {}
+
+          // freeze game loop
+          window.__securityFreeze = true;
         }
 
         function hideOverlay() {
           if (!devtoolsOpen) return;
           devtoolsOpen = false;
-          overlay.style.display = "none";
+          securityOverlay.classList.remove('active');
+          securityOverlay.setAttribute('aria-hidden','true');
+          window.__securityFreeze = false;
         }
 
-        // Baseline measurements (copied logic)
-        const baseOuterW = window.outerWidth;
-        const baseOuterH = window.outerHeight;
-        const baseInnerW = window.innerWidth;
-        const baseInnerH = window.innerHeight;
+        securityReloadBtn.addEventListener('click', () => location.reload());
+        securityDismissBtn.addEventListener('click', hideOverlay);
 
-        const baseWidthRatio = baseInnerW / baseOuterW;
-        const baseHeightRatio = baseInnerH / baseOuterH;
-        const baseArea = baseInnerW * baseInnerH;
+        // baseline after browser UI settles
+        let baselineReady = false;
+        let baseOuterW = 0, baseOuterH = 0, baseInnerW = 0, baseInnerH = 0;
+        let baseWidthRatio = 0, baseHeightRatio = 0, baseArea = 0;
+
+        function setBaseline(){
+          baseOuterW = window.outerWidth;
+          baseOuterH = window.outerHeight;
+          baseInnerW = window.innerWidth;
+          baseInnerH = window.innerHeight;
+          baseWidthRatio  = baseInnerW / baseOuterW;
+          baseHeightRatio = baseInnerH / baseOuterH;
+          baseArea        = baseInnerW * baseInnerH;
+          baselineReady = true;
+        }
+
+        window.addEventListener('load', () => {
+          setTimeout(setBaseline, 700);
+        }, { once:true });
 
         function detectDevToolsOrZoom() {
+          if(!baselineReady) return;
+
           const outerW = window.outerWidth;
           const outerH = window.outerHeight;
           const innerW = window.innerWidth;
           const innerH = window.innerHeight;
 
-          const widthRatio = innerW / outerW;
+          const widthRatio  = innerW / outerW;
           const heightRatio = innerH / outerH;
 
-          const widthDrop = baseWidthRatio - widthRatio;
+          const widthDrop  = baseWidthRatio  - widthRatio;
           const heightDrop = baseHeightRatio - heightRatio;
 
-          const area = innerW * innerH;
-          const areaDrop = 1 - (area / baseArea);
+          const area       = innerW * innerH;
+          const areaDrop   = 1 - (area / baseArea);
 
           const zoomLikely = innerW < baseInnerW * 0.7;
 
           const devtoolsLikely =
-            widthDrop > 0.18 ||
-            heightDrop > 0.18 ||
-            areaDrop > 0.25;
+            widthDrop  > 0.20 ||
+            heightDrop > 0.20 ||
+            areaDrop   > 0.28;
 
           if (devtoolsLikely || zoomLikely) showOverlay();
           else hideOverlay();
         }
 
-        setInterval(detectDevToolsOrZoom, 600);
-        window.addEventListener("resize", detectDevToolsOrZoom);
+        setInterval(detectDevToolsOrZoom, 700);
+        window.addEventListener('resize', detectDevToolsOrZoom);
 
-        // Instant manual trip on F12 or Ctrl+Shift+I
-        window.addEventListener("keydown", function (e) {
+        window.addEventListener('keydown', (e) => {
           const key = e.key || e.keyCode;
-
-          const isF12 = key === "F12" || key === 123;
-          const isCtrlShiftI =
-            e.ctrlKey && e.shiftKey &&
-            (key === "I" || key === "i" || key === 73);
-
+          const isF12 = key === 'F12' || key === 123;
+          const isCtrlShiftI = e.ctrlKey && e.shiftKey && (key === 'I' || key === 'i' || key === 73);
           if (isF12 || isCtrlShiftI) showOverlay();
         });
       }
 
-      if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", initBreachOverlay);
-      } else {
-        initBreachOverlay();
-      }
+      initSecurity();
     })();
-  </script>
 
-  <!-- =========================================================
-       RESOURCES.JS - image loader and cache
-  ========================================================== -->
-  <script>
+    // =========================
+    // Background FX (outside game window) - stars + shooting stars
+    // =========================
+    const bg = document.getElementById('bgfx');
+    const bgc = bg.getContext('2d', { alpha: true });
+
+    function resizeBG(){
+      const dpr = Math.max(1, Math.floor(window.devicePixelRatio || 1));
+      bg.width = Math.floor(window.innerWidth * dpr);
+      bg.height = Math.floor(window.innerHeight * dpr);
+      bg.style.width = window.innerWidth + 'px';
+      bg.style.height = window.innerHeight + 'px';
+      bgc.setTransform(dpr,0,0,dpr,0,0);
+    }
+    window.addEventListener('resize', resizeBG);
+    resizeBG();
+
+    function rand(min,max){ return Math.random()*(max-min)+min; }
+    function clamp(v,min,max){ return Math.max(min, Math.min(max, v)); }
+
+    const skyStars = [];
+    const skyCount = 130;
+    const skyShooters = [];
+    let nextShooterAt = performance.now() + rand(1200, 3200);
+
+    function initSky(){
+      skyStars.length = 0;
+      for(let i=0;i<skyCount;i++){
+        skyStars.push({
+          x: rand(0, window.innerWidth),
+          y: rand(0, window.innerHeight),
+          r: rand(0.7, 1.8),
+          vy: rand(6, 18),
+          a: rand(0.12, 0.55),
+          tw: rand(0.6, 1.8),
+          ph: rand(0, Math.PI*2)
+        });
+      }
+      skyShooters.length = 0;
+      nextShooterAt = performance.now() + rand(1200, 3800);
+    }
+    initSky();
+    window.addEventListener('resize', initSky);
+
+    function spawnSkyShooter(){
+      const fromLeft = Math.random() < 0.5;
+      const sx = fromLeft ? rand(-120, window.innerWidth*0.35) : rand(window.innerWidth*0.65, window.innerWidth+120);
+      const sy = rand(-140, window.innerHeight*0.35);
+      const ang = fromLeft ? rand(0.85, 1.15) : rand(2.0, 2.3);
+      const spd = rand(520, 920);
+      const life = rand(420, 740);
+
+      skyShooters.push({
+        x:sx,y:sy,
+        vx:Math.cos(ang)*spd,
+        vy:Math.sin(ang)*spd,
+        life, maxLife: life,
+        len: rand(120, 220)
+      });
+    }
+
+    function updateSky(dt){
+      const dtSec = dt/1000;
+
+      for(const s of skyStars){
+        s.y -= s.vy * dtSec;
+        if(s.y < -10){
+          s.y = window.innerHeight + rand(10, 120);
+          s.x = rand(0, window.innerWidth);
+          s.vy = rand(6, 18);
+          s.r = rand(0.7, 1.8);
+          s.a = rand(0.12, 0.55);
+          s.tw = rand(0.6, 1.8);
+          s.ph = rand(0, Math.PI*2);
+        }
+      }
+
+      const now = performance.now();
+      if(now > nextShooterAt && skyShooters.length < 2){
+        spawnSkyShooter();
+        nextShooterAt = now + rand(1600, 5200);
+      }
+
+      for(let i=skyShooters.length-1;i>=0;i--){
+        const st = skyShooters[i];
+        st.x += st.vx*dtSec;
+        st.y += st.vy*dtSec;
+        st.life -= dt;
+        if(st.life <= 0 || st.x < -400 || st.x > window.innerWidth+400 || st.y > window.innerHeight+500){
+          skyShooters.splice(i,1);
+        }
+      }
+    }
+
+    function drawSky(){
+      bgc.clearRect(0,0, window.innerWidth, window.innerHeight);
+
+      const g = bgc.createRadialGradient(window.innerWidth*0.5, window.innerHeight*0.25, 40, window.innerWidth*0.5, window.innerHeight*0.5, Math.max(window.innerWidth, window.innerHeight));
+      g.addColorStop(0,'rgba(255,255,255,0.00)');
+      g.addColorStop(1,'rgba(0,0,0,0.45)');
+      bgc.fillStyle = g;
+      bgc.fillRect(0,0, window.innerWidth, window.innerHeight);
+
+      for(const s of skyStars){
+        const tw = (Math.sin((performance.now()/1000)*s.tw + s.ph)+1)/2;
+        const a = clamp(s.a*(0.7 + tw*0.6), 0.06, 0.9);
+        bgc.fillStyle = `rgba(228,228,255,${a})`;
+        bgc.beginPath();
+        bgc.arc(s.x, s.y, s.r, 0, Math.PI*2);
+        bgc.fill();
+      }
+
+      for(const st of skyShooters){
+        const t = clamp(st.life / st.maxLife, 0, 1);
+        const dx = st.vx, dy = st.vy;
+        const mag = Math.hypot(dx,dy) || 1;
+        const ux = dx/mag, uy = dy/mag;
+        const tx = st.x - ux*st.len;
+        const ty = st.y - uy*st.len;
+
+        const lg = bgc.createLinearGradient(tx,ty, st.x,st.y);
+        lg.addColorStop(0, `rgba(157,255,191,0)`);
+        lg.addColorStop(0.55, `rgba(157,255,191,${0.20*t})`);
+        lg.addColorStop(1, `rgba(255,231,255,${0.95})`);
+
+        bgc.strokeStyle = lg;
+        bgc.lineWidth = 2.2;
+        bgc.beginPath();
+        bgc.moveTo(tx,ty);
+        bgc.lineTo(st.x,st.y);
+        bgc.stroke();
+
+        bgc.fillStyle = `rgba(255,231,255,${0.95})`;
+        bgc.beginPath();
+        bgc.arc(st.x, st.y, 2.1, 0, Math.PI*2);
+        bgc.fill();
+      }
+    }
+
+    // =========================
+    // Music (user gesture required)
+    // =========================
+    const musicBtn = document.getElementById('musicBtn');
+    const musicLabel = document.getElementById('musicLabel');
+    const music = new Audio('tmnt-music.mp3');
+    window.__tmntMusic = music;
+    music.loop = true;
+    music.preload = 'auto';
+    let musicOn = false;
+
+    function setMusicUI(on){
+      musicBtn.classList.toggle('on', on);
+      musicBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+      musicLabel.textContent = on ? 'Music On' : 'Music Off';
+    }
+    setMusicUI(false);
+
+    async function toggleMusic(){
+      try{
+        if(!musicOn){
+          music.volume = 0.75;
+          await music.play();
+          musicOn = true;
+          setMusicUI(true);
+        }else{
+          music.pause();
+          musicOn = false;
+          setMusicUI(false);
+        }
+      }catch(err){
+        musicOn = false;
+        setMusicUI(false);
+        console.warn('Music could not start:', err);
+      }
+    }
+    musicBtn.addEventListener('click', (e) => { e.preventDefault(); toggleMusic(); });
+
+    // =========================
+    // HUD elements
+    // =========================
+    const scoreEl = document.getElementById('score');
+    const bestEl  = document.getElementById('best');
+    const levelEl = document.getElementById('level');
+    const livesEl = document.getElementById('lives');
+
+    const diffLabelEl = document.getElementById('diffLabel');
+    const difficultyBtn = document.getElementById('difficultyBtn');
+
+    // Difficulty tiers (same naming as Asteroids)
+    const DIFFS = [
+      { name: "Easy Peasy",           speedMul: 0.85, extraEnemiesCap: 0, spawnMul: 0.85 },
+      { name: "Gimme more ammo",      speedMul: 1.00, extraEnemiesCap: 0, spawnMul: 1.00 },
+      { name: "Get to the gunners",   speedMul: 1.12, extraEnemiesCap: 1, spawnMul: 1.12 },
+      { name: "Beam me up, Scotty",   speedMul: 1.25, extraEnemiesCap: 1, spawnMul: 1.25 },
+      { name: "Bring the pain!",      speedMul: 1.40, extraEnemiesCap: 2, spawnMul: 1.40 },
+    ];
+    let diffIndex = 0;
+
+    function applyDifficultyUI(){
+      diffLabelEl.textContent = DIFFS[diffIndex].name;
+    }
+    applyDifficultyUI();
+
+    difficultyBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      diffIndex = (diffIndex + 1) % DIFFS.length;
+      applyDifficultyUI();
+      // if a run is already active, gently re-tune existing enemies
+      if (window.app && app.ACTORS && app.ACTORS.allEnemies) {
+        app.ACTORS.allEnemies.forEach(en => en && en.updateVelocityRandomizer && en.updateVelocityRandomizer());
+      }
+    });
+
+    // =========================
+    // Game resources loader (unchanged, just kept local)
+    // =========================
     (function () {
       var resourceCache = {};
       var readyCallbacks = [];
 
       function load(urlOrArr) {
-        if (Array.isArray(urlOrArr)) {
-          urlOrArr.forEach(function (url) { _load(url); });
-        } else {
-          _load(urlOrArr);
-        }
+        if (Array.isArray(urlOrArr)) urlOrArr.forEach(function (url) { _load(url); });
+        else _load(urlOrArr);
       }
 
       function _load(url) {
@@ -467,45 +887,41 @@
         var img = new Image();
         img.onload = function () {
           resourceCache[url] = img;
-          if (isReady()) {
-            readyCallbacks.forEach(function (func) { func(); });
-          }
+          if (isReady()) readyCallbacks.forEach(function (func) { func(); });
         };
         resourceCache[url] = false;
         img.src = url;
       }
 
-      function get(url) {
-        return resourceCache[url];
-      }
+      function get(url) { return resourceCache[url]; }
 
       function isReady() {
         for (var k in resourceCache) {
-          if (Object.prototype.hasOwnProperty.call(resourceCache, k) && !resourceCache[k]) {
-            return false;
-          }
+          if (Object.prototype.hasOwnProperty.call(resourceCache, k) && !resourceCache[k]) return false;
         }
         return true;
       }
 
-      function onReady(func) {
-        readyCallbacks.push(func);
-      }
+      function onReady(func) { readyCallbacks.push(func); }
 
-      window.Resources = {
-        load: load,
-        get: get,
-        onReady: onReady,
-        isReady: isReady
-      };
+      window.Resources = { load: load, get: get, onReady: onReady, isReady: isReady };
     })();
-  </script>
 
-  <!-- =========================================================
-       GAME LOGIC (Player, Enemies, Pizza, Heart, Engine + Inputs)
-  ========================================================== -->
-  <script>
+    // =========================
+    // TMNT Game Logic (same game, themed shell + HUD + bubbles)
+    // =========================
     var app = app || {};
+
+    // Best score persistence
+    let bestScore = Number(localStorage.getItem('tmntBest') || 0);
+    bestEl.textContent = bestScore;
+
+    // Start overlay / 2-second grace
+    const startOverlay = document.getElementById('startOverlay');
+    function showStartOverlay(on){
+      startOverlay.classList.toggle('active', on);
+      startOverlay.setAttribute('aria-hidden', on ? 'false' : 'true');
+    }
 
     // --- Game state: level scaling ---
     app.GameState = {
@@ -514,7 +930,7 @@
         this.level = Math.max(1, score);
       },
       getDifficultyTier: function () {
-        return Math.floor((this.level - 1) / 5); // +1 tier every 5 slices
+        return Math.floor((this.level - 1) / 5);
       }
     };
 
@@ -546,24 +962,22 @@
 
     app.Enemy.prototype.updateVelocityRandomizer = function () {
       var tier = app.GameState.getDifficultyTier();
-      var base = 1.5 + Math.random() * 2.5;   // 1.5–4.0
-      var multiplier = 1 + tier * 0.4;        // +40% per tier
-      this.randomVelocity = base * multiplier;
+      var d = DIFFS[diffIndex];
+
+      // base speeds, then scaled by level tier and selected difficulty
+      var base = 1.4 + Math.random() * 2.2;       // slightly gentler than before
+      var multiplier = 1 + tier * 0.32;           // smoother scaling
+      this.randomVelocity = base * multiplier * d.speedMul;
     };
 
     app.Enemy.prototype.chooseSprite = function () {
       var level = app.GameState.level;
-      var batchSize = Math.min(
-        app.ENEMY_SPRITES.length,
-        3 + Math.floor(level / 3) * 2
-      );
+      var batchSize = Math.min(app.ENEMY_SPRITES.length, 3 + Math.floor(level / 3) * 2);
       var index = Math.floor(Math.random() * batchSize);
       this.sprite = app.ENEMY_SPRITES[index];
     };
 
-    app.Enemy.prototype.randomSpeed = function () {
-      this.x += this.randomVelocity;
-    };
+    app.Enemy.prototype.randomSpeed = function () { this.x += this.randomVelocity; };
 
     app.Enemy.prototype.update = function () {
       this.randomSpeed();
@@ -588,28 +1002,8 @@
       app.GameState.updateFromScore(this.score);
     };
 
-    app.Player.prototype.renderText = function () {
-      var ctx = app.ctx;
-      ctx.fillStyle = "#DDD";
-      ctx.fillRect(0, 0, 510, 50);
-      ctx.font = "24px serif";
-      ctx.fillStyle = "white";
-      ctx.strokeStyle = "black";
-
-      ctx.fillText("Slices: " + this.score, 10, 32, 200);
-      ctx.strokeText("Slices: " + this.score, 10, 32, 200);
-
-      ctx.fillText("Level: " + app.GameState.level, 200, 32, 150);
-      ctx.strokeText("Level: " + app.GameState.level, 200, 32, 150);
-
-      ctx.fillText("Life: " + this.life, 380, 32);
-      ctx.strokeText("Life: " + this.life, 380, 32);
-
-      var pizza = app.ACTORS && app.ACTORS.pizza;
-      if (pizza && pizza.pointsIcon) {
-        ctx.drawImage(Resources.get(pizza.pointsIcon), 320, 0, 64, 32);
-      }
-    };
+    // HUD is now DOM-based (so renderText becomes a no-op)
+    app.Player.prototype.renderText = function () { /* HUD handled in DOM */ };
 
     app.Player.prototype.render = function () {
       app.ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
@@ -617,18 +1011,10 @@
 
     app.Player.prototype.handleInput = function (dir) {
       if (!dir) return;
-      if (dir === "up" && this.y > 0) {
-        this.y -= app.GAME_CONFIG.TILE_HEIGHT;
-      }
-      if (dir === "down" && this.y < 400) {
-        this.y += app.GAME_CONFIG.TILE_HEIGHT;
-      }
-      if (dir === "right" && this.x < 400) {
-        this.x += app.GAME_CONFIG.TILE_WIDTH;
-      }
-      if (dir === "left" && this.x > 0) {
-        this.x -= app.GAME_CONFIG.TILE_WIDTH;
-      }
+      if (dir === "up" && this.y > 0) this.y -= app.GAME_CONFIG.TILE_HEIGHT;
+      if (dir === "down" && this.y < 400) this.y += app.GAME_CONFIG.TILE_HEIGHT;
+      if (dir === "right" && this.x < 400) this.x += app.GAME_CONFIG.TILE_WIDTH;
+      if (dir === "left" && this.x > 0) this.x -= app.GAME_CONFIG.TILE_WIDTH;
     };
 
     // --- Pizza (collectible) ---
@@ -649,13 +1035,9 @@
 
     app.Pizza.prototype.update = function () {
       var level = app.GameState.level;
-      if (level <= 10) {
-        this.typeIndex = 0;
-      } else if (level <= 20) {
-        this.typeIndex = 1;
-      } else {
-        this.typeIndex = 2;
-      }
+      if (level <= 10) this.typeIndex = 0;
+      else if (level <= 20) this.typeIndex = 1;
+      else this.typeIndex = 2;
 
       var current = this.pizzaTypes[this.typeIndex];
       this.sprite = current.sprite;
@@ -663,9 +1045,7 @@
       this.x = app.GAME_CONFIG.TILE_WIDTH * Math.floor(Math.random() * 5);
     };
 
-    app.Pizza.prototype.render = function () {
-      app.ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
-    };
+    app.Pizza.prototype.render = function () { app.ctx.drawImage(Resources.get(this.sprite), this.x, this.y); };
 
     // --- Heart (extra life) ---
     app.Heart = function () {
@@ -677,21 +1057,15 @@
 
     app.Heart.prototype.update = function () {
       var player = app.ACTORS.player;
-      if (
-        this.notVisible &&
-        (player.score % player.life) % 2 &&
-        player.score > player.life
-      ) {
+      if (this.notVisible && (player.score % player.life) % 2 && player.score > player.life) {
         this.notVisible = false;
         this.x = app.GAME_CONFIG.TILE_WIDTH * Math.floor(Math.random() * 5);
       }
     };
 
-    app.Heart.prototype.render = function () {
-      app.ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
-    };
+    app.Heart.prototype.render = function () { app.ctx.drawImage(Resources.get(this.sprite), this.x, this.y); };
 
-    // --- Engine / loop ---
+    // --- Engine / loop (refactored to support pause + 2s countdown + restart bubble) ---
     (function (global) {
       app.GAME_CONFIG = {
         CANVAS_WIDTH: 505,
@@ -715,36 +1089,92 @@
       var win = global.window;
       var canvas = doc.getElementById("game");
       var ctx = canvas.getContext("2d");
-      var lastTime;
-      var requestAnimationFrameID;
+      var lastTime = 0;
+      var rafId = 0;
 
       app.ctx = ctx;
 
       canvas.width = app.GAME_CONFIG.CANVAS_WIDTH;
       canvas.height = app.GAME_CONFIG.CANVAS_HEIGHT;
 
-      function between(x, min, max) {
-        return x >= min && x <= max;
+      // exposed run state
+      app.__running = false;
+      app.__countdownUntil = 0;
+
+      function between(x, min, max) { return x >= min && x <= max; }
+
+      function updateHud(){
+        const p = app.ACTORS.player;
+        scoreEl.textContent = String(p.score);
+        levelEl.textContent = String(app.GameState.level);
+        livesEl.textContent = String(p.life);
+
+        if (p.score > bestScore) {
+          bestScore = p.score;
+          bestEl.textContent = String(bestScore);
+          localStorage.setItem('tmntBest', String(bestScore));
+        }
       }
 
-      function main() {
-        var now = Date.now();
-        var dt = (now - lastTime) / 1000;
-
-        update(dt);
-        render();
-
-        lastTime = now;
-        requestAnimationFrameID = win.requestAnimationFrame(main);
+      function startWithCountdown(ms){
+        app.__running = false;
+        app.__countdownUntil = performance.now() + ms;
+        showStartOverlay(true);
+        // auto-hide overlay when countdown ends (checked in main loop)
       }
 
-      function init() {
-        reset();
-        lastTime = Date.now();
-        main();
+      function initRun(keepBest){
+        // cancel any existing RAF cleanly
+        if (rafId) win.cancelAnimationFrame(rafId);
+
+        // reset actors but preserve chosen sprite
+        const chosenSprite = app.ACTORS.player.sprite || "images/leo-ico.png";
+
+        app.ACTORS.player = new app.Player(chosenSprite);
+        app.ACTORS.player.life = 3;
+        app.ACTORS.player.score = 0;
+        app.GameState.updateFromScore(0);
+
+        app.ACTORS.allEnemies = [
+          new app.Enemy(70),
+          new app.Enemy(140),
+          new app.Enemy(210)
+        ];
+
+        app.ACTORS.pizza = new app.Pizza();
+        app.ACTORS.heart = new app.Heart();
+
+        // keep best unless asked not to
+        if(!keepBest){
+          bestScore = 0;
+          localStorage.setItem('tmntBest', '0');
+          bestEl.textContent = '0';
+        }
+
+        lastTime = performance.now();
+        updateHud();
+        startWithCountdown(2000);
+        rafId = win.requestAnimationFrame(main);
       }
 
       function update(dt) {
+        // freeze everything if cosplay security overlay is up
+        if (window.__securityFreeze) return;
+
+        // always animate outside background
+        updateSky(dt);
+
+        // countdown / paused
+        if (!app.__running){
+          const now = performance.now();
+          if (now >= app.__countdownUntil){
+            app.__running = true;
+            showStartOverlay(false);
+          } else {
+            return;
+          }
+        }
+
         updateEntities(dt);
         checkCollisions();
       }
@@ -755,43 +1185,57 @@
         var heart = app.ACTORS.heart;
         var pizza = app.ACTORS.pizza;
 
+        // Enemy hit: lose life, restart position with countdown
         allEnemies.forEach(function (enemy) {
-          if (
-            between(player.x, enemy.x - 60, enemy.x + 60) &&
-            between(player.y, enemy.y - 10, enemy.y + 10)
-          ) {
+          if (between(player.x, enemy.x - 60, enemy.x + 60) && between(player.y, enemy.y - 10, enemy.y + 10)) {
             player.life--;
-            init();
+            if (player.life <= 0){
+              // hard reset run (score back to 0), keep best
+              initRun(true);
+            } else {
+              // keep score, just re-center and give a short grace
+              player.x = 200; player.y = 350;
+              startWithCountdown(1200);
+            }
           }
         });
 
-        if (
-          between(player.x, pizza.x - 60, pizza.x + 60) &&
-          between(player.y, pizza.y - 10, pizza.y + 10)
-        ) {
+        // Pizza collected
+        if (between(player.x, pizza.x - 60, pizza.x + 60) && between(player.y, pizza.y - 10, pizza.y + 10)) {
           var currentType = pizza.pizzaTypes[pizza.typeIndex];
           player.score += currentType.value;
           app.GameState.updateFromScore(player.score);
           pizza.update();
-          init();
+
+          // light ramp: add tiny grace to read HUD (feels arcade-y)
+          startWithCountdown(450);
         }
 
-        if (
-          between(player.x, heart.x - 60, heart.x + 60) &&
-          between(player.y, heart.y - 10, heart.y + 10)
-        ) {
+        // Heart collected
+        if (between(player.x, heart.x - 60, heart.x + 60) && between(player.y, heart.y - 10, heart.y + 10)) {
           player.life++;
           heart.notVisible = true;
-          reset();
+          heart.x = -100;
+          startWithCountdown(350);
         }
+
+        updateHud();
       }
 
       function updateEntities(dt) {
         var allEnemies = app.ACTORS.allEnemies;
         var heart = app.ACTORS.heart;
 
-        var extraCount = Math.min(2, app.GameState.getDifficultyTier());
+        // Difficulty affects how many extra enemies can appear
+        var diff = DIFFS[diffIndex];
+
+        var baseExtra = Math.min(2, app.GameState.getDifficultyTier()); // from original
+        var extraFromDiff = diff.extraEnemiesCap;                      // from bubble
+        var extraCount = Math.min(3, baseExtra + extraFromDiff);
         var desiredCount = 3 + extraCount;
+
+        // gently cap total enemies so it never becomes instant chaos
+        desiredCount = Math.min(desiredCount, 8);
 
         while (allEnemies.length < desiredCount) {
           var laneIndex = allEnemies.length % 3;
@@ -799,15 +1243,15 @@
           allEnemies.push(new app.Enemy(laneY));
         }
 
-        allEnemies.forEach(function (enemy) {
-          enemy.update(dt);
-        });
+        // update enemies (speed already scaled by difficulty)
+        allEnemies.forEach(function (enemy) { enemy.update(dt); });
         heart.update();
       }
 
       function render() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+        // tiles
         var rowImages = [
           "images/water-block.png",
           "images/stone-block.png",
@@ -821,18 +1265,11 @@
 
         for (var row = 0; row < numRows; row++) {
           for (var col = 0; col < numCols; col++) {
-            ctx.drawImage(
-              Resources.get(rowImages[row]),
-              col * 101,
-              row * 83
-            );
+            ctx.drawImage(Resources.get(rowImages[row]), col * 101, row * 83);
           }
         }
 
-        renderEntities();
-      }
-
-      function renderEntities() {
+        // entities
         var allEnemies = app.ACTORS.allEnemies;
         var player = app.ACTORS.player;
         var heart = app.ACTORS.heart;
@@ -842,28 +1279,30 @@
         heart.render();
         allEnemies.forEach(function (enemy) { enemy.render(); });
 
-        player.renderText();
         player.render();
       }
 
-      function reset() {
-        var allEnemies = app.ACTORS.allEnemies;
-        var player = app.ACTORS.player;
-        var heart = app.ACTORS.heart;
+      function main(ts) {
+        const dt = clamp(ts - lastTime, 0, 40);
+        lastTime = ts;
 
-        player.x = 200;
-        player.y = 350;
-        heart.x = -100;
+        update(dt);
+        drawSky();     // outside background
+        render();      // game canvas
 
-        allEnemies.forEach(function (enemy) {
-          enemy.randomStartPos();
-          enemy.updateVelocityRandomizer();
-        });
-
-        win.cancelAnimationFrame(requestAnimationFrameID);
+        rafId = win.requestAnimationFrame(main);
       }
 
-      // Preload resources then start
+      // Public-ish helpers
+      app.__restartKeepBest = function(){
+        initRun(true);
+      };
+
+      app.__restartHard = function(){
+        initRun(false);
+      };
+
+      // Preload resources then start (but stay behind character overlay)
       Resources.load([
         "images/water-block.png",
         "images/stone-block.png",
@@ -912,62 +1351,86 @@
         "images/Gem Orange.png"
       ]);
 
-      Resources.onReady(init);
+      Resources.onReady(function(){
+        // Start the RAF loop only once resources are ready.
+        // We *do not* start a run until character is chosen.
+        lastTime = performance.now();
+        if (rafId) win.cancelAnimationFrame(rafId);
+        rafId = win.requestAnimationFrame(main);
+      });
+
     })(this);
 
-    // =========================================================
-    // INPUT: Keyboard + Virtual Gamepad
-    // =========================================================
-
-    // Prevent arrow keys / WASD from scrolling page (already here; keep)
-    document.addEventListener("keydown", function (e) {
-      var blockKeys = [37, 38, 39, 40, 65, 68, 83, 87]; // arrows + WASD
-      if (blockKeys.indexOf(e.keyCode) !== -1) {
-        e.preventDefault();
-      }
+    // =========================
+    // Restart bubble hook
+    // =========================
+    document.getElementById('restartBtn').addEventListener('click', (e) => {
+      e.preventDefault();
+      if (window.app && app.__restartKeepBest) app.__restartKeepBest();
     });
 
-    // Keyboard movement
+    // =========================
+    // Input: Keyboard (prevent scroll) + Mobile swipe on canvas
+    // =========================
+    document.addEventListener("keydown", function (e) {
+      var blockKeys = [37, 38, 39, 40, 65, 68, 83, 87]; // arrows + WASD
+      if (blockKeys.indexOf(e.keyCode) !== -1) e.preventDefault();
+    });
+
     document.addEventListener("keyup", function (e) {
       var allowedKeys = {
-        37: "left",
-        38: "up",
-        39: "right",
-        40: "down",
-        65: "left",
-        87: "up",
-        68: "right",
-        83: "down"
+        37: "left",  38: "up",  39: "right", 40: "down",
+        65: "left",  87: "up",  68: "right", 83: "down"
       };
-
       var dir = allowedKeys[e.keyCode];
-      if (dir && app.ACTORS && app.ACTORS.player) {
+      if (dir && window.app && app.ACTORS && app.ACTORS.player) {
         app.ACTORS.player.handleInput(dir);
       }
     });
 
-    // Virtual gamepad / D-pad on-screen
-    (function () {
-      var buttons = document.querySelectorAll("[data-dir]");
-      function sendInput(dir) {
-        if (app.ACTORS && app.ACTORS.player) {
-          app.ACTORS.player.handleInput(dir);
-        }
+    // Mobile swipe input (one tile per swipe)
+    (function(){
+      const canvas = document.getElementById('game');
+      let sx=0, sy=0, active=false;
+
+      function getXY(ev){
+        const t = (ev.touches && ev.touches[0]) ? ev.touches[0] : ev;
+        return { x: t.clientX, y: t.clientY };
       }
 
-      buttons.forEach(function (btn) {
-        var dir = btn.getAttribute("data-dir");
-        btn.addEventListener("click", function () {
-          sendInput(dir);
-        });
-        btn.addEventListener("touchstart", function (e) {
-          e.preventDefault();
-          sendInput(dir);
-        }, { passive: false });
-      });
+      canvas.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        const p = getXY(e);
+        sx=p.x; sy=p.y; active=true;
+      }, { passive:false });
+
+      canvas.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        if(!active) return;
+        active=false;
+
+        const p = (e.changedTouches && e.changedTouches[0]) ? e.changedTouches[0] : null;
+        if(!p) return;
+
+        const dx = p.clientX - sx;
+        const dy = p.clientY - sy;
+        const ax = Math.abs(dx), ay = Math.abs(dy);
+
+        if(Math.max(ax,ay) < 18) return; // tiny swipe ignored
+
+        let dir;
+        if(ax > ay) dir = dx > 0 ? "right" : "left";
+        else dir = dy > 0 ? "down" : "up";
+
+        if (window.app && app.ACTORS && app.ACTORS.player) {
+          app.ACTORS.player.handleInput(dir);
+        }
+      }, { passive:false });
     })();
 
+    // =========================
     // Character select hookup
+    // =========================
     (function () {
       var overlay = document.getElementById("character-select-overlay");
       var buttons = overlay.querySelectorAll(".char-btn");
@@ -975,9 +1438,8 @@
       function startWithCharacter(sprite) {
         if (window.app && app.ACTORS && app.ACTORS.player) {
           app.ACTORS.player.sprite = sprite;
-          app.ACTORS.player.life = 3;
-          app.ACTORS.player.score = 0;
-          app.GameState.updateFromScore(0);
+          // start a fresh run once character is chosen
+          if (app.__restartKeepBest) app.__restartKeepBest();
         }
         overlay.style.display = "none";
       }
@@ -998,4 +1460,3 @@
   </script>
 </body>
 </html>
-```
