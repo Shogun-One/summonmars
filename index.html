@@ -755,30 +755,46 @@
     }
 
     /* MERCH */
-    .merch-layout {
-      margin-top: 2.5rem;
-      display: flex;
-      flex-direction: column;
-      gap: 2.5rem;
-      align-items: center;
-    }
+.merch-layout {
+  margin-top: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+  align-items: center;
+  position: relative;          /* fixes stacking issues */
+  overflow: visible;           /* prevents bag from being clipped */
+  z-index: 1;
+}
 
-    @media (min-width: 960px) {
-      .merch-layout {
-        flex-direction: row;
-        align-items: flex-start;
-        justify-content: center;
-      }
-    }
+@media (min-width: 960px) {
+  .merch-layout {
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: center;
+  }
+}
 
-    .merch-grid {
+.merch-grid {
   display: flex;
   justify-content: center;
-  align-items: center;
-  gap: 2rem; /* or whatever spacing you want */
-  flex-wrap: wrap; /* keeps it clean on mobile */
-  width: 100%; 
+  align-items: stretch;        /* THIS fixes the “out of line” cards */
+  gap: 2rem;
+  flex-wrap: wrap;
+  width: 100%;
   text-align: center;
+}
+
+/* ensures consistent card sizing */
+.merch-grid > * {
+  flex: 0 1 260px;
+}
+
+/* ensures bag image stays on top if layered */
+.merch-bag,
+.merch-bag img,
+.bag {
+  position: relative;
+  z-index: 5;
 }
 
     @media (min-width: 768px) {
