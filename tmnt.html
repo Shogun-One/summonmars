@@ -1234,6 +1234,21 @@ footer {
           }
         });
 
+        // Water kill (top row)
+if (player.y <= 0) {
+  player.life--;
+
+  if (player.life <= 0) {
+    // hard reset run (score back to 0), keep best
+    initRun(true);
+  } else {
+    // keep score, reset position and give a short grace
+    player.x = 200;
+    player.y = 350;
+    startWithCountdown(1200);
+  }
+}
+
         // Pizza collected
         if (between(player.x, pizza.x - 60, pizza.x + 60) && between(player.y, pizza.y - 10, pizza.y + 10)) {
           var currentType = pizza.pizzaTypes[pizza.typeIndex];
