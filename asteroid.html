@@ -56,7 +56,6 @@
       width:min(520px, 100vw);
     }
 
-    /* cooler title (UPDATED font) */
     h1{
       margin:0;
       font-family:'Audiowide','Orbitron', system-ui, sans-serif;
@@ -101,7 +100,6 @@
       -webkit-backdrop-filter: blur(6px);
     }
 
-    /* attractive HUD numbers */
     .hud span{
       color:rgba(255,231,255,0.98);
       font-weight:800;
@@ -193,7 +191,7 @@
       pointer-events:none;
     }
 
-    /* NEW: Difficulty bubble (bottom-left) */
+    /* Difficulty bubble (bottom-left) */
     .difficulty-btn{
       position:absolute;
       bottom:14px;
@@ -246,7 +244,7 @@
       pointer-events:none;
     }
 
-    /* UPDATED: Bottom-center now holds TWO mini-bubbles within the footprint of one */
+    /* Bottom-center holder */
     .center-controls{
       position:absolute;
       bottom:14px;
@@ -255,7 +253,7 @@
       width:54px;
       height:54px;
       z-index:3;
-      pointer-events:none; /* children re-enable */
+      pointer-events:none;
     }
 
     .mini-bubble{
@@ -312,23 +310,27 @@
       pointer-events:none;
     }
 
-    .mini-restart{ left:0; }
-    .mini-power{ right:0; }
+    .mini-pause{ left:0; }
+    .mini-joystick{ right:0; }
 
-    .mini-restart .icon{
-      width:10px;height:10px;border-radius:999px;
-      border:2px solid rgba(255,231,255,.92);
+    /* Mini Joystick */
+    .mini-joystick{
       position:relative;
-      box-shadow:0 0 10px rgba(255,138,192,.20);
+      touch-action:none;
+      overflow:hidden;
     }
-    .mini-restart .icon:after{
-      content:'';
+    .mini-joystick .stick{
       position:absolute;
-      width:5px;height:5px;
-      border-top:2px solid rgba(255,231,255,.92);
-      border-right:2px solid rgba(255,231,255,.92);
-      right:-1px; top:-2px;
-      transform:rotate(35deg);
+      width:18px;
+      height:18px;
+      border-radius:50%;
+      background: rgba(255,138,192,0.85);
+      top:50%;
+      left:50%;
+      transform:translate(-50%,-50%);
+      pointer-events:none;
+      transition: transform 0.05s linear;
+      box-shadow:0 0 12px rgba(255,138,192,.35);
     }
 
     .controls{
@@ -357,7 +359,7 @@
     }
     button#reset-btn:hover{ filter:brightness(1.08); }
 
-    /* VISIBLE DETERRENT BANNER (MOVED TO BOTTOM) */
+    /* VISIBLE DETERRENT BANNER (BOTTOM) */
     .security-banner{
       position:fixed;
       bottom:12px;
@@ -450,6 +452,31 @@
       box-shadow:none;
     }
 
+    /* --- FOOTER POSITIONING --- */
+    footer {
+      position: fixed;
+      bottom: 48px;
+      left: 50%;
+      transform: translateX(-50%);
+      text-align: center;
+      font-size: 0.8rem;
+      letter-spacing: 0.08em;
+      color: rgba(255,255,255,0.85);
+      z-index: 6;
+      pointer-events: none;
+    }
+    .visit-counter {
+      position: fixed;
+      bottom: 8px;
+      right: 14px;
+      font-size: 0.7rem;
+      opacity: 0.45;
+      letter-spacing: 0.08em;
+      color: rgba(255,255,255,0.75);
+      pointer-events: none;
+      z-index: 20;
+    }
+
     @media (max-width:520px){
       .music-btn{ bottom:12px; right:12px; width:52px; height:52px; }
       .difficulty-btn{ bottom:12px; left:12px; width:52px; height:52px; }
@@ -461,66 +488,14 @@
       .security-banner{ bottom:10px; font-size:.7rem; }
       h1{ font-size:1.5rem; }
     }
-
-    /* --- FOOTER POSITIONING --- */
-footer {
-  position: fixed;
-  bottom: 48px; /* just above red security banner */
-  left: 50%;
-  transform: translateX(-50%);
-  text-align: center;
-  font-size: 0.8rem;
-  letter-spacing: 0.08em;
-  color: rgba(255,255,255,0.85);
-  z-index: 6;
-  pointer-events: none;
-}
-
-.visit-counter {
-  position: fixed;
-  bottom: 8px;
-  right: 14px;
-  font-size: 0.7rem;          /* tiny bump */
-  opacity: 0.45;              /* less ghost, still discreet */
-  letter-spacing: 0.08em;
-  color: rgba(255,255,255,0.75);
-  pointer-events: none;
-  z-index: 20;
-}
-
-  /* =========================
-   Mini Joystick Styling
-========================= */
-
-.mini-joystick {
-  position: relative;
-  touch-action: none;
-}
-
-.mini-joystick .stick {
-  position: absolute;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: rgba(255,138,192,0.85);
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  pointer-events: none;
-  transition: transform 0.05s linear;
-}
-    
   </style>
 </head>
 
 <body>
-  <!-- Background FX canvas (outside game window) -->
   <canvas id="bgfx" aria-hidden="true"></canvas>
 
-  <!-- VISIBLE DETERRENT BANNER -->
   <div class="security-banner">Protected From Bad Vibes</div>
 
-  <!-- cosplay security overlay -->
   <div id="securityOverlay" class="security-overlay" aria-hidden="true">
     <div class="security-card" role="dialog" aria-modal="true" aria-label="Security Breach">
       <h2 class="security-title">SECURITY BREACH DETECTED</h2>
@@ -554,29 +529,22 @@ footer {
     <div class="game-shell">
       <canvas id="game" width="480" height="640"></canvas>
 
-      <!-- Difficulty bubble (bottom-left) -->
       <button id="difficultyBtn" class="difficulty-btn" type="button" aria-label="Difficulty" title="Difficulty">
         <span class="label">Difficulty</span>
         <span class="ring"><span id="diffShort">E</span></span>
       </button>
 
-      <!-- NEW: Two mini bubbles share the bottom-center footprint -->
       <div class="center-controls">
+        <button id="pauseBtn" class="mini-bubble mini-pause" type="button" aria-label="Pause">
+          <span class="label">Pause</span>
+          <span class="ring"><span class="icon">II</span></span>
+        </button>
 
-  <!-- Pause Bubble -->
-  <button id="pauseBtn" class="mini-bubble mini-pause" type="button" aria-label="Pause">
-    <span class="label">Pause</span>
-    <span class="ring"><span class="icon">II</span></span>
-  </button>
+        <div id="joystick" class="mini-bubble mini-joystick" role="application" aria-label="Joystick">
+          <div class="stick"></div>
+        </div>
+      </div>
 
-  <!-- Joystick Bubble -->
-  <div id="joystick" class="mini-bubble mini-joystick">
-    <div class="stick"></div>
-  </div>
-
-</div>
-
-      <!-- Music On/Off button (bottom-right) -->
       <button id="musicBtn" class="music-btn" type="button" aria-label="Music On/Off" title="Music On/Off">
         <span class="label">Music</span>
         <span class="ring"><span class="dot"></span></span>
@@ -584,27 +552,24 @@ footer {
     </div>
 
     <div class="controls">
-      Move with <strong>WASD</strong> or <strong>Arrow Keys</strong> •
-      Fire with <strong>Space</strong> or <strong>tap</strong><br />
-      On mobile: drag to move your ship, tap to blast.
+      Use the joystick to drive your ship through the carnage, maybe get highest score
       <div class="hint">Beat 10 asteroids to level up. Every 10th level is a boss. 😈</div>
       <button id="reset-btn">Reset Field</button>
     </div>
   </div>
 
   <footer>
-  © 2026 Summon Mars ™. All rights reserved.
-  <div class="visit-counter">
-    Visitors: <span id="busuanzi_value_site_uv"></span>
-  </div>
+    © 2026 Summon Mars ™. All rights reserved.
+    <div class="visit-counter">
+      Visitors: <span id="busuanzi_value_site_uv"></span>
+    </div>
   </footer>
 
   <script>
     // =========================
-    // “Cosplay Security” scripts (blended + fixed)
+    // Cosplay Security (stable)
     // =========================
     document.addEventListener('DOMContentLoaded', () => {
-      /* --- SECURITY LEVEL 1-4 --- */
       document.addEventListener('contextmenu', e => e.preventDefault());
       document.ondragstart = () => false;
 
@@ -619,11 +584,9 @@ footer {
              e.keyCode === 'S'.charCodeAt(0))) return false;
       };
 
-      /* --- CONSOLE TRAP (lighter, avoids freeze spikes) --- */
       setInterval(() => {
         try{
-          console.log("%c TRACKING...",
-            "color: red; font-size: 20px; font-weight: bold;");
+          console.log("%c TRACKING...", "color: red; font-size: 20px; font-weight: bold;");
         }catch{}
       }, 3000);
     });
@@ -642,23 +605,13 @@ footer {
         const nedryAudio = new Audio('jurrasicpassword.mp3');
         let devtoolsOpen = false;
 
-        function pauseAllVideo() {
-          document.querySelectorAll('video').forEach(v => v.pause());
-        }
-
         function showOverlay() {
           if (devtoolsOpen) return;
           devtoolsOpen = true;
           securityOverlay.classList.add('active');
           securityOverlay.setAttribute('aria-hidden','false');
-          pauseAllVideo();
-          // also pause game music if playing
           try { if (window.__marsMusic && !window.__marsMusic.paused) window.__marsMusic.pause(); } catch {}
-          try {
-            nedryAudio.currentTime = 0;
-            nedryAudio.play().catch(() => {});
-          } catch {}
-          // freeze the game loop (game logic only)
+          try { nedryAudio.currentTime = 0; nedryAudio.play().catch(() => {}); } catch {}
           window.__securityFreeze = true;
         }
 
@@ -673,7 +626,6 @@ footer {
         securityReloadBtn.addEventListener('click', () => location.reload());
         securityDismissBtn.addEventListener('click', hideOverlay);
 
-        // === BASELINE (stabilize after load to avoid “freeze after a few seconds”) ===
         let baselineReady = false;
         let baseOuterW = 0, baseOuterH = 0, baseInnerW = 0, baseInnerH = 0;
         let baseWidthRatio = 0, baseHeightRatio = 0, baseArea = 0;
@@ -689,7 +641,6 @@ footer {
           baselineReady = true;
         }
 
-        // wait a moment so browser UI settles (GX, mobile bars, etc.)
         window.addEventListener('load', () => {
           setTimeout(setBaseline, 700);
         }, { once:true });
@@ -711,13 +662,8 @@ footer {
           const area       = innerW * innerH;
           const areaDrop   = 1 - (area / baseArea);
 
-          // heavy zoom detection:
           const zoomLikely = innerW < baseInnerW * 0.7;
-
-          const devtoolsLikely =
-            widthDrop  > 0.20 ||
-            heightDrop > 0.20 ||
-            areaDrop   > 0.28;
+          const devtoolsLikely = (widthDrop > 0.20) || (heightDrop > 0.20) || (areaDrop > 0.28);
 
           if (devtoolsLikely || zoomLikely) showOverlay();
           else hideOverlay();
@@ -733,15 +679,17 @@ footer {
           if (isF12 || isCtrlShiftI) showOverlay();
         });
       }
-
       initSecurity();
     })();
 
     // =========================
-    // Background FX (outside game window)
+    // Background FX
     // =========================
     const bg = document.getElementById('bgfx');
     const bgc = bg.getContext('2d', { alpha: true });
+
+    function rand(min,max){ return Math.random()*(max-min)+min; }
+    function clamp(v,min,max){ return Math.max(min, Math.min(max, v)); }
 
     function resizeBG(){
       const dpr = Math.max(1, Math.floor(window.devicePixelRatio || 1));
@@ -753,9 +701,6 @@ footer {
     }
     window.addEventListener('resize', resizeBG);
     resizeBG();
-
-    function rand(min,max){ return Math.random()*(max-min)+min; }
-    function clamp(v,min,max){ return Math.max(min, Math.min(max, v)); }
 
     const skyStars = [];
     const skyCount = 130;
@@ -832,14 +777,12 @@ footer {
     function drawSky(){
       bgc.clearRect(0,0, window.innerWidth, window.innerHeight);
 
-      // vignette haze
       const g = bgc.createRadialGradient(window.innerWidth*0.5, window.innerHeight*0.25, 40, window.innerWidth*0.5, window.innerHeight*0.5, Math.max(window.innerWidth, window.innerHeight));
       g.addColorStop(0,'rgba(255,255,255,0.00)');
       g.addColorStop(1,'rgba(0,0,0,0.45)');
       bgc.fillStyle = g;
       bgc.fillRect(0,0, window.innerWidth, window.innerHeight);
 
-      // stars
       for(const s of skyStars){
         const tw = (Math.sin((performance.now()/1000)*s.tw + s.ph)+1)/2;
         const a = clamp(s.a*(0.7 + tw*0.6), 0.06, 0.9);
@@ -849,7 +792,6 @@ footer {
         bgc.fill();
       }
 
-      // shooting stars
       for(const st of skyShooters){
         const t = clamp(st.life / st.maxLife, 0, 1);
         const dx = st.vx, dy = st.vy;
@@ -882,35 +824,33 @@ footer {
     // =========================
     const canvas = document.getElementById('game');
     const ctx = canvas.getContext('2d');
+
     const scoreEl = document.getElementById('score');
     const bestEl = document.getElementById('best');
     const hitsEl = document.getElementById('hits');
     const hitsMaxEl = document.getElementById('hitsMax');
     const resetBtn = document.getElementById('reset-btn');
-    const restartBtn = document.getElementById('restartBtn');
 
     const levelEl = document.getElementById('level');
     const livesEl = document.getElementById('lives');
     const toNextEl = document.getElementById('toNext');
     const toNextMaxEl = document.getElementById('toNextMax');
 
-    const powerBtn = document.getElementById('powerBtn');
-    const pwrShortEl = document.getElementById('pwrShort');
+    const pauseBtn = document.getElementById('pauseBtn');
+    const joystickEl = document.getElementById('joystick');
+    const stickEl = joystickEl.querySelector('.stick');
 
     const width = canvas.width;
     const height = canvas.height;
 
-    // --------------------------------------------
-    // Music (user gesture required to start)
-    // --------------------------------------------
+    // Music
     const musicBtn = document.getElementById('musicBtn');
     const music = new Audio('asteroid-track.mp3');
-    window.__marsMusic = music; // allow security overlay to pause it
+    window.__marsMusic = music;
     music.loop = true;
     music.preload = 'auto';
 
     let musicOn = false;
-
     function setMusicUI(on){
       musicBtn.classList.toggle('on', on);
       musicBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
@@ -936,15 +876,9 @@ footer {
         console.warn('Music could not start:', err);
       }
     }
+    musicBtn.addEventListener('click', (e) => { e.preventDefault(); toggleMusic(); });
 
-    musicBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      toggleMusic();
-    });
-
-    // --------------------------------------------
-    // Difficulty selector (bottom-left bubble)
-    // --------------------------------------------
+    // Difficulty selector
     const difficultyBtn = document.getElementById('difficultyBtn');
     const diffShortEl = document.getElementById('diffShort');
 
@@ -966,21 +900,18 @@ footer {
     }
     setDifficultyUI();
 
+    function diffMult(){ return DIFF_PRESETS[diffIndex].mult; }
+
     function cycleDifficulty(){
       diffIndex = (diffIndex + 1) % DIFF_PRESETS.length;
       localStorage.setItem('asteroidDiffIndex', String(diffIndex));
       setDifficultyUI();
-      softRestartFromButton();
+      softRestart();
     }
 
-    difficultyBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      cycleDifficulty();
-    });
+    difficultyBtn.addEventListener('click', (e) => { e.preventDefault(); cycleDifficulty(); });
 
-    // --------------------------------------------
     // Game state
-    // --------------------------------------------
     let bestScore = Number(localStorage.getItem('asteroidBest') || 0);
     bestEl.textContent = bestScore;
 
@@ -996,11 +927,10 @@ footer {
       y: height / 2,
       radius: 16,
       speed: 4.6,
-      vx: 0,
-      vy: 0,
+      vx: 0, vy: 0,
       invuln: 0,
       exploding: 0,
-      angle: 0 // UPDATED: persistent facing angle (radians)
+      angle: 0
     };
 
     const keysDown = {};
@@ -1010,29 +940,14 @@ footer {
     let enemyBullets = [];
     let bosses = [];
     let particles = [];
-
-    // NEW: floating pickup bubbles
     let pickups = [];
+
     let nextPowerupAt = performance.now() + rand(6500, 11000);
     let nextLifeAt = performance.now() + rand(14000, 22000);
 
-    // NEW: weapon modes
-    const WEAPONS = {
-      single: { label:"1X", name:"Default" },
-      dual:   { label:"2X", name:"Dual Hit" },
-      back:   { label:"FB", name:"Eyes In Back" },
-      dog:    { label:"3S", name:"Dog Mode" }
-    };
+    const WEAPONS = { single:{}, dual:{}, back:{}, dog:{} };
     let weaponMode = "single";
-    function setWeaponMode(mode){
-      weaponMode = mode;
-      const w = WEAPONS[weaponMode] || WEAPONS.single;
-      pwrShortEl.textContent = w.label;
-      // keep this button purely informational (no gameplay change on click)
-      powerBtn.querySelector('.label').textContent = "Power: " + w.name;
-    }
-    setWeaponMode("single");
-    powerBtn.addEventListener('click', (e) => { e.preventDefault(); /* info-only bubble */ });
+    function setWeaponMode(mode){ weaponMode = mode; }
 
     let score = 0;
     let hits = 0;
@@ -1042,24 +957,21 @@ footer {
     let killsThisLevel = 0;
 
     let running = true;
+    let paused = false;
     let gameOver = false;
 
-    // small grace period before action (lets player toggle music)
     let preStartTimer = 0;
     const PRESTART_MS = 2200;
 
     let lastTime = 0;
     let shootCooldown = 0;
-    const shootDelay = 170; // ms
+    const shootDelay = 170;
 
-    // --------------------------------------------
-    // Assets: Boss images (Images/boss-one.png ... boss-ten.png)
-    // --------------------------------------------
+    // Boss assets
     const bossFiles = [
       "boss-one.png","boss-two.png","boss-three.png","boss-four.png","boss-five.png",
       "boss-six.png","boss-seven.png","boss-eight.png","boss-nine.png","boss-ten.png"
     ];
-
     const bossImgs = bossFiles.map(fn => {
       const img = new Image();
       img.decoding = "async";
@@ -1067,25 +979,19 @@ footer {
       img.src = "images/" + fn;
       return img;
     });
-
     function getBossImageForLevel(lvl){
       const idx = clamp(Math.floor(lvl/10) - 1, 0, 9);
       return bossImgs[idx];
     }
-
     function pickRandomBossImage(){
       return bossImgs[Math.floor(Math.random()*bossImgs.length)];
     }
 
-    // NEW: pickup icon (firepower-up.png in Images folder)
     const firepowerImg = new Image();
     firepowerImg.decoding = "async";
     firepowerImg.loading = "eager";
     firepowerImg.src = "images/firepower-up.png";
 
-    // --------------------------------------------
-    // Purple enemy ships
-    // --------------------------------------------
     const TAUNTS = [
       "SKILL ISSUE.",
       "NICE TRY, CARBON UNIT.",
@@ -1094,10 +1000,6 @@ footer {
       "I'M PURPLE AND PROUD.",
       "CATCH THESE LASERS."
     ];
-
-    function diffMult(){
-      return DIFF_PRESETS[diffIndex].mult;
-    }
 
     function difficulty(){
       const l = level;
@@ -1146,7 +1048,6 @@ footer {
         hp: shouter ? 2 : 1,
         shouter,
         taunt: TAUNTS[Math.floor(Math.random()*TAUNTS.length)],
-        tauntTimer: rand(800, 1800),
         tauntLife: 0,
         shootTimer: rand(d.enemyShootMin, d.enemyShootMax)
       });
@@ -1160,8 +1061,7 @@ footer {
       const spd = d.enemyBulletSpeed;
 
       enemyBullets.push({
-        x: ex.x,
-        y: ex.y,
+        x: ex.x, y: ex.y,
         vx: (dx/dist)*spd,
         vy: (dy/dist)*spd,
         life: 2800,
@@ -1170,9 +1070,6 @@ footer {
       });
     }
 
-    // --------------------------------------------
-    // Bosses (every 10th level)
-    // --------------------------------------------
     function spawnBossPackForLevel(lvl){
       bosses = [];
 
@@ -1190,8 +1087,7 @@ footer {
           img,
           type,
           t: rand(0, 999),
-          shootTimer: 950,
-          burst: 0
+          shootTimer: 950
         });
       };
 
@@ -1202,10 +1098,7 @@ footer {
         spawnOne(getBossImageForLevel(lvl));
       }
     }
-
-    function bossAlive(){
-      return bosses.length > 0;
-    }
+    function bossAlive(){ return bosses.length > 0; }
 
     function fireBossShot(b){
       const d = difficulty();
@@ -1214,18 +1107,10 @@ footer {
       const aimed = (sx,sy,tx,ty,spd) => {
         const dx = tx-sx, dy = ty-sy;
         const dist = Math.hypot(dx,dy) || 1;
-        enemyBullets.push({
-          x:sx,y:sy,
-          vx:(dx/dist)*spd,
-          vy:(dy/dist)*spd,
-          life: 3800,
-          r: 4.2,
-          kind: "boss"
-        });
+        enemyBullets.push({ x:sx,y:sy, vx:(dx/dist)*spd, vy:(dy/dist)*spd, life:3800, r:4.2, kind:"boss" });
       };
 
       const t = b.type;
-
       if(t === 0){
         aimed(b.x, b.y+b.r*0.35, ship.x, ship.y, speed);
         aimed(b.x-12, b.y+b.r*0.35, ship.x, ship.y, speed*0.96);
@@ -1235,72 +1120,13 @@ footer {
         const spread = 0.22;
         for(let k=-2;k<=2;k++){
           const ang = baseAng + k*spread;
-          enemyBullets.push({
-            x:b.x,y:b.y+b.r*0.2,
-            vx:Math.cos(ang)*speed,
-            vy:Math.sin(ang)*speed,
-            life: 3600,
-            r: 3.8,
-            kind: "boss"
-          });
-        }
-      } else if(t === 2){
-        const count = 14;
-        const holeStart = rand(0, Math.PI*2);
-        const holeSize = 0.7;
-        for(let k=0;k<count;k++){
-          const ang = (k/count)*Math.PI*2;
-          const diff = Math.abs(((ang - holeStart + Math.PI*3)%(Math.PI*2)) - Math.PI);
-          if(diff < holeSize/2) continue;
-          enemyBullets.push({
-            x:b.x,y:b.y,
-            vx:Math.cos(ang)*(speed*0.92),
-            vy:Math.sin(ang)*(speed*0.92),
-            life: 3200,
-            r: 3.6,
-            kind: "boss"
-          });
-        }
-      } else if(t === 3){
-        aimed(b.x-40, b.y+b.r*0.1, ship.x, ship.y, speed*0.98);
-        aimed(b.x+40, b.y+b.r*0.1, ship.x, ship.y, speed*0.98);
-      } else if(t === 4){
-        aimed(b.x, b.y+b.r*0.45, ship.x + rand(-60,60), ship.y, speed*0.9);
-      } else if(t === 5){
-        const base = (performance.now()/140) % (Math.PI*2);
-        for(let k=0;k<6;k++){
-          const ang = base + k*(Math.PI*2/6);
-          enemyBullets.push({
-            x:b.x,y:b.y,
-            vx:Math.cos(ang)*(speed*0.85),
-            vy:Math.sin(ang)*(speed*0.85),
-            life: 2900,
-            r: 3.5,
-            kind:"boss"
-          });
-        }
-      } else if(t === 6){
-        aimed(b.x, b.y+b.r*0.25, ship.x, ship.y, speed*1.12);
-      } else if(t === 7){
-        const sp = speed*0.9;
-        const dirs = [[1,0],[-1,0],[0,1],[0,-1]];
-        for(const [ux,uy] of dirs){
-          enemyBullets.push({ x:b.x,y:b.y, vx:ux*sp, vy:uy*sp, life:2400, r:3.3, kind:"boss" });
-        }
-        aimed(b.x, b.y, ship.x, ship.y, speed*0.95);
-      } else if(t === 8){
-        for(let i=0;i<3;i++){
-          aimed(b.x + rand(-18,18), b.y + rand(-8,8), ship.x + rand(-28,28), ship.y + rand(-28,28), speed*0.98);
+          enemyBullets.push({ x:b.x,y:b.y+b.r*0.2, vx:Math.cos(ang)*speed, vy:Math.sin(ang)*speed, life:3600, r:3.8, kind:"boss" });
         }
       } else {
-        aimed(b.x-26, b.y+b.r*0.2, ship.x, ship.y, speed*0.78);
-        aimed(b.x+26, b.y+b.r*0.2, ship.x, ship.y, speed*0.78);
+        aimed(b.x, b.y+b.r*0.25, ship.x, ship.y, speed);
       }
     }
 
-    // --------------------------------------------
-    // Asteroids
-    // --------------------------------------------
     function spawnAsteroid(edgeSpawn = true){
       let x, y, angle;
       const radius = rand(18, 40);
@@ -1320,18 +1146,10 @@ footer {
 
       const d = difficulty();
       const speed = rand(d.asteroidSpeedMin, d.asteroidSpeedMax);
-      asteroids.push({
-        x, y, radius,
-        vx: Math.cos(angle) * speed,
-        vy: Math.sin(angle) * speed,
-      });
+      asteroids.push({ x, y, radius, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed });
     }
 
-    // --------------------------------------------
-    // NEW: Pickups (firepower + life) as floating bubbles
-    // --------------------------------------------
     function spawnPickup(kind){
-      // spawn from edge so it "floats into the screen"
       const edge = Math.floor(Math.random()*4);
       const r = kind === "life" ? 22 : 20;
       const pad = r + 8;
@@ -1341,7 +1159,6 @@ footer {
       else if(edge===2){ x=rand(0,width); y=height+pad; }
       else { x=-pad; y=rand(0,height); }
 
-      // gentle drift toward center-ish
       const tx = width/2 + rand(-90,90);
       const ty = height/2 + rand(-120,120);
       const ang = Math.atan2(ty - y, tx - x);
@@ -1351,47 +1168,48 @@ footer {
       let mode = null;
       let icon = "fire";
 
-      if(kind === "dual"){ label = "Dual Hit"; mode = "dual"; icon = "fire"; }
-      if(kind === "back"){ label = "Eyes In Back"; mode = "back"; icon = "fire"; }
-      if(kind === "dog"){ label = "Dog Mode"; mode = "dog"; icon = "fire"; }
+      if(kind === "dual"){ label = "Dual Hit"; mode = "dual"; }
+      if(kind === "back"){ label = "Eyes In Back"; mode = "back"; }
+      if(kind === "dog"){ label = "Dog Mode"; mode = "dog"; }
       if(kind === "life"){ label = "1-UP"; icon = "life"; }
 
-      pickups.push({
-        kind,
-        mode,
-        label,
-        icon,
-        x,y,
-        vx: Math.cos(ang)*spd,
-        vy: Math.sin(ang)*spd,
-        r,
-        life: 11000,
-        bob: rand(0, Math.PI*2)
-      });
+      pickups.push({ kind, mode, label, icon, x,y, vx: Math.cos(ang)*spd, vy: Math.sin(ang)*spd, r, life: 11000, bob: rand(0, Math.PI*2) });
     }
 
-    function spawnPickupBurst(x,y){
-      for(let i=0;i<12;i++){
-        const a = rand(0, Math.PI*2);
-        const s = rand(1.1, 3.6);
-        particles.push({
-          x,y,
-          vx: Math.cos(a)*s,
-          vy: Math.sin(a)*s,
-          life: rand(420, 820),
-          maxLife: 820,
-          r: rand(1.0, 2.6),
-          hot: Math.random() < 0.55
-        });
-      }
-    }
-
-    // --------------------------------------------
-    // Reset / Restart
-    // --------------------------------------------
     function startGracePeriod(){
       preStartTimer = PRESTART_MS;
       running = false;
+    }
+
+    function awardScore(points){
+      score += points;
+      scoreEl.textContent = score;
+
+      if(score > bestScore){
+        bestScore = score;
+        bestEl.textContent = bestScore;
+        localStorage.setItem('asteroidBest', String(bestScore));
+      }
+    }
+
+    function beginLevel(lvl){
+      level = lvl;
+      levelEl.textContent = level;
+      killsThisLevel = 0;
+      toNextEl.textContent = killsThisLevel;
+
+      const d = difficulty();
+
+      while(asteroids.length < d.asteroidTarget) spawnAsteroid(true);
+      while(asteroids.length > d.asteroidTarget) asteroids.pop();
+
+      const minEnemies = clamp(Math.floor(d.enemyCap * 0.55), 1, 4);
+      while(enemies.length < minEnemies) spawnEnemy();
+
+      if(level % 10 === 0) spawnBossPackForLevel(level);
+      else bosses = [];
+
+      startGracePeriod();
     }
 
     function resetRun(keepBest = true){
@@ -1402,6 +1220,7 @@ footer {
       killsThisLevel = 0;
 
       running = true;
+      paused = false;
       gameOver = false;
 
       ship.x = width/2;
@@ -1420,15 +1239,12 @@ footer {
       particles = [];
       pickups = [];
 
-      // weapon resets to default (requested: default firepower level)
       setWeaponMode("single");
 
-      // respawn pickup timers
       nextPowerupAt = performance.now() + rand(6500, 11000);
       nextLifeAt = performance.now() + rand(14000, 22000);
 
       const d = difficulty();
-
       for(let i=0;i<d.asteroidTarget;i++) spawnAsteroid(false);
 
       const initialEnemies = clamp(Math.floor(d.enemyCap * 0.55), 1, 3);
@@ -1449,17 +1265,157 @@ footer {
       startGracePeriod();
     }
 
-    function softRestartFromButton(){
+    function softRestart(){
       resetRun(true);
       beginLevel(1);
     }
 
     resetBtn.addEventListener('click', () => resetRun(true));
-    restartBtn.addEventListener('click', (e) => { e.preventDefault(); softRestartFromButton(); });
 
-    // --------------------------------------------
-    // Lives / Hits / Explosion
-    // --------------------------------------------
+    // Pause button + P key
+    function setPaused(p){
+      paused = p;
+      pauseBtn.classList.toggle('on', paused);
+      pauseBtn.querySelector('.label').textContent = paused ? 'Paused' : 'Pause';
+      // keep running false while paused
+      if(paused) running = false;
+      else if(preStartTimer <= 0 && !gameOver) running = true;
+    }
+
+    pauseBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      if(gameOver) return;
+      setPaused(!paused);
+    });
+
+    document.addEventListener('keydown', (e) => {
+      keysDown[e.key] = true;
+
+      if(e.key === 'p' || e.key === 'P'){
+        e.preventDefault();
+        if(!gameOver) setPaused(!paused);
+      }
+    });
+    document.addEventListener('keyup', (e) => { keysDown[e.key] = false; });
+
+    // =========================
+    // Joystick controls
+    // =========================
+    let joyActive = false;
+    let joyVec = { x: 0, y: 0 };
+    const JOY_MAX = 10; // pixel-ish internal limit
+
+    function setStickVisual(nx, ny){
+      // nx,ny in [-1,1]
+      const max = 10;
+      stickEl.style.transform = `translate(calc(-50% + ${nx*max}px), calc(-50% + ${ny*max}px))`;
+    }
+
+    function joyFromEvent(ev){
+      const r = joystickEl.getBoundingClientRect();
+      const cx = r.left + r.width/2;
+      const cy = r.top + r.height/2;
+
+      let clientX, clientY;
+      if(ev.touches && ev.touches[0]){
+        clientX = ev.touches[0].clientX;
+        clientY = ev.touches[0].clientY;
+      }else{
+        clientX = ev.clientX;
+        clientY = ev.clientY;
+      }
+
+      let dx = clientX - cx;
+      let dy = clientY - cy;
+
+      const dist = Math.hypot(dx,dy) || 1;
+      const maxDist = Math.min(r.width, r.height) * 0.30; // keep it inside bubble
+
+      if(dist > maxDist){
+        dx = (dx/dist) * maxDist;
+        dy = (dy/dist) * maxDist;
+      }
+
+      const nx = clamp(dx / maxDist, -1, 1);
+      const ny = clamp(dy / maxDist, -1, 1);
+
+      joyVec.x = nx;
+      joyVec.y = ny;
+
+      setStickVisual(nx, ny);
+    }
+
+    function joyEnd(){
+      joyActive = false;
+      joyVec.x = 0; joyVec.y = 0;
+      setStickVisual(0, 0);
+    }
+
+    joystickEl.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      joystickEl.setPointerCapture(e.pointerId);
+      joyActive = true;
+      joyFromEvent(e);
+    });
+
+    joystickEl.addEventListener('pointermove', (e) => {
+      if(!joyActive) return;
+      e.preventDefault();
+      joyFromEvent(e);
+    });
+
+    joystickEl.addEventListener('pointerup', (e) => { e.preventDefault(); joyEnd(); });
+    joystickEl.addEventListener('pointercancel', (e) => { e.preventDefault(); joyEnd(); });
+
+    // =========================
+    // Shooting (AUTO FIRE)
+    // =========================
+    function forwardAngle(){
+      return ship.angle - Math.PI/2;
+    }
+
+    function pushBullet(px,py, ang, speed, life=1500, r=3){
+      bullets.push({ x:px, y:py, vx: Math.cos(ang)*speed, vy: Math.sin(ang)*speed, life, r });
+    }
+
+    function shoot(){
+      if(gameOver) return;
+      if(ship.exploding > 0) return;
+      if(preStartTimer > 0) return;
+      if(paused) return;
+
+      const spd = 7.0;
+      const ang = forwardAngle();
+      const fx = Math.cos(ang), fy = Math.sin(ang);
+
+      const px = -fy, py = fx;
+
+      const noseX = ship.x + fx*(ship.radius*1.10);
+      const noseY = ship.y + fy*(ship.radius*1.10);
+
+      const tailX = ship.x - fx*(ship.radius*1.05);
+      const tailY = ship.y - fy*(ship.radius*1.05);
+
+      if(weaponMode === "dual"){
+        const off = 6.2;
+        pushBullet(noseX + px*off, noseY + py*off, ang, spd);
+        pushBullet(noseX - px*off, noseY - py*off, ang, spd);
+      } else if(weaponMode === "back"){
+        pushBullet(noseX, noseY, ang, spd);
+        pushBullet(tailX, tailY, ang + Math.PI, spd);
+      } else if(weaponMode === "dog"){
+        const spread = 0.14;
+        pushBullet(noseX, noseY, ang, spd);
+        pushBullet(noseX, noseY, ang - spread, spd*0.98);
+        pushBullet(noseX, noseY, ang + spread, spd*0.98);
+      } else {
+        pushBullet(noseX, noseY, ang, spd);
+      }
+    }
+
+    // =========================
+    // Hits / Lives / FX
+    // =========================
     let flashTimer = 0;
 
     function spawnExplosion(x,y, power=1){
@@ -1479,14 +1435,13 @@ footer {
       }
     }
 
-    function applyHit(reason){
+    function applyHit(){
       if(gameOver) return;
       if(ship.invuln > 0) return;
       if(ship.exploding > 0) return;
 
       hits++;
       hitsEl.textContent = hits;
-
       flashTimer = 140;
 
       if(hits >= MAX_HITS){
@@ -1518,186 +1473,76 @@ footer {
           enemyBullets = [];
           startGracePeriod();
         }, 650);
-      }else{
+      } else {
         ship.invuln = 900;
       }
     }
 
-    // --------------------------------------------
-    // Input (keyboard + pointer)
-    // --------------------------------------------
-    document.addEventListener('keydown', (e) => {
-      keysDown[e.key] = true;
-      if(e.key === ' '){
-        e.preventDefault();
-        shootRequested = true;
-      }
-    });
-    document.addEventListener('keyup', (e) => { keysDown[e.key] = false; });
-
-    let pointerActive = false;
-    let pointerPos = { x: ship.x, y: ship.y };
-    let shootRequested = false;
-    let lastTapTime = 0;
-
-    function setPointerFromEvent(ev){
-      const rect = canvas.getBoundingClientRect();
-      let clientX, clientY;
-
-      if(ev.touches && ev.touches[0]){
-        clientX = ev.touches[0].clientX;
-        clientY = ev.touches[0].clientY;
-      }else{
-        clientX = ev.clientX;
-        clientY = ev.clientY;
-      }
-
-      pointerPos.x = ((clientX - rect.left) / rect.width) * width;
-      pointerPos.y = ((clientY - rect.top) / rect.height) * height;
-    }
-
-    canvas.addEventListener('mousedown', (e) => {
-      pointerActive = true;
-      setPointerFromEvent(e);
-      shootRequested = true;
-    });
-
-    canvas.addEventListener('mousemove', (e) => {
-      if(!pointerActive) return;
-      setPointerFromEvent(e);
-    });
-
-    window.addEventListener('mouseup', () => { pointerActive = false; });
-
-    canvas.addEventListener('touchstart', (e) => {
-      e.preventDefault();
-      const now = performance.now();
-      setPointerFromEvent(e);
-      pointerActive = true;
-
-      shootRequested = true;
-
-      if(now - lastTapTime < 260){
-        shootRequested = true;
-      }
-      lastTapTime = now;
-    }, { passive:false });
-
-    canvas.addEventListener('touchmove', (e) => {
-      e.preventDefault();
-      setPointerFromEvent(e);
-    }, { passive:false });
-
-    canvas.addEventListener('touchend', (e) => {
-      e.preventDefault();
-      pointerActive = false;
-    }, { passive:false });
-
-    // --------------------------------------------
-    // Shooting (UPDATED: no homing, always out the FRONT of the ship)
-    // + powerup patterns
-    // --------------------------------------------
-    function forwardAngle(){
-      // ship.angle rotates the ship shape (which points "up" at angle 0)
-      // forward direction in world = ship.angle - PI/2
-      return ship.angle - Math.PI/2;
-    }
-
-    function pushBullet(px,py, ang, speed, life=1500, r=3){
-      bullets.push({
-        x:px, y:py,
-        vx: Math.cos(ang)*speed,
-        vy: Math.sin(ang)*speed,
-        life,
-        r
-      });
-    }
-
-    function shoot(){
-      if(gameOver) return;
-      if(ship.exploding > 0) return;
-      if(preStartTimer > 0) return;
-
-      const spd = 7.0;
-      const ang = forwardAngle();
-      const fx = Math.cos(ang), fy = Math.sin(ang);
-
-      // perpendicular for offsets
-      const px = -fy, py = fx;
-
-      // nose position
-      const noseX = ship.x + fx*(ship.radius*1.10);
-      const noseY = ship.y + fy*(ship.radius*1.10);
-
-      // back nozzle (for Eyes In Back)
-      const tailX = ship.x - fx*(ship.radius*1.05);
-      const tailY = ship.y - fy*(ship.radius*1.05);
-
-      if(weaponMode === "dual"){
-        const off = 6.2;
-        pushBullet(noseX + px*off, noseY + py*off, ang, spd, 1500, 3);
-        pushBullet(noseX - px*off, noseY - py*off, ang, spd, 1500, 3);
-      }
-      else if(weaponMode === "back"){
-        pushBullet(noseX, noseY, ang, spd, 1500, 3);
-        pushBullet(tailX, tailY, ang + Math.PI, spd, 1500, 3);
-      }
-      else if(weaponMode === "dog"){
-        const spread = 0.14; // slight spread
-        pushBullet(noseX, noseY, ang, spd, 1500, 3);
-        pushBullet(noseX, noseY, ang - spread, spd*0.98, 1500, 3);
-        pushBullet(noseX, noseY, ang + spread, spd*0.98, 1500, 3);
-      }
-      else {
-        // default
-        pushBullet(noseX, noseY, ang, spd, 1500, 3);
+    // =========================
+    // Update helpers
+    // =========================
+    function updateParticles(dt){
+      for(let i=particles.length-1;i>=0;i--){
+        const p = particles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vx *= 0.985;
+        p.vy *= 0.985;
+        p.life -= dt;
+        if(p.life <= 0) particles.splice(i,1);
       }
     }
 
-    // --------------------------------------------
-    // Level progression
-    // --------------------------------------------
-    function beginLevel(lvl){
-      level = lvl;
-      levelEl.textContent = level;
-      killsThisLevel = 0;
-      toNextEl.textContent = killsThisLevel;
+    function updatePickups(dt){
+      for(let i=pickups.length-1;i>=0;i--){
+        const p = pickups[i];
+        p.life -= dt;
+        p.bob += dt/900;
+        p.x += p.vx;
+        p.y += p.vy;
 
-      const d = difficulty();
+        p.vx = clamp(p.vx + Math.sin(p.bob)*0.0009, -1.35, 1.35);
+        p.vy = clamp(p.vy + Math.cos(p.bob)*0.0009, -1.35, 1.35);
 
-      while(asteroids.length < d.asteroidTarget) spawnAsteroid(true);
-      while(asteroids.length > d.asteroidTarget) asteroids.pop();
+        const pad = 30;
+        if(p.x < -pad) p.x = width+pad;
+        if(p.x > width+pad) p.x = -pad;
+        if(p.y < -pad) p.y = height+pad;
+        if(p.y > height+pad) p.y = -pad;
 
-      const minEnemies = clamp(Math.floor(d.enemyCap * 0.55), 1, 4);
-      while(enemies.length < minEnemies) spawnEnemy();
-
-      if(level % 10 === 0){
-        spawnBossPackForLevel(level);
-      } else {
-        bosses = [];
-      }
-
-      startGracePeriod();
-    }
-
-    function awardScore(points){
-      score += points;
-      scoreEl.textContent = score;
-
-      if(score > bestScore){
-        bestScore = score;
-        bestEl.textContent = bestScore;
-        localStorage.setItem('asteroidBest', String(bestScore));
+        if(p.life <= 0) pickups.splice(i,1);
       }
     }
 
-    // --------------------------------------------
-    // Update + collisions
-    // --------------------------------------------
+    function spawnPickupBurst(x,y){
+      for(let i=0;i<12;i++){
+        const a = rand(0, Math.PI*2);
+        const s = rand(1.1, 3.6);
+        particles.push({
+          x,y,
+          vx: Math.cos(a)*s,
+          vy: Math.sin(a)*s,
+          life: rand(420, 820),
+          maxLife: 820,
+          r: rand(1.0, 2.6),
+          hot: Math.random() < 0.55
+        });
+      }
+    }
+
+    // =========================
+    // Update loop
+    // =========================
     function update(dt){
       if(window.__securityFreeze) return;
 
       updateSky(dt);
+
+      if(paused){
+        updateParticles(dt);
+        updatePickups(dt);
+        return;
+      }
 
       if(preStartTimer > 0){
         preStartTimer -= dt;
@@ -1710,7 +1555,7 @@ footer {
         return;
       }
 
-      if(gameOver) {
+      if(gameOver){
         updateParticles(dt);
         updatePickups(dt);
         return;
@@ -1726,7 +1571,6 @@ footer {
         if(ship.exploding < 0) ship.exploding = 0;
       }
 
-      // NEW: spawn pickups on timers (sporadic)
       const now = performance.now();
       if(now > nextPowerupAt){
         const roll = Math.random();
@@ -1742,20 +1586,21 @@ footer {
 
       if(ship.exploding === 0){
         let mvx = 0, mvy = 0;
+
+        // keyboard
         if(keysDown['ArrowLeft'] || keysDown['a'] || keysDown['A']) mvx -= 1;
         if(keysDown['ArrowRight'] || keysDown['d'] || keysDown['D']) mvx += 1;
         if(keysDown['ArrowUp'] || keysDown['w'] || keysDown['W']) mvy -= 1;
         if(keysDown['ArrowDown'] || keysDown['s'] || keysDown['S']) mvy += 1;
 
+        // joystick overrides if active
+        if(joyActive && (Math.abs(joyVec.x) > 0.05 || Math.abs(joyVec.y) > 0.05)){
+          mvx = joyVec.x;
+          mvy = joyVec.y;
+        }
+
         const len = Math.hypot(mvx, mvy);
         if(len > 0){ mvx /= len; mvy /= len; }
-
-        if(pointerActive){
-          const dx = pointerPos.x - ship.x;
-          const dy = pointerPos.y - ship.y;
-          const dist = Math.hypot(dx, dy);
-          if(dist > 4){ mvx = dx / dist; mvy = dy / dist; }
-        }
 
         ship.vx = mvx * ship.speed;
         ship.vy = mvy * ship.speed;
@@ -1768,24 +1613,18 @@ footer {
         if(ship.y < ship.radius) ship.y = ship.radius;
         if(ship.y > height - ship.radius) ship.y = height - ship.radius;
 
-        // UPDATED: facing direction tracking (so bullets fire out the nose)
         const vmag = Math.hypot(ship.vx, ship.vy);
         if(vmag > 0.2){
           ship.angle = Math.atan2(ship.vy, ship.vx) + Math.PI/2;
-        }else if(pointerActive){
-          const dx = pointerPos.x - ship.x;
-          const dy = pointerPos.y - ship.y;
-          if(Math.hypot(dx,dy) > 2) ship.angle = Math.atan2(dy, dx) + Math.PI/2;
-        }else{
-          // keep last angle when idle (feels better)
         }
       }
 
+      // AUTO FIRE
       shootCooldown -= dt;
-if (shootCooldown <= 0) {
-  shoot();
-  shootCooldown = shootDelay;
-}
+      if(shootCooldown <= 0){
+        shoot();
+        shootCooldown = shootDelay;
+      }
 
       for(let i=bullets.length-1;i>=0;i--){
         const b = bullets[i];
@@ -1838,7 +1677,6 @@ if (shootCooldown <= 0) {
 
           if(en.shouter){
             en.tauntLife = rand(520, 900);
-            en.tauntTimer = rand(900, 1600);
             en.taunt = TAUNTS[Math.floor(Math.random()*TAUNTS.length)];
           }
         }
@@ -1849,38 +1687,8 @@ if (shootCooldown <= 0) {
       for(const b of bosses){
         b.t += dt;
         const phase = b.t/1000;
-
-        if(b.type === 0){
-          b.x = width/2 + Math.sin(phase*1.2)*130;
-          b.y = 110 + Math.sin(phase*0.8)*14;
-        } else if(b.type === 1){
-          b.x = width/2 + Math.sin(phase*1.6)*160;
-          b.y = 105 + Math.cos(phase*1.1)*18;
-        } else if(b.type === 2){
-          b.x = width/2 + Math.sin(phase*0.9)*110;
-          b.y = 120 + Math.abs(Math.sin(phase*0.7))*34;
-        } else if(b.type === 3){
-          b.x = width/2 + Math.sin(phase*1.4)*150;
-          b.y = 95 + Math.sin(phase*2.2)*10;
-        } else if(b.type === 4){
-          b.x = width/2 + Math.sin(phase*1.0)*90;
-          b.y = 120 + Math.cos(phase*0.9)*22;
-        } else if(b.type === 5){
-          b.x = width/2 + Math.sin(phase*1.9)*140;
-          b.y = 110 + Math.sin(phase*1.3)*14;
-        } else if(b.type === 6){
-          b.x = width/2 + Math.sin(phase*0.7)*80;
-          b.y = 110 + Math.sin(phase*0.7)*18;
-        } else if(b.type === 7){
-          b.x = width/2 + Math.sin(phase*1.1)*170;
-          b.y = 115 + Math.cos(phase*0.8)*16;
-        } else if(b.type === 8){
-          b.x = width/2 + Math.sin(phase*1.3)*120;
-          b.y = 105 + Math.cos(phase*1.6)*14;
-        } else {
-          b.x = width/2 + Math.sin(phase*0.95)*150;
-          b.y = 115 + Math.sin(phase*0.55)*20;
-        }
+        b.x = width/2 + Math.sin(phase*1.2)*130;
+        b.y = 110 + Math.sin(phase*0.8)*14;
 
         b.shootTimer -= dt;
         const shootBase = clamp(1000 - level*11, 420, 1000);
@@ -1904,19 +1712,14 @@ if (shootCooldown <= 0) {
       updatePickups(dt);
       updateParticles(dt);
 
-      // -------------------------
-      // collisions: bullets vs pickups (NEW)
-      // -------------------------
+      // bullets vs pickups
       outerP: for(let i=pickups.length-1;i>=0;i--){
         const p = pickups[i];
         for(let j=bullets.length-1;j>=0;j--){
           const b = bullets[j];
-          const dx = b.x - p.x;
-          const dy = b.y - p.y;
-          if(Math.hypot(dx,dy) < p.r + b.r){
+          if(Math.hypot(b.x - p.x, b.y - p.y) < p.r + b.r){
             bullets.splice(j,1);
             pickups.splice(i,1);
-
             spawnPickupBurst(p.x, p.y);
             awardScore(15);
 
@@ -1931,14 +1734,12 @@ if (shootCooldown <= 0) {
         }
       }
 
-      // collisions: bullets vs asteroids
+      // bullets vs asteroids
       outerA: for(let i=asteroids.length-1;i>=0;i--){
         const a = asteroids[i];
         for(let j=bullets.length-1;j>=0;j--){
           const b = bullets[j];
-          const dx = b.x - a.x;
-          const dy = b.y - a.y;
-          if(Math.hypot(dx, dy) < a.radius){
+          if(Math.hypot(b.x - a.x, b.y - a.y) < a.radius){
             bullets.splice(j,1);
             asteroids.splice(i,1);
 
@@ -1956,26 +1757,21 @@ if (shootCooldown <= 0) {
         }
       }
 
-      // collisions: bullets vs enemies
+      // bullets vs enemies
       outerE: for(let i=enemies.length-1;i>=0;i--){
         const en = enemies[i];
         for(let j=bullets.length-1;j>=0;j--){
           const b = bullets[j];
-          const dx = b.x - en.x;
-          const dy = b.y - en.y;
-          if(Math.hypot(dx,dy) < en.r + b.r){
+          if(Math.hypot(b.x - en.x, b.y - en.y) < en.r + b.r){
             bullets.splice(j,1);
             en.hp -= 1;
 
-            if(en.shouter){
-              applyHit('hit-shouter');
-            }
+            if(en.shouter) applyHit();
 
             if(en.hp <= 0){
               enemies.splice(i,1);
               awardScore(en.shouter ? 35 : 20);
               spawnExplosion(en.x, en.y, en.shouter ? 1.05 : 0.85);
-
               if(!bossAlive() && enemies.length < difficulty().enemyCap) spawnEnemy();
             }
             break outerE;
@@ -1983,14 +1779,12 @@ if (shootCooldown <= 0) {
         }
       }
 
-      // collisions: bullets vs bosses
+      // bullets vs bosses
       outerB: for(let i=bosses.length-1;i>=0;i--){
         const bo = bosses[i];
         for(let j=bullets.length-1;j>=0;j--){
           const b = bullets[j];
-          const dx = b.x - bo.x;
-          const dy = b.y - bo.y;
-          if(Math.hypot(dx,dy) < bo.r*0.85){
+          if(Math.hypot(b.x - bo.x, b.y - bo.y) < bo.r*0.85){
             bullets.splice(j,1);
             bo.hp -= 1;
             flashTimer = 70;
@@ -1999,117 +1793,46 @@ if (shootCooldown <= 0) {
               spawnExplosion(bo.x, bo.y, 2.0);
               bosses.splice(i,1);
               awardScore(250 + Math.floor(level*8));
-
-              if(bosses.length === 0){
-                beginLevel(level + 1);
-              }
+              if(bosses.length === 0) beginLevel(level + 1);
             }
             break outerB;
           }
         }
       }
 
-      // collisions: enemy bullets vs ship
+      // enemy bullets vs ship
       for(let i=enemyBullets.length-1;i>=0;i--){
         const eb = enemyBullets[i];
-        const dx = eb.x - ship.x;
-        const dy = eb.y - ship.y;
-        if(ship.exploding === 0 && Math.hypot(dx,dy) < ship.radius + eb.r){
+        if(ship.exploding === 0 && Math.hypot(eb.x - ship.x, eb.y - ship.y) < ship.radius + eb.r){
           enemyBullets.splice(i,1);
-          applyHit(eb.kind === "boss" ? 'boss-bullet' : 'enemy-bullet');
+          applyHit();
         }
       }
 
-      // collisions: ship vs asteroids / enemies / bosses
+      // ship vs asteroids/enemies/bosses
       if(ship.exploding === 0){
         for(const a of asteroids){
-          const dx = ship.x - a.x;
-          const dy = ship.y - a.y;
-          if(Math.hypot(dx,dy) < ship.radius + a.radius*0.7){
-            applyHit('asteroid');
-            break;
-          }
+          if(Math.hypot(ship.x - a.x, ship.y - a.y) < ship.radius + a.radius*0.7){ applyHit(); break; }
         }
-
         for(const en of enemies){
-          const dx = ship.x - en.x;
-          const dy = ship.y - en.y;
-          if(Math.hypot(dx,dy) < ship.radius + en.r*0.85){
-            applyHit(en.shouter ? 'shouter-ram' : 'enemy-ram');
-            break;
-          }
+          if(Math.hypot(ship.x - en.x, ship.y - en.y) < ship.radius + en.r*0.85){ applyHit(); break; }
         }
-
         for(const bo of bosses){
-          const dx = ship.x - bo.x;
-          const dy = ship.y - bo.y;
-          if(Math.hypot(dx,dy) < ship.radius + bo.r*0.75){
-            applyHit('boss-ram');
-            break;
-          }
+          if(Math.hypot(ship.x - bo.x, ship.y - bo.y) < ship.radius + bo.r*0.75){ applyHit(); break; }
         }
       }
 
       if(flashTimer > 0) flashTimer -= dt;
       if(flashTimer < 0) flashTimer = 0;
 
-      // keep asteroid count near target each frame
       const dd = difficulty();
       while(asteroids.length < dd.asteroidTarget) spawnAsteroid(true);
       while(asteroids.length > dd.asteroidTarget + 2) asteroids.pop();
     }
 
-    function updateParticles(dt){
-      for(let i=particles.length-1;i>=0;i--){
-        const p = particles[i];
-        p.x += p.vx;
-        p.y += p.vy;
-        p.vx *= 0.985;
-        p.vy *= 0.985;
-        p.life -= dt;
-        if(p.life <= 0) particles.splice(i,1);
-      }
-    }
-
-    function updatePickups(dt){
-      for(let i=pickups.length-1;i>=0;i--){
-        const p = pickups[i];
-        p.life -= dt;
-
-        // gentle bob
-        p.bob += dt/900;
-
-        p.x += p.vx;
-        p.y += p.vy;
-
-        // very light drift variation (keeps them alive without clutter chaos)
-        p.vx = clamp(p.vx + Math.sin(p.bob)*0.0009, -1.35, 1.35);
-        p.vy = clamp(p.vy + Math.cos(p.bob)*0.0009, -1.35, 1.35);
-
-        // keep within bounds softly
-        const pad = 30;
-        if(p.x < -pad) p.x = width+pad;
-        if(p.x > width+pad) p.x = -pad;
-        if(p.y < -pad) p.y = height+pad;
-        if(p.y > height+pad) p.y = -pad;
-
-        if(p.life <= 0) pickups.splice(i,1);
-      }
-    }
-
-    // --------------------------------------------
+    // =========================
     // Draw
-    // --------------------------------------------
-    function drawBackgroundInGame(){
-      ctx.save();
-      const v = ctx.createRadialGradient(width/2, height/3, 30, width/2, height/2, Math.max(width,height));
-      v.addColorStop(0, 'rgba(255,255,255,0.00)');
-      v.addColorStop(1, 'rgba(0,0,0,0.35)');
-      ctx.fillStyle = v;
-      ctx.fillRect(0,0,width,height);
-      ctx.restore();
-    }
-
+    // =========================
     function roundRect(c, x, y, w, h, r, fill, stroke) {
       c.beginPath();
       c.moveTo(x + r, y);
@@ -2122,15 +1845,22 @@ if (shootCooldown <= 0) {
       if(stroke) c.stroke();
     }
 
+    function drawBackgroundInGame(){
+      ctx.save();
+      const v = ctx.createRadialGradient(width/2, height/3, 30, width/2, height/2, Math.max(width,height));
+      v.addColorStop(0, 'rgba(255,255,255,0.00)');
+      v.addColorStop(1, 'rgba(0,0,0,0.35)');
+      ctx.fillStyle = v;
+      ctx.fillRect(0,0,width,height);
+      ctx.restore();
+    }
+
     function drawShip(){
       if(ship.exploding > 0) return;
 
       ctx.save();
       ctx.translate(ship.x, ship.y);
-
-      // UPDATED: use ship.angle (consistent with bullet direction)
-      let ang = ship.angle || 0;
-      ctx.rotate(ang);
+      ctx.rotate(ship.angle || 0);
 
       const glow = ctx.createRadialGradient(0,0,4, 0,0, ship.radius+14);
       glow.addColorStop(0, 'rgba(255,255,255,0.95)');
@@ -2169,40 +1899,12 @@ if (shootCooldown <= 0) {
       ctx.fill();
       ctx.stroke();
 
-      ctx.fillStyle = 'rgba(255,231,255,0.85)';
-      ctx.beginPath();
-      ctx.moveTo(-ship.radius*0.15, ship.radius*0.25);
-      ctx.lineTo(-ship.radius*1.15, ship.radius*0.85);
-      ctx.lineTo(-ship.radius*0.25, ship.radius*0.95);
-      ctx.closePath();
-      ctx.fill();
-
-      ctx.beginPath();
-      ctx.moveTo(ship.radius*0.15, ship.radius*0.25);
-      ctx.lineTo(ship.radius*1.15, ship.radius*0.85);
-      ctx.lineTo(ship.radius*0.25, ship.radius*0.95);
-      ctx.closePath();
-      ctx.fill();
-
-      const flame = 0.6 + 0.4*Math.sin(performance.now()/60);
-      const fg = ctx.createRadialGradient(0, ship.radius*1.28, 1, 0, ship.radius*1.35, ship.radius*0.85);
-      fg.addColorStop(0, `rgba(255,231,255,${0.85*flame})`);
-      fg.addColorStop(0.5, `rgba(255,59,130,${0.6*flame})`);
-      fg.addColorStop(1, 'rgba(10,0,20,0)');
-      ctx.fillStyle = fg;
-      ctx.beginPath();
-      ctx.ellipse(0, ship.radius*1.35, ship.radius*0.22, ship.radius*0.62, 0, 0, Math.PI*2);
-      ctx.fill();
-
       ctx.restore();
     }
 
     function drawAsteroids(){
       for(const a of asteroids){
-        const grad = ctx.createRadialGradient(
-          a.x, a.y, a.radius*0.1,
-          a.x, a.y, a.radius
-        );
+        const grad = ctx.createRadialGradient(a.x, a.y, a.radius*0.1, a.x, a.y, a.radius);
         grad.addColorStop(0, '#ffffff');
         grad.addColorStop(0.3, '#ffe7ff');
         grad.addColorStop(1, '#8a2be2');
@@ -2225,7 +1927,6 @@ if (shootCooldown <= 0) {
         ctx.save();
         ctx.translate(p.x, p.y);
 
-        // bubble aura
         const aura = ctx.createRadialGradient(0,0,3, 0,0, p.r+16);
         aura.addColorStop(0, 'rgba(255,231,255,0.25)');
         aura.addColorStop(0.55, 'rgba(255,59,130,0.12)');
@@ -2235,7 +1936,6 @@ if (shootCooldown <= 0) {
         ctx.arc(0,0, p.r+16, 0, Math.PI*2);
         ctx.fill();
 
-        // bubble body
         const bg = ctx.createRadialGradient(-p.r*0.2, -p.r*0.3, 2, 0,0, p.r);
         bg.addColorStop(0, 'rgba(255,255,255,0.35)');
         bg.addColorStop(1, 'rgba(0,0,0,0.35)');
@@ -2247,7 +1947,6 @@ if (shootCooldown <= 0) {
         ctx.fill();
         ctx.stroke();
 
-        // icon
         if(p.icon === "fire"){
           const ok = firepowerImg && firepowerImg.complete && firepowerImg.naturalWidth > 0;
           if(ok){
@@ -2256,14 +1955,12 @@ if (shootCooldown <= 0) {
             ctx.drawImage(firepowerImg, -s/2, -s/2-2, s, s);
             ctx.globalAlpha = 1;
           }else{
-            // fallback icon
             ctx.fillStyle = 'rgba(255,59,130,0.8)';
             ctx.beginPath();
             ctx.arc(0, -2, 6, 0, Math.PI*2);
             ctx.fill();
           }
         }else{
-          // "life" icon: tiny ship silhouette
           ctx.rotate(Math.sin(p.bob)*0.08);
           ctx.fillStyle = 'rgba(255,231,255,0.90)';
           ctx.beginPath();
@@ -2274,7 +1971,6 @@ if (shootCooldown <= 0) {
           ctx.fill();
         }
 
-        // label
         const msg = p.label;
         ctx.font = '11px system-ui';
         const pad = 8;
@@ -2343,12 +2039,6 @@ if (shootCooldown <= 0) {
         ctx.closePath();
         ctx.fill();
 
-        ctx.strokeStyle = 'rgba(138,43,226,0.65)';
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.arc(0, en.r*0.35, en.r*0.55, 0, Math.PI*2);
-        ctx.stroke();
-
         if(en.shouter && en.tauntLife > 0){
           const msg = en.taunt;
           ctx.font = '12px system-ui';
@@ -2396,7 +2086,7 @@ if (shootCooldown <= 0) {
           ctx.globalAlpha = 0.95;
           ctx.drawImage(img, -w/2, -h/2, w, h);
           ctx.globalAlpha = 1;
-        } else {
+        }else{
           const g = ctx.createRadialGradient(0,0,5, 0,0, b.r);
           g.addColorStop(0, 'rgba(255,231,255,0.95)');
           g.addColorStop(1, 'rgba(138,43,226,0.55)');
@@ -2404,16 +2094,10 @@ if (shootCooldown <= 0) {
           ctx.beginPath();
           ctx.arc(0,0, b.r, 0, Math.PI*2);
           ctx.fill();
-
-          ctx.strokeStyle = 'rgba(255,59,130,0.55)';
-          ctx.lineWidth = 3;
-          ctx.beginPath();
-          ctx.arc(0,0, b.r*0.78, 0, Math.PI*2);
-          ctx.stroke();
         }
 
-        const bw = 120;
-        const bh = 10;
+        // HP bar
+        const bw = 120, bh = 10;
         const hpRatio = clamp(b.hp / b.hpMax, 0, 1);
         ctx.fillStyle = 'rgba(0,0,0,0.45)';
         ctx.strokeStyle = 'rgba(255,138,192,0.22)';
@@ -2447,28 +2131,6 @@ if (shootCooldown <= 0) {
       ctx.restore();
     }
 
-    function drawGameOver(){
-      ctx.save();
-      ctx.fillStyle = 'rgba(0,0,0,0.62)';
-      ctx.fillRect(0,0,width,height);
-
-      const title = "GAME OVER";
-      const sub = "Hit Restart (center bubble) to run it back.";
-
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-
-      ctx.fillStyle = 'rgba(255,231,255,0.95)';
-      ctx.font = '900 34px Orbitron, system-ui';
-      ctx.fillText(title, width/2, height/2 - 18);
-
-      ctx.fillStyle = 'rgba(228,228,255,0.85)';
-      ctx.font = '14px system-ui';
-      ctx.fillText(sub, width/2, height/2 + 18);
-
-      ctx.restore();
-    }
-
     function drawCountdown(){
       if(preStartTimer <= 0 || gameOver) return;
 
@@ -2490,14 +2152,41 @@ if (shootCooldown <= 0) {
       ctx.font = '900 40px Orbitron, system-ui';
       ctx.fillText(String(secs), width/2, height/2 + 10);
 
-      ctx.fillStyle = 'rgba(228,228,255,0.88)';
-      ctx.font = '13px system-ui';
-      ctx.fillText("Toggle music now if you want.", width/2, height/2 + 48);
-
       ctx.fillStyle = 'rgba(228,228,255,0.75)';
       ctx.font = '12px system-ui';
-      ctx.fillText("Difficulty: " + dName + " (tap left bubble to change)", width/2, height/2 + 68);
+      ctx.fillText("Difficulty: " + dName + " (tap left bubble to change)", width/2, height/2 + 52);
 
+      ctx.restore();
+    }
+
+    function drawPaused(){
+      if(!paused || gameOver) return;
+      ctx.save();
+      ctx.fillStyle = 'rgba(0,0,0,0.55)';
+      ctx.fillRect(0,0,width,height);
+      ctx.textAlign='center';
+      ctx.textBaseline='middle';
+      ctx.fillStyle='rgba(255,231,255,0.95)';
+      ctx.font='900 30px Orbitron, system-ui';
+      ctx.fillText('PAUSED', width/2, height/2);
+      ctx.fillStyle='rgba(228,228,255,0.85)';
+      ctx.font='13px system-ui';
+      ctx.fillText('Tap Pause to resume', width/2, height/2 + 30);
+      ctx.restore();
+    }
+
+    function drawGameOver(){
+      ctx.save();
+      ctx.fillStyle = 'rgba(0,0,0,0.62)';
+      ctx.fillRect(0,0,width,height);
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = 'rgba(255,231,255,0.95)';
+      ctx.font = '900 34px Orbitron, system-ui';
+      ctx.fillText("GAME OVER", width/2, height/2 - 18);
+      ctx.fillStyle = 'rgba(228,228,255,0.85)';
+      ctx.font = '14px system-ui';
+      ctx.fillText("Hit Reset Field to run it back.", width/2, height/2 + 18);
       ctx.restore();
     }
 
@@ -2508,16 +2197,14 @@ if (shootCooldown <= 0) {
 
       update(dt);
 
-      // draw outside-game background
       drawSky();
 
-      // draw game
       ctx.clearRect(0,0,width,height);
       drawBackgroundInGame();
       drawAsteroids();
       drawEnemies();
       drawBosses();
-      drawPickups();      // NEW: pickups render
+      drawPickups();
       drawEnemyBullets();
       drawBullets();
       drawParticles();
@@ -2526,6 +2213,7 @@ if (shootCooldown <= 0) {
 
       if(gameOver) drawGameOver();
       drawCountdown();
+      drawPaused();
 
       requestAnimationFrame(loop);
     }
@@ -2537,6 +2225,5 @@ if (shootCooldown <= 0) {
   </script>
 
   <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
-  
 </body>
 </html>
