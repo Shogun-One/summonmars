@@ -1996,6 +1996,7 @@
           const b = bullets[j];
           if(Math.hypot(b.x - a.x, b.y - a.y) < a.radius){
             bullets.splice(j,1);
+            spawnExplosion(a.x, a.y, 1.1);
             asteroids.splice(i,1);
 
             awardScore(10);
@@ -2041,7 +2042,8 @@
             flashTimer = 70;
 
             if(bo.hp <= 0){
-              spawnExplosion(bo.x, bo.y, 2.0);
+              spawnExplosion(bo.x, bo.y, 3.0);
+              spawnExplosion(bo.x, bo.y, 1.6);
               bosses.splice(i,1);
               awardScore(250 + Math.floor(level*8));
 
