@@ -754,54 +754,58 @@
       border-color: rgba(255, 255, 255, 0.3);
     }
 
-    /* MERCH */
-.merch-layout {
+    /* MERCH LAYOUT FIXED + CENTERED */
+
+.merch-layout{
   margin-top: 2.5rem;
   display: flex;
   flex-direction: column;
   gap: 2.5rem;
   align-items: center;
-  position: relative;          /* fixes stacking issues */
-  overflow: visible;           /* prevents bag from being clipped */
-  z-index: 1;
+  justify-content: center;
+  width: 100%;
 }
 
-@media (min-width: 960px) {
-  .merch-layout {
+/* Desktop two-column layout */
+@media (min-width: 960px){
+  .merch-layout{
     flex-direction: row;
-    align-items: flex-start;
+    align-items: stretch;
     justify-content: center;
+    gap: 2.5rem;
+  }
+
+  .merch-qr{
+    flex: 0 0 260px;
+  }
+
+  .merch-grid{
+    flex: 1 1 auto;
   }
 }
 
-.merch-grid {
+/* QR centered properly */
+.merch-qr{
+  max-width: 260px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* Merch cards centered and clean */
+.merch-grid{
   display: flex;
   justify-content: center;
-  align-items: stretch;        /* THIS fixes the “out of line” cards */
+  align-items: stretch;
   gap: 2rem;
   flex-wrap: wrap;
   width: 100%;
   text-align: center;
 }
 
-/* ensures consistent card sizing */
-.merch-grid > * {
+/* Consistent sizing */
+.merch-grid > *{
   flex: 0 1 260px;
 }
-
-/* ensures bag image stays on top if layered */
-.merch-bag,
-.merch-bag img,
-.bag {
-  position: relative;
-  z-index: 5;
-}
-
-    @media (min-width: 768px) {
-      .merch-grid {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-      }
-    }
 
     .merch-card {
       background: rgba(0, 0, 0, 0.65);
@@ -1341,20 +1345,20 @@
 
     <div class="merch-card">
       <img src="tmnt-gametag.png" alt="TMNT" />
-      <div class="merch-title">TMNT – Get That Slice!</div>
       <a class="merch-button" href="tmnt.html">Play Now!</a>
+      <div class="merch-title">TMNT – Get That Slice!</div>
     </div>
 
     <div class="merch-card asteroid-showcase">
       <img src="asteroids-game.png" alt="Asteroid Drift" />
-      <div class="merch-title">Asteroid Drift</div>
       <a class="merch-button" href="asteroids.html">Play Now!</a>
+      <div class="merch-title">Asteroid Drift</div>
     </div>
     
     <div class="merch-card">
       <img src="random-gametag.png" alt="Game One" />
-      <div class="merch-title">"Would You Like To Play A Game?"</div>
       <a class="merch-button" href="#">Play Soon!</a>
+      <div class="merch-title">"Would You Like To Play A Game?"</div>
     </div>
 
   </div>
