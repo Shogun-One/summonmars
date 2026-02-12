@@ -378,17 +378,20 @@
   gap: 12px;             /* spacing between buttons */
 }
     .char-btn{
-      padding:10px 10px;
-      border-radius:12px;
-      border:1px solid rgba(157,255,191,.42);
-      background:rgba(0,0,0,.28);
-      color:rgba(228,228,255,.95);
-      cursor:pointer;
-      font-size:1rem;
-      backdrop-filter: blur(6px);
-      -webkit-backdrop-filter: blur(6px);
-      box-shadow:0 0 14px rgba(60,255,156,.12);
-    }
+  width: 220px; /* <-- ADD THIS LINE */
+  padding:10px 10px;
+  border-radius:12px;
+  border:1px solid rgba(157,255,191,.42);
+  background:rgba(0,0,0,.28);
+  color:rgba(228,228,255,.95);
+  cursor:pointer;
+  font-size:1rem;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  box-shadow:0 0 14px rgba(60,255,156,.12);
+  text-align:center; /* optional but nice */
+}
+
     .char-btn:hover{ filter:brightness(1.08); }
 
     /* Start countdown overlay (in-game) */
@@ -487,16 +490,18 @@ footer {
 
   <div class="wrapper">
     <h1>TMNT · GET THAT SLICE!</h1>
-    <div class="subtitle">
-      Dodge traffic. Snag pizza. Stack <strong>Slices</strong> like you’re speedrunning lunchtime.
-      <br/>Swipe on mobile or use <strong>WASD</strong>/<strong>Arrow Keys</strong>.
-    </div>
+    <div class="controls">
+      Desktop: move with <strong>WASD</strong> / <strong>Arrow Keys</strong>.
+      Mobile: <strong>swipe</strong> on the game to move one tile.
+      <div class="hint">Pro tip: if you get splatted, the pizza judges you silently. 🍕</div>
+      </div>
 
     <div class="hud">
       <div class="pill">Slices: <b id="score">0</b></div>
       <div class="pill">Best: <b id="best">0</b></div>
       <div class="pill">Level: <b id="level">1</b></div>
       <div class="pill">Lives: <b id="lives">3</b></div>
+      
       <div class="pill">Difficulty: <b id="diffLabel">Easy Peasy</b></div>
     </div>
 
