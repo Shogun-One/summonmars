@@ -2200,62 +2200,151 @@ if (level % BOSS_INTERVAL === 0) {
 
     function drawAsteroids(){
   for(const a of asteroids){
+
+    // Ensure each asteroid has a stable rocky shape + vein angles
+    if(!a._shape){
+      const pts = [];
+      const n = Math.floor(8 + Math.random()*6);
+      for(let i=0;i<n;i++){
+        const t = (i/n) * Math.PI*2;
+        const rr = a.radius * (0.72 + Math.random()*0.38);
+        pts.push({ x: Math.cos(t)*rr, y: Math.sin(t)*rr });
+      }
+      a._shape = pts;
+    }
+    if(!a._veins){
+      a._veins = Array.from({length: 6}, () => Math.random() * Math.PI*2);
+    }
+
     ctx.save();
     ctx.translate(a.x, a.y);
 
-    // --- Create a stable "rock shape" per asteroid ---
-    // (so it doesn't wobble into a new shape every frame)
-    if(!a._shape){
-      const pts = [];
-      const n = 10 + Math.floor(Math.random()*6); // 10–15 points
-      for(let i=0;i<n;i++){
-        const ang = (i/n) * Math.PI*2;
-        const jitter = 0.65 + Math.random()*0.55; // jaggedness
-        pts.push({ x: Math.cos(ang)*a.radius*jitter, y: Math.sin(ang)*a.radius*jitter });
-      }
-      a._shape = pts;
-      a._spin = (Math.random()*2-1) * 0.0007; // tiny spin
-      a._rot = Math.random()*Math.PI*2;
-      a._tone = 60 + Math.floor(Math.random()*50); // gray tone variation
-    }
+    // --- Charred rock fill (dark, ashy) ---
+    const rock = ctx.createRadialGradient(-a.radius*0.25, -a.radius*0.25, a.radius*0.2, 0,0, a.radius*1.1);
+    rock.addColorStop(0, 'rgba(80,78,90,0.95)');
+    rock.addColorStop(0.45,'rgba(30,28,38,0.98)');
+    rock.addColorStop(1, 'rgba(10,9,14,1)');
 
-    // Optional slow rotation
-    a._rot += a._spin;
+    ctx.fillStyle = rock;
 
-    ctx.rotate(a._rot);
-
-    // --- Rocky fill ---
-    const tone = a._tone;
-    const grad = ctx.createRadialGradient(-a.radius*0.25, -a.radius*0.25, a.radius*0.15, 0, 0, a.radius*1.25);
-    grad.addColorStop(0, `rgba(${tone+70},${tone+70},${tone+70},0.95)`);
-    grad.addColorStop(0.45, `rgba(${tone+25},${tone+25},${tone+25},0.92)`);
-    grad.addColorStop(1, `rgba(${tone-10},${tone-10},${tone-10},0.95)`);
-
-    ctx.fillStyle = grad;
-    ctx.beginPath();
+    // Draw the jagged asteroid
     const s = a._shape;
+    ctx.beginPath();
     ctx.moveTo(s[0].x, s[0].y);
     for(let i=1;i<s.length;i++) ctx.lineTo(s[i].x, s[i].y);
     ctx.closePath();
     ctx.fill();
 
-    // --- Outline (crisp rock edge) ---
-    ctx.strokeStyle = 'rgba(0,0,0,0.45)';
-    ctx.lineWidth = 2;
+    // --- Sooty texture specks (char feel) ---
+    ctx.globalAlpha = 0.22;
+    for(let i=0;i<16;i++){
+      ctx.fillStyle = 'rgba(0,0,0,0.9)';
+      ctx.beginPath();
+      ctx.arc(
+        (Math.random()-0.5)*a.radius*1.2,
+        (Math.random()-0.5)*a.radius*1.2,
+        Math.random()*2.1,
+        0, Math.PI*2
+      );
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+
+    // --- Neon rim lighting (more visible) ---
+    ctx.strokeStyle = 'rgba(255, 59, 130, 0.55)';
+    ctx.lineWidth = 2.6;
+    ctx.shadowColor = 'rgba(138,43,226,0.75)';
+    ctx.shadowBlur = 14;
     ctx.stroke();
+    ctx.shadowBlur = 0;
 
-    // --- Crater-ish highlights (subtle, not purple) ---
-    ctx.globalAlpha = 0.35;
-    ctx.strokeStyle = 'rgba(255,255,255,0.35)';
-    ctx.lineWidth = 1.2;
+    // --- Lava veins (CLEARLY visible) ---
+    ctx.globalAlpha = 0.95;
+    ctx.strokeStyle = 'rgba(255, 90, 40, 0.95)';
+    ctx.lineWidth = 1.8;
+    ctx.shadowColor = 'rgba(255,90,40,0.55)';
+    ctx.shadowBlur = 10;
 
+    for(const ang of a._veins){
+      const r1 = a.radius*0.15;
+      const r2 = a.radius*(0.55 + Math.random()*0.25);
+      ctx.beginPath();
+      ctx.moveTo(Math.cos(ang)*r1, Math.sin(ang)*r1);
+      ctx.lineTo(Math.cos(ang+0.35)*r2, Math.sin(ang+0.35)*r2);
+      ctx.stroke();
+    }
+
+    ctx.shadowBlur = 0;
+    ctx.globalAlpha = 1;
+
+    // --- Deep crater shadow ---
+    ctx.strokeStyle = 'rgba(0,0,0,0.70)';
+    ctx.lineWidth = 1.4;
     ctx.beginPath();
-    ctx.arc(-a.radius*0.15, -a.radius*0.10, a.radius*0.22, 0, Math.PI*1.6);
+    ctx.arc(-a.radius*0.18, -a.radius*0.12, a.radius*0.28, 0, Math.PI*1.75);
     ctx.stroke();
 
-    ctx.beginPath();
-    ctx.arc(a.radius*0.20, a.radius*0.15, a.radius*0.16, 0, Math.PI*1.7);
-    ctx.stroke();
+    ctx.restore();
+  }
+}
+    // Optional slow rotation
+    a._rot += a._spin;
+
+    ctx.rotate(a._rot);
+
+    // --- Charred volcanic core ---
+const tone = a._tone;
+
+// Dark lava-rock base
+const baseGrad = ctx.createRadialGradient(
+  -a.radius*0.25,
+  -a.radius*0.25,
+  a.radius*0.2,
+  0, 0,
+  a.radius*1.3
+);
+
+baseGrad.addColorStop(0, `rgba(${tone+40},${tone+10},${tone+10},0.95)`);
+baseGrad.addColorStop(0.4, `rgba(${tone-10},${tone-25},${tone-25},0.95)`);
+baseGrad.addColorStop(1, `rgba(15,10,12,0.98)`);
+
+ctx.fillStyle = baseGrad;
+ctx.beginPath();
+const s = a._shape;
+ctx.moveTo(s[0].x, s[0].y);
+for(let i=1;i<s.length;i++) ctx.lineTo(s[i].x, s[i].y);
+ctx.closePath();
+ctx.fill();
+
+// --- Subtle neon rim lighting ---
+ctx.strokeStyle = 'rgba(255, 59, 130, 0.35)';
+ctx.lineWidth = 2.2;
+ctx.shadowColor = 'rgba(138,43,226,0.55)';
+ctx.shadowBlur = 10;
+ctx.stroke();
+ctx.shadowBlur = 0;
+
+// --- Lava veins (faint glowing cracks) ---
+ctx.globalAlpha = 0.65;
+ctx.strokeStyle = 'rgba(255,90,40,0.55)';
+ctx.lineWidth = 1.4;
+
+for(let i=0;i<3;i++){
+  ctx.beginPath();
+  const ang = Math.random() * Math.PI*2;
+  ctx.moveTo(Math.cos(ang)*a.radius*0.2, Math.sin(ang)*a.radius*0.2);
+  ctx.lineTo(Math.cos(ang+0.4)*a.radius*0.6, Math.sin(ang+0.4)*a.radius*0.6);
+  ctx.stroke();
+}
+
+ctx.globalAlpha = 1;
+
+// --- Deep crater shadows ---
+ctx.strokeStyle = 'rgba(0,0,0,0.6)';
+ctx.lineWidth = 1.2;
+ctx.beginPath();
+ctx.arc(-a.radius*0.15, -a.radius*0.1, a.radius*0.25, 0, Math.PI*1.7);
+ctx.stroke();
 
     ctx.restore();
   }
