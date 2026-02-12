@@ -1165,9 +1165,10 @@
       return img;
     });
     function getBossImageForLevel(lvl){
-      const idx = clamp(Math.floor(lvl/10) - 1, 0, 9);
-      return bossImgs[idx];
-    }
+  const BOSS_INTERVAL = 5;
+  const idx = clamp(Math.floor(lvl / BOSS_INTERVAL) - 1, 0, 9);
+  return bossImgs[idx];
+}
     function pickRandomBossImage(){
       return bossImgs[Math.floor(Math.random()*bossImgs.length)];
     }
@@ -1196,31 +1197,32 @@
     ];
 
     function difficulty(){
-      const l = level;
-      const m = diffMult();
+  const l = level;
+  const m = diffMult();
 
-      const baseAstTarget = 4 + Math.floor(l * 0.28);
-      const baseEnemyCap  = 1 + Math.floor(l * 0.12);
-      const baseSpawnCh   = 0.0038 + l * 0.00020;
+  // Slower ramp (less "sudden pain")
+  const baseAstTarget = 4 + Math.floor(l * 0.20);
+  const baseEnemyCap  = 1 + Math.floor(l * 0.085);
+  const baseSpawnCh   = 0.0038 + l * 0.00014;
 
-      return {
-        asteroidTarget: clamp(Math.floor(baseAstTarget * m), 3, 22),
-        asteroidSpeedMin: (0.70 + l*0.026) * (0.92 + m*0.18),
-        asteroidSpeedMax: (1.55 + l*0.050) * (0.92 + m*0.18),
+  return {
+    asteroidTarget: clamp(Math.floor(baseAstTarget * m), 3, 20),
+    asteroidSpeedMin: (0.70 + l*0.020) * (0.92 + m*0.18),
+    asteroidSpeedMax: (1.55 + l*0.038) * (0.92 + m*0.18),
 
-        enemyCap: clamp(Math.floor(baseEnemyCap * m), 1, 10),
-        enemySpawnChance: clamp(baseSpawnCh * m, 0.0035, 0.018),
+    enemyCap: clamp(Math.floor(baseEnemyCap * m), 1, 9),
+    enemySpawnChance: clamp(baseSpawnCh * m, 0.0035, 0.016),
 
-        enemyBulletSpeed: (3.0 + l*0.040) * (0.90 + m*0.22),
-        enemyShootMin: clamp((1180 - l*16) / (0.88 + m*0.24), 520, 1400),
-        enemyShootMax: clamp((1750 - l*20) / (0.88 + m*0.24), 780, 1900),
+    enemyBulletSpeed: (3.0 + l*0.030) * (0.90 + m*0.22),
+    enemyShootMin: clamp((1180 - l*10) / (0.88 + m*0.24), 560, 1400),
+    enemyShootMax: clamp((1750 - l*13) / (0.88 + m*0.24), 840, 1900),
 
-        shouterChance: clamp(0.22 + l*0.0025 + (m-1)*0.10, 0.18, 0.55),
+    shouterChance: clamp(0.22 + l*0.0020 + (m-1)*0.10, 0.18, 0.52),
 
-        bossBulletSpeed: (3.25 + l*0.032) * (0.90 + m*0.24),
-        bossHpMult: clamp(0.92 + (m-1)*0.28, 0.85, 1.35)
-      };
-    }
+    bossBulletSpeed: (3.25 + l*0.026) * (0.90 + m*0.24),
+    bossHpMult: clamp(0.92 + (m-1)*0.28, 0.85, 1.35)
+  };
+}
 
     function spawnEnemy(){
       const edge = Math.floor(Math.random()*4);
@@ -1271,7 +1273,8 @@
         const d = difficulty();
         const baseHp = Math.round((18 + Math.floor(lvl*1.45)) * d.bossHpMult);
         const r = 44 + Math.floor(lvl*0.15);
-        const type = (Math.floor(lvl/10)-1) % 10;
+        const BOSS_INTERVAL = 5;
+        const type = (Math.floor(lvl / BOSS_INTERVAL) - 1) % 10;
         bosses.push({
           x: width/2 + rand(-60,60),
           y: 110,
@@ -1409,13 +1412,15 @@
       const minEnemies = clamp(Math.floor(d.enemyCap * 0.55), 1, 4);
       while(enemies.length < minEnemies) spawnEnemy();
 
-      if (level % 10 === 0) {
-        spawnBossPackForLevel(level);
-        bossIncomingTimer = 1100;
-        bossIncomingDidSting = false; // reset so sting plays every boss
-      } else {
-        bosses = [];
-      }
+      const BOSS_INTERVAL = 5;
+
+if (level % BOSS_INTERVAL === 0) {
+  spawnBossPackForLevel(level);
+  bossIncomingTimer = 1100;
+  bossIncomingDidSting = false; // reset so sting plays every boss
+} else {
+  bosses = [];
+}
 
       if(opts && opts.levelUp){
         // NO countdown pause on level up
