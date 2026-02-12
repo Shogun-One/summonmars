@@ -764,11 +764,32 @@
   align-items: center;
   justify-content: center;
   width: 100%;
+  padding: 0 14px;
 }
 
-/* Desktop two-column layout */
-@media (min-width: 1100px){
+.merch-grid{
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 2rem;
+  flex-wrap: wrap; /* MOBILE FIX */
+  width: 100%;
+  text-align: center;
+}
 
+.merch-grid > *{
+  flex: 0 1 220px;
+  max-width: 100%;
+}
+
+.merch-qr{
+  max-width: 260px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* Desktop layout */
+@media (min-width: 1100px){
   .merch-layout{
     flex-direction: row;
     align-items: flex-start;
@@ -777,46 +798,15 @@
   }
 
   .merch-qr{
-    flex: 0 0 240px; /* slightly smaller */
+    flex: 0 0 240px;
   }
 
   .merch-grid{
     flex: 1;
-    display: flex;
-    justify-content: center;
-    gap: 2rem;
-    flex-wrap: nowrap; /* THIS STOPS THE DROP */
+    flex-wrap: nowrap; /* desktop only */
   }
-
-  .merch-grid > *{
-    flex: 0 0 220px; /* slightly smaller cards */
-  }
-
 }
-
-/* QR centered properly */
-.merch-qr{
-  max-width: 260px;
-  width: 100%;
-  margin: 0 auto;
-}
-
-/* Merch cards centered and clean */
-.merch-grid{
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  gap: 2rem;
-  flex-wrap: nowrap;
-  width: 100%;
-  text-align: center;
-}
-
-/* Consistent sizing */
-.merch-grid > *{
-  flex: 0 1 220px;
-}
-
+    
     .merch-card {
       background: rgba(0, 0, 0, 0.65);
       border-radius: 18px;
