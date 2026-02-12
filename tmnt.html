@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,6 +11,20 @@
   <link rel="icon" href="images/tmnticon.png" />
 
   <style>
+    /* --- SECURITY LOCKDOWN PROTOCOLS (copied from videos.html) --- */
+    body {
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+      -webkit-touch-callout: none;
+    }
+
+    img {
+      pointer-events: none;
+      -webkit-user-drag: none;
+    }
+
     /* --- BASIC PAGE LAYOUT --- */
     body {
       margin: 0;
@@ -179,6 +194,28 @@
         display: none;
       }
     }
+
+    /* --- SECURITY BANNER (copied from videos.html) --- */
+    .security-banner {
+      position: fixed;
+      bottom: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+
+      padding: 6px 14px;
+      font-size: 0.65rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+
+      color: #ff3b3b;
+      background: rgba(0, 0, 0, 0.55);
+      border: 1px solid rgba(255, 59, 59, 0.4);
+      border-radius: 999px;
+
+      box-shadow: 0 0 14px rgba(255, 59, 59, 0.25);
+      z-index: 9999;
+      pointer-events: none;
+    }
   </style>
 </head>
 <body>
@@ -192,6 +229,9 @@
   </p>
 
   <img class="banner" src="images/banner.png" alt="TMNT Banner" />
+
+  <!-- VISIBLE DETERRENT BANNER (copied from videos.html) -->
+  <div class="security-banner">Protected From Bad Vibes</div>
 
   <!-- The game canvas (we bind to this in JS instead of creating dynamically) -->
   <canvas id="game" width="505" height="606"></canvas>
@@ -232,6 +272,179 @@
     related elements are the property of their respective copyright
     holders. No affiliation or endorsement is implied.
   </div>
+
+  <!-- =========================================================
+       SECURITY LAYER (copied/cleaned from videos.html)
+       - disables right-click, drag, common devtools shortcuts
+       - console trap
+       - devtools/zoom overlay + sound + pauses gameplay (best-effort)
+  ========================================================== -->
+  <script>
+    (function () {
+      // Right-click off
+      document.addEventListener("contextmenu", function (e) {
+        e.preventDefault();
+      });
+
+      // Drag off
+      document.ondragstart = function () { return false; };
+
+      // Block common inspect/save/view-source shortcuts + F12
+      document.addEventListener("keydown", function (e) {
+        const key = e.key || "";
+        const keyCode = e.keyCode || 0;
+
+        // F12
+        if (key === "F12" || keyCode === 123) {
+          e.preventDefault();
+          return false;
+        }
+
+        // Ctrl+Shift+I/C/J
+        if (e.ctrlKey && e.shiftKey) {
+          const upper = String(key).toUpperCase();
+          if (upper === "I" || upper === "C" || upper === "J") {
+            e.preventDefault();
+            return false;
+          }
+        }
+
+        // Ctrl+U / Ctrl+S
+        if (e.ctrlKey) {
+          const upper = String(key).toUpperCase();
+          if (upper === "U" || upper === "S") {
+            e.preventDefault();
+            return false;
+          }
+        }
+      }, { capture: true });
+
+      // Console trap
+      setInterval(function () {
+        console.clear();
+        console.log(
+          "%c TRACKING...",
+          "color: red; font-size: 20px; font-weight: bold;"
+        );
+      }, 2000);
+
+      // Breach overlay + audio + devtools/zoom detection
+      function initBreachOverlay() {
+        if (!document.body) return;
+
+        const overlay = document.createElement("div");
+        overlay.style.cssText = [
+          "position:fixed",
+          "top:0",
+          "left:0",
+          "width:100vw",
+          "height:100vh",
+          "background:rgba(0,0,0,0.95)",
+          "color:red",
+          "display:none",
+          "align-items:center",
+          "justify-content:center",
+          "flex-direction:column",
+          "font-size:2rem",
+          "text-align:center",
+          "padding:2rem",
+          "z-index:999999"
+        ].join(";");
+
+        overlay.innerHTML =
+          "<h1>SECURITY BREACH DETECTED</h1>" +
+          '<p style="font-size:1.2rem;margin-top:1rem;">' +
+          "Logging communications : Security Active<br>" +
+          "Unauthorized inspection prohibited!" +
+          "</p>";
+
+        document.body.appendChild(overlay);
+
+        const nedryAudio = new Audio("jurrasicpassword.mp3");
+        let devtoolsOpen = false;
+
+        function pauseGameBestEffort() {
+          // Your TMNT game is RAF-driven; easiest “pause” is just stop updates by canceling RAF.
+          // We don't have direct access to requestAnimationFrameID in closure, so we do best-effort:
+          // freeze input feel by showing overlay + optionally blur focus.
+          // (If you want a true pause, we can refactor the engine to expose pause/resume.)
+          try { document.activeElement && document.activeElement.blur && document.activeElement.blur(); } catch (_) {}
+        }
+
+        function showOverlay() {
+          if (devtoolsOpen) return;
+          devtoolsOpen = true;
+          overlay.style.display = "flex";
+          pauseGameBestEffort();
+          nedryAudio.currentTime = 0;
+          nedryAudio.play().catch(function () {});
+        }
+
+        function hideOverlay() {
+          if (!devtoolsOpen) return;
+          devtoolsOpen = false;
+          overlay.style.display = "none";
+        }
+
+        // Baseline measurements (copied logic)
+        const baseOuterW = window.outerWidth;
+        const baseOuterH = window.outerHeight;
+        const baseInnerW = window.innerWidth;
+        const baseInnerH = window.innerHeight;
+
+        const baseWidthRatio = baseInnerW / baseOuterW;
+        const baseHeightRatio = baseInnerH / baseOuterH;
+        const baseArea = baseInnerW * baseInnerH;
+
+        function detectDevToolsOrZoom() {
+          const outerW = window.outerWidth;
+          const outerH = window.outerHeight;
+          const innerW = window.innerWidth;
+          const innerH = window.innerHeight;
+
+          const widthRatio = innerW / outerW;
+          const heightRatio = innerH / outerH;
+
+          const widthDrop = baseWidthRatio - widthRatio;
+          const heightDrop = baseHeightRatio - heightRatio;
+
+          const area = innerW * innerH;
+          const areaDrop = 1 - (area / baseArea);
+
+          const zoomLikely = innerW < baseInnerW * 0.7;
+
+          const devtoolsLikely =
+            widthDrop > 0.18 ||
+            heightDrop > 0.18 ||
+            areaDrop > 0.25;
+
+          if (devtoolsLikely || zoomLikely) showOverlay();
+          else hideOverlay();
+        }
+
+        setInterval(detectDevToolsOrZoom, 600);
+        window.addEventListener("resize", detectDevToolsOrZoom);
+
+        // Instant manual trip on F12 or Ctrl+Shift+I
+        window.addEventListener("keydown", function (e) {
+          const key = e.key || e.keyCode;
+
+          const isF12 = key === "F12" || key === 123;
+          const isCtrlShiftI =
+            e.ctrlKey && e.shiftKey &&
+            (key === "I" || key === "i" || key === 73);
+
+          if (isF12 || isCtrlShiftI) showOverlay();
+        });
+      }
+
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", initBreachOverlay);
+      } else {
+        initBreachOverlay();
+      }
+    })();
+  </script>
 
   <!-- =========================================================
        RESOURCES.JS - image loader and cache
@@ -707,7 +920,7 @@
     // INPUT: Keyboard + Virtual Gamepad
     // =========================================================
 
-    // Prevent arrow keys / WASD from scrolling page
+    // Prevent arrow keys / WASD from scrolling page (already here; keep)
     document.addEventListener("keydown", function (e) {
       var blockKeys = [37, 38, 39, 40, 65, 68, 83, 87]; // arrows + WASD
       if (blockKeys.indexOf(e.keyCode) !== -1) {
@@ -786,3 +999,4 @@
   </script>
 </body>
 </html>
+```
