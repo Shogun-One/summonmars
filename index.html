@@ -1058,24 +1058,19 @@
   100% {
     opacity: 1;
   }
+}
 
   /* --- ASTEROID DRIFT SUBTLE SHOWCASE --- */
 /* --- ASTEROIDS: FEATURED SHOWCASE CARD --- */
 .merch-card.asteroid-showcase{
-  transform: scale(1.33);
-  z-index: 5;
-  position: relative;
-
-  border-color: rgba(255,59,130,.55);
+  transform: scale(1.33);              /* ~one-third bigger */
+  z-index: 5;                           /* stays on top */
   box-shadow:
     0 0 28px rgba(255,59,130,.25),
     0 0 60px rgba(138,43,226,.18),
     0 18px 60px rgba(0,0,0,.65);
-
-  transition:
-    transform .18s ease,
-    box-shadow .18s ease,
-    border-color .18s ease;
+  border-color: rgba(255,59,130,.55);
+  position: relative;
 }
 
 /* Glow aura behind the featured card */
@@ -1084,22 +1079,13 @@
   position:absolute;
   inset:-18px;
   border-radius: inherit;
-
   background: radial-gradient(circle at 50% 40%,
-    rgba(255,59,130,.34) 0%,
-    rgba(138,43,226,.22) 35%,
-    rgba(0,195,255,.16) 55%,
-    rgba(0,0,0,0) 72%);
-
-  filter: blur(12px);
-  opacity: .85;
+    rgba(255,59,130,.28) 0%,
+    rgba(138,43,226,.18) 35%,
+    rgba(0,0,0,0) 70%);
+  filter: blur(10px);
   pointer-events:none;
   z-index:-1;
-
-  transition:
-    inset .18s ease,
-    filter .18s ease,
-    opacity .18s ease;
 }
 
 /* Make the image pop (without changing layout) */
@@ -1109,20 +1095,27 @@
     drop-shadow(0 0 34px rgba(138,43,226,.22));
 }
 
-/* Slight hover lift */
-.merch-card.asteroid-showcase:hover{
-  transform: scale(1.38);
-  border-color: rgba(255,59,130,.72);
-  box-shadow:
-    0 0 36px rgba(255,59,130,.35),
-    0 0 86px rgba(138,43,226,.26),
-    0 22px 80px rgba(0,0,0,.72);
+/* Soft ambient glow behind */
+.asteroid-showcase::before {
+  content: "";
+  position: absolute;
+  inset: -14px;
+  border-radius: 22px;
+  background: radial-gradient(
+    circle at center,
+    rgba(0, 195, 255, 0.35),
+    rgba(124, 255, 95, 0.25),
+    transparent 70%
+  );
+  filter: blur(22px);
+  opacity: 0.7;
+  z-index: -1;
+  pointer-events: none;
 }
 
-.merch-card.asteroid-showcase:hover::before{
-  inset:-24px;
-  filter: blur(16px);
-  opacity: 1;
+/* Slight hover lift */
+.asteroid-showcase:hover {
+  transform: scale(1.08);
 }
 
 .merch-grid{
@@ -1332,12 +1325,11 @@
 
     </section>
 
-    <section id="games" style="padding-bottom: 140px;">
-
+    <section id="games">
   <h2>Games</h2>
   <h2>"ENTER THE CABINET"</h2>
 
-  <p class="insert-coin" style="margin-bottom: 70px;">INSERT COIN</p>
+  <p class="insert-coin">INSERT COIN</p>
 
   <div class="merch-grid">
 
@@ -1355,12 +1347,11 @@
     
     <div class="merch-card">
       <img src="random-gametag.png" alt="Game One" />
-      <div class="merch-title">GAME 01 - SOON!</div>
+      <div class="merch-title">"Would You Like To Play A Game?"</div>
       <a class="merch-button" href="#">Play Soon!</a>
     </div>
 
   </div>
-
 </section>
 
     <section id="merch">
