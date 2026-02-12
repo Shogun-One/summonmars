@@ -2006,23 +2006,19 @@ if (level % BOSS_INTERVAL === 0) {
       updatePickups(dt);
       updateParticles(dt);
 
-      outerP: for(let i=pickups.length-1;i>=0;i--){
+      // CHANGED: Pickups are collected by flying over them (ship collision), not by shooting
+      for(let i=pickups.length-1;i>=0;i--){
         const p = pickups[i];
-        for(let j=bullets.length-1;j>=0;j--){
-          const b = bullets[j];
-          if(Math.hypot(b.x - p.x, b.y - p.y) < p.r + b.r){
-            bullets.splice(j,1);
-            pickups.splice(i,1);
-            spawnPickupBurst(p.x, p.y);
-            awardScore(15);
+        if(ship.exploding === 0 && Math.hypot(ship.x - p.x, ship.y - p.y) < ship.radius + p.r){
+          pickups.splice(i,1);
+          spawnPickupBurst(p.x, p.y);
+          awardScore(15);
 
-            if(p.kind === "life"){
-              lives = clamp(lives + 1, 0, MAX_LIVES);
-              livesEl.textContent = lives;
-            }else if(p.mode){
-              setWeaponMode(p.mode);
-            }
-            break outerP;
+          if(p.kind === "life"){
+            lives = clamp(lives + 1, 0, MAX_LIVES);
+            livesEl.textContent = lives;
+          }else if(p.mode){
+            setWeaponMode(p.mode);
           }
         }
       }
@@ -2056,8 +2052,6 @@ if (level % BOSS_INTERVAL === 0) {
           if(Math.hypot(b.x - en.x, b.y - en.y) < en.r + b.r){
             bullets.splice(j,1);
             en.hp -= 1;
-
-            if(en.shouter) applyHit();
 
             if(en.hp <= 0){
               enemies.splice(i,1);
@@ -2096,6 +2090,7 @@ if (level % BOSS_INTERVAL === 0) {
         }
       }
 
+      // Enemies shooting you SHOULD hurt you (already handled here)
       for(let i=enemyBullets.length-1;i>=0;i--){
         const eb = enemyBullets[i];
         if(ship.exploding === 0 && Math.hypot(eb.x - ship.x, eb.y - ship.y) < ship.radius + eb.r){
