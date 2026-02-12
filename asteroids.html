@@ -45,6 +45,33 @@
       pointer-events:none;
     }
 
+    /* NEW: impact FX overlay (broken glass + flash) */
+    #impactFx{
+      position:fixed;
+      inset:0;
+      z-index:1; /* between bgfx (0) and content (2+) */
+      pointer-events:none;
+      opacity:0;
+      transition: opacity 140ms ease;
+      mix-blend-mode: screen;
+      background-repeat:no-repeat;
+      background-position:center;
+      background-size:cover;
+      filter: drop-shadow(0 0 18px rgba(255,59,130,.12));
+    }
+    #impactFx.active{
+      opacity:1;
+    }
+    #impactFx.glass{
+      background-image:
+        radial-gradient(circle at 50% 40%, rgba(255,255,255,.10), rgba(0,0,0,0) 55%),
+        url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%201200%201200%27%3E%3Cg%20fill%3D%27none%27%20stroke%3D%27rgba(255%2C231%2C255%2C0.32)%27%20stroke-width%3D%273.2%27%20stroke-linecap%3D%27round%27%3E%3Cpath%20d%3D%27M600%20620%20L80%20120%27/%3E%3Cpath%20d%3D%27M600%20620%20L1120%20120%27/%3E%3Cpath%20d%3D%27M600%20620%20L90%201090%27/%3E%3Cpath%20d%3D%27M600%20620%20L1110%201090%27/%3E%3Cpath%20d%3D%27M600%20620%20L600%20-40%27/%3E%3Cpath%20d%3D%27M600%20620%20L600%201240%27/%3E%3Cpath%20d%3D%27M600%20620%20L-40%20620%27/%3E%3Cpath%20d%3D%27M600%20620%20L1240%20620%27/%3E%3Cpath%20d%3D%27M600%20620%20C520%20560%20450%20520%20400%20450%27/%3E%3Cpath%20d%3D%27M600%20620%20C680%20560%20760%20510%20820%20430%27/%3E%3Cpath%20d%3D%27M600%20620%20C520%20690%20450%20760%20370%20810%27/%3E%3Cpath%20d%3D%27M600%20620%20C680%20690%20740%20780%20820%20840%27/%3E%3C/g%3E%3C/svg%3E");
+    }
+    #impactFx.boomflash{
+      background-image: radial-gradient(circle at 50% 45%, rgba(255,59,130,.22), rgba(0,0,0,0) 60%);
+      mix-blend-mode: screen;
+    }
+
     .wrapper{
       position:relative;
       z-index:2;
@@ -81,17 +108,16 @@
 
     /* MOVED: instructions now directly under subtitle */
     .controls{
-  font-size:.82rem;
-  opacity:.9;
-  text-align:center;
-  line-height:1.35;
-  max-width:460px;
-
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:.45rem;
-}
+      font-size:.82rem;
+      opacity:.9;
+      text-align:center;
+      line-height:1.35;
+      max-width:460px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:.45rem;
+    }
 
     .hud{
       display:flex;
@@ -478,101 +504,84 @@
     }
 
     /* --- MOBILE VIEWPORT + SAFE AREA FIXES --- */
-html, body { height: 100%; }
+    html, body { height: 100%; }
 
-body{
-  /* use modern viewport units so iOS address bar doesn't crop content */
-  min-height: 100svh;
-  min-height: 100dvh;
+    body{
+      min-height: 100svh;
+      min-height: 100dvh;
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: env(safe-area-inset-bottom);
+      -webkit-text-size-adjust: 100%;
+    }
 
-  /* keep content out of the notch + home bar */
-  padding-top: env(safe-area-inset-top);
-  padding-bottom: env(safe-area-inset-bottom);
+    .wrapper{
+      width: min(520px, 100%);
+      max-height: calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+    }
 
-  /* prevents iOS text autosizing weirdness */
-  -webkit-text-size-adjust: 100%;
-}
+    .game-shell{
+      width: 100%;
+      max-width: 480px;
+    }
 
-/* keep wrapper from getting clipped on short screens */
-.wrapper{
-  width: min(520px, 100%);
-  max-height: calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
-}
+    canvas#game{
+      width: 100%;
+      max-width: 480px;
+      height: auto;
+      aspect-ratio: 3 / 4;
+      max-height: calc(100dvh - 260px);
+      -webkit-tap-highlight-color: transparent;
+    }
 
-/* constrain the game area to fit on short screens */
-.game-shell{
-  width: 100%;
-  max-width: 480px;
-}
+    .music-btn,
+    .difficulty-btn,
+    .center-controls{
+      bottom: calc(14px + env(safe-area-inset-bottom));
+    }
 
-/* scale canvas cleanly on mobile */
-canvas#game{
-  width: 100%;
-  max-width: 480px;
-  height: auto;
+    .security-banner{
+      bottom: calc(12px + env(safe-area-inset-bottom));
+    }
 
-  /* keep the 480x640 ratio */
-  aspect-ratio: 3 / 4;
+    @media (max-width:520px){
+      .wrapper{ padding:.6rem; gap:.4rem; }
+      h1{ font-size:1.35rem; }
+      .subtitle{ font-size:.78rem; }
+      .controls{ font-size:.78rem; }
 
-  /* avoid being too tall on short viewports */
-  max-height: calc(100dvh - 260px);
+      .hud{
+        gap:.45rem;
+        font-size:.8rem;
+      }
+      .hud .pill{ padding:.24rem .52rem; }
 
-  /* iOS Safari: reduce tap highlight + accidental gestures */
-  -webkit-tap-highlight-color: transparent;
-}
+      .music-btn{ right:12px; width:52px; height:52px; }
+      .difficulty-btn{ left:12px; width:52px; height:52px; }
+      .center-controls{ width:52px; height:52px; }
+      .mini-bubble{ width:33px; height:33px; }
+      .mini-bubble .label{ bottom:40px; }
+      .music-btn .label{ bottom:60px; }
+      .difficulty-btn .label{ bottom:60px; }
+      .security-banner{ font-size:.7rem; }
+    }
 
-/* move bottom UI above iPhone home bar */
-.music-btn,
-.difficulty-btn,
-.center-controls{
-  bottom: calc(14px + env(safe-area-inset-bottom));
-}
+    @media (max-height:740px){
+      .wrapper{ gap:.35rem; padding:.5rem; }
+      .subtitle{ display:none; }
+      footer{ display:none; }
+      .visit-counter{ display:none; }
 
-.security-banner{
-  bottom: calc(12px + env(safe-area-inset-bottom));
-}
+      canvas#game{
+        max-height: calc(100dvh - 210px);
+      }
+    }
 
-/* --- SMALL WIDTH TWEAKS (phones) --- */
-@media (max-width:520px){
-  .wrapper{ padding:.6rem; gap:.4rem; }
-  h1{ font-size:1.35rem; }
-  .subtitle{ font-size:.78rem; }
-  .controls{ font-size:.78rem; }
-
-  .hud{
-    gap:.45rem;
-    font-size:.8rem;
-  }
-  .hud .pill{ padding:.24rem .52rem; }
-
-  .music-btn{ right:12px; width:52px; height:52px; }
-  .difficulty-btn{ left:12px; width:52px; height:52px; }
-  .center-controls{ width:52px; height:52px; }
-  .mini-bubble{ width:33px; height:33px; }
-  .mini-bubble .label{ bottom:40px; }
-  .music-btn .label{ bottom:60px; }
-  .difficulty-btn .label{ bottom:60px; }
-  .security-banner{ font-size:.7rem; }
-}
-
-/* --- SHORT HEIGHT TWEAKS (landscape phones) --- */
-@media (max-height:740px){
-  .wrapper{ gap:.35rem; padding:.5rem; }
-  .subtitle{ display:none; }           /* saves vertical space */
-  footer{ display:none; }              /* fixed footer tends to collide on short screens */
-  .visit-counter{ display:none; }
-
-  canvas#game{
-    max-height: calc(100dvh - 210px);
-  }
-}
-
-@media (max-height:620px){
-  .controls{ display:none; }           /* last-resort to prevent clipping */
-  canvas#game{
-    max-height: calc(100dvh - 160px);
-  }
-}
+    @media (max-height:620px){
+      .controls{ display:none; }
+      canvas#game{
+        max-height: calc(100dvh - 160px);
+      }
+    }
 
     @media (max-width:520px){
       .music-btn{ bottom:12px; right:12px; width:52px; height:52px; }
@@ -590,6 +599,8 @@ canvas#game{
 
 <body>
   <canvas id="bgfx" aria-hidden="true"></canvas>
+  <!-- NEW: broken glass / flash overlay -->
+  <div id="impactFx" aria-hidden="true"></div>
 
   <div class="security-banner">Protected From Bad Vibes</div>
 
@@ -614,11 +625,9 @@ canvas#game{
     <h1>ASTEROID DRIFT</h1>
     <div class="subtitle">Neon field. Final bosses. Purple asteroids with loud opinions.</div>
 
-    <!-- MOVED + simplified per request -->
-   <div class="controls">
-  | Use joystick to drive your ship through the carnage | Get highest score! |
+    <div class="controls">
+      | Use joystick to drive your ship through the carnage | Get highest score! |
     </div>
-
 
     <div class="hud">
       <div class="pill">Score: <span id="score">0</span></div>
@@ -628,10 +637,13 @@ canvas#game{
       <div class="pill">Hits: <span id="hits">0</span>/<span id="hitsMax">5</span></div>
       <div class="pill">To Next: <span id="toNext">0</span>/<span id="toNextMax">10</span></div>
 
+      <!-- NEW: boss kills centered between To Next and Reset (order does the trick) -->
+      <div class="pill">Boss Kills: <span id="bossKills">0</span></div>
+
       <div class="pill pill-reset">
-    <button id="reset-btn" class="reset-bubble" type="button" aria-label="Restart">
-    <span class="icon">↻</span>
-    </button>
+        <button id="reset-btn" class="reset-bubble" type="button" aria-label="Restart">
+          <span class="icon">↻</span>
+        </button>
       </div>
     </div>
 
@@ -664,12 +676,11 @@ canvas#game{
   <footer>
     © 2026 Summon Mars ™. All rights reserved.
     </div>
-    
   </footer>
   <div class="visit-counter">
-  Visitors: <span id="busuanzi_value_site_uv"></span>
-</div>
-  
+    Visitors: <span id="busuanzi_value_site_uv"></span>
+  </div>
+
   <script>
     // =========================
     // Cosplay Security (stable)
@@ -704,15 +715,12 @@ canvas#game{
         }
 
         // --- IMPORTANT: disable devtools/zoom detection on phones/tablets ---
-// Mobile browsers constantly change inner/outer sizes (address bar, toolbars, rotation)
-// which will false-trigger your "SECURITY BREACH" overlay.
-const isMobileLike =
-  window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+        const isMobileLike =
+          window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
 
-if (isMobileLike) {
-  // Keep the fun banner, but don't run the devtools detector.
-  return;
-}
+        if (isMobileLike) {
+          return;
+        }
 
         const securityOverlay = document.getElementById('securityOverlay');
         const securityReloadBtn = document.getElementById('securityReloadBtn');
@@ -803,6 +811,30 @@ if (isMobileLike) {
     // =========================
     const bg = document.getElementById('bgfx');
     const bgc = bg.getContext('2d', { alpha: true });
+
+    // NEW: outer-background impact overlay controller
+    const impactFxEl = document.getElementById('impactFx');
+    let impactTimeout = null;
+
+    function triggerImpactGlass(ms=1200){
+      if(!impactFxEl) return;
+      impactFxEl.classList.remove('boomflash');
+      impactFxEl.classList.add('glass','active');
+      clearTimeout(impactTimeout);
+      impactTimeout = setTimeout(() => {
+        impactFxEl.classList.remove('active','glass');
+      }, ms);
+    }
+
+    function triggerBoomFlash(ms=160){
+      if(!impactFxEl) return;
+      impactFxEl.classList.remove('glass');
+      impactFxEl.classList.add('boomflash','active');
+      clearTimeout(impactTimeout);
+      impactTimeout = setTimeout(() => {
+        impactFxEl.classList.remove('active','boomflash');
+      }, ms);
+    }
 
     function rand(min,max){ return Math.random()*(max-min)+min; }
     function clamp(v,min,max){ return Math.max(min, Math.min(max, v)); }
@@ -952,6 +984,8 @@ if (isMobileLike) {
     const toNextEl = document.getElementById('toNext');
     const toNextMaxEl = document.getElementById('toNextMax');
 
+    const bossKillsEl = document.getElementById('bossKills');
+
     const pauseBtn = document.getElementById('pauseBtn');
     const joystickEl = document.getElementById('joystick');
     const stickEl = joystickEl.querySelector('.stick');
@@ -1050,13 +1084,13 @@ if (isMobileLike) {
     const ship = {
       x: width / 2,
       y: height / 2,
-      radius: 18,          // visual/col radius
-      speed: 4.6,          // legacy, but kept
+      radius: 18,
+      speed: 4.6,
       vx: 0, vy: 0,
       invuln: 0,
       exploding: 0,
       angle: 0,
-      aimX: 0, aimY: -1    // last aim direction (normalized)
+      aimX: 0, aimY: -1
     };
 
     const keysDown = {};
@@ -1082,12 +1116,18 @@ if (isMobileLike) {
     let level = 1;
     let killsThisLevel = 0;
 
+    let bossKills = 0;
+    bossKillsEl.textContent = bossKills;
+
     let running = true;
     let paused = false;
     let gameOver = false;
 
     let preStartTimer = 0;
     const PRESTART_MS = 2200;
+
+    // NEW: level-up toast timer (no countdown on level ups)
+    let levelUpTimer = 0;
 
     let lastTime = 0;
     let shootCooldown = 0;
@@ -1125,6 +1165,15 @@ if (isMobileLike) {
       "YOU'RE IN MY ORBIT.",
       "I'M PURPLE AND PROUD.",
       "CATCH THESE LASERS."
+    ];
+
+    const BOSS_TAUNTS = [
+      "YOUR SHIELDS LOOK NERVOUS.",
+      "I EAT HIGH SCORES FOR BREAKFAST.",
+      "DODGE THIS, SPACE LINT.",
+      "YOU CALL THAT FLYING?",
+      "WELCOME TO THE PURPLE PROBLEM.",
+      "I'M THE FINAL FORM OF 'NOPE'."
     ];
 
     function difficulty(){
@@ -1213,7 +1262,9 @@ if (isMobileLike) {
           img,
           type,
           t: rand(0, 999),
-          shootTimer: 950
+          shootTimer: 950,
+          taunt: BOSS_TAUNTS[Math.floor(Math.random()*BOSS_TAUNTS.length)],
+          tauntLife: 0
         });
       };
 
@@ -1229,6 +1280,12 @@ if (isMobileLike) {
     function fireBossShot(b){
       const d = difficulty();
       const speed = d.bossBulletSpeed;
+
+      // NEW: boss smack talk randomly while attacking
+      if(Math.random() < 0.33){
+        b.taunt = BOSS_TAUNTS[Math.floor(Math.random()*BOSS_TAUNTS.length)];
+        b.tauntLife = rand(650, 1100);
+      }
 
       const aimed = (sx,sy,tx,ty,spd) => {
         const dx = tx-sx, dy = ty-sy;
@@ -1318,7 +1375,8 @@ if (isMobileLike) {
       }
     }
 
-    function beginLevel(lvl){
+    // NEW: beginLevel supports "levelUp" mode (no countdown)
+    function beginLevel(lvl, opts = {}){
       level = lvl;
       levelEl.textContent = level;
       killsThisLevel = 0;
@@ -1335,7 +1393,15 @@ if (isMobileLike) {
       if(level % 10 === 0) spawnBossPackForLevel(level);
       else bosses = [];
 
-      startGracePeriod();
+      if(opts && opts.levelUp){
+        // NO countdown pause on level up
+        preStartTimer = 0;
+        running = true;
+        // Show LEVEL UP toast
+        levelUpTimer = 900;
+      } else {
+        startGracePeriod();
+      }
     }
 
     function resetRun(keepBest = true){
@@ -1344,6 +1410,8 @@ if (isMobileLike) {
       lives = MAX_LIVES;
       level = 1;
       killsThisLevel = 0;
+      bossKills = 0;
+      bossKillsEl.textContent = bossKills;
 
       running = true;
       paused = false;
@@ -1408,7 +1476,6 @@ if (isMobileLike) {
       else if(preStartTimer <= 0 && !gameOver) running = true;
     }
 
-    // FIX: pause responds on pointerdown (more reliable on mobile)
     pauseBtn.addEventListener('pointerdown', (e) => {
       e.preventDefault();
       e.stopPropagation();
@@ -1433,7 +1500,6 @@ if (isMobileLike) {
     let joyVec = { x: 0, y: 0 };
     const DEADZONE = 0.08;
 
-    // Tap joystick quickly to toggle pause (requested)
     let joyTapStartT = 0;
     let joyTapStartX = 0;
     let joyTapStartY = 0;
@@ -1471,7 +1537,6 @@ if (isMobileLike) {
       let nx = clamp(dx / maxDist, -1, 1);
       let ny = clamp(dy / maxDist, -1, 1);
 
-      // deadzone (prevents tiny “left drift” nonsense)
       if(Math.hypot(nx, ny) < DEADZONE){
         nx = 0; ny = 0;
       }
@@ -1510,7 +1575,6 @@ if (isMobileLike) {
       e.preventDefault();
       e.stopPropagation();
 
-      // quick tap toggles pause
       const dt = performance.now() - joyTapStartT;
       const moved = Math.hypot((e.clientX - joyTapStartX), (e.clientY - joyTapStartY));
       if(dt < 220 && moved < 10 && !gameOver){
@@ -1525,7 +1589,6 @@ if (isMobileLike) {
     // Shooting (AUTO FIRE)
     // =========================
     function forwardAngle(){
-      // ship.angle is "nose up" friendly, we keep the original bullet math
       return ship.angle - Math.PI/2;
     }
 
@@ -1595,6 +1658,9 @@ if (isMobileLike) {
       if(ship.invuln > 0) return;
       if(ship.exploding > 0) return;
 
+      // NEW: broken glass effect on outer background every hit
+      triggerImpactGlass(1200);
+
       hits++;
       hitsEl.textContent = hits;
       flashTimer = 140;
@@ -1605,6 +1671,9 @@ if (isMobileLike) {
 
         ship.exploding = 700;
         spawnExplosion(ship.x, ship.y, 1.35);
+
+        // NEW: brief outer flash on explosion
+        triggerBoomFlash(160);
 
         hits = 0;
         hitsEl.textContent = hits;
@@ -1688,14 +1757,13 @@ if (isMobileLike) {
     // =========================
     // Movement physics (real ship)
     // =========================
-    const SHIP_ACCEL = 0.022;      // per ms-ish
+    const SHIP_ACCEL = 0.022;
     const SHIP_MAXSPD = 5.2;
-    const SHIP_FRICTION = 0.985;   // per frame
+    const SHIP_FRICTION = 0.985;
 
     function updateShip(dt){
       if(ship.exploding !== 0) return;
 
-      // input vector from keyboard + joystick
       let ix = 0, iy = 0;
 
       if(keysDown['ArrowLeft'] || keysDown['a'] || keysDown['A']) ix -= 1;
@@ -1708,26 +1776,20 @@ if (isMobileLike) {
         iy = joyVec.y;
       }
 
-      // normalize
       const il = Math.hypot(ix, iy);
       if(il > 1e-6){
         ix /= il; iy /= il;
-
-        // update aim direction (so ship rotates properly even if friction slows it down)
         ship.aimX = ix;
         ship.aimY = iy;
       }
 
-      // thrust
       const thrust = (il > 1e-6) ? 1 : 0;
       ship.vx += ix * (SHIP_ACCEL * dt) * thrust;
       ship.vy += iy * (SHIP_ACCEL * dt) * thrust;
 
-      // friction
       ship.vx *= Math.pow(SHIP_FRICTION, dt/16.67);
       ship.vy *= Math.pow(SHIP_FRICTION, dt/16.67);
 
-      // clamp speed
       const sp = Math.hypot(ship.vx, ship.vy);
       if(sp > SHIP_MAXSPD){
         ship.vx = (ship.vx/sp) * SHIP_MAXSPD;
@@ -1737,13 +1799,11 @@ if (isMobileLike) {
       ship.x += ship.vx;
       ship.y += ship.vy;
 
-      // bounds
       if(ship.x < ship.radius) ship.x = ship.radius;
       if(ship.x > width - ship.radius) ship.x = width - ship.radius;
       if(ship.y < ship.radius) ship.y = ship.radius;
       if(ship.y > height - ship.radius) ship.y = height - ship.radius;
 
-      // rotate toward aim if we have it; otherwise toward velocity
       const aimMag = Math.hypot(ship.aimX, ship.aimY);
       if(aimMag > 0.5){
         ship.angle = Math.atan2(ship.aimY, ship.aimX) + Math.PI/2;
@@ -1759,6 +1819,9 @@ if (isMobileLike) {
       if(window.__securityFreeze) return;
 
       updateSky(dt);
+
+      if(levelUpTimer > 0) levelUpTimer -= dt;
+      if(levelUpTimer < 0) levelUpTimer = 0;
 
       if(paused){
         updateParticles(dt);
@@ -1806,10 +1869,8 @@ if (isMobileLike) {
         nextLifeAt = now + rand(16000, 26000);
       }
 
-      // REAL ship movement
       updateShip(dt);
 
-      // AUTO FIRE
       shootCooldown -= dt;
       if(shootCooldown <= 0){
         shoot();
@@ -1887,6 +1948,8 @@ if (isMobileLike) {
           const hpRatio = b.hp / b.hpMax;
           b.shootTimer = shootBase * (0.78 + hpRatio*0.70);
         }
+
+        if(b.tauntLife > 0) b.tauntLife -= dt;
       }
 
       for(let i=enemyBullets.length-1;i>=0;i--){
@@ -1902,7 +1965,6 @@ if (isMobileLike) {
       updatePickups(dt);
       updateParticles(dt);
 
-      // bullets vs pickups
       outerP: for(let i=pickups.length-1;i>=0;i--){
         const p = pickups[i];
         for(let j=bullets.length-1;j>=0;j--){
@@ -1924,7 +1986,6 @@ if (isMobileLike) {
         }
       }
 
-      // bullets vs asteroids
       outerA: for(let i=asteroids.length-1;i>=0;i--){
         const a = asteroids[i];
         for(let j=bullets.length-1;j>=0;j--){
@@ -1940,14 +2001,13 @@ if (isMobileLike) {
             spawnAsteroid(true);
 
             if(!bossAlive() && killsThisLevel >= KILLS_TO_LEVEL){
-              beginLevel(level + 1);
+              beginLevel(level + 1, { levelUp:true });
             }
             break outerA;
           }
         }
       }
 
-      // bullets vs enemies
       outerE: for(let i=enemies.length-1;i>=0;i--){
         const en = enemies[i];
         for(let j=bullets.length-1;j>=0;j--){
@@ -1969,7 +2029,6 @@ if (isMobileLike) {
         }
       }
 
-      // bullets vs bosses
       outerB: for(let i=bosses.length-1;i>=0;i--){
         const bo = bosses[i];
         for(let j=bullets.length-1;j>=0;j--){
@@ -1983,14 +2042,19 @@ if (isMobileLike) {
               spawnExplosion(bo.x, bo.y, 2.0);
               bosses.splice(i,1);
               awardScore(250 + Math.floor(level*8));
-              if(bosses.length === 0) beginLevel(level + 1);
+
+              // NEW: count boss kill when the pack is fully defeated
+              if(bosses.length === 0){
+                bossKills++;
+                bossKillsEl.textContent = bossKills;
+                beginLevel(level + 1, { levelUp:true });
+              }
             }
             break outerB;
           }
         }
       }
 
-      // enemy bullets vs ship
       for(let i=enemyBullets.length-1;i>=0;i--){
         const eb = enemyBullets[i];
         if(ship.exploding === 0 && Math.hypot(eb.x - ship.x, eb.y - ship.y) < ship.radius + eb.r){
@@ -1999,7 +2063,6 @@ if (isMobileLike) {
         }
       }
 
-      // ship vs asteroids/enemies/bosses
       if(ship.exploding === 0){
         for(const a of asteroids){
           if(Math.hypot(ship.x - a.x, ship.y - a.y) < ship.radius + a.radius*0.7){ applyHit(); break; }
@@ -2052,7 +2115,6 @@ if (isMobileLike) {
       ctx.translate(ship.x, ship.y);
       ctx.rotate(ship.angle || 0);
 
-      // glow aura
       const glow = ctx.createRadialGradient(0,0,4, 0,0, ship.radius+18);
       glow.addColorStop(0, 'rgba(255,255,255,0.55)');
       glow.addColorStop(0.28, 'rgba(255,59,130,0.45)');
@@ -2071,14 +2133,12 @@ if (isMobileLike) {
         ctx.stroke();
       }
 
-      // sprite (preferred)
       if(shipImgReady && shipImg.naturalWidth > 0){
-        const s = ship.radius * 3.0; // size tuning
+        const s = ship.radius * 3.0;
         ctx.globalAlpha = 0.98;
         ctx.drawImage(shipImg, -s/2, -s/2, s, s);
         ctx.globalAlpha = 1;
       } else {
-        // fallback vector ship (only if sprite missing)
         const bodyGrad = ctx.createLinearGradient(0, -ship.radius, 0, ship.radius);
         bodyGrad.addColorStop(0, 'rgba(255,255,255,0.98)');
         bodyGrad.addColorStop(1, 'rgba(230,200,255,0.78)');
@@ -2296,6 +2356,27 @@ if (isMobileLike) {
           ctx.fill();
         }
 
+        // NEW: boss smack talk bubble
+        if(b.tauntLife && b.tauntLife > 0){
+          const msg = b.taunt;
+          ctx.font = '13px system-ui';
+          const pad = 9;
+          const w = ctx.measureText(msg).width + pad*2;
+          const h = 24;
+          const bx = -w/2;
+          const by = -b.r - 42;
+
+          ctx.fillStyle = 'rgba(0,0,0,0.58)';
+          ctx.strokeStyle = 'rgba(255,59,130,0.32)';
+          ctx.lineWidth = 1;
+          roundRect(ctx, bx, by, w, h, 11, true, true);
+
+          ctx.fillStyle = 'rgba(255,231,255,0.95)';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(msg, 0, by + h/2 + 1);
+        }
+
         // HP bar
         const bw = 120, bh = 10;
         const hpRatio = clamp(b.hp / b.hpMax, 0, 1);
@@ -2359,6 +2440,38 @@ if (isMobileLike) {
       ctx.restore();
     }
 
+    // NEW: LEVEL UP toast (no pause)
+    function drawLevelUp(){
+      if(levelUpTimer <= 0 || gameOver) return;
+
+      ctx.save();
+      const t = clamp(levelUpTimer / 900, 0, 1);
+      const a = clamp(0.25 + (1-t)*0.25, 0.18, 0.55);
+
+      // subtle spotlight
+      const g = ctx.createRadialGradient(width/2, height/2, 10, width/2, height/2, 260);
+      g.addColorStop(0, `rgba(255,59,130,${0.18*a})`);
+      g.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = g;
+      ctx.fillRect(0,0,width,height);
+
+      ctx.textAlign='center';
+      ctx.textBaseline='middle';
+
+      ctx.fillStyle = `rgba(255,231,255,${0.92})`;
+      ctx.font='900 44px Orbitron, system-ui';
+      ctx.shadowColor = 'rgba(255,59,130,0.45)';
+      ctx.shadowBlur = 16;
+      ctx.fillText('LEVEL UP!', width/2, height/2 - 8);
+
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = 'rgba(228,228,255,0.82)';
+      ctx.font='12px system-ui';
+      ctx.fillText('No countdown. No mercy.', width/2, height/2 + 30);
+
+      ctx.restore();
+    }
+
     function drawPaused(){
       if(!paused || gameOver) return;
       ctx.save();
@@ -2411,8 +2524,10 @@ if (isMobileLike) {
       drawShip();
       drawDamageFlash();
 
+      drawLevelUp();        // NEW
+
       if(gameOver) drawGameOver();
-      drawCountdown();
+      drawCountdown();      // still used for start + respawn grace
       drawPaused();
 
       requestAnimationFrame(loop);
