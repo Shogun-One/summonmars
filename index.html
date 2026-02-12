@@ -998,6 +998,37 @@
   }
 }
 
+  /* --- ASTEROID DRIFT SUBTLE SHOWCASE --- */
+.asteroid-showcase {
+  position: relative;
+  transform: scale(1.06); /* only 6% bigger */
+  z-index: 2;
+  transition: transform 0.25s ease;
+}
+
+/* Soft ambient glow behind */
+.asteroid-showcase::before {
+  content: "";
+  position: absolute;
+  inset: -14px;
+  border-radius: 22px;
+  background: radial-gradient(
+    circle at center,
+    rgba(0, 195, 255, 0.35),
+    rgba(124, 255, 95, 0.25),
+    transparent 70%
+  );
+  filter: blur(22px);
+  opacity: 0.7;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* Slight hover lift */
+.asteroid-showcase:hover {
+  transform: scale(1.08);
+}
+    
   </style>
 
   
@@ -1217,7 +1248,7 @@
         </a>
       </div>
 
-      <div class="merch-card">
+      <div class="merch-card asteroid-showcase">
         <img src="asteroids-game.png" alt="Asteroid Drift" />
         <div class="merch-title">Asteroid Drift</div>
         <a class="merch-button" href="asteroid.html">
