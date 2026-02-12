@@ -767,21 +767,31 @@
 }
 
 /* Desktop two-column layout */
-@media (min-width: 960px){
+@media (min-width: 1100px){
+
   .merch-layout{
     flex-direction: row;
-    align-items: flex-start; /* was stretch */
+    align-items: flex-start;
     justify-content: center;
-    gap: 2.5rem;
+    gap: 3rem;
   }
 
   .merch-qr{
-    flex: 0 0 260px;
+    flex: 0 0 240px; /* slightly smaller */
   }
 
   .merch-grid{
-    flex: 1 1 auto;
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    flex-wrap: nowrap; /* THIS STOPS THE DROP */
   }
+
+  .merch-grid > *{
+    flex: 0 0 240px; /* slightly smaller cards */
+  }
+
 }
 
 /* QR centered properly */
