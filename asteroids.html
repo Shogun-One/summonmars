@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <title>Asteroid Drift - Summon Mars Arcade</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 
   <!-- Spacey + readable HUD fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -81,13 +81,17 @@
 
     /* MOVED: instructions now directly under subtitle */
     .controls{
-      font-size:.82rem;
-      opacity:.9;
-      text-align:center;
-      margin-top:.15rem;
-      line-height:1.35;
-      max-width:460px;
-    }
+  font-size:.82rem;
+  opacity:.9;
+  text-align:center;
+  line-height:1.35;
+  max-width:460px;
+
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:.45rem;
+}
 
     .hud{
       display:flex;
@@ -340,7 +344,7 @@
     }
 
     button#reset-btn{
-      margin-top:.35rem;
+      margin-top:.0;
       padding:.4rem .9rem;
       border-radius:999px;
       border:none;
@@ -473,6 +477,103 @@
       z-index: 20;
     }
 
+    /* --- MOBILE VIEWPORT + SAFE AREA FIXES --- */
+html, body { height: 100%; }
+
+body{
+  /* use modern viewport units so iOS address bar doesn't crop content */
+  min-height: 100svh;
+  min-height: 100dvh;
+
+  /* keep content out of the notch + home bar */
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+
+  /* prevents iOS text autosizing weirdness */
+  -webkit-text-size-adjust: 100%;
+}
+
+/* keep wrapper from getting clipped on short screens */
+.wrapper{
+  width: min(520px, 100%);
+  max-height: calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+}
+
+/* constrain the game area to fit on short screens */
+.game-shell{
+  width: 100%;
+  max-width: 480px;
+}
+
+/* scale canvas cleanly on mobile */
+canvas#game{
+  width: 100%;
+  max-width: 480px;
+  height: auto;
+
+  /* keep the 480x640 ratio */
+  aspect-ratio: 3 / 4;
+
+  /* avoid being too tall on short viewports */
+  max-height: calc(100dvh - 260px);
+
+  /* iOS Safari: reduce tap highlight + accidental gestures */
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* move bottom UI above iPhone home bar */
+.music-btn,
+.difficulty-btn,
+.center-controls{
+  bottom: calc(14px + env(safe-area-inset-bottom));
+}
+
+.security-banner{
+  bottom: calc(12px + env(safe-area-inset-bottom));
+}
+
+/* --- SMALL WIDTH TWEAKS (phones) --- */
+@media (max-width:520px){
+  .wrapper{ padding:.6rem; gap:.4rem; }
+  h1{ font-size:1.35rem; }
+  .subtitle{ font-size:.78rem; }
+  .controls{ font-size:.78rem; }
+
+  .hud{
+    gap:.45rem;
+    font-size:.8rem;
+  }
+  .hud .pill{ padding:.24rem .52rem; }
+
+  .music-btn{ right:12px; width:52px; height:52px; }
+  .difficulty-btn{ left:12px; width:52px; height:52px; }
+  .center-controls{ width:52px; height:52px; }
+  .mini-bubble{ width:33px; height:33px; }
+  .mini-bubble .label{ bottom:40px; }
+  .music-btn .label{ bottom:60px; }
+  .difficulty-btn .label{ bottom:60px; }
+  .security-banner{ font-size:.7rem; }
+}
+
+/* --- SHORT HEIGHT TWEAKS (landscape phones) --- */
+@media (max-height:740px){
+  .wrapper{ gap:.35rem; padding:.5rem; }
+  .subtitle{ display:none; }           /* saves vertical space */
+  footer{ display:none; }              /* fixed footer tends to collide on short screens */
+  .visit-counter{ display:none; }
+
+  canvas#game{
+    max-height: calc(100dvh - 210px);
+  }
+}
+
+@media (max-height:620px){
+  .controls{ display:none; }           /* last-resort to prevent clipping */
+  canvas#game{
+    max-height: calc(100dvh - 160px);
+  }
+}
+
     @media (max-width:520px){
       .music-btn{ bottom:12px; right:12px; width:52px; height:52px; }
       .difficulty-btn{ bottom:12px; left:12px; width:52px; height:52px; }
@@ -514,15 +615,20 @@
     <div class="subtitle">Neon field. Heavy debris. Purple ships with loud opinions.</div>
 
     <!-- MOVED + simplified per request -->
-    <div class="controls">
-      Use the joystick to drive your ship through the carnage, maybe get highest score
-      <button id="reset-btn">Reset Field</button>
+   <div class="controls">
+  Use the joystick to drive your ship through the carnage, maybe get highest score
     </div>
+
 
     <div class="hud">
       <div class="pill">Score: <span id="score">0</span></div>
       <div class="pill">Best: <span id="best">0</span></div>
       <div class="pill">Level: <span id="level">1</span></div>
+
+      <div class="pill pill-reset">
+      <button id="reset-btn" type="button">Reset Field</button>
+      </div>
+      
       <div class="pill">Lives: <span id="lives">5</span></div>
       <div class="pill">Hits: <span id="hits">0</span>/<span id="hitsMax">5</span></div>
       <div class="pill">To Next: <span id="toNext">0</span>/<span id="toNextMax">10</span></div>
@@ -556,11 +662,13 @@
 
   <footer>
     © 2026 Summon Mars ™. All rights reserved.
-    <div class="visit-counter">
-      Visitors: <span id="busuanzi_value_site_uv"></span>
     </div>
+    
   </footer>
-
+  <div class="visit-counter">
+  Visitors: <span id="busuanzi_value_site_uv"></span>
+</div>
+  
   <script>
     // =========================
     // Cosplay Security (stable)
@@ -593,6 +701,17 @@
           window.addEventListener('load', initSecurity, { once: true });
           return;
         }
+
+        // --- IMPORTANT: disable devtools/zoom detection on phones/tablets ---
+// Mobile browsers constantly change inner/outer sizes (address bar, toolbars, rotation)
+// which will false-trigger your "SECURITY BREACH" overlay.
+const isMobileLike =
+  window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+
+if (isMobileLike) {
+  // Keep the fun banner, but don't run the devtools detector.
+  return;
+}
 
         const securityOverlay = document.getElementById('securityOverlay');
         const securityReloadBtn = document.getElementById('securityReloadBtn');
@@ -2304,6 +2423,6 @@
     requestAnimationFrame(loop);
   </script>
 
-  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 </body>
 </html>
