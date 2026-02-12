@@ -487,6 +487,28 @@ footer {
   pointer-events: none;
   z-index: 20;
 }
+
+  /* =========================
+   Mini Joystick Styling
+========================= */
+
+.mini-joystick {
+  position: relative;
+  touch-action: none;
+}
+
+.mini-joystick .stick {
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(255,138,192,0.85);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  transition: transform 0.05s linear;
+}
     
   </style>
 </head>
@@ -539,17 +561,20 @@ footer {
       </button>
 
       <!-- NEW: Two mini bubbles share the bottom-center footprint -->
-      <div class="center-controls" aria-hidden="false">
-        <button id="restartBtn" class="mini-bubble mini-restart" type="button" aria-label="Restart" title="Restart">
-          <span class="label">Restart</span>
-          <span class="ring"><span class="icon"></span></span>
-        </button>
+      <div class="center-controls">
 
-        <button id="powerBtn" class="mini-bubble mini-power" type="button" aria-label="Power" title="Current Firepower">
-          <span class="label">Power</span>
-          <span class="ring"><span id="pwrShort">1X</span></span>
-        </button>
-      </div>
+  <!-- Pause Bubble -->
+  <button id="pauseBtn" class="mini-bubble mini-pause" type="button" aria-label="Pause">
+    <span class="label">Pause</span>
+    <span class="ring"><span class="icon">II</span></span>
+  </button>
+
+  <!-- Joystick Bubble -->
+  <div id="joystick" class="mini-bubble mini-joystick">
+    <div class="stick"></div>
+  </div>
+
+</div>
 
       <!-- Music On/Off button (bottom-right) -->
       <button id="musicBtn" class="music-btn" type="button" aria-label="Music On/Off" title="Music On/Off">
@@ -1757,15 +1782,10 @@ footer {
       }
 
       shootCooldown -= dt;
-      if(shootCooldown < 0) shootCooldown = 0;
-
-      if(shootRequested && shootCooldown === 0){
-        shoot();
-        shootRequested = false;
-        shootCooldown = shootDelay;
-      }else{
-        shootRequested = false;
-      }
+if (shootCooldown <= 0) {
+  shoot();
+  shootCooldown = shootDelay;
+}
 
       for(let i=bullets.length-1;i>=0;i--){
         const b = bullets[i];
