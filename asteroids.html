@@ -1266,37 +1266,86 @@
     }
 
     function spawnBossPackForLevel(lvl){
-      bosses = [];
+  bosses = [];
 
-      const spawnOne = (img) => {
-        const d = difficulty();
-        const baseHp = Math.round((18 + Math.floor(lvl*1.45)) * d.bossHpMult);
-        const r = 44 + Math.floor(lvl*0.15);
-        const BOSS_INTERVAL = 5;
-        const type = (Math.floor(lvl / BOSS_INTERVAL) - 1) % 10;
-        bosses.push({
-          x: width/2 + rand(-60,60),
-          y: 110,
-          r,
-          hp: baseHp,
-          hpMax: baseHp,
-          img,
-          type,
-          t: rand(0, 999),
-          shootTimer: 950,
-          taunt: BOSS_TAUNTS[Math.floor(Math.random()*BOSS_TAUNTS.length)],
-          tauntLife: 0
-        });
-      };
+  const spawnOne = (img) => {
+    const d = difficulty();
+    const baseHp = Math.round((18 + Math.floor(lvl*1.45)) * d.bossHpMult);
+    const r = 44 + Math.floor(lvl*0.15);
+    const BOSS_INTERVAL = 5;
+    const type = (Math.floor(lvl / BOSS_INTERVAL) - 1) % 10;
 
-      if(lvl >= 100){
-        spawnOne(pickRandomBossImage());
-        spawnOne(pickRandomBossImage());
-      } else {
-        spawnOne(getBossImageForLevel(lvl));
-      }
+    bosses.push({
+      x: width/2 + rand(-60,60),
+      y: 110,
+      r,
+      hp: baseHp,
+      hpMax: baseHp,
+      img,
+      type,
+      t: rand(0, 999),
+      shootTimer: 950,
+      taunt: BOSS_TAUNTS[Math.floor(Math.random()*BOSS_TAUNTS.length)],
+      tauntLife: 0,
+
+      // NEW: movement
+      vx: rand(-0.8, 0.8),
+      vy: rand(0.25, 0.7),
+      turn: rand(0, Math.PI * 2),
+    });
+  };
+
+  if(lvl >= 100){
+    spawnOne(pickRandomBossImage());
+    spawnOne(pickRandomBossImage());
+  } else {
+    spawnOne(getBossImageForLevel(lvl));
+  }
+}
+
+function bossAlive(){ return bosses.length > 0; }
+
+function updateBosses(dt){
+  const dts = dt / 1000;
+
+  for (const b of bosses){
+    b.turn += dts * 1.9;
+
+    const dx = ship.x - b.x;
+    const dy = ship.y - b.y;
+    const dist = Math.hypot(dx, dy) || 1;
+
+    const chase = 0.5;
+    const wx = Math.cos(b.turn);
+    const wy = Math.sin(b.turn);
+
+    const tx = (dx/dist) * chase + wx * (1 - chase);
+    const ty = (dy/dist) * chase + wy * (1 - chase);
+
+    const accel = 40;
+    b.vx += tx * accel * dts;
+    b.vy += ty * accel * dts;
+
+    const maxSpd = 90;
+    const sp = Math.hypot(b.vx, b.vy) || 1;
+    if (sp > maxSpd){
+      b.vx = (b.vx / sp) * maxSpd;
+      b.vy = (b.vy / sp) * maxSpd;
     }
-    function bossAlive(){ return bosses.length > 0; }
+
+    b.x += b.vx * dts;
+    b.y += b.vy * dts;
+
+    const pad = 60;
+    const minX = pad, maxX = width - pad;
+    const minY = pad, maxY = height * 0.55;
+
+    if (b.x < minX){ b.x = minX; b.vx *= -0.9; }
+    if (b.x > maxX){ b.x = maxX; b.vx *= -0.9; }
+    if (b.y < minY){ b.y = minY; b.vy *= -0.9; }
+    if (b.y > maxY){ b.y = maxY; b.vy *= -0.9; }
+  }
+}
 
     function fireBossShot(b){
       const d = difficulty();
