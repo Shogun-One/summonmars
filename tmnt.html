@@ -468,6 +468,35 @@
       border-radius:18px;
       pointer-events:none;
     }
+
+#gameOverOverlay{
+  position:absolute;
+  inset:0;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  text-align:center;
+  background:rgba(0,0,0,.65);
+  z-index:5;
+  border-radius:18px;
+}
+
+#gameOverOverlay.active{
+  display:flex;
+}
+
+#gameOverOverlay .big.red{
+  font-family:Orbitron, system-ui, sans-serif;
+  font-size:2rem;
+  letter-spacing:.14em;
+  color:#ff2a2a;
+  text-shadow:
+    0 0 8px #ff2a2a,
+    0 0 16px #ff0000,
+    0 0 30px #ff0000;
+}
+    
     #startOverlay.active{ display:flex; }
     #startOverlay .big{
       font-family:Orbitron, system-ui, sans-serif;
@@ -601,8 +630,18 @@ footer {
     <img src="images/logo-ico.png" alt="Teenage Mutant Ninja Turtles Logo" class="tmnt-logo">
   </div>
 
-      <!-- Start overlay (2-second grace to toggle music) -->
-      <div id="startOverlay" aria-hidden="true">
+      <!-- Start overlay -->
+<div id="startOverlay" aria-hidden="true">
+  <p class="big">GET READY</p>
+  <div class="small">Music bubble is waiting patiently 😌</div>
+</div>
+
+<!-- Game Over overlay -->
+<div id="gameOverOverlay" aria-hidden="true">
+  <p class="big red">GAME OVER</p>
+  <div class="small">Press Restart to Try Again</div>
+</div>
+
         <p class="big">GET READY</p>
         <div class="small">Music bubble is waiting patiently 😌</div>
       </div>
