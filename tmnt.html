@@ -1354,31 +1354,42 @@ app.DRAW_Y_OFFSET = -30; // tweak: -20, -30, -40 until perfect
         var pizza = app.ACTORS.pizza;
 
         // Enemy hit: lose life, restart position with countdown
-        allEnemies.forEach(function (enemy) {
-          if (between(player.x, enemy.x - 60, enemy.x + 60) && between(player.y, enemy.y - 10, enemy.y + 10)) {
-            player.life--;
-            if (player.life <= 0){
-  // snap to default start
-  player.x = 200;
-  player.y = 350;
+allEnemies.forEach(function (enemy) {
+  if (
+    between(player.x, enemy.x - 60, enemy.x + 60) &&
+    between(player.y, enemy.y - 10, enemy.y + 10)
+  ) {
+    player.life--;
 
-  // stop the run
-  app.__running = false;
-  app.__gameOver = true;
+    if (player.life <= 0) {
+      // snap to default start
+      player.x = 200;
+      player.y = 350;
 
-  // show overlay
-  const go = document.getElementById('gameOverOverlay');
-  go.classList.add('active');
-  go.setAttribute('aria-hidden','false');
+      // stop the run
+      app.__running = false;
+      app.__gameOver = true;
 
-  return;
-}
-              // keep score, just re-center and give a short grace
-              player.x = 200; player.y = 350;
-              startWithCountdown(1200);
-            }
-          }
-        });
+      // show overlay
+      const go = document.getElementById('gameOverOverlay');
+      if (go) {
+        go.classList.add('active');
+        go.setAttribute('aria-hidden', 'false');
+      }
+
+      updateHud();
+      return; // exits this enemy callback
+    }
+
+    // keep score, just re-center and give a short grace
+    player.x = 200;
+    player.y = 350;
+    startWithCountdown(1200);
+
+    updateHud();
+  }
+});
+
 
         // Water kill (top row)
 if (player.y <= 0) {
