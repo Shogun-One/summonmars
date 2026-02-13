@@ -771,9 +771,8 @@ footer {
           const zoomLikely = innerW < baseInnerW * 0.7;
 
           const devtoolsLikely =
-            widthDrop  > 0.20 ||
-            heightDrop > 0.20 ||
-            areaDrop   > 0.28;
+  widthDrop  > 0.32 ||
+  heightDrop > 0.32;
 
           if (devtoolsLikely) showOverlay();
           else hideOverlay();
