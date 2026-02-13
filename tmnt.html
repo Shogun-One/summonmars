@@ -235,8 +235,8 @@
   position:absolute;
   top:-4px;
   right:-2px;
-  width:15;
-  height:15;
+  width:15px;
+  height:15px;
   border-left:6px solid rgba(255,231,255,.92);
   border-top:4px solid transparent;
   border-bottom:4px solid transparent;
@@ -775,7 +775,7 @@ footer {
             heightDrop > 0.20 ||
             areaDrop   > 0.28;
 
-          if (devtoolsLikely || zoomLikely) showOverlay();
+          if (devtoolsLikely) showOverlay();
           else hideOverlay();
         }
 
@@ -1595,24 +1595,6 @@ if (between(player.x, pizza.x - 60, pizza.x + 60) && between(player.y, pizza.y -
     })();
 
     /*--REMOVED JOYSTICK from here --*/
-
-    // =========================
-// DPAD click movement
-// =========================
-(function(){
-  const pad = document.getElementById('dpadBtn');
-  if(!pad) return;
-
-  pad.querySelectorAll('button').forEach(btn=>{
-    btn.addEventListener('click', function(e){
-      e.preventDefault();
-      const dir = this.getAttribute('data-dir');
-      if (window.app && app.ACTORS && app.ACTORS.player){
-        app.ACTORS.player.handleInput(dir);
-      }
-    });
-  });
-})();
 
     // =========================
 // DPAD click movement
