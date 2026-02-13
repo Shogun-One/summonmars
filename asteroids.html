@@ -1147,6 +1147,21 @@
       return img;
     });
 
+// Warm up boss images to avoid first-draw stutter
+Promise.allSettled(
+  bossImgs.map(img =>
+    img.decode ? img.decode().catch(()=>{}) : Promise.resolve()
+  )
+);
+
+    // Warm up ship + powerups
+shipImg.decode?.().catch(()=>{});
+firepowerImg.decode?.().catch(()=>{});
+
+    // Warm audio decode (safe)
+try { bossSting.load(); } catch(e){}
+try { music.load(); } catch(e){}
+
     function getBossImageForLevel(lvl){
       const BOSS_INTERVAL = 5;
       const idx = clamp(Math.floor(lvl / BOSS_INTERVAL) - 1, 0, 9);
