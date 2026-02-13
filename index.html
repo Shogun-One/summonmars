@@ -1566,10 +1566,6 @@
         overlay.style.display = 'none';
       }
 
-        // Area drop (dev tools eat a chunk of area)
-        const area       = innerW * innerH;
-        const areaDrop   = 1 - (area / baseArea);
-
       // Instant manual trip on F12 or Ctrl+Shift+I
       window.addEventListener('keydown', (e) => {
         const key = e.key || e.keyCode;
