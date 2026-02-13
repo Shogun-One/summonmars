@@ -1137,7 +1137,6 @@
     const bossFiles = [
       "boss1.png","boss2.png","boss3.png","boss4.png","boss5.png",
       "boss6.png","boss7.png","boss8.png","boss9.png","boss10.png"
-
     ];
     const bossImgs = bossFiles.map(fn => {
       const img = new Image();
@@ -1147,20 +1146,26 @@
       return img;
     });
 
-// Warm up boss images to avoid first-draw stutter
-Promise.allSettled(
-  bossImgs.map(img =>
-    img.decode ? img.decode().catch(()=>{}) : Promise.resolve()
-  )
-);
+    // Firepower icon (MOVED UP so it exists before warmup decode calls)
+    const firepowerImg = new Image();
+    firepowerImg.decoding = "async";
+    firepowerImg.loading = "eager";
+    firepowerImg.src = "images/firepower-up.png";
+
+    // Warm up boss images to avoid first-draw stutter
+    Promise.allSettled(
+      bossImgs.map(img =>
+        img.decode ? img.decode().catch(()=>{}) : Promise.resolve()
+      )
+    );
 
     // Warm up ship + powerups
-shipImg.decode?.().catch(()=>{});
-firepowerImg.decode?.().catch(()=>{});
+    shipImg.decode?.().catch(()=>{});
+    firepowerImg.decode?.().catch(()=>{});
 
     // Warm audio decode (safe)
-try { bossSting.load(); } catch(e){}
-try { music.load(); } catch(e){}
+    try { bossSting.load(); } catch(e){}
+    try { music.load(); } catch(e){}
 
     function getBossImageForLevel(lvl){
       const BOSS_INTERVAL = 5;
@@ -1170,11 +1175,6 @@ try { music.load(); } catch(e){}
     function pickRandomBossImage(){
       return bossImgs[Math.floor(Math.random()*bossImgs.length)];
     }
-
-    const firepowerImg = new Image();
-    firepowerImg.decoding = "async";
-    firepowerImg.loading = "eager";
-    firepowerImg.src = "images/firepower-up.png";
 
     const TAUNTS = [
       "SKILL ISSUE.",
@@ -1568,11 +1568,11 @@ try { music.load(); } catch(e){}
     }
 
     function resetJoy(){
-  joyActive = false;
-  joyVec.x = 0;
-  joyVec.y = 0;
-  setStickVisual(0, 0);
-}
+      joyActive = false;
+      joyVec.x = 0;
+      joyVec.y = 0;
+      setStickVisual(0, 0);
+    }
 
     function joyEnd(){
       joyActive = false;
@@ -1599,29 +1599,28 @@ try { music.load(); } catch(e){}
     });
 
     joystickEl.addEventListener('pointerup', (e) => {
-  e.preventDefault();
-  e.stopPropagation();
+      e.preventDefault();
+      e.stopPropagation();
 
-  const dt = performance.now() - joyTapStartT;
-  const moved = Math.hypot(
-    (e.clientX - joyTapStartX),
-    (e.clientY - joyTapStartY)
-  );
+      const dt = performance.now() - joyTapStartT;
+      const moved = Math.hypot(
+        (e.clientX - joyTapStartX),
+        (e.clientY - joyTapStartY)
+      );
 
-  if(dt < 220 && moved < 10 && !gameOver){
-    setPaused(!paused);
-  }
+      if(dt < 220 && moved < 10 && !gameOver){
+        setPaused(!paused);
+      }
 
-  resetJoy();
-});
+      resetJoy();
+    });
 
     joystickEl.addEventListener('pointercancel', resetJoy);
-joystickEl.addEventListener('lostpointercapture', resetJoy);
-window.addEventListener('blur', resetJoy);
-document.addEventListener('visibilitychange', () => {
-  if(document.hidden) resetJoy();
-});
-
+    joystickEl.addEventListener('lostpointercapture', resetJoy);
+    window.addEventListener('blur', resetJoy);
+    document.addEventListener('visibilitychange', () => {
+      if(document.hidden) resetJoy();
+    });
 
     // =========================
     // Shooting (AUTO FIRE)
