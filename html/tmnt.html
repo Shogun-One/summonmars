@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <title>TMNT - Get That Slice! - Summon Mars Arcade</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="icon" href="images/tmnticon.png" />
+  <link rel="icon" href="images/tmnt/tmnticon.png" />
 
   <!-- Spacey title + clean HUD fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -680,7 +680,7 @@ footer {
       <canvas id="game" width="505" height="606"></canvas>
 
         <div class="tmnt-logo-wrap">
-    <img src="images/logo-ico.png" alt="Teenage Mutant Ninja Turtles Logo" class="tmnt-logo">
+    <img src="images/tmnt/logo-ico.png" alt="Teenage Mutant Ninja Turtles Logo" class="tmnt-logo">
   </div>
 
       <!-- Start overlay -->
@@ -736,13 +736,13 @@ footer {
     <h2>Choose Your Hero</h2>
     <p>Select a character, then dodge traffic and grab that pizza!</p>
     <div class="char-grid">
-      <button class="char-btn" data-sprite="images/leo-ico.png">Leo</button>
-      <button class="char-btn" data-sprite="images/raph-ico.png">Raph</button>
-      <button class="char-btn" data-sprite="images/mikey-ico.png">Mikey</button>
-      <button class="char-btn" data-sprite="images/Casey-Jones.png">Casey</button>
-      <button class="char-btn" data-sprite="images/april-ico.png">April</button>
-      <button class="char-btn" data-sprite="images/splinter-ico.png">Splinter</button>
-      <button class="char-btn" data-sprite="images/baxter.png">Baxter</button>
+      <button class="char-btn" data-sprite="images/tmnt/leo-ico.png">Leo</button>
+      <button class="char-btn" data-sprite="images/tmnt/raph-ico.png">Raph</button>
+      <button class="char-btn" data-sprite="images/tmnt/mikey-ico.png">Mikey</button>
+      <button class="char-btn" data-sprite="images/tmnt/Casey-Jones.png">Casey</button>
+      <button class="char-btn" data-sprite="images/tmnt/april-ico.png">April</button>
+      <button class="char-btn" data-sprite="images/tmnt/splinter-ico.png">Splinter</button>
+      <button class="char-btn" data-sprite="images/tmnt/baxter.png">Baxter</button>
     </div>
   </div>
 
@@ -785,7 +785,7 @@ footer {
         const securityReloadBtn = document.getElementById('securityReloadBtn');
         const securityDismissBtn = document.getElementById('securityDismissBtn');
 
-        const nedryAudio = new Audio('jurrasicpassword.mp3');
+        const nedryAudio = new Audio('mp3/jurrasicpassword.mp3');
         let devtoolsOpen = false;
 
         function showOverlay() {
@@ -978,7 +978,7 @@ footer {
     // =========================
     const musicBtn = document.getElementById('musicBtn');
     const musicLabel = document.getElementById('musicLabel');
-    const music = new Audio('tmnt-music.mp3');
+    const music = new Audio('mp3/tmnt-music.mp3');
     window.__tmntMusic = music;
     music.loop = true;
     music.preload = 'auto';
@@ -1114,17 +1114,17 @@ footer {
 
     // --- Enemies (traffic) ---
     app.ENEMY_SPRITES = [
-      "images/fsoldier1.png",
-      "images/fsoldier2.png",
-      "images/bebop.png",
-      "images/Rocksteady2.png",
-      "images/shredder-ico.png",
-      "images/krang.png",
-      "images/shark.png",
-      "images/boo.png",
-      "images/TurtleVan-ico.png",
-      "images/Rock.png",
-      "images/RiggsCat.png"
+      "images/tmnt/fsoldier1.png",
+      "images/tmnt/fsoldier2.png",
+      "images/tmnt/bebop.png",
+      "images/tmnt/Rocksteady2.png",
+      "images/tmnt/shredder-ico.png",
+      "images/tmnt/krang.png",
+      "images/tmnt/shark.png",
+      "images/tmnt/boo.png",
+      "images/tmnt/TurtleVan-ico.png",
+      "images/tmnt/Rock.png",
+      "images/tmnt/RiggsCat.png"
     ];
 
     app.Enemy = function (y) {
@@ -1176,7 +1176,7 @@ footer {
       this.score = 0;
       this.x = 200;
       this.y = 350;
-      this.sprite = sprite || "images/leo-ico.png";
+      this.sprite = sprite || "images/tmnt/leo-ico.png";
       app.GameState.updateFromScore(this.score);
     };
 
@@ -1201,9 +1201,9 @@ footer {
       this.x = app.GAME_CONFIG.TILE_WIDTH * Math.floor(Math.random() * 5);
 
       this.pizzaTypes = [
-        { sprite: "images/pizza-ico.png",  value: 1, icon: "images/100pts.png" },
-        { sprite: "images/pizza-box.png",  value: 2, icon: "images/150pts.png" },
-        { sprite: "images/pizzacomp.png",  value: 3, icon: "images/200pts.png" }
+        { sprite: "images/tmnt/pizza-ico.png",  value: 1, icon: "images/tmnt/100pts.png" },
+        { sprite: "images/tmnt/pizza-box.png",  value: 2, icon: "images/tmnt/150pts.png" },
+        { sprite: "images/tmnt/pizzacomp.png",  value: 3, icon: "images/tmnt/200pts.png" }
       ];
 
       this.typeIndex = 0;
@@ -1232,7 +1232,7 @@ footer {
       this.y = 70;
       this.notVisible = true;
       this.x = -100;
-      this.sprite = "images/Heart.png";
+      this.sprite = "images/tmnt/Heart.png";
     };
 
     app.Heart.prototype.update = function () {
@@ -1324,7 +1324,7 @@ app.DRAW_Y_OFFSET = -30; // tweak: -20, -30, -40 until perfect
   }
 
         // reset actors but preserve chosen sprite
-        const chosenSprite = app.ACTORS.player.sprite || "images/leo-ico.png";
+        const chosenSprite = app.ACTORS.player.sprite || "images/tmnt/leo-ico.png";
 
         app.ACTORS.player = new app.Player(chosenSprite);
         app.ACTORS.player.life = 3;
@@ -1492,13 +1492,13 @@ if (between(player.x, pizza.x - 60, pizza.x + 60) && between(player.y, pizza.y -
 
         // tiles
         var rowImages = [
-          "images/water-block.png",
-          "images/stone-block.png",
-          "images/stone-block.png",
-          "images/stone-block.png",
-          "images/stone-block.png",   // NEW lane
-          "images/grass-block1.png",
-          "images/grass-block.png"
+          "images/tmnt/water-block.png",
+          "images/tmnt/stone-block.png",
+          "images/tmnt/stone-block.png",
+          "images/tmnt/stone-block.png",
+          "images/tmnt/stone-block.png",   // NEW lane
+          "images/tmnt/grass-block1.png",
+          "images/tmnt/grass-block.png"
         ];
         var numRows = 7;
         var numCols = 5;
@@ -1550,51 +1550,51 @@ if (app.__gameOver){
 
       // Preload resources then start (but stay behind character overlay)
       Resources.load([
-        "images/water-block.png",
-        "images/stone-block.png",
-        "images/grass-block.png",
-        "images/grass-block1.png",
+        "images/tmnt/water-block.png",
+        "images/tmnt/stone-block.png",
+        "images/tmnt/grass-block.png",
+        "images/tmnt/grass-block1.png",
 
-        "images/tmnticon.png",
-        "images/logo-ico.png",
-        "images/banner.png",
-        "images/Selector.png",
+        "images/tmnt/tmnticon.png",
+        "images/tmnt/logo-ico.png",
+        "images/tmnt/banner.png",
+        "images/tmnt/Selector.png",
 
-        "images/leo-ico.png",
-        "images/raph-ico.png",
-        "images/mikey-ico.png",
-        "images/splinter-ico.png",
-        "images/april-ico.png",
-        "images/Casey-Jones.png",
-        "images/baxter.png",
+        "images/tmnt/leo-ico.png",
+        "images/tmnt/raph-ico.png",
+        "images/tmnt/mikey-ico.png",
+        "images/tmnt/splinter-ico.png",
+        "images/tmnt/april-ico.png",
+        "images/tmnt/Casey-Jones.png",
+        "images/tmnt/baxter.png",
 
-        "images/fsoldier1.png",
-        "images/fsoldier2.png",
-        "images/bebop.png",
-        "images/Rocksteady2.png",
-        "images/shredder-ico.png",
-        "images/krang.png",
-        "images/shark.png",
-        "images/boo.png",
-        "images/TurtleVan-ico.png",
-        "images/Rock.png",
-        "images/RiggsCat.png",
+        "images/tmnt/fsoldier1.png",
+        "images/tmnt/fsoldier2.png",
+        "images/tmnt/bebop.png",
+        "images/tmnt/Rocksteady2.png",
+        "images/tmnt/shredder-ico.png",
+        "images/tmnt/krang.png",
+        "images/tmnt/shark.png",
+        "images/tmnt/boo.png",
+        "images/tmnt/TurtleVan-ico.png",
+        "images/tmnt/Rock.png",
+        "images/tmnt/RiggsCat.png",
 
-        "images/pizza-ico.png",
-        "images/pizza-box.png",
-        "images/pizzacomp.png",
-        "images/money-ico.png",
-        "images/Heart.png",
-        "images/Key.png",
-        "images/Star.png",
-        "images/100pts.png",
-        "images/150pts.png",
-        "images/200pts.png",
+        "images/tmnt/pizza-ico.png",
+        "images/tmnt/pizza-box.png",
+        "images/tmnt/pizzacomp.png",
+        "images/tmnt/money-ico.png",
+        "images/tmnt/Heart.png",
+        "images/tmnt/Key.png",
+        "images/tmnt/Star.png",
+        "images/tmnt/100pts.png",
+        "images/tmnt/150pts.png",
+        "images/tmnt/200pts.png",
 
-        "images/manhole-game-ico.png",
-        "images/Gem Blue.png",
-        "images/Gem Green.png",
-        "images/Gem Orange.png"
+        "images/tmnt/manhole-game-ico.png",
+        "images/tmnt/Gem Blue.png",
+        "images/tmnt/Gem Green.png",
+        "images/tmnt/Gem Orange.png"
       ]);
 
       Resources.onReady(function(){
