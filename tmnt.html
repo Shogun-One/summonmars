@@ -1132,7 +1132,7 @@ footer {
     // HUD is now DOM-based (so renderText becomes a no-op)
     app.Player.prototype.renderText = function () { /* HUD handled in DOM */ };
 
-    aapp.Player.prototype.render = function () {
+    app.Player.prototype.render = function () {
   app.ctx.drawImage(Resources.get(this.sprite), this.x, this.y + app.DRAW_Y_OFFSET);
 };
 
