@@ -279,15 +279,15 @@
 
     /* Bottom-center holder */
     .center-controls{
-      position:absolute;
-      bottom:14px;
-      left:50%;
-      transform:translateX(-50%);
-      width:54px;
-      height:54px;
-      z-index:3;
-      pointer-events:none;
-    }
+  position:absolute;
+  bottom:14px;
+  left:50%;
+  transform:translateX(-50%);
+  width:54px;
+  height:54px;
+  z-index:3;
+  pointer-events:auto;
+}
 
     .mini-bubble{
       position:absolute;
@@ -1804,10 +1804,10 @@
       if(keysDown['ArrowUp'] || keysDown['w'] || keysDown['W']) iy -= 1;
       if(keysDown['ArrowDown'] || keysDown['s'] || keysDown['S']) iy += 1;
 
-      if(joyActive && (Math.abs(joyVec.x) > 0.01 || Math.abs(joyVec.y) > 0.01)){
-        ix = joyVec.x;
-        iy = joyVec.y;
-      }
+      if(Math.abs(joyVec.x) > 0.01 || Math.abs(joyVec.y) > 0.01){
+  ix = joyVec.x;
+  iy = joyVec.y;
+}
 
       const il = Math.hypot(ix, iy);
       if(il > 1e-6){
