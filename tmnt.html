@@ -643,10 +643,6 @@ footer {
   <div class="small">Press Restart to Try Again</div>
 </div>
 
-        <p class="big">GET READY</p>
-        <div class="small">Music bubble is waiting patiently 😌</div>
-      </div>
-
       <!-- Difficulty bubble (bottom-left) -->
       <button id="difficultyBtn" class="bubble-btn difficulty-btn" type="button" aria-label="Difficulty" title="Difficulty">
         <span class="label">Difficulty</span>
@@ -1293,6 +1289,14 @@ app.DRAW_Y_OFFSET = -30; // tweak: -20, -30, -40 until perfect
       function initRun(keepBest){
         // cancel any existing RAF cleanly
         if (rafId) win.cancelAnimationFrame(rafId);
+
+          // 🔥 CLEAR GAME OVER STATE
+  app.__gameOver = false;
+  const go = document.getElementById('gameOverOverlay');
+  if (go) {
+    go.classList.remove('active');
+    go.setAttribute('aria-hidden','true');
+  }
 
         // reset actors but preserve chosen sprite
         const chosenSprite = app.ACTORS.player.sprite || "images/leo-ico.png";
