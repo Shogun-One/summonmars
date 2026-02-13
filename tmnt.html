@@ -1121,8 +1121,8 @@ footer {
     };
 
     app.Enemy.prototype.render = function () {
-      app.ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
-    };
+  app.ctx.drawImage(Resources.get(this.sprite), this.x, this.y + app.DRAW_Y_OFFSET);
+};
 
     // --- Player ---
     app.Player = function (sprite) {
@@ -1138,8 +1138,8 @@ footer {
     app.Player.prototype.renderText = function () { /* HUD handled in DOM */ };
 
     app.Player.prototype.render = function () {
-      app.ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
-    };
+  app.ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+};
 
     app.Player.prototype.handleInput = function (dir) {
       if (!dir) return;
@@ -1177,7 +1177,9 @@ footer {
       this.x = app.GAME_CONFIG.TILE_WIDTH * Math.floor(Math.random() * 5);
     };
 
-    app.Pizza.prototype.render = function () { app.ctx.drawImage(Resources.get(this.sprite), this.x, this.y); };
+      app.Pizza.prototype.render = function () { 
+      app.ctx.drawImage(Resources.get(this.sprite), this.x, this.y + app.DRAW_Y_OFFSET); 
+    };
 
     // --- Heart (extra life) ---
     app.Heart = function () {
@@ -1195,16 +1197,20 @@ footer {
       }
     };
 
-    app.Heart.prototype.render = function () { app.ctx.drawImage(Resources.get(this.sprite), this.x, this.y); };
+     app.Heart.prototype.render = function () {
+     app.ctx.drawImage(Resources.get(this.sprite), this.x, this.y + app.DRAW_Y_OFFSET);
+    };
 
     // --- Engine / loop (refactored to support pause + 2s countdown + restart bubble) ---
     (function (global) {
       app.GAME_CONFIG = {
-        CANVAS_WIDTH: 505,
-        CANVAS_HEIGHT: 606,
-        TILE_HEIGHT: 70,
-        TILE_WIDTH: 100
-      };
+  CANVAS_WIDTH: 505,
+  CANVAS_HEIGHT: 606,
+  TILE_HEIGHT: 70,
+  TILE_WIDTH: 100
+};
+app.DRAW_Y_OFFSET = -30; // tweak: -20, -30, -40 until perfect
+
 
       app.ACTORS = {
         player: new app.Player(),
@@ -1420,7 +1426,7 @@ if (between(player.x, pizza.x - 60, pizza.x + 60) && between(player.y, pizza.y -
 
         for (var row = 0; row < numRows; row++) {
           for (var col = 0; col < numCols; col++) {
-            ctx.drawImage(Resources.get(rowImages[row]), col * 101, row * 83);
+          ctx.drawImage(Resources.get(rowImages[row]), col * 101, row * 83 + app.DRAW_Y_OFFSET);
           }
         }
 
