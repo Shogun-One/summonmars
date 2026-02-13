@@ -524,6 +524,9 @@ footer {
   color: rgba(255,255,255,0.85);
   z-index: 6;
   pointer-events: none;
+
+  white-space: nowrap;
+  width: max-content;
 }
 
 .visit-counter {
@@ -622,10 +625,12 @@ footer {
 
   <footer>
   © 2026 Summon Mars ™. All rights reserved.
-  <div class="visit-counter">
-    Visitors: <span id="busuanzi_value_site_uv"></span>
-  </div>
-  </footer>
+</footer>
+
+<div class="visit-counter">
+  Visitors: <span id="busuanzi_value_site_uv"></span>
+</div>
+
 
   <!-- Character select overlay -->
   <div id="character-select-overlay">
