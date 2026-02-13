@@ -91,16 +91,22 @@
     .subtitle strong{ color:var(--accent-soft); font-weight:800; }
 
     .hud{
-      display:flex;
-      justify-content:space-between;
-      width:100%;
-      max-width:520px;
-      font-size:.95rem;
-      opacity:.95;
-      margin-top:.2rem;
-      gap:.55rem;
-      flex-wrap:wrap;
-    }
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  width:100%;
+  max-width:520px;
+  font-size:.95rem;
+  opacity:.95;
+  margin-top:.2rem;
+  gap:.45rem;
+
+  flex-wrap: nowrap;     /* <-- LOCK to 1 row */
+  overflow: hidden;      /* prevents weird spill */
+}
+.hud .pill{
+  white-space: nowrap;   /* labels never wrap inside pills */
+}
 
     .hud .pill{
       background:rgba(0,0,0,.22);
@@ -202,12 +208,18 @@
       box-shadow:0 0 10px rgba(60,255,156,.55);
     }
 
-    /* Restart bubble (bottom-center) */
-    .restart-btn{
-      left:50%;
-      transform:translateX(-50%);
-    }
-    .restart-btn:active{ transform:translateX(-50%) translateY(1px); }
+    /* Restart bubble (TOP-CENTER over the game window) */
+.restart-btn{
+  top: 12px;
+  bottom: auto;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 8;
+}
+.restart-btn:active{
+  transform: translateX(-50%) translateY(1px);
+}
+    
     .restart-btn .icon{
       width:14px;height:14px;border-radius:999px;
       border:2px solid rgba(255,231,255,.92);
@@ -224,79 +236,44 @@
       transform:rotate(35deg);
     }
 
-    /* D-Pad bubble (bottom center-right) */
-.dpad-btn{
+    /* Virtual joystick (bottom middle) */
+.joystick-btn{
   position:absolute;
-  bottom:14px;
-  left:50%;
-  transform:translateX(40px); /* sits just right of Restart */
-  width:52px;
-  height:52px;
-  border-radius:999px;
-  display:grid;
-  place-items:center;
-  padding:0;
-  z-index:6;
-  pointer-events:auto;
-  touch-action:none;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 78px;
+  height: 78px;
+  border-radius: 999px;
+  z-index: 8;          /* above logo + canvas */
+  pointer-events: auto;
+  touch-action: none;
+  padding: 0;
 }
 
-.dpad{
-  width:40px;
-  height:40px;
-  display:grid;
-  grid-template-columns:repeat(3, 1fr);
-  grid-template-rows:repeat(3, 1fr);
-  gap:3px;
+/* Base ring */
+.joystick-base{
+  width: 58px;
+  height: 58px;
+  border-radius: 999px;
+  border: 1px solid rgba(157,255,191,.28);
+  background: rgba(0,0,0,.18);
+  box-shadow: inset 0 0 16px rgba(157,255,191,.10);
+  display: grid;
+  place-items: center;
+  position: relative;
 }
 
-.dpad button{
-  appearance:none;
-  border:1px solid rgba(157,255,191,.28);
-  background:rgba(0,0,0,.22);
-  border-radius:10px;
-  padding:0;
-  width:100%;
-  height:100%;
-  cursor:pointer;
-  touch-action:none;
-}
-
-.dpad button:active{
-  transform:translateY(1px);
-  background:rgba(0,0,0,.32);
-}
-
-.dpad .up{ grid-column:2; grid-row:1; }
-.dpad .left{ grid-column:1; grid-row:2; }
-.dpad .right{ grid-column:3; grid-row:2; }
-.dpad .down{ grid-column:2; grid-row:3; }
-
-.dpad button::before{
-  content:'';
-  display:block;
-  width:0;height:0;
-  margin:auto;
-  border-style:solid;
-  opacity:.9;
-}
-
-/* neon red arrows */
-.dpad .up::before{
-  border-width:0 6px 9px 6px;
-  border-color:transparent transparent rgba(255,42,42,.95) transparent;
-}
-.dpad .down::before{
-  border-width:9px 6px 0 6px;
-  border-color:rgba(255,42,42,.95) transparent transparent transparent;
-}
-.dpad .left::before{
-  border-width:6px 9px 6px 0;
-  border-color:transparent rgba(255,42,42,.95) transparent transparent;
-}
-.dpad .right::before{
-  border-width:6px 0 6px 9px;
-  border-color:transparent transparent transparent rgba(255,42,42,.95);
+/* Stick nub */
+.joystick-stick{
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  border: 1px solid rgba(228,228,255,.35);
+  background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.14), rgba(60,255,156,.08) 55%, rgba(0,0,0,.25));
+  box-shadow: 0 0 12px rgba(60,255,156,.18);
+  transform: translate3d(0,0,0);
+  will-change: transform;
 }
 
     /* Music bubble (bottom-right) */
@@ -637,15 +614,11 @@ footer {
         <span class="ring"><span class="icon"></span></span>
       </button>
 
-      <div class="bubble-btn dpad-btn" id="dpadBtn" aria-label="D-Pad">
-      <span class="label">Move</span>
-      <div class="dpad">
-        <button class="up" data-key="ArrowUp" aria-label="Up"></button>
-        <button class="left" data-key="ArrowLeft" aria-label="Left"></button>
-        <button class="right" data-key="ArrowRight" aria-label="Right"></button>
-        <button class="down" data-key="ArrowDown" aria-label="Down"></button>
-        </div>
-      </div>
+      <div class="bubble-btn joystick-btn" id="dpadBtn" aria-label="Joystick">
+  <div class="joystick-base" id="joyBase">
+    <div class="joystick-stick" id="joyStick"></div>
+  </div>
+</div>
 
       <!-- Music bubble (bottom-right) -->
       <button id="musicBtn" class="bubble-btn music-btn" type="button" aria-label="Music On/Off" title="Music On/Off">
@@ -1159,8 +1132,8 @@ footer {
     // HUD is now DOM-based (so renderText becomes a no-op)
     app.Player.prototype.renderText = function () { /* HUD handled in DOM */ };
 
-    app.Player.prototype.render = function () {
-  app.ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+    aapp.Player.prototype.render = function () {
+  app.ctx.drawImage(Resources.get(this.sprite), this.x, this.y + app.DRAW_Y_OFFSET);
 };
 
     app.Player.prototype.handleInput = function (dir) {
@@ -1612,37 +1585,92 @@ if (between(player.x, pizza.x - 60, pizza.x + 60) && between(player.y, pizza.y -
     })();
   
 // =========================
-// On-screen D-Pad movement
+// Virtual JOYSTICK movement
 // =========================
 (function () {
-  const dpad = document.getElementById('dpadBtn');
-  if (!dpad) return;
+  const wrap = document.getElementById('dpadBtn');   // reusing your existing id
+  const base = document.getElementById('joyBase');
+  const stick = document.getElementById('joyStick');
+  if (!wrap || !base || !stick) return;
 
-  const keyToDir = {
-    ArrowUp: "up",
-    ArrowDown: "down",
-    ArrowLeft: "left",
-    ArrowRight: "right",
-  };
+  let dragging = false;
+  let originX = 0, originY = 0;
+  let curX = 0, curY = 0;
+  const maxR = 16;          // stick travel radius (px)
+  const dead = 6;           // deadzone (px)
+  const stepEveryMs = 120;  // repeat movement while held
+  let lastStep = 0;
 
-  function moveFromKey(key) {
-    const dir = keyToDir[key];
+  function clamp(v, min, max){ return Math.max(min, Math.min(max, v)); }
+
+  function movePlayer(dir){
     if (dir && window.app && app.ACTORS && app.ACTORS.player) {
       app.ACTORS.player.handleInput(dir);
     }
   }
 
-  dpad.querySelectorAll('button[data-key]').forEach((btn) => {
-    const key = btn.getAttribute('data-key');
+  function computeDir(dx, dy){
+    const ax = Math.abs(dx), ay = Math.abs(dy);
+    if (ax < dead && ay < dead) return null;
+    if (ax > ay) return dx > 0 ? "right" : "left";
+    return dy > 0 ? "down" : "up";
+  }
 
-    btn.addEventListener('pointerdown', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      moveFromKey(key);
-    }, { passive: false });
+  function setStick(dx, dy){
+    const dist = Math.hypot(dx, dy) || 1;
+    const r = Math.min(maxR, dist);
+    const nx = dx / dist;
+    const ny = dy / dist;
+    curX = nx * r;
+    curY = ny * r;
+    stick.style.transform = `translate3d(${curX}px, ${curY}px, 0)`;
+  }
 
-    btn.addEventListener('click', (e) => e.preventDefault());
-  });
+  function resetStick(){
+    curX = 0; curY = 0;
+    stick.style.transform = `translate3d(0px, 0px, 0)`;
+  }
+
+  function onDown(e){
+    e.preventDefault();
+    e.stopPropagation();
+    dragging = true;
+    wrap.setPointerCapture?.(e.pointerId);
+
+    const r = base.getBoundingClientRect();
+    originX = r.left + r.width/2;
+    originY = r.top + r.height/2;
+    lastStep = 0;
+  }
+
+  function onMove(e){
+    if (!dragging) return;
+    e.preventDefault();
+
+    const dx = e.clientX - originX;
+    const dy = e.clientY - originY;
+
+    setStick(dx, dy);
+
+    const now = performance.now();
+    if (now - lastStep >= stepEveryMs){
+      const dir = computeDir(dx, dy);
+      movePlayer(dir);
+      lastStep = now;
+    }
+  }
+
+  function onUp(e){
+    if (!dragging) return;
+    e.preventDefault();
+    dragging = false;
+    resetStick();
+  }
+
+  wrap.addEventListener('pointerdown', onDown, { passive:false });
+  window.addEventListener('pointermove', onMove, { passive:false });
+  window.addEventListener('pointerup', onUp, { passive:false });
+  window.addEventListener('pointercancel', onUp, { passive:false });
 })();
     
     // =========================
