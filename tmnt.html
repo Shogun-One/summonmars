@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="icon" href="images/tmnticon.png" />
 
+  <!-- Spacey title + clean HUD fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
@@ -14,8 +15,8 @@
     :root{
       --bg1:#05030b;
       --bg2:#0b2a12;
-      --accent:#3cff9c;
-      --accent-soft:#9dffbf;
+      --accent:#3cff9c;         /* neon green */
+      --accent-soft:#9dffbf;    /* softer green */
       --hud:#e4e4ff;
       --danger:#ff2a2a;
       --ink:#07060a;
@@ -29,16 +30,26 @@
       display:flex;
       align-items:center;
       justify-content:center;
-      font-family:Rajdhani, system-ui, sans-serif;
+      font-family:Rajdhani, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
       background:radial-gradient(circle at top, var(--bg2), var(--bg1));
       color:var(--hud);
       overflow:hidden;
+
+      /* --- SECURITY LOCKDOWN PROTOCOLS (like your other pages) --- */
       -webkit-user-select:none;
+      -moz-user-select:none;
+      -ms-user-select:none;
       user-select:none;
+      -webkit-touch-callout:none;
     }
 
-    img{ pointer-events:none; -webkit-user-drag:none; }
+    img{
+      pointer-events:none;
+      -webkit-user-drag:none;
+      user-drag:none;
+    }
 
+    /* full-page background canvas (outside the game window) */
     #bgfx{
       position:fixed;
       inset:0;
@@ -70,17 +81,32 @@
       text-shadow:0 0 18px rgba(60,255,156,.22);
     }
 
-    .hud{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      width:100%;
-      max-width:520px;
+    .subtitle{
       font-size:.95rem;
-      margin-top:.05rem;
-      gap:.45rem;
-      flex-wrap: nowrap;
+      opacity:.88;
+      text-align:center;
+      max-width:520px;
+      line-height:1.25;
     }
+    .subtitle strong{ color:var(--accent-soft); font-weight:800; }
+
+    .hud{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  width:100%;
+  max-width:520px;
+  font-size:.95rem;
+  opacity:.95;
+  margin-top:.05rem;
+  gap:.45rem;
+
+  flex-wrap: nowrap;     /* <-- LOCK to 1 row */
+  overflow: hidden;      /* prevents weird spill */
+}
+.hud .pill{
+  white-space: nowrap;   /* labels never wrap inside pills */
+}
 
     .hud .pill{
       background:rgba(0,0,0,.22);
@@ -88,12 +114,14 @@
       border-radius:999px;
       padding:.3rem .65rem;
       backdrop-filter: blur(6px);
-      white-space: nowrap;
+      -webkit-backdrop-filter: blur(6px);
     }
 
     .hud .pill b{
       font-family:Orbitron, system-ui, sans-serif;
+      letter-spacing:.06em;
       color:var(--accent-soft);
+      font-weight:800;
     }
 
     .game-shell{
@@ -106,16 +134,20 @@
 
     canvas#game{
       border-radius:18px;
-      background: radial-gradient(circle at top, rgba(26, 56, 34, 0.85), rgba(5, 2, 10, 0.95));
+      background:
+        radial-gradient(circle at top, rgba(26, 56, 34, 0.85), rgba(5, 2, 10, 0.95)),
+        repeating-radial-gradient(circle at center, rgba(255,255,255,0.05), rgba(255,255,255,0.05) 1px, transparent 1px, transparent 3px);
       box-shadow:0 0 25px rgba(0,0,0,.8), 0 0 26px rgba(60,255,156,.35);
       touch-action:none;
       width:100%;
       max-width:520px;
       height:auto;
       display:block;
+      position:relative;
       z-index:2;
     }
 
+    /* --- Round transparent bubbles (bottom aligned like Asteroids) --- */
     .bubble-btn{
       position:absolute;
       bottom:14px;
@@ -125,160 +157,536 @@
       border:1px solid rgba(157,255,191,.45);
       background:radial-gradient(circle at 30% 30%, rgba(255,255,255,.10), rgba(60,255,156,.05) 55%, rgba(0,0,0,.22));
       backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      box-shadow:0 0 18px rgba(60,255,156,.18);
       cursor:pointer;
       display:grid;
       place-items:center;
-      z-index:10;
+      user-select:none;
+      z-index:3;
+      padding:0;
+    }
+    .bubble-btn:hover{ filter:brightness(1.08); }
+    .bubble-btn:active{ transform:translateY(1px); }
+
+    .bubble-btn .ring{
+      width:38px;
+      height:38px;
+      border-radius:999px;
+      border:1px solid rgba(228,228,255,.30);
+      display:grid;
+      place-items:center;
+      box-shadow: inset 0 0 14px rgba(157,255,191,.12);
+      position:relative;
     }
 
-    .difficulty-btn{ left:14px; }
-    .music-btn{ right:14px; }
-    
-    .restart-btn{
-      top: 12px;
-      bottom: auto;
-      left: 50%;
-      transform: translateX(-50%);
-    }
-
-    .dpad-btn{
+    .bubble-btn .label{
+      position:absolute;
+      bottom:62px;
       left:50%;
       transform:translateX(-50%);
-      bottom:14px;
-      width:88px;
-      height:88px;
-      background: none;
-      border: none;
+      font-size:.72rem;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      color:rgba(228,228,255,.85);
+      background:rgba(0,0,0,.25);
+      border:1px solid rgba(157,255,191,.18);
+      padding:.22rem .55rem;
+      border-radius:999px;
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      white-space:nowrap;
+      opacity:.95;
+      pointer-events:none;
     }
 
-    .dpad{ position:relative; width:100%; height:100%; }
-    .dpad button{
-      position:absolute;
-      width:30px;
-      height:30px;
-      background:rgba(255,0,0,0.18);
-      border:1px solid rgba(255,60,60,0.8);
-      border-radius:8px;
-      box-shadow:0 0 10px rgba(255,0,0,0.4);
+    /* Difficulty bubble (bottom-left) */
+    .difficulty-btn{ left:14px; }
+    .difficulty-btn .dot{
+      width:10px;height:10px;border-radius:999px;
+      background:rgba(157,255,191,.95);
+      box-shadow:0 0 10px rgba(60,255,156,.55);
     }
-    .dpad .up{ top:0; left:29px; }
-    .dpad .down{ bottom:0; left:29px; }
-    .dpad .left{ left:0; top:29px; }
-    .dpad .right{ right:0; top:29px; }
 
-    #startOverlay, #gameOverOverlay {
+    /* Restart bubble (TOP-CENTER over the game window) */
+.restart-btn{
+  top: 12px;
+  bottom: auto;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 8;
+}
+.restart-btn:active{
+  transform: translateX(-50%) translateY(1px);
+}
+    
+    .restart-btn .icon{
+  width:18px;
+  height:18px;
+  border-radius:50%;
+  border:2px solid rgba(255,231,255,.92);
+  border-right-color:transparent;
+  transform:rotate(-45deg);
+  box-shadow:0 0 12px rgba(157,255,191,.35);
+}
+
+.restart-btn .icon:after{
+  content:'';
+  position:absolute;
+  top:-4px;
+  right:-2px;
+  width:15px;
+  height:15px;
+  border-left:6px solid rgba(255,231,255,.92);
+  border-top:4px solid transparent;
+  border-bottom:4px solid transparent;
+}
+
+/* RED NEON DPAD */
+.dpad-btn{
+  left:50%;
+  transform:translateX(-50%);
+  bottom:14px;
+  width:88px;
+  height:88px;
+  padding:0;
+}
+
+.dpad{
+  position:relative;
+  width:100%;
+  height:100%;
+}
+
+.dpad button{
+  position:absolute;
+  width:32px;
+  height:32px;
+  background:rgba(255,0,0,0.18);
+  border:1px solid rgba(255,60,60,0.8);
+  border-radius:8px;
+  box-shadow:0 0 12px rgba(255,0,0,0.6);
+  cursor:pointer;
+}
+
+.dpad button:active{
+  transform:scale(0.92);
+  box-shadow:0 0 18px rgba(255,0,0,1);
+}
+
+.dpad .up{ top:0; left:28px; }
+.dpad .down{ bottom:0; left:28px; }
+.dpad .left{ left:0; top:28px; }
+.dpad .right{ right:0; top:28px; }
+    
+/* Music bubble (bottom-right) */
+.music-btn{ right:14px; }
+
+.music-btn .dot{
+  width:8px;height:8px;border-radius:999px;
+  background:rgba(157,255,191,.95);
+  box-shadow:0 0 10px rgba(60,255,156,.65);
+  opacity:.35;
+  transition:opacity .2s ease;
+}
+
+.music-btn.on .dot{ opacity:1; }
+
+    .controls{
+      font-size:.9rem;
+      opacity:.9;
+      text-align:center;
+      margin-top:.15rem;
+      line-height:1.35;
+      max-width:520px;
+    }
+    .controls strong{ color:var(--accent-soft); }
+
+    .hint{
+      font-size:.82rem;
+      opacity:.74;
+      margin-top:.2rem;
+    }
+
+    /* VISIBLE DETERRENT BANNER (BOTTOM) */
+    .security-banner {
+  position: fixed;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+
+  padding: 6px 14px;
+  font-size: 0.65rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+
+  color: #ff3b3b;
+  background: rgba(0, 0, 0, 0.55);
+  border: 1px solid rgba(255, 59, 59, 0.4);
+  border-radius: 999px;
+
+  box-shadow: 0 0 14px rgba(255, 59, 59, 0.25);
+  z-index: 9999;
+  pointer-events: none;
+
+  white-space: nowrap;        /* ← THIS stops the double line */
+  width: max-content;         /* ← Makes bubble fit text exactly */
+}
+
+    /* cosplay security overlay */
+    .security-overlay{
+      position:fixed;
+      inset:0;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      background:rgba(0,0,0,.92);
+      z-index:999999;
+      padding:2rem;
+      text-align:center;
+    }
+    .security-overlay.active{ display:flex; }
+
+    .security-card{
+      width:min(720px, 92vw);
+      border-radius:22px;
+      border:1px solid rgba(255,42,42,.35);
+      background:radial-gradient(circle at 20% 10%, rgba(255,42,42,.18), rgba(0,0,0,.75) 55%, rgba(0,0,0,.92));
+      box-shadow:0 0 40px rgba(255,42,42,.14), inset 0 0 24px rgba(255,42,42,.08);
+      padding:1.4rem 1.2rem;
+    }
+    .security-title{
+      margin:0;
+      font-family:Orbitron, system-ui, sans-serif;
+      font-size:1.65rem;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+      color:rgba(255,80,80,.95);
+      text-shadow:0 0 18px rgba(255,42,42,.35);
+    }
+    .security-sub{
+      margin:.6rem 0 0;
+      color:rgba(255,230,230,.92);
+      opacity:.9;
+      line-height:1.5;
+      font-size:1rem;
+    }
+    .security-small{
+      margin:.8rem 0 0;
+      font-size:.9rem;
+      color:rgba(228,228,255,.8);
+      opacity:.85;
+    }
+    .security-actions{
+      margin-top:1rem;
+      display:flex;
+      gap:.6rem;
+      justify-content:center;
+      flex-wrap:wrap;
+    }
+    .security-actions button{
+      padding:.45rem 1rem;
+      border-radius:999px;
+      border:none;
+      cursor:pointer;
+      font-weight:900;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      font-family:Rajdhani, system-ui, sans-serif;
+    }
+    .security-actions .danger{
+      background:rgba(255,42,42,.95);
+      color:#120006;
+      box-shadow:0 0 14px rgba(255,42,42,.35);
+    }
+    .security-actions .secondary{
+      background:rgba(228,228,255,.12);
+      color:rgba(228,228,255,.92);
+      border:1px solid rgba(228,228,255,.25);
+      box-shadow:none;
+    }
+
+    /* Character select overlay */
+    #character-select-overlay{
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,.90);
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      z-index:1000;
+      padding:1.2rem;
+      text-align:center;
+    }
+    #character-select-overlay h2{
+      margin:0 0 8px;
+      font-family:Orbitron, system-ui, sans-serif;
+      color:var(--accent-soft);
+      letter-spacing:.1em;
+      text-transform:uppercase;
+    }
+    #character-select-overlay p{
+      margin:.1rem 0 1rem;
+      opacity:.9;
+      max-width:520px;
+    }
+    .char-grid {
+  display: flex;
+  flex-direction: column;
+  align-items: center;   /* center horizontally */
+  gap: 12px;             /* spacing between buttons */
+}
+    .char-btn{
+  width: 220px; /* <-- ADD THIS LINE */
+  padding:10px 10px;
+  border-radius:12px;
+  border:1px solid rgba(157,255,191,.42);
+  background:rgba(0,0,0,.28);
+  color:rgba(228,228,255,.95);
+  cursor:pointer;
+  font-size:1rem;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  box-shadow:0 0 14px rgba(60,255,156,.12);
+  text-align:center; /* optional but nice */
+}
+
+    .char-btn:hover{ filter:brightness(1.08); }
+
+    /* Start countdown overlay (in-game) */
+    #startOverlay{
       position:absolute;
       inset:0;
       display:none;
       align-items:center;
       justify-content:center;
       flex-direction:column;
-      background:rgba(0,0,0,0.6);
-      z-index:15;
+      text-align:center;
+      background:rgba(0,0,0,.35);
+      z-index:4;
       border-radius:18px;
       pointer-events:none;
     }
 
-    #startOverlay.active, #gameOverOverlay.active { display:flex; }
+#gameOverOverlay{
+  position:absolute;
+  inset:0;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  text-align:center;
+  background:rgba(0,0,0,.65);
+  z-index:5;
+  pointer-events:none;
+  border-radius:18px;
+}
 
-    .big { font-family:Orbitron; font-size:1.8rem; color:var(--accent-soft); }
-    .big.red { color: var(--danger); text-shadow: 0 0 15px var(--danger); }
+#gameOverOverlay.active{
+  display:flex;
+}
 
-    #character-select-overlay{
-      position:fixed;
-      inset:0;
-      background:rgba(0,0,0,0.95);
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      justify-content:center;
-      z-index:2000;
-      padding:1rem;
+#gameOverOverlay .big.red{
+  font-family:Orbitron, system-ui, sans-serif;
+  font-size:2rem;
+  letter-spacing:.14em;
+  color:#ff2a2a;
+  text-shadow:
+    0 0 8px #ff2a2a,
+    0 0 16px #ff0000,
+    0 0 30px #ff0000;
+}
+    
+    #startOverlay.active{ display:flex; }
+    #startOverlay .big{
+      font-family:Orbitron, system-ui, sans-serif;
+      font-size:1.7rem;
+      letter-spacing:.12em;
+      color:rgba(157,255,191,.95);
+      text-shadow:0 0 18px rgba(60,255,156,.25);
+      margin:0;
+    }
+    #startOverlay .small{
+      margin-top:.4rem;
+      opacity:.9;
+      font-size:1rem;
     }
 
-    .char-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .char-btn{
-      width: 140px;
-      padding: 12px;
-      border-radius: 8px;
-      border: 1px solid var(--accent);
-      background: rgba(255,255,255,0.05);
-      color: white;
-      cursor: pointer;
+    /* Small screens tuning */
+    @media (max-width:560px){
+      h1{ font-size:1.35rem; }
+      .subtitle{ font-size:.9rem; }
+      .bubble-btn{ bottom:12px; width:52px; height:52px; }
+      .difficulty-btn{ left:12px; }
+      .music-btn{ right:12px; }
+      .bubble-btn .label{ bottom:60px; }
+      .security-banner{ bottom:10px; font-size:.7rem; }
+      body{
+    align-items: flex-start;
+    padding-top: 12px;
+  }
+
+  .wrapper{
+    margin-top: 0;
+  }
+
     }
 
-    .security-banner {
-      position: fixed;
-      bottom: 14px;
-      left: 50%;
-      transform: translateX(-50%);
-      padding: 6px 14px;
-      font-size: 0.65rem;
-      color: #ff3b3b;
-      background: rgba(0, 0, 0, 0.55);
-      border: 1px solid rgba(255, 59, 59, 0.4);
-      border-radius: 999px;
-      z-index: 100;
-    }
+    .tmnt-logo-wrap{
+  position:absolute;
+  left:50%;
+  transform:translateX(-50%);
+  bottom: -150px;        /* <-- THIS is the knob */
+  width:100%;
+  display:flex;
+  justify-content:center;
+  pointer-events:none;
+  z-index:4;
+}
 
-    footer { position: fixed; bottom: 45px; left: 50%; transform: translateX(-50%); font-size: 0.7rem; opacity: 0.6; }
+.tmnt-logo{
+  max-width: 240px;
+  width: 65%;
+  height:auto;
+  opacity: .95;
+}
+
+    /* --- FOOTER POSITIONING --- */
+footer {
+  position: fixed;
+  bottom: 48px; /* floats above red security banner */
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  color: rgba(255,255,255,0.85);
+  z-index: 6;
+  pointer-events: none;
+
+  white-space: nowrap;
+  width: max-content;
+}
+
+.visit-counter {
+  position: fixed;
+  bottom: 8px;
+  right: 14px;
+  font-size: 0.7rem;          /* tiny bump */
+  opacity: 0.45;              /* less ghost, still discreet */
+  letter-spacing: 0.08em;
+  color: rgba(255,255,255,0.75);
+  pointer-events: none;
+  z-index: 20;
+}
+
   </style>
 </head>
 
 <body>
-  <canvas id="bgfx"></canvas>
+  <!-- Background FX canvas (outside game window) -->
+  <canvas id="bgfx" aria-hidden="true"></canvas>
+
+  <!-- VISIBLE DETERRENT BANNER -->
   <div class="security-banner">Protected From Bad Vibes</div>
+
+  <!-- cosplay security overlay -->
+  <div id="securityOverlay" class="security-overlay" aria-hidden="true">
+    <div class="security-card" role="dialog" aria-modal="true" aria-label="Security Breach">
+      <h2 class="security-title">SECURITY BREACH DETECTED</h2>
+      <p class="security-sub">
+        Logging communications : Security Active<br/>
+        Unauthorized inspection prohibited!
+      </p>
+      <p class="security-small">
+        Tip: close DevTools / return to normal view / reduce zoom.
+      </p>
+      <div class="security-actions">
+        <button id="securityReloadBtn" class="danger" type="button">Reload</button>
+        <button id="securityDismissBtn" class="secondary" type="button">Dismiss</button>
+      </div>
+    </div>  
+  </div>
 
   <div class="wrapper">
     <h1>TMNT · GET THAT SLICE!</h1>
-    
+    <div class="controls">
+      Move: <strong>[↑][↓][←][→]</strong> / <strong>WASD</strong> / <strong>Arrow Keys</strong>.
+      </div>
+
     <div class="hud">
       <div class="pill">Slices: <b id="score">0</b></div>
       <div class="pill">Best: <b id="best">0</b></div>
+      <div class="pill">Level: <b id="level">1</b></div>
       <div class="pill">Lives: <b id="lives">3</b></div>
-      <div class="pill"><b id="diffLabel">Sewer</b></div>
+      
+      <div class="pill">Difficulty: <b id="diffLabel">Sewer</b></div>
     </div>
 
     <div class="game-shell">
       <canvas id="game" width="505" height="606"></canvas>
 
-      <div id="startOverlay">
+        <div class="tmnt-logo-wrap">
+    <img src="images/logo-ico.png" alt="Teenage Mutant Ninja Turtles Logo" class="tmnt-logo">
+  </div>
+
+      <!-- Start overlay -->
+<div id="startOverlay" aria-hidden="true">
+  <p class="big">GET READY</p>
+  <div class="small">Music bubble is waiting patiently 😌</div>
+</div>
+
+<!-- Game Over overlay -->
+<div id="gameOverOverlay" aria-hidden="true">
+  <p class="big red">GAME OVER</p>
+  <div class="small">Press Restart to Try Again</div>
+</div>
+
         <p class="big">GET READY</p>
-        <div class="small">Cowabunga!</div>
+        <div class="small">Music bubble is waiting patiently 😌</div>
       </div>
 
-      <div id="gameOverOverlay">
-        <p class="big red">GAME OVER</p>
-        <div class="small">Press Restart to Try Again</div>
-      </div>
-
-      <button id="difficultyBtn" class="bubble-btn difficulty-btn" title="Difficulty">
-        <span class="dot" style="width:10px;height:10px;background:var(--accent);border-radius:50%"></span>
+      <!-- Difficulty bubble (bottom-left) -->
+      <button id="difficultyBtn" class="bubble-btn difficulty-btn" type="button" aria-label="Difficulty" title="Difficulty">
+        <span class="label">Difficulty</span>
+        <span class="ring"><span class="dot"></span></span>
       </button>
 
-      <button id="restartBtn" class="bubble-btn restart-btn" title="Restart">
-        <div style="width:15px;height:15px;border:2px solid white;border-radius:50%;border-top-color:transparent"></div>
+      <!-- Restart bubble (bottom-center) -->
+      <button id="restartBtn" class="bubble-btn restart-btn" type="button" aria-label="Restart" title="Restart">
+        <span class="ring"><span class="icon"></span></span>
       </button>
 
-      <div class="dpad-btn" id="dpadBtn">
-        <div class="dpad">
-          <button class="up" data-dir="up"></button>
-          <button class="left" data-dir="left"></button>
-          <button class="right" data-dir="right"></button>
-          <button class="down" data-dir="down"></button>
-        </div>
-      </div>
+      <div class="bubble-btn dpad-btn" id="dpadBtn" aria-label="DPad">
+  <div class="dpad">
+    <button class="up" data-dir="up"></button>
+    <button class="left" data-dir="left"></button>
+    <button class="right" data-dir="right"></button>
+    <button class="down" data-dir="down"></button>
+  </div>
+</div>
 
-      <button id="musicBtn" class="bubble-btn music-btn" title="Music">
-        <span id="musicLabel" style="font-size:10px">OFF</span>
+      <!-- Music bubble (bottom-right) -->
+      <button id="musicBtn" class="bubble-btn music-btn" type="button" aria-label="Music On/Off" title="Music On/Off">
+        <span class="label" id="musicLabel">Music Off</span>
+        <span class="ring"><span class="dot"></span></span>
       </button>
     </div>
 
-    <footer>© 2026 Summon Mars ™</footer>
-  </div>
+  <footer>
+  © 2026 Summon Mars ™. All rights reserved.
+</footer>
 
+<div class="visit-counter">
+  Visitors: <span id="busuanzi_value_site_uv"></span>
+</div>
+
+
+  <!-- Character select overlay -->
   <div id="character-select-overlay">
-    <h2 style="font-family:Orbitron; color:var(--accent)">Choose Your Hero</h2>
+    <h2>Choose Your Hero</h2>
+    <p>Select a character, then dodge traffic and grab that pizza!</p>
     <div class="char-grid">
       <button class="char-btn" data-sprite="images/leo-ico.png">Leo</button>
       <button class="char-btn" data-sprite="images/raph-ico.png">Raph</button>
@@ -286,225 +694,998 @@
       <button class="char-btn" data-sprite="images/Casey-Jones.png">Casey</button>
       <button class="char-btn" data-sprite="images/april-ico.png">April</button>
       <button class="char-btn" data-sprite="images/splinter-ico.png">Splinter</button>
+      <button class="char-btn" data-sprite="images/baxter.png">Baxter</button>
     </div>
   </div>
 
   <script>
-    // --- Resource Loader ---
-    (function() {
+    // =========================
+    // “Cosplay Security” scripts (same vibe as Asteroids)
+    // =========================
+    document.addEventListener('DOMContentLoaded', () => {
+      document.addEventListener('contextmenu', e => e.preventDefault());
+      document.ondragstart = () => false;
+
+      document.onkeydown = function(e) {
+        if (e.keyCode === 123) return false; // F12
+        if (e.ctrlKey && e.shiftKey &&
+            (e.keyCode === 'I'.charCodeAt(0) ||
+             e.keyCode === 'C'.charCodeAt(0) ||
+             e.keyCode === 'J'.charCodeAt(0))) return false;
+        if (e.ctrlKey &&
+            (e.keyCode === 'U'.charCodeAt(0) ||
+             e.keyCode === 'S'.charCodeAt(0))) return false;
+      };
+
+      // lighter console ping (avoid freeze spikes)
+      setInterval(() => {
+        try{
+          console.log("%c TRACKING...",
+            "color: red; font-size: 20px; font-weight: bold;");
+        }catch{}
+      }, 3000);
+    });
+
+    (function () {
+      function initSecurity() {
+        if (!document.body) {
+          window.addEventListener('load', initSecurity, { once: true });
+          return;
+        }
+
+        const securityOverlay = document.getElementById('securityOverlay');
+        const securityReloadBtn = document.getElementById('securityReloadBtn');
+        const securityDismissBtn = document.getElementById('securityDismissBtn');
+
+        const nedryAudio = new Audio('jurrasicpassword.mp3');
+        let devtoolsOpen = false;
+
+        function showOverlay() {
+          if (devtoolsOpen) return;
+          devtoolsOpen = true;
+          securityOverlay.classList.add('active');
+          securityOverlay.setAttribute('aria-hidden','false');
+
+          // pause music if playing
+          try { if (window.__tmntMusic && !window.__tmntMusic.paused) window.__tmntMusic.pause(); } catch {}
+          try {
+            nedryAudio.currentTime = 0;
+            nedryAudio.play().catch(() => {});
+          } catch {}
+
+          // freeze game loop
+          window.__securityFreeze = true;
+        }
+
+        function hideOverlay() {
+          if (!devtoolsOpen) return;
+          devtoolsOpen = false;
+          securityOverlay.classList.remove('active');
+          securityOverlay.setAttribute('aria-hidden','true');
+          window.__securityFreeze = false;
+        }
+
+        securityReloadBtn.addEventListener('click', () => location.reload());
+        securityDismissBtn.addEventListener('click', hideOverlay);
+
+        // baseline after browser UI settles
+        let baselineReady = false;
+        let baseOuterW = 0, baseOuterH = 0, baseInnerW = 0, baseInnerH = 0;
+        let baseWidthRatio = 0, baseHeightRatio = 0, baseArea = 0;
+
+        function setBaseline(){
+          baseOuterW = window.outerWidth;
+          baseOuterH = window.outerHeight;
+          baseInnerW = window.innerWidth;
+          baseInnerH = window.innerHeight;
+          baseWidthRatio  = baseInnerW / baseOuterW;
+          baseHeightRatio = baseInnerH / baseOuterH;
+          baseArea        = baseInnerW * baseInnerH;
+          baselineReady = true;
+        }
+
+        let strikes = 0;
+
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    setBaseline();
+    requestAnimationFrame(setBaseline); // stabilize
+  }, 1400);
+}, { once:true });
+
+window.addEventListener('resize', () => {
+  setTimeout(setBaseline, 250);
+});
+
+        /*-- COMMENTED OUT 
+        setInterval(detectDevToolsOrZoom, 700);
+        // window.addEventListener('resize', detectDevToolsOrZoom);
+        --*/
+
+        window.addEventListener('keydown', (e) => {
+          const key = e.key || e.keyCode;
+          const isF12 = key === 'F12' || key === 123;
+          const isCtrlShiftI = e.ctrlKey && e.shiftKey && (key === 'I' || key === 'i' || key === 73);
+          if (isF12 || isCtrlShiftI) showOverlay();
+        });
+      }
+
+      initSecurity();
+    })();
+
+    // =========================
+    // Background FX (outside game window) - stars + shooting stars
+    // =========================
+    const bg = document.getElementById('bgfx');
+    const bgc = bg.getContext('2d', { alpha: true });
+
+    function resizeBG(){
+      const dpr = Math.max(1, Math.floor(window.devicePixelRatio || 1));
+      bg.width = Math.floor(window.innerWidth * dpr);
+      bg.height = Math.floor(window.innerHeight * dpr);
+      bg.style.width = window.innerWidth + 'px';
+      bg.style.height = window.innerHeight + 'px';
+      bgc.setTransform(dpr,0,0,dpr,0,0);
+    }
+    window.addEventListener('resize', resizeBG);
+    resizeBG();
+
+    function rand(min,max){ return Math.random()*(max-min)+min; }
+    function clamp(v,min,max){ return Math.max(min, Math.min(max, v)); }
+
+    const skyStars = [];
+    const skyCount = 130;
+    const skyShooters = [];
+    let nextShooterAt = performance.now() + rand(1200, 3200);
+
+    function initSky(){
+      skyStars.length = 0;
+      for(let i=0;i<skyCount;i++){
+        skyStars.push({
+          x: rand(0, window.innerWidth),
+          y: rand(0, window.innerHeight),
+          r: rand(0.7, 1.8),
+          vy: rand(6, 18),
+          a: rand(0.12, 0.55),
+          tw: rand(0.6, 1.8),
+          ph: rand(0, Math.PI*2)
+        });
+      }
+      skyShooters.length = 0;
+      nextShooterAt = performance.now() + rand(1200, 3800);
+    }
+    initSky();
+    window.addEventListener('resize', initSky);
+
+    function spawnSkyShooter(){
+      const fromLeft = Math.random() < 0.5;
+      const sx = fromLeft ? rand(-120, window.innerWidth*0.35) : rand(window.innerWidth*0.65, window.innerWidth+120);
+      const sy = rand(-140, window.innerHeight*0.35);
+      const ang = fromLeft ? rand(0.85, 1.15) : rand(2.0, 2.3);
+      const spd = rand(520, 920);
+      const life = rand(420, 740);
+
+      skyShooters.push({
+        x:sx,y:sy,
+        vx:Math.cos(ang)*spd,
+        vy:Math.sin(ang)*spd,
+        life, maxLife: life,
+        len: rand(120, 220)
+      });
+    }
+
+    function updateSky(dt){
+      const dtSec = dt/1000;
+
+      for(const s of skyStars){
+        s.y -= s.vy * dtSec;
+        if(s.y < -10){
+          s.y = window.innerHeight + rand(10, 120);
+          s.x = rand(0, window.innerWidth);
+          s.vy = rand(6, 18);
+          s.r = rand(0.7, 1.8);
+          s.a = rand(0.12, 0.55);
+          s.tw = rand(0.6, 1.8);
+          s.ph = rand(0, Math.PI*2);
+        }
+      }
+
+      const now = performance.now();
+      if(now > nextShooterAt && skyShooters.length < 2){
+        spawnSkyShooter();
+        nextShooterAt = now + rand(1600, 5200);
+      }
+
+      for(let i=skyShooters.length-1;i>=0;i--){
+        const st = skyShooters[i];
+        st.x += st.vx*dtSec;
+        st.y += st.vy*dtSec;
+        st.life -= dt;
+        if(st.life <= 0 || st.x < -400 || st.x > window.innerWidth+400 || st.y > window.innerHeight+500){
+          skyShooters.splice(i,1);
+        }
+      }
+    }
+
+    function drawSky(){
+      bgc.clearRect(0,0, window.innerWidth, window.innerHeight);
+
+      const g = bgc.createRadialGradient(window.innerWidth*0.5, window.innerHeight*0.25, 40, window.innerWidth*0.5, window.innerHeight*0.5, Math.max(window.innerWidth, window.innerHeight));
+      g.addColorStop(0,'rgba(255,255,255,0.00)');
+      g.addColorStop(1,'rgba(0,0,0,0.45)');
+      bgc.fillStyle = g;
+      bgc.fillRect(0,0, window.innerWidth, window.innerHeight);
+
+      for(const s of skyStars){
+        const tw = (Math.sin((performance.now()/1000)*s.tw + s.ph)+1)/2;
+        const a = clamp(s.a*(0.7 + tw*0.6), 0.06, 0.9);
+        bgc.fillStyle = `rgba(228,228,255,${a})`;
+        bgc.beginPath();
+        bgc.arc(s.x, s.y, s.r, 0, Math.PI*2);
+        bgc.fill();
+      }
+
+      for(const st of skyShooters){
+        const t = clamp(st.life / st.maxLife, 0, 1);
+        const dx = st.vx, dy = st.vy;
+        const mag = Math.hypot(dx,dy) || 1;
+        const ux = dx/mag, uy = dy/mag;
+        const tx = st.x - ux*st.len;
+        const ty = st.y - uy*st.len;
+
+        const lg = bgc.createLinearGradient(tx,ty, st.x,st.y);
+        lg.addColorStop(0, `rgba(157,255,191,0)`);
+        lg.addColorStop(0.55, `rgba(157,255,191,${0.20*t})`);
+        lg.addColorStop(1, `rgba(255,231,255,${0.95})`);
+
+        bgc.strokeStyle = lg;
+        bgc.lineWidth = 2.2;
+        bgc.beginPath();
+        bgc.moveTo(tx,ty);
+        bgc.lineTo(st.x,st.y);
+        bgc.stroke();
+
+        bgc.fillStyle = `rgba(255,231,255,${0.95})`;
+        bgc.beginPath();
+        bgc.arc(st.x, st.y, 2.1, 0, Math.PI*2);
+        bgc.fill();
+      }
+    }
+
+    // =========================
+    // Music (user gesture required)
+    // =========================
+    const musicBtn = document.getElementById('musicBtn');
+    const musicLabel = document.getElementById('musicLabel');
+    const music = new Audio('tmnt-music.mp3');
+    window.__tmntMusic = music;
+    music.loop = true;
+    music.preload = 'auto';
+    let musicOn = false;
+
+    function setMusicUI(on){
+      musicBtn.classList.toggle('on', on);
+      musicBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+      musicLabel.textContent = on ? 'Music On' : 'Music Off';
+    }
+    setMusicUI(false);
+
+    async function toggleMusic(){
+      try{
+        if(!musicOn){
+          music.volume = 0.75;
+          await music.play();
+          musicOn = true;
+          setMusicUI(true);
+        }else{
+          music.pause();
+          musicOn = false;
+          setMusicUI(false);
+        }
+      }catch(err){
+        musicOn = false;
+        setMusicUI(false);
+        console.warn('Music could not start:', err);
+      }
+    }
+    musicBtn.addEventListener('click', (e) => { e.preventDefault(); toggleMusic(); });
+
+    // =========================
+    // HUD elements
+    // =========================
+    const scoreEl = document.getElementById('score');
+    const bestEl  = document.getElementById('best');
+    const levelEl = document.getElementById('level');
+    const livesEl = document.getElementById('lives');
+
+    const diffLabelEl = document.getElementById('diffLabel');
+    const difficultyBtn = document.getElementById('difficultyBtn');
+
+    // Difficulty tiers (same naming as Asteroids)
+    const DIFFS = [
+      { name: "Sewer",           speedMul: 0.85, extraEnemiesCap: 0, spawnMul: 0.85 },
+      { name: "Dojo",      speedMul: 1.00, extraEnemiesCap: 0, spawnMul: 1.00 },
+      { name: "Mutant",   speedMul: 1.12, extraEnemiesCap: 1, spawnMul: 1.12 },
+      { name: "Ninja",   speedMul: 1.25, extraEnemiesCap: 1, spawnMul: 1.25 },
+      { name: "Shredder",      speedMul: 1.40, extraEnemiesCap: 2, spawnMul: 1.40 },
+    ];
+    let diffIndex = 0;
+
+    function applyDifficultyUI(){
+      diffLabelEl.textContent = DIFFS[diffIndex].name;
+    }
+    applyDifficultyUI();
+
+    difficultyBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      diffIndex = (diffIndex + 1) % DIFFS.length;
+      applyDifficultyUI();
+      // if a run is already active, gently re-tune existing enemies
+      if (window.app && app.ACTORS && app.ACTORS.allEnemies) {
+        app.ACTORS.allEnemies.forEach(en => en && en.updateVelocityRandomizer && en.updateVelocityRandomizer());
+      }
+    });
+
+    // =========================
+    // Game resources loader (unchanged, just kept local)
+    // =========================
+    (function () {
       var resourceCache = {};
-      var loading = [];
       var readyCallbacks = [];
+
       function load(urlOrArr) {
-        if(Array.isArray(urlOrArr)) urlOrArr.forEach(_load);
+        if (Array.isArray(urlOrArr)) urlOrArr.forEach(function (url) { _load(url); });
         else _load(urlOrArr);
       }
+
       function _load(url) {
-        if(resourceCache[url]) return;
+        if (resourceCache[url]) return resourceCache[url];
+
         var img = new Image();
-        img.onload = function() {
+        img.onload = function () {
           resourceCache[url] = img;
-          if(isReady()) readyCallbacks.forEach(f => f());
+          if (isReady()) readyCallbacks.forEach(function (func) { func(); });
         };
         resourceCache[url] = false;
         img.src = url;
       }
+
       function get(url) { return resourceCache[url]; }
+
       function isReady() {
-        for(var k in resourceCache) { if(resourceCache.hasOwnProperty(k) && !resourceCache[k]) return false; }
+        for (var k in resourceCache) {
+          if (Object.prototype.hasOwnProperty.call(resourceCache, k) && !resourceCache[k]) return false;
+        }
         return true;
       }
-      window.Resources = { load, get, onReady: (f) => readyCallbacks.push(f), isReady };
+
+      function onReady(func) { readyCallbacks.push(func); }
+
+      window.Resources = { load: load, get: get, onReady: onReady, isReady: isReady };
     })();
 
-    // --- Game Logic ---
-    const canvas = document.getElementById('game');
-    const ctx = canvas.getContext('2d');
-    let app = { 
-      running: false, 
-      gameOver: false, 
-      score: 0, 
-      lives: 3, 
+    // =========================
+    // TMNT Game Logic (same game, themed shell + HUD + bubbles)
+    // =========================
+    var app = app || {};
+
+    // Best score persistence
+    let bestScore = Number(localStorage.getItem('tmntBest') || 0);
+    bestEl.textContent = bestScore;
+
+    // Start overlay / 2-second grace
+    const startOverlay = document.getElementById('startOverlay');
+    function showStartOverlay(on){
+      startOverlay.classList.toggle('active', on);
+      startOverlay.setAttribute('aria-hidden', on ? 'false' : 'true');
+    }
+
+    // --- Game state: level scaling ---
+    app.GameState = {
       level: 1,
-      diffIdx: 0,
-      offsetY: -20
+      updateFromScore: function (score) {
+        this.level = Math.max(1, score);
+      },
+      getDifficultyTier: function () {
+        return Math.floor((this.level - 1) / 5);
+      }
     };
 
-    const DIFFS = [
-      { name: "Sewer", speed: 0.8 },
-      { name: "Dojo", speed: 1.1 },
-      { name: "Mutant", speed: 1.4 },
-      { name: "Ninja", speed: 1.8 }
+    // --- Enemies (traffic) ---
+    app.ENEMY_SPRITES = [
+      "images/fsoldier1.png",
+      "images/fsoldier2.png",
+      "images/bebop.png",
+      "images/Rocksteady2.png",
+      "images/shredder-ico.png",
+      "images/krang.png",
+      "images/shark.png",
+      "images/boo.png",
+      "images/TurtleVan-ico.png",
+      "images/Rock.png",
+      "images/RiggsCat.png"
     ];
 
-    class Enemy {
-      constructor(y) {
-        this.y = y;
-        this.reset();
-      }
-      reset() {
-        this.x = -(Math.random() * 500);
-        this.speed = (1.5 + Math.random() * 2) * DIFFS[app.diffIdx].speed;
-        const sprites = ["images/fsoldier1.png", "images/fsoldier2.png", "images/bebop.png", "images/shredder-ico.png"];
-        this.sprite = sprites[Math.floor(Math.random() * sprites.length)];
-      }
-      update() {
-        this.x += this.speed;
-        if(this.x > 505) this.reset();
-      }
-      render() {
-        let img = Resources.get(this.sprite);
-        if(img) ctx.drawImage(img, this.x, this.y + app.offsetY);
-      }
-    }
+    app.Enemy = function (y) {
+      this.y = y;
+      this.randomStartPos();
+      this.chooseSprite();
+      this.updateVelocityRandomizer();
+    };
 
-    class Player {
-      constructor() {
-        this.sprite = "images/leo-ico.png";
-        this.reset();
-      }
-      reset() { this.x = 202; this.y = 400; }
-      render() {
-        let img = Resources.get(this.sprite);
-        if(img) ctx.drawImage(img, this.x, this.y + app.offsetY);
-      }
-      handleInput(dir) {
-        if(!app.running || app.gameOver) return;
-        if(dir === 'up') this.y -= 83;
-        if(dir === 'down' && this.y < 400) this.y += 83;
-        if(dir === 'left' && this.x > 0) this.x -= 101;
-        if(dir === 'right' && this.x < 400) this.x += 101;
-      }
-    }
+    app.Enemy.prototype.randomStartPos = function () {
+      this.x = -(Math.random() * 400);
+    };
 
-    class Pizza {
-      constructor() { this.reset(); }
-      reset() {
-        this.x = Math.floor(Math.random() * 5) * 101;
-        this.y = 0;
+    app.Enemy.prototype.updateVelocityRandomizer = function () {
+      var tier = app.GameState.getDifficultyTier();
+      var d = DIFFS[diffIndex];
+
+      // base speeds, then scaled by level tier and selected difficulty
+      var base = 1.4 + Math.random() * 2.2;       // slightly gentler than before
+      var multiplier = 1 + tier * 0.32;           // smoother scaling
+      this.randomVelocity = base * multiplier * d.speedMul;
+    };
+
+    app.Enemy.prototype.chooseSprite = function () {
+      var level = app.GameState.level;
+      var batchSize = Math.min(app.ENEMY_SPRITES.length, 3 + Math.floor(level / 3) * 2);
+      var index = Math.floor(Math.random() * batchSize);
+      this.sprite = app.ENEMY_SPRITES[index];
+    };
+
+    app.Enemy.prototype.randomSpeed = function () { this.x += this.randomVelocity; };
+
+    app.Enemy.prototype.update = function () {
+      this.randomSpeed();
+      if (this.x > 600) {
+        this.randomStartPos();
+        this.updateVelocityRandomizer();
+        this.chooseSprite();
       }
-      render() {
-        let img = Resources.get("images/pizza-ico.png");
-        if(img) ctx.drawImage(img, this.x, this.y + app.offsetY);
+    };
+
+    app.Enemy.prototype.render = function () {
+  app.ctx.drawImage(Resources.get(this.sprite), this.x, this.y + app.DRAW_Y_OFFSET);
+};
+
+    // --- Player ---
+    app.Player = function (sprite) {
+      this.life = 3;
+      this.score = 0;
+      this.x = 200;
+      this.y = 350;
+      this.sprite = sprite || "images/leo-ico.png";
+      app.GameState.updateFromScore(this.score);
+    };
+
+    // HUD is now DOM-based (so renderText becomes a no-op)
+    app.Player.prototype.renderText = function () { /* HUD handled in DOM */ };
+
+    app.Player.prototype.render = function () {
+  app.ctx.drawImage(Resources.get(this.sprite), this.x, this.y + app.DRAW_Y_OFFSET);
+};
+
+    app.Player.prototype.handleInput = function (dir) {
+      if (!dir) return;
+      if (dir === "up" && this.y > 0) this.y -= app.GAME_CONFIG.TILE_HEIGHT;
+      if (dir === "down" && this.y < 400) this.y += app.GAME_CONFIG.TILE_HEIGHT;
+      if (dir === "right" && this.x < 400) this.x += app.GAME_CONFIG.TILE_WIDTH;
+      if (dir === "left" && this.x > 0) this.x -= app.GAME_CONFIG.TILE_WIDTH;
+    };
+
+    // --- Pizza (collectible) ---
+    app.Pizza = function () {
+      this.y = 70;
+      this.x = app.GAME_CONFIG.TILE_WIDTH * Math.floor(Math.random() * 5);
+
+      this.pizzaTypes = [
+        { sprite: "images/pizza-ico.png",  value: 1, icon: "images/100pts.png" },
+        { sprite: "images/pizza-box.png",  value: 2, icon: "images/150pts.png" },
+        { sprite: "images/pizzacomp.png",  value: 3, icon: "images/200pts.png" }
+      ];
+
+      this.typeIndex = 0;
+      this.sprite = this.pizzaTypes[this.typeIndex].sprite;
+      this.pointsIcon = this.pizzaTypes[this.typeIndex].icon;
+    };
+
+    app.Pizza.prototype.update = function () {
+      var level = app.GameState.level;
+      if (level <= 10) this.typeIndex = 0;
+      else if (level <= 20) this.typeIndex = 1;
+      else this.typeIndex = 2;
+
+      var current = this.pizzaTypes[this.typeIndex];
+      this.sprite = current.sprite;
+      this.pointsIcon = current.icon;
+      this.x = app.GAME_CONFIG.TILE_WIDTH * Math.floor(Math.random() * 5);
+    };
+
+      app.Pizza.prototype.render = function () { 
+      app.ctx.drawImage(Resources.get(this.sprite), this.x, this.y + app.DRAW_Y_OFFSET); 
+    };
+
+    // --- Heart (extra life) ---
+    app.Heart = function () {
+      this.y = 70;
+      this.notVisible = true;
+      this.x = -100;
+      this.sprite = "images/Heart.png";
+    };
+
+    app.Heart.prototype.update = function () {
+      var player = app.ACTORS.player;
+      if (this.notVisible && (player.score % player.life) % 2 && player.score > player.life) {
+        this.notVisible = false;
+        this.x = app.GAME_CONFIG.TILE_WIDTH * Math.floor(Math.random() * 5);
       }
-    }
+    };
 
-    const player = new Player();
-    const pizza = new Pizza();
-    let enemies = [new Enemy(83), new Enemy(166), new Enemy(249), new Enemy(332)];
+     app.Heart.prototype.render = function () {
+     app.ctx.drawImage(Resources.get(this.sprite), this.x, this.y + app.DRAW_Y_OFFSET);
+    };
 
-    function initGame() {
-      app.score = 0;
-      app.lives = 3;
-      app.gameOver = false;
-      document.getElementById('gameOverOverlay').classList.remove('active');
-      updateHUD();
-      startCountdown();
-    }
+    // --- Engine / loop (refactored to support pause + 2s countdown + restart bubble) ---
+    (function (global) {
+      app.GAME_CONFIG = {
+  CANVAS_WIDTH: 505,
+  CANVAS_HEIGHT: 606,
+  TILE_HEIGHT: 70,
+  TILE_WIDTH: 100
+};
+app.DRAW_Y_OFFSET = -30; // tweak: -20, -30, -40 until perfect
 
-    function startCountdown() {
-      app.running = false;
-      document.getElementById('startOverlay').classList.add('active');
-      setTimeout(() => {
-        app.running = true;
-        document.getElementById('startOverlay').classList.remove('active');
-      }, 1500);
-    }
 
-    function updateHUD() {
-      document.getElementById('score').textContent = app.score;
-      document.getElementById('lives').textContent = app.lives;
-      document.getElementById('diffLabel').textContent = DIFFS[app.diffIdx].name;
-      let best = localStorage.getItem('tmntBest') || 0;
-      if(app.score > best) {
-        best = app.score;
-        localStorage.setItem('tmntBest', best);
+      app.ACTORS = {
+        player: new app.Player(),
+          allEnemies: [
+    new app.Enemy(70),
+    new app.Enemy(140),
+    new app.Enemy(210),
+    new app.Enemy(280)
+  ],
+
+        pizza: new app.Pizza(),
+        heart: new app.Heart()
+      };
+
+      var doc = global.document;
+      var win = global.window;
+      var canvas = doc.getElementById("game");
+      var ctx = canvas.getContext("2d");
+      var lastTime = 0;
+      var rafId = 0;
+
+      app.ctx = ctx;
+
+      canvas.width = app.GAME_CONFIG.CANVAS_WIDTH;
+      canvas.height = app.GAME_CONFIG.CANVAS_HEIGHT;
+
+      // exposed run state
+      app.__running = false;
+      app.__countdownUntil = 0;
+      app.__gameOver = false;
+
+      function between(x, min, max) { return x >= min && x <= max; }
+
+      function updateHud(){
+        const p = app.ACTORS.player;
+        scoreEl.textContent = String(p.score);
+        levelEl.textContent = String(app.GameState.level);
+        livesEl.textContent = String(p.life);
+
+        if (p.score > bestScore) {
+          bestScore = p.score;
+          bestEl.textContent = String(bestScore);
+          localStorage.setItem('tmntBest', String(bestScore));
+        }
       }
-      document.getElementById('best').textContent = best;
-    }
 
-    function checkCollisions() {
-      // Enemy hits
-      enemies.forEach(e => {
-        if(Math.abs(player.x - e.x) < 50 && Math.abs(player.y - e.y) < 50) {
-          loseLife();
+      function startWithCountdown(ms){
+        app.__running = false;
+        app.__gameOver = false;
+        app.__countdownUntil = performance.now() + ms;
+        showStartOverlay(true);
+        // auto-hide overlay when countdown ends (checked in main loop)
+      }
+
+      function initRun(keepBest){
+        // cancel any existing RAF cleanly
+        if (rafId) win.cancelAnimationFrame(rafId);
+
+        // reset actors but preserve chosen sprite
+        const chosenSprite = app.ACTORS.player.sprite || "images/leo-ico.png";
+
+        app.ACTORS.player = new app.Player(chosenSprite);
+        app.ACTORS.player.life = 3;
+        app.ACTORS.player.score = 0;
+        app.GameState.updateFromScore(0);
+
+        app.ACTORS.allEnemies = [
+  new app.Enemy(70),
+  new app.Enemy(140),
+  new app.Enemy(210),
+  new app.Enemy(280) // NEW lane
+];
+
+        app.ACTORS.pizza = new app.Pizza();
+        app.ACTORS.heart = new app.Heart();
+
+        // keep best unless asked not to
+        if(!keepBest){
+          bestScore = 0;
+          localStorage.setItem('tmntBest', '0');
+          bestEl.textContent = '0';
+        }
+
+        lastTime = performance.now();
+        updateHud();
+        startWithCountdown(2000);
+        rafId = win.requestAnimationFrame(main);
+      }
+
+      function update(dt) {
+        // freeze everything if cosplay security overlay is up
+        if (window.__securityFreeze) return;
+
+        // always animate outside background
+        updateSky(dt);
+
+        // countdown / paused
+        if (!app.__running){
+          const now = performance.now();
+          if (now >= app.__countdownUntil){
+            app.__running = true;
+            showStartOverlay(false);
+          } else {
+            return;
+          }
+        }
+
+        updateEntities(dt);
+        checkCollisions();
+      }
+
+      function checkCollisions() {
+        var allEnemies = app.ACTORS.allEnemies;
+        var player = app.ACTORS.player;
+        var heart = app.ACTORS.heart;
+        var pizza = app.ACTORS.pizza;
+
+        // Enemy hit: lose life, restart position with countdown
+        allEnemies.forEach(function (enemy) {
+          if (between(player.x, enemy.x - 60, enemy.x + 60) && between(player.y, enemy.y - 10, enemy.y + 10)) {
+            player.life--;
+            if (player.life <= 0){
+  // snap to default start
+  player.x = 200;
+  player.y = 350;
+
+  // stop the run
+  app.__running = false;
+  app.__gameOver = true;
+
+  // show overlay
+  const go = document.getElementById('gameOverOverlay');
+  go.classList.add('active');
+  go.setAttribute('aria-hidden','false');
+
+  return;
+}
+              // keep score, just re-center and give a short grace
+              player.x = 200; player.y = 350;
+              startWithCountdown(1200);
+            }
+          }
+        });
+
+        // Water kill (top row)
+if (player.y <= 0) {
+  player.life--;
+
+  if (player.life <= 0) {
+    // hard reset run (score back to 0), keep best
+    initRun(true);
+  } else {
+    // keep score, reset position and give a short grace
+    player.x = 200;
+    player.y = 350;
+    startWithCountdown(1200);
+  }
+}
+
+        // Pizza collected
+if (between(player.x, pizza.x - 60, pizza.x + 60) && between(player.y, pizza.y - 10, pizza.y + 10)) {
+  var currentType = pizza.pizzaTypes[pizza.typeIndex];
+  player.score += currentType.value;
+  app.GameState.updateFromScore(player.score);
+  pizza.update();
+
+  // Reset player to starting position (bottom center) after grabbing pizza
+  player.x = 200;
+  player.y = 350;
+
+  // light ramp: add tiny grace to read HUD (feels arcade-y)
+  startWithCountdown(450);
+}
+
+        // Heart collected
+        if (between(player.x, heart.x - 60, heart.x + 60) && between(player.y, heart.y - 10, heart.y + 10)) {
+          player.life++;
+          heart.notVisible = true;
+          heart.x = -100;
+          startWithCountdown(350);
+        }
+
+        updateHud();
+      }
+
+      function updateEntities(dt) {
+        var allEnemies = app.ACTORS.allEnemies;
+        var heart = app.ACTORS.heart;
+
+        // Difficulty affects how many extra enemies can appear
+        var diff = DIFFS[diffIndex];
+
+        var baseExtra = Math.min(2, app.GameState.getDifficultyTier()); // from original
+        var extraFromDiff = diff.extraEnemiesCap;                      // from bubble
+        var extraCount = Math.min(3, baseExtra + extraFromDiff);
+        var desiredCount = 4 + extraCount;
+
+        // gently cap total enemies so it never becomes instant chaos
+        desiredCount = Math.min(desiredCount, 8);
+
+        while (allEnemies.length < desiredCount) {
+          var laneIndex = allEnemies.length % 4;
+          var laneY = 70 + laneIndex * app.GAME_CONFIG.TILE_HEIGHT;
+          allEnemies.push(new app.Enemy(laneY));
+        }
+
+        // update enemies (speed already scaled by difficulty)
+        allEnemies.forEach(function (enemy) { enemy.update(dt); });
+        heart.update();
+      }
+
+      function render() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // tiles
+        var rowImages = [
+          "images/water-block.png",
+          "images/stone-block.png",
+          "images/stone-block.png",
+          "images/stone-block.png",
+          "images/stone-block.png",   // NEW lane
+          "images/grass-block1.png",
+          "images/grass-block.png"
+        ];
+        var numRows = 7;
+        var numCols = 5;
+
+        for (var row = 0; row < numRows; row++) {
+          for (var col = 0; col < numCols; col++) {
+          ctx.drawImage(Resources.get(rowImages[row]), col * 101, row * 83 + app.DRAW_Y_OFFSET);
+          }
+        }
+
+        // GAME OVER red spawn highlight
+if (app.__gameOver){
+  ctx.fillStyle = 'rgba(255,0,0,0.35)';
+  ctx.fillRect(2*101, 5*83 + app.DRAW_Y_OFFSET, 101, 83);
+}
+
+        // entities
+        var allEnemies = app.ACTORS.allEnemies;
+        var player = app.ACTORS.player;
+        var heart = app.ACTORS.heart;
+        var pizza = app.ACTORS.pizza;
+
+        pizza.render();
+        heart.render();
+        allEnemies.forEach(function (enemy) { enemy.render(); });
+
+        player.render();
+      }
+
+      function main(ts) {
+        const dt = clamp(ts - lastTime, 0, 40);
+        lastTime = ts;
+
+        update(dt);
+        drawSky();     // outside background
+        render();      // game canvas
+
+        rafId = win.requestAnimationFrame(main);
+      }
+
+      // Public-ish helpers
+      app.__restartKeepBest = function(){
+        initRun(true);
+      };
+
+      app.__restartHard = function(){
+        initRun(false);
+      };
+
+      // Preload resources then start (but stay behind character overlay)
+      Resources.load([
+        "images/water-block.png",
+        "images/stone-block.png",
+        "images/grass-block.png",
+        "images/grass-block1.png",
+
+        "images/tmnticon.png",
+        "images/logo-ico.png",
+        "images/banner.png",
+        "images/Selector.png",
+
+        "images/leo-ico.png",
+        "images/raph-ico.png",
+        "images/mikey-ico.png",
+        "images/splinter-ico.png",
+        "images/april-ico.png",
+        "images/Casey-Jones.png",
+        "images/baxter.png",
+
+        "images/fsoldier1.png",
+        "images/fsoldier2.png",
+        "images/bebop.png",
+        "images/Rocksteady2.png",
+        "images/shredder-ico.png",
+        "images/krang.png",
+        "images/shark.png",
+        "images/boo.png",
+        "images/TurtleVan-ico.png",
+        "images/Rock.png",
+        "images/RiggsCat.png",
+
+        "images/pizza-ico.png",
+        "images/pizza-box.png",
+        "images/pizzacomp.png",
+        "images/money-ico.png",
+        "images/Heart.png",
+        "images/Key.png",
+        "images/Star.png",
+        "images/100pts.png",
+        "images/150pts.png",
+        "images/200pts.png",
+
+        "images/manhole-game-ico.png",
+        "images/Gem Blue.png",
+        "images/Gem Green.png",
+        "images/Gem Orange.png"
+      ]);
+
+      Resources.onReady(function(){
+        // Start the RAF loop only once resources are ready.
+        // We *do not* start a run until character is chosen.
+        lastTime = performance.now();
+        if (rafId) win.cancelAnimationFrame(rafId);
+        rafId = win.requestAnimationFrame(main);
+      });
+
+    })(this);
+
+    // =========================
+    // Restart bubble hook
+    // =========================
+    document.getElementById('restartBtn').addEventListener('click', (e) => {
+      e.preventDefault();
+      if (window.app && app.__restartKeepBest) app.__restartKeepBest();
+    });
+
+    // =========================
+    // Input: Keyboard (prevent scroll) + Mobile swipe on canvas
+    // =========================
+    document.addEventListener("keydown", function (e) {
+      var blockKeys = [37, 38, 39, 40, 65, 68, 83, 87]; // arrows + WASD
+      if (blockKeys.indexOf(e.keyCode) !== -1) e.preventDefault();
+    });
+
+    document.addEventListener("keyup", function (e) {
+      var allowedKeys = {
+        37: "left",  38: "up",  39: "right", 40: "down",
+        65: "left",  87: "up",  68: "right", 83: "down"
+      };
+      var dir = allowedKeys[e.keyCode];
+      if (dir && window.app && app.ACTORS && app.ACTORS.player) {
+        app.ACTORS.player.handleInput(dir);
+      }
+    });
+
+    // Mobile swipe input (one tile per swipe)
+    (function(){
+      const canvas = document.getElementById('game');
+      let sx=0, sy=0, active=false;
+
+      function getXY(ev){
+        const t = (ev.touches && ev.touches[0]) ? ev.touches[0] : ev;
+        return { x: t.clientX, y: t.clientY };
+      }
+
+      canvas.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        const p = getXY(e);
+        sx=p.x; sy=p.y; active=true;
+      }, { passive:false });
+
+      canvas.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        if(!active) return;
+        active=false;
+
+        const p = (e.changedTouches && e.changedTouches[0]) ? e.changedTouches[0] : null;
+        if(!p) return;
+
+        const dx = p.clientX - sx;
+        const dy = p.clientY - sy;
+        const ax = Math.abs(dx), ay = Math.abs(dy);
+
+        if(Math.max(ax,ay) < 18) return; // tiny swipe ignored
+
+        let dir;
+        if(ax > ay) dir = dx > 0 ? "right" : "left";
+        else dir = dy > 0 ? "down" : "up";
+
+        if (window.app && app.ACTORS && app.ACTORS.player) {
+          app.ACTORS.player.handleInput(dir);
+        }
+      }, { passive:false });
+    })();
+
+    /*--REMOVED JOYSTICK from here --*/
+
+    // =========================
+// DPAD click movement
+// =========================
+(function(){
+  const pad = document.getElementById('dpadBtn');
+  if(!pad) return;
+
+  pad.querySelectorAll('button').forEach(btn=>{
+    btn.addEventListener('click', function(e){
+      e.preventDefault();
+      const dir = this.getAttribute('data-dir');
+      if (window.app && app.ACTORS && app.ACTORS.player){
+        app.ACTORS.player.handleInput(dir);
+      }
+    });
+  });
+})();
+
+    // =========================
+    // Character select hookup
+    // =========================
+    (function () {
+      var overlay = document.getElementById("character-select-overlay");
+      var buttons = overlay.querySelectorAll(".char-btn");
+
+      function startWithCharacter(sprite) {
+        if (window.app && app.ACTORS && app.ACTORS.player) {
+          app.ACTORS.player.sprite = sprite;
+          // start a fresh run once character is chosen
+          if (app.__restartKeepBest) app.__restartKeepBest();
+        }
+        overlay.style.display = "none";
+      }
+
+      buttons.forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          startWithCharacter(this.getAttribute("data-sprite"));
+        });
+      });
+
+      // Press "N" any time to pick a new character (new game)
+      document.addEventListener("keyup", function (e) {
+        if (e.key === "n" || e.key === "N") {
+          overlay.style.display = "flex";
         }
       });
-      // Pizza Goal
-      if(player.y <= 0) {
-        if(Math.abs(player.x - pizza.x) < 50) {
-          app.score++;
-          updateHUD();
-          pizza.reset();
-          player.reset();
-          startCountdown();
-        } else {
-          // Hit water without pizza
-          loseLife();
-        }
-      }
-    }
-
-    function loseLife() {
-      app.lives--;
-      updateHUD();
-      player.reset();
-      if(app.lives <= 0) {
-        app.gameOver = true;
-        app.running = false;
-        document.getElementById('gameOverOverlay').classList.add('active');
-      } else {
-        startCountdown();
-      }
-    }
-
-    function render() {
-      ctx.clearRect(0,0,505,606);
-      const rows = ["images/water-block.png", "images/stone-block.png", "images/stone-block.png", "images/stone-block.png", "images/stone-block.png", "images/grass-block.png"];
-      for(let r=0; r<6; r++) {
-        for(let c=0; c<5; c++) {
-          ctx.drawImage(Resources.get(rows[r]), c*101, r*83 + app.offsetY);
-        }
-      }
-      pizza.render();
-      enemies.forEach(e => { e.update(); e.render(); });
-      player.render();
-      if(app.running) checkCollisions();
-      requestAnimationFrame(render);
-    }
-
-    // --- Inputs ---
-    document.addEventListener('keyup', e => {
-      const keys = {37:'left', 38:'up', 39:'right', 40:'down', 87:'up', 65:'left', 83:'down', 68:'right'};
-      if(keys[e.keyCode]) player.handleInput(keys[e.keyCode]);
-    });
-
-    document.getElementById('dpadBtn').addEventListener('click', e => {
-      if(e.target.dataset.dir) player.handleInput(e.target.dataset.dir);
-    });
-
-    document.getElementById('restartBtn').addEventListener('click', initGame);
-    
-    document.getElementById('difficultyBtn').addEventListener('click', () => {
-      app.diffIdx = (app.diffIdx + 1) % DIFFS.length;
-      updateHUD();
-    });
-
-    document.querySelectorAll('.char-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        player.sprite = btn.dataset.sprite;
-        document.getElementById('character-select-overlay').style.display = 'none';
-        initGame();
-      });
-    });
-
-    Resources.load([
-      "images/water-block.png", "images/stone-block.png", "images/grass-block.png",
-      "images/leo-ico.png", "images/raph-ico.png", "images/mikey-ico.png", "images/Casey-Jones.png",
-      "images/april-ico.png", "images/splinter-ico.png", "images/pizza-ico.png",
-      "images/fsoldier1.png", "images/fsoldier2.png", "images/bebop.png", "images/shredder-ico.png"
-    ]);
-    Resources.onReady(render);
+    })();
   </script>
+
+  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
 </body>
 </html>
