@@ -224,6 +224,77 @@
       transform:rotate(35deg);
     }
 
+    /* Virtual D-Pad bubble (between Restart + Music) */
+.dpad-btn{
+  left:calc(50% + 68px);            /* nudges it between center + right */
+  transform:translateX(-50%);
+  width:52px;
+  height:52px;
+  border-radius:999px;
+  padding:0;
+  display:grid;
+  place-items:center;
+  touch-action:none;                /* critical for mobile */
+}
+
+.dpad{
+  width:40px;
+  height:40px;
+  display:grid;
+  grid-template-columns:repeat(3, 1fr);
+  grid-template-rows:repeat(3, 1fr);
+  gap:3px;
+}
+
+.dpad button{
+  appearance:none;
+  border:1px solid rgba(157,255,191,.28);
+  background:rgba(0,0,0,.22);
+  border-radius:10px;
+  padding:0;
+  width:100%;
+  height:100%;
+  cursor:pointer;
+  touch-action:none;
+}
+
+.dpad button:active{
+  transform:translateY(1px);
+  background:rgba(0,0,0,.32);
+}
+
+.dpad .up{ grid-column:2; grid-row:1; }
+.dpad .left{ grid-column:1; grid-row:2; }
+.dpad .right{ grid-column:3; grid-row:2; }
+.dpad .down{ grid-column:2; grid-row:3; }
+
+.dpad button::before{
+  content:'';
+  display:block;
+  width:0;height:0;
+  margin:auto;
+  border-style:solid;
+  opacity:.9;
+}
+
+.dpad .up::before{
+  border-width:0 6px 9px 6px;
+  border-color:transparent transparent rgba(255,231,255,.92) transparent;
+}
+.dpad .down::before{
+  border-width:9px 6px 0 6px;
+  border-color:rgba(255,231,255,.92) transparent transparent transparent;
+}
+.dpad .left::before{
+  border-width:6px 9px 6px 0;
+  border-color:transparent rgba(255,231,255,.92) transparent transparent;
+}
+.dpad .right::before{
+  border-width:6px 0 6px 9px;
+  border-color:transparent transparent transparent rgba(255,231,255,.92);
+}
+
+
     /* Music bubble (bottom-right) */
     .music-btn{ right:14px; }
     .music-btn .dot{
@@ -494,8 +565,7 @@ footer {
   <div class="wrapper">
     <h1>TMNT · GET THAT SLICE!</h1>
     <div class="controls">
-      Desktop: move with <strong>WASD</strong> / <strong>Arrow Keys</strong>.
-      Mobile: <strong>swipe</strong> on the game to move one tile.
+      Move: <strong>WASD</strong> / <strong>Arrow Keys</strong>.
       <div class="hint">Pro tip: if you get splatted, the pizza judges you silently. 🍕</div>
       </div>
 
@@ -1253,15 +1323,19 @@ if (player.y <= 0) {
 }
 
         // Pizza collected
-        if (between(player.x, pizza.x - 60, pizza.x + 60) && between(player.y, pizza.y - 10, pizza.y + 10)) {
-          var currentType = pizza.pizzaTypes[pizza.typeIndex];
-          player.score += currentType.value;
-          app.GameState.updateFromScore(player.score);
-          pizza.update();
+if (between(player.x, pizza.x - 60, pizza.x + 60) && between(player.y, pizza.y - 10, pizza.y + 10)) {
+  var currentType = pizza.pizzaTypes[pizza.typeIndex];
+  player.score += currentType.value;
+  app.GameState.updateFromScore(player.score);
+  pizza.update();
 
-          // light ramp: add tiny grace to read HUD (feels arcade-y)
-          startWithCountdown(450);
-        }
+  // Reset player to starting position (bottom center) after grabbing pizza
+  player.x = 200;
+  player.y = 350;
+
+  // light ramp: add tiny grace to read HUD (feels arcade-y)
+  startWithCountdown(450);
+}
 
         // Heart collected
         if (between(player.x, heart.x - 60, heart.x + 60) && between(player.y, heart.y - 10, heart.y + 10)) {
