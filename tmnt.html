@@ -278,11 +278,8 @@
 .dpad .down{ bottom:0; left:28px; }
 .dpad .left{ left:0; top:28px; }
 .dpad .right{ right:0; top:28px; }
-
-/* Music bubble (bottom-right) */
-.music-btn{
     
-    /* Music bubble (bottom-right) */
+/* Music bubble (bottom-right) */
 .music-btn{ right:14px; }
 
 .music-btn .dot{
@@ -760,28 +757,10 @@ window.addEventListener('resize', () => {
   setTimeout(setBaseline, 250);
 });
 
-        function detectDevToolsOrZoom() {
-  if(!baselineReady) return;
-
-  const innerW = window.innerWidth;
-  const innerH = window.innerHeight;
-
-  const widthDrop  = baseInnerW - innerW;
-  const heightDrop = baseInnerH - innerH;
-
-  const devtoolsLikely =
-    widthDrop > 260 ||
-    heightDrop > 260;
-
-  if (devtoolsLikely) strikes++;
-  else strikes = 0;
-
-  if (strikes >= 3) showOverlay();
-  else hideOverlay();
-}
-
+        /*-- COMMENTED OUT 
         setInterval(detectDevToolsOrZoom, 700);
-        window.addEventListener('resize', detectDevToolsOrZoom);
+        // window.addEventListener('resize', detectDevToolsOrZoom);
+        --*/
 
         window.addEventListener('keydown', (e) => {
           const key = e.key || e.keyCode;
