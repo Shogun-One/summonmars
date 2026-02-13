@@ -747,12 +747,21 @@ footer {
           baselineReady = true;
         }
 
-        window.addEventListener('load', () => {
-          setTimeout(setBaseline, 700);
-        }, { once:true });
+        let strikes = 0;
+
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    setBaseline();
+    requestAnimationFrame(setBaseline); // stabilize
+  }, 1400);
+}, { once:true });
+
+window.addEventListener('resize', () => {
+  setTimeout(setBaseline, 250);
+});
 
         function detectDevToolsOrZoom() {
-          if(!baselineReady) return;
+  if(!baselineReady) return;
 
   const innerW = window.innerWidth;
   const innerH = window.innerHeight;
@@ -761,10 +770,13 @@ footer {
   const heightDrop = baseInnerH - innerH;
 
   const devtoolsLikely =
-    widthDrop  > 180 ||
-    heightDrop > 180;
+    widthDrop > 260 ||
+    heightDrop > 260;
 
-  if (devtoolsLikely) showOverlay();
+  if (devtoolsLikely) strikes++;
+  else strikes = 0;
+
+  if (strikes >= 3) showOverlay();
   else hideOverlay();
 }
 
