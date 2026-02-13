@@ -200,6 +200,19 @@
       pointer-events:none;
     }
 
+    /* DPAD lives below the game (normal flow) */
+#dpadBtn{
+  position: relative !important;
+  bottom: auto !important;
+  left: auto !important;
+  transform: none !important;
+  margin: 16px auto 64px; /* space above footer + banner */
+}
+
+    @media (min-width: 960px){
+  #dpadBtn{ display:none; }
+}
+
     /* Difficulty bubble (bottom-left) */
     .difficulty-btn{ left:14px; }
     .difficulty-btn .dot{
@@ -636,15 +649,6 @@ footer {
     <img src="images/logo-ico.png" alt="Teenage Mutant Ninja Turtles Logo" class="tmnt-logo">
   </div>
 
-      <div class="bubble-btn dpad-btn" id="dpadBtn" aria-label="DPad">
-  <div class="dpad">
-    <button class="up" data-dir="up"></button>
-    <button class="left" data-dir="left"></button>
-    <button class="right" data-dir="right"></button>
-    <button class="down" data-dir="down"></button>
-  </div>
-</div>
-
       <!-- Start overlay -->
 <div id="startOverlay" aria-hidden="true">
   <p class="big">GET READY</p>
@@ -674,6 +678,15 @@ footer {
         <span class="ring"><span class="dot"></span></span>
       </button>
     </div>
+
+    <div class="bubble-btn dpad-btn" id="dpadBtn" aria-label="DPad">
+  <div class="dpad">
+    <button class="up" data-dir="up"></button>
+    <button class="left" data-dir="left"></button>
+    <button class="right" data-dir="right"></button>
+    <button class="down" data-dir="down"></button>
+  </div>
+</div>
 
   <footer>
   © 2026 Summon Mars ™. All rights reserved.
