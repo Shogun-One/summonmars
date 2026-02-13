@@ -816,34 +816,7 @@ footer {
         securityReloadBtn.addEventListener('click', () => location.reload());
         securityDismissBtn.addEventListener('click', hideOverlay);
 
-        // baseline after browser UI settles
-        let baselineReady = false;
-        let baseOuterW = 0, baseOuterH = 0, baseInnerW = 0, baseInnerH = 0;
-        let baseWidthRatio = 0, baseHeightRatio = 0, baseArea = 0;
-
-        function setBaseline(){
-          baseOuterW = window.outerWidth;
-          baseOuterH = window.outerHeight;
-          baseInnerW = window.innerWidth;
-          baseInnerH = window.innerHeight;
-          baseWidthRatio  = baseInnerW / baseOuterW;
-          baseHeightRatio = baseInnerH / baseOuterH;
-          baseArea        = baseInnerW * baseInnerH;
-          baselineReady = true;
-        }
-
         let strikes = 0;
-
-window.addEventListener('load', () => {
-  setTimeout(() => {
-    setBaseline();
-    requestAnimationFrame(setBaseline); // stabilize
-  }, 1400);
-}, { once:true });
-
-window.addEventListener('resize', () => {
-  setTimeout(setBaseline, 250);
-});
 
         /*-- COMMENTED OUT 
         setInterval(detectDevToolsOrZoom, 700);
