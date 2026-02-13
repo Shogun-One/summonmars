@@ -1867,6 +1867,9 @@
       if(bossIncomingTimer > 0) bossIncomingTimer -= dt;
       if(bossIncomingTimer < 0) bossIncomingTimer = 0;
 
+      if (flashTimer > 0) flashTimer -= dt;
+      if (flashTimer < 0) flashTimer = 0;
+
       if(paused){
         updateParticles(dt);
         updatePickups(dt);
@@ -2154,14 +2157,18 @@
       ctx.translate(ship.x, ship.y);
       ctx.rotate(ship.angle || 0);
 
-      const glow = ctx.createRadialGradient(0, 0, 4, 0, 0, ship.radius + 18);
-      glow.addColorStop(0, 'rgba(255,255,255,0.55)');
-      glow.addColorStop(0.28, 'rgba(255,59,130,0.45)');
-      glow.addColorStop(1, 'rgba(10,0,20,0)');
-      ctx.fillStyle = glow;
-      ctx.beginPath();
-      ctx.arc(0, 0, ship.radius + 18, 0, Math.PI * 2);
-      ctx.fill();
+      // HIT AURA ONLY (syncs with glass break)
+if (flashTimer > 0) {
+  const t = Math.min(1, flashTimer / 140); // 140 matches your applyHit() flashTimer = 140
+  const glow = ctx.createRadialGradient(0, 0, 4, 0, 0, ship.radius + 18);
+  glow.addColorStop(0, `rgba(255,255,255,${0.35 * t})`);
+  glow.addColorStop(0.28, `rgba(255,42,42,${0.55 * t})`); // red hit aura
+  glow.addColorStop(1, 'rgba(10,0,20,0)');
+  ctx.fillStyle = glow;
+  ctx.beginPath();
+  ctx.arc(0, 0, ship.radius + 18, 0, Math.PI * 2);
+  ctx.fill();
+}
 
       if (ship.invuln > 0) {
         const pulse = 0.35 + 0.25 * Math.sin(performance.now() / 90);
