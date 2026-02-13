@@ -281,23 +281,23 @@
   opacity:.9;
 }
 
+/* neon red arrows */
 .dpad .up::before{
   border-width:0 6px 9px 6px;
-  border-color:transparent transparent rgba(255,231,255,.92) transparent;
+  border-color:transparent transparent rgba(255,42,42,.95) transparent;
 }
 .dpad .down::before{
   border-width:9px 6px 0 6px;
-  border-color:rgba(255,231,255,.92) transparent transparent transparent;
+  border-color:rgba(255,42,42,.95) transparent transparent transparent;
 }
 .dpad .left::before{
   border-width:6px 9px 6px 0;
-  border-color:transparent rgba(255,231,255,.92) transparent transparent;
+  border-color:transparent rgba(255,42,42,.95) transparent transparent;
 }
 .dpad .right::before{
   border-width:6px 0 6px 9px;
-  border-color:transparent transparent transparent rgba(255,231,255,.92);
+  border-color:transparent transparent transparent rgba(255,42,42,.95);
 }
-
 
     /* Music bubble (bottom-right) */
     .music-btn{ right:14px; }
@@ -1569,6 +1569,42 @@ if (between(player.x, pizza.x - 60, pizza.x + 60) && between(player.y, pizza.y -
       }, { passive:false });
     })();
 
+    })();
+  
+// =========================
+// On-screen D-Pad movement
+// =========================
+(function () {
+  const dpad = document.getElementById('dpadBtn');
+  if (!dpad) return;
+
+  const keyToDir = {
+    ArrowUp: "up",
+    ArrowDown: "down",
+    ArrowLeft: "left",
+    ArrowRight: "right",
+  };
+
+  function moveFromKey(key) {
+    const dir = keyToDir[key];
+    if (dir && window.app && app.ACTORS && app.ACTORS.player) {
+      app.ACTORS.player.handleInput(dir);
+    }
+  }
+
+  dpad.querySelectorAll('button[data-key]').forEach((btn) => {
+    const key = btn.getAttribute('data-key');
+
+    btn.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      moveFromKey(key);
+    }, { passive: false });
+
+    btn.addEventListener('click', (e) => e.preventDefault());
+  });
+})();
+    
     // =========================
     // Character select hookup
     // =========================
