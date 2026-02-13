@@ -1468,6 +1468,12 @@ if (between(player.x, pizza.x - 60, pizza.x + 60) && between(player.y, pizza.y -
           }
         }
 
+        // GAME OVER red spawn highlight
+if (app.__gameOver){
+  ctx.fillStyle = 'rgba(255,0,0,0.35)';
+  ctx.fillRect(2*101, 5*83 + app.DRAW_Y_OFFSET, 101, 83);
+}
+
         // entities
         var allEnemies = app.ACTORS.allEnemies;
         var player = app.ACTORS.player;
