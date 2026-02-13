@@ -206,7 +206,7 @@
   bottom: auto !important;
   left: auto !important;
   transform: none !important;
-  margin: 16px auto 64px; /* space above footer + banner */
+  margin: 40px auto 120px; /* space above footer + banner */
 }
 
     @media (min-width: 960px){
@@ -257,13 +257,13 @@
 
 /* RED NEON DPAD */
 .dpad-btn{
-  left:50%;
-  transform:translateX(-50%);
-  bottom:14px;
-  width:88px;
-  height:88px;
+  width:140px;
+  height:140px;
   padding:0;
+  display:grid;
+  place-items:center;
 }
+
 
 .dpad{
   position:relative;
@@ -273,8 +273,8 @@
 
 .dpad button{
   position:absolute;
-  width:32px;
-  height:32px;
+  width:48px;
+  height:48px;
   background:rgba(255,0,0,0.18);
   border:1px solid rgba(255,60,60,0.8);
   border-radius:8px;
