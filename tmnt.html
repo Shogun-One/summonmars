@@ -224,17 +224,21 @@
       transform:rotate(35deg);
     }
 
-    /* Virtual D-Pad bubble (between Restart + Music) */
+    /* D-Pad bubble (bottom center-right) */
 .dpad-btn{
-  left:calc(50% + 68px);            /* nudges it between center + right */
-  transform:translateX(-50%);
+  position:absolute;
+  bottom:14px;
+  left:50%;
+  transform:translateX(40px); /* sits just right of Restart */
   width:52px;
   height:52px;
   border-radius:999px;
-  padding:0;
   display:grid;
   place-items:center;
-  touch-action:none;                /* critical for mobile */
+  padding:0;
+  z-index:6;
+  pointer-events:auto;
+  touch-action:none;
 }
 
 .dpad{
@@ -598,6 +602,16 @@ footer {
         <span class="label">Restart</span>
         <span class="ring"><span class="icon"></span></span>
       </button>
+
+      <div class="bubble-btn dpad-btn" id="dpadBtn" aria-label="D-Pad">
+      <span class="label">Move</span>
+      <div class="dpad">
+        <button class="up" data-key="ArrowUp" aria-label="Up"></button>
+        <button class="left" data-key="ArrowLeft" aria-label="Left"></button>
+        <button class="right" data-key="ArrowRight" aria-label="Right"></button>
+        <button class="down" data-key="ArrowDown" aria-label="Down"></button>
+        </div>
+      </div>
 
       <!-- Music bubble (bottom-right) -->
       <button id="musicBtn" class="bubble-btn music-btn" type="button" aria-label="Music On/Off" title="Music On/Off">
