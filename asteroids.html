@@ -27,8 +27,9 @@
       margin:0;
       min-height:100vh;
       display:flex;
-      align-items:center;
+      align-items:flex-start;
       justify-content:center;
+      padding-top: 18px;
       font-family:system-ui,-apple-system,BlinkMacSystemFont,sans-serif;
       background:radial-gradient(circle at top,var(--bg2),var(--bg1));
       color:var(--hud);
@@ -279,19 +280,16 @@
 
     /* Bottom-center holder */
     .center-controls{
-  position:absolute;
-  bottom:14px;
-  left:50%;
-  transform:translateX(-50%);
-  width:54px;
-  height:54px;
-  z-index:3;
-  pointer-events:auto;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:14px;
+  margin-top:8px;
 }
 
     .mini-bubble{
-      position:absolute;
-      top:0;
+      position:relative;
+      top:auto;
       width:34px;
       height:34px;
       border-radius:999px;
@@ -642,22 +640,23 @@
         <span class="ring"><span id="diffShort">E</span></span>
       </button>
 
-      <div class="center-controls">
-        <button id="pauseBtn" class="mini-bubble mini-pause" type="button" aria-label="Pause">
-          <span class="label">Pause</span>
-          <span class="ring"><span class="icon">II</span></span>
-        </button>
-
-        <div id="joystick" class="mini-bubble mini-joystick" role="application" aria-label="Joystick">
-          <div class="stick"></div>
-        </div>
-      </div>
-
       <button id="musicBtn" class="music-btn" type="button" aria-label="Music On/Off" title="Music On/Off">
         <span class="label">Music</span>
         <span class="ring"><span class="dot"></span></span>
       </button>
     </div>
+
+    <div class="center-controls">
+        <button id="pauseBtn" class="mini-bubble mini-pause" type="button" aria-label="Pause">
+          <span class="label">Pause</span>
+          <span class="ring"><span class="icon">II</span></span>
+        </button>
+
+      <div id="joystick" class="mini-bubble mini-joystick" role="application" aria-label="Joystick">
+          <div class="stick"></div>
+        </div>
+      </div>
+    
   </div>
 
   <footer>
