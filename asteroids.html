@@ -477,17 +477,23 @@
     }
 
     /* --- FOOTER POSITIONING --- */
-    footer {
-position: fixed;
-bottom: 48px;
-left: 50%;
-transform: translateX(-50%);
-text-align: center;
-font-size: 0.8rem;
-letter-spacing: 0.08em;
-color: rgba(255,255,255,0.85);
-z-index: 6;
-pointer-events: none;
+    footer{
+  position: fixed;
+  bottom: 48px;
+  left: 50%;
+  transform: translateX(-50%);
+  
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  color: rgba(255,255,255,0.85);
+
+  white-space: nowrap;      /* 🚀 forces single line */
+  display: inline-block;    /* keeps width tight */
+  text-align: center;
+
+  z-index: 6;
+  pointer-events: none;
+}
 
 }
 
