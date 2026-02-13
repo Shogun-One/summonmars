@@ -754,29 +754,19 @@ footer {
         function detectDevToolsOrZoom() {
           if(!baselineReady) return;
 
-          const outerW = window.outerWidth;
-          const outerH = window.outerHeight;
-          const innerW = window.innerWidth;
-          const innerH = window.innerHeight;
+  const innerW = window.innerWidth;
+  const innerH = window.innerHeight;
 
-          const widthRatio  = innerW / outerW;
-          const heightRatio = innerH / outerH;
+  const widthDrop  = baseInnerW - innerW;
+  const heightDrop = baseInnerH - innerH;
 
-          const widthDrop  = baseWidthRatio  - widthRatio;
-          const heightDrop = baseHeightRatio - heightRatio;
+  const devtoolsLikely =
+    widthDrop  > 180 ||
+    heightDrop > 180;
 
-          const area       = innerW * innerH;
-          const areaDrop   = 1 - (area / baseArea);
-
-          const zoomLikely = innerW < baseInnerW * 0.7;
-
-          const devtoolsLikely =
-  widthDrop  > 0.32 ||
-  heightDrop > 0.32;
-
-          if (devtoolsLikely) showOverlay();
-          else hideOverlay();
-        }
+  if (devtoolsLikely) showOverlay();
+  else hideOverlay();
+}
 
         setInterval(detectDevToolsOrZoom, 700);
         window.addEventListener('resize', detectDevToolsOrZoom);
