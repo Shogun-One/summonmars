@@ -1948,6 +1948,8 @@ document.addEventListener('visibilitychange', () => { if(document.hidden) resetJ
       if(window.__securityFreeze) return;
 
       updateSky(dt);
+      updateBosses(dt);
+
 
       if(levelUpTimer > 0) levelUpTimer -= dt;
       if(levelUpTimer < 0) levelUpTimer = 0;
