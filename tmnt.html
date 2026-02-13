@@ -98,7 +98,7 @@
   max-width:520px;
   font-size:.95rem;
   opacity:.95;
-  margin-top:.2rem;
+  margin-top:.05rem;
   gap:.45rem;
 
   flex-wrap: nowrap;     /* <-- LOCK to 1 row */
@@ -129,7 +129,7 @@
       width:100%;
       display:flex;
       justify-content:center;
-      margin-top:.3rem;
+      margin-top:.1rem;
     }
 
     canvas#game{
@@ -591,7 +591,7 @@ footer {
       <div class="pill">Level: <b id="level">1</b></div>
       <div class="pill">Lives: <b id="lives">3</b></div>
       
-      <div class="pill">Difficulty: <b id="diffLabel">Easy Peasy</b></div>
+      <div class="pill">Difficulty: <b id="diffLabel">Sewer</b></div>
     </div>
 
     <div class="game-shell">
@@ -963,11 +963,11 @@ window.addEventListener('resize', () => {
 
     // Difficulty tiers (same naming as Asteroids)
     const DIFFS = [
-      { name: "Easy Peasy",           speedMul: 0.85, extraEnemiesCap: 0, spawnMul: 0.85 },
-      { name: "Gimme more ammo",      speedMul: 1.00, extraEnemiesCap: 0, spawnMul: 1.00 },
-      { name: "Get to the gunners",   speedMul: 1.12, extraEnemiesCap: 1, spawnMul: 1.12 },
-      { name: "Beam me up, Scotty",   speedMul: 1.25, extraEnemiesCap: 1, spawnMul: 1.25 },
-      { name: "Bring the pain!",      speedMul: 1.40, extraEnemiesCap: 2, spawnMul: 1.40 },
+      { name: "Sewer",           speedMul: 0.85, extraEnemiesCap: 0, spawnMul: 0.85 },
+      { name: "Dojo",      speedMul: 1.00, extraEnemiesCap: 0, spawnMul: 1.00 },
+      { name: "Mutant",   speedMul: 1.12, extraEnemiesCap: 1, spawnMul: 1.12 },
+      { name: "Ninja",   speedMul: 1.25, extraEnemiesCap: 1, spawnMul: 1.25 },
+      { name: "Shredder",      speedMul: 1.40, extraEnemiesCap: 2, spawnMul: 1.40 },
     ];
     let diffIndex = 0;
 
