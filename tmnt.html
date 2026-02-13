@@ -221,71 +221,79 @@
 }
     
     .restart-btn .icon{
-      width:14px;height:14px;border-radius:999px;
-      border:2px solid rgba(255,231,255,.92);
-      position:relative;
-      box-shadow:0 0 10px rgba(157,255,191,.2);
-    }
-    .restart-btn .icon:after{
-      content:'';
-      position:absolute;
-      width:7px;height:7px;
-      border-top:2px solid rgba(255,231,255,.92);
-      border-right:2px solid rgba(255,231,255,.92);
-      right:-1px; top:-2px;
-      transform:rotate(35deg);
-    }
+  width:18px;
+  height:18px;
+  border-radius:50%;
+  border:2px solid rgba(255,231,255,.92);
+  border-right-color:transparent;
+  transform:rotate(-45deg);
+  box-shadow:0 0 12px rgba(157,255,191,.35);
+}
 
-    /* Virtual joystick (bottom middle) */
-.joystick-btn{
+.restart-btn .icon:after{
+  content:'';
   position:absolute;
-  bottom: 14px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 78px;
-  height: 78px;
-  border-radius: 999px;
-  z-index: 8;          /* above logo + canvas */
-  pointer-events: auto;
-  touch-action: none;
-  padding: 0;
+  top:-4px;
+  right:-2px;
+  width:15;
+  height:15;
+  border-left:6px solid rgba(255,231,255,.92);
+  border-top:4px solid transparent;
+  border-bottom:4px solid transparent;
 }
 
-/* Base ring */
-.joystick-base{
-  width: 58px;
-  height: 58px;
-  border-radius: 999px;
-  border: 1px solid rgba(157,255,191,.28);
-  background: rgba(0,0,0,.18);
-  box-shadow: inset 0 0 16px rgba(157,255,191,.10);
-  display: grid;
-  place-items: center;
-  position: relative;
+/* RED NEON DPAD */
+.dpad-btn{
+  left:50%;
+  transform:translateX(-50%);
+  bottom:14px;
+  width:88px;
+  height:88px;
+  padding:0;
 }
 
-/* Stick nub */
-.joystick-stick{
-  width: 24px;
-  height: 24px;
-  border-radius: 999px;
-  border: 1px solid rgba(228,228,255,.35);
-  background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.14), rgba(60,255,156,.08) 55%, rgba(0,0,0,.25));
-  box-shadow: 0 0 12px rgba(60,255,156,.18);
-  transform: translate3d(0,0,0);
-  will-change: transform;
+.dpad{
+  position:relative;
+  width:100%;
+  height:100%;
 }
 
+.dpad button{
+  position:absolute;
+  width:32px;
+  height:32px;
+  background:rgba(255,0,0,0.18);
+  border:1px solid rgba(255,60,60,0.8);
+  border-radius:8px;
+  box-shadow:0 0 12px rgba(255,0,0,0.6);
+  cursor:pointer;
+}
+
+.dpad button:active{
+  transform:scale(0.92);
+  box-shadow:0 0 18px rgba(255,0,0,1);
+}
+
+.dpad .up{ top:0; left:28px; }
+.dpad .down{ bottom:0; left:28px; }
+.dpad .left{ left:0; top:28px; }
+.dpad .right{ right:0; top:28px; }
+
+/* Music bubble (bottom-right) */
+.music-btn{
+    
     /* Music bubble (bottom-right) */
-    .music-btn{ right:14px; }
-    .music-btn .dot{
-      width:8px;height:8px;border-radius:999px;
-      background:rgba(157,255,191,.95);
-      box-shadow:0 0 10px rgba(60,255,156,.65);
-      opacity:.35;
-      transition:opacity .2s ease;
-    }
-    .music-btn.on .dot{ opacity:1; }
+.music-btn{ right:14px; }
+
+.music-btn .dot{
+  width:8px;height:8px;border-radius:999px;
+  background:rgba(157,255,191,.95);
+  box-shadow:0 0 10px rgba(60,255,156,.65);
+  opacity:.35;
+  transition:opacity .2s ease;
+}
+
+.music-btn.on .dot{ opacity:1; }
 
     .controls{
       font-size:.9rem;
@@ -610,13 +618,15 @@ footer {
 
       <!-- Restart bubble (bottom-center) -->
       <button id="restartBtn" class="bubble-btn restart-btn" type="button" aria-label="Restart" title="Restart">
-        <span class="label">Restart</span>
         <span class="ring"><span class="icon"></span></span>
       </button>
 
-      <div class="bubble-btn joystick-btn" id="dpadBtn" aria-label="Joystick">
-  <div class="joystick-base" id="joyBase">
-    <div class="joystick-stick" id="joyStick"></div>
+      <div class="bubble-btn dpad-btn" id="dpadBtn" aria-label="DPad">
+  <div class="dpad">
+    <button class="up" data-dir="up"></button>
+    <button class="left" data-dir="left"></button>
+    <button class="right" data-dir="right"></button>
+    <button class="down" data-dir="down"></button>
   </div>
 </div>
 
@@ -1583,96 +1593,45 @@ if (between(player.x, pizza.x - 60, pizza.x + 60) && between(player.y, pizza.y -
         }
       }, { passive:false });
     })();
-  
+
+    /*--REMOVED JOYSTICK from here --*/
+
+    // =========================
+// DPAD click movement
 // =========================
-// Virtual JOYSTICK movement
-// =========================
-(function () {
-  const wrap = document.getElementById('dpadBtn');   // reusing your existing id
-  const base = document.getElementById('joyBase');
-  const stick = document.getElementById('joyStick');
-  if (!wrap || !base || !stick) return;
+(function(){
+  const pad = document.getElementById('dpadBtn');
+  if(!pad) return;
 
-  let dragging = false;
-  let originX = 0, originY = 0;
-  let curX = 0, curY = 0;
-  const maxR = 16;          // stick travel radius (px)
-  const dead = 6;           // deadzone (px)
-  const stepEveryMs = 120;  // repeat movement while held
-  let lastStep = 0;
-
-  function clamp(v, min, max){ return Math.max(min, Math.min(max, v)); }
-
-  function movePlayer(dir){
-    if (dir && window.app && app.ACTORS && app.ACTORS.player) {
-      app.ACTORS.player.handleInput(dir);
-    }
-  }
-
-  function computeDir(dx, dy){
-    const ax = Math.abs(dx), ay = Math.abs(dy);
-    if (ax < dead && ay < dead) return null;
-    if (ax > ay) return dx > 0 ? "right" : "left";
-    return dy > 0 ? "down" : "up";
-  }
-
-  function setStick(dx, dy){
-    const dist = Math.hypot(dx, dy) || 1;
-    const r = Math.min(maxR, dist);
-    const nx = dx / dist;
-    const ny = dy / dist;
-    curX = nx * r;
-    curY = ny * r;
-    stick.style.transform = `translate3d(${curX}px, ${curY}px, 0)`;
-  }
-
-  function resetStick(){
-    curX = 0; curY = 0;
-    stick.style.transform = `translate3d(0px, 0px, 0)`;
-  }
-
-  function onDown(e){
-    e.preventDefault();
-    e.stopPropagation();
-    dragging = true;
-    wrap.setPointerCapture?.(e.pointerId);
-
-    const r = base.getBoundingClientRect();
-    originX = r.left + r.width/2;
-    originY = r.top + r.height/2;
-    lastStep = 0;
-  }
-
-  function onMove(e){
-    if (!dragging) return;
-    e.preventDefault();
-
-    const dx = e.clientX - originX;
-    const dy = e.clientY - originY;
-
-    setStick(dx, dy);
-
-    const now = performance.now();
-    if (now - lastStep >= stepEveryMs){
-      const dir = computeDir(dx, dy);
-      movePlayer(dir);
-      lastStep = now;
-    }
-  }
-
-  function onUp(e){
-    if (!dragging) return;
-    e.preventDefault();
-    dragging = false;
-    resetStick();
-  }
-
-  wrap.addEventListener('pointerdown', onDown, { passive:false });
-  window.addEventListener('pointermove', onMove, { passive:false });
-  window.addEventListener('pointerup', onUp, { passive:false });
-  window.addEventListener('pointercancel', onUp, { passive:false });
+  pad.querySelectorAll('button').forEach(btn=>{
+    btn.addEventListener('click', function(e){
+      e.preventDefault();
+      const dir = this.getAttribute('data-dir');
+      if (window.app && app.ACTORS && app.ACTORS.player){
+        app.ACTORS.player.handleInput(dir);
+      }
+    });
+  });
 })();
-    
+
+    // =========================
+// DPAD click movement
+// =========================
+(function(){
+  const pad = document.getElementById('dpadBtn');
+  if(!pad) return;
+
+  pad.querySelectorAll('button').forEach(btn=>{
+    btn.addEventListener('click', function(e){
+      e.preventDefault();
+      const dir = this.getAttribute('data-dir');
+      if (window.app && app.ACTORS && app.ACTORS.player){
+        app.ACTORS.player.handleInput(dir);
+      }
+    });
+  });
+})();
+
     // =========================
     // Character select hookup
     // =========================
