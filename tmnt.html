@@ -133,19 +133,33 @@
     }
 
     canvas#game{
-      border-radius:18px;
-      background:
-        radial-gradient(circle at top, rgba(26, 56, 34, 0.85), rgba(5, 2, 10, 0.95)),
-        repeating-radial-gradient(circle at center, rgba(255,255,255,0.05), rgba(255,255,255,0.05) 1px, transparent 1px, transparent 3px);
-      box-shadow:0 0 25px rgba(0,0,0,.8), 0 0 26px rgba(60,255,156,.35);
-      touch-action:none;
-      width:100%;
-      max-width:520px;
-      height:auto;
-      display:block;
-      position:relative;
-      z-index:2;
-    }
+  border-radius:18px;
+  background:
+    radial-gradient(circle at 50% 0%,
+      rgba(60,255,156,0.45) 0%,
+      rgba(20,120,60,0.55) 25%,
+      rgba(10,40,20,0.92) 70%,
+      rgba(5,2,10,0.98) 100%
+    ),
+    repeating-radial-gradient(
+      circle at center,
+      rgba(157,255,191,0.08),
+      rgba(157,255,191,0.08) 1px,
+      transparent 1px,
+      transparent 4px
+    );
+  box-shadow:
+    0 0 35px rgba(0,0,0,.8),
+    0 0 45px rgba(60,255,156,.55),
+    inset 0 0 35px rgba(60,255,156,.25);
+  touch-action:none;
+  width:100%;
+  max-width:520px;
+  height:auto;
+  display:block;
+  position:relative;
+  z-index:2;
+}
 
     /* --- Round transparent bubbles (bottom aligned like Asteroids) --- */
     .bubble-btn{
