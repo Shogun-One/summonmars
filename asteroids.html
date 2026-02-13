@@ -985,7 +985,7 @@
     // Boss incoming sting
     const bossSting = new Audio('boss-sting.mp3');
     bossSting.preload = 'auto';
-    bossSting.volume = 0.85;
+    bossSting.volume = 0.60;
 
     // Micro screen shake (canvas)
     let shakeT = 0;
@@ -1552,6 +1552,13 @@
       setStickVisual(nx, ny);
     }
 
+    function resetJoy(){
+  joyActive = false;
+  joyVec.x = 0;
+  joyVec.y = 0;
+  setStickVisual(0, 0);
+}
+
     function joyEnd(){
       joyActive = false;
       joyVec.x = 0; joyVec.y = 0;
@@ -1577,18 +1584,29 @@
     });
 
     joystickEl.addEventListener('pointerup', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
+  e.preventDefault();
+  e.stopPropagation();
 
-      const dt = performance.now() - joyTapStartT;
-      const moved = Math.hypot((e.clientX - joyTapStartX), (e.clientY - joyTapStartY));
-      if(dt < 220 && moved < 10 && !gameOver){
-        setPaused(!paused);
-      }
+  const dt = performance.now() - joyTapStartT;
+  const moved = Math.hypot(
+    (e.clientX - joyTapStartX),
+    (e.clientY - joyTapStartY)
+  );
 
-      joyEnd();
-    });
-    joystickEl.addEventListener('pointercancel', (e) => { e.preventDefault(); e.stopPropagation(); joyEnd(); });
+  if(dt < 220 && moved < 10 && !gameOver){
+    setPaused(!paused);
+  }
+
+  resetJoy();
+});
+
+    joystickEl.addEventListener('pointercancel', resetJoy);
+joystickEl.addEventListener('lostpointercapture', resetJoy);
+window.addEventListener('blur', resetJoy);
+document.addEventListener('visibilitychange', () => {
+  if(document.hidden) resetJoy();
+});
+
 
     // =========================
     // Shooting (AUTO FIRE)
