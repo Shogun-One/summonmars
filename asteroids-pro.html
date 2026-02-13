@@ -702,6 +702,11 @@
           return;
         }
 
+        // disable devtools/zoom detection on phones/tablets
+        const isMobileLike =
+          window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+        if (isMobileLike) return;
+
         const securityOverlay = document.getElementById('securityOverlay');
         const securityReloadBtn = document.getElementById('securityReloadBtn');
         const securityDismissBtn = document.getElementById('securityDismissBtn');
@@ -732,6 +737,62 @@
 
         securityReloadBtn.addEventListener('click', () => location.reload());
         securityDismissBtn.addEventListener('click', hideOverlay);
+
+        let baselineReady = false;
+        let baseOuterW = 0, baseOuterH = 0, baseInnerW = 0, baseInnerH = 0;
+        let baseWidthRatio = 0, baseHeightRatio = 0, baseArea = 0;
+
+        function setBaseline(){
+          baseOuterW = window.outerWidth;
+          baseOuterH = window.outerHeight;
+          baseInnerW = window.innerWidth;
+          baseInnerH = window.innerHeight;
+          baseWidthRatio  = baseInnerW / baseOuterW;
+          baseHeightRatio = baseInnerH / baseOuterH;
+          baseArea        = baseInnerW * baseInnerH;
+          baselineReady = true;
+        }
+
+        window.addEventListener('load', () => {
+          setTimeout(setBaseline, 700);
+        }, { once:true });
+
+        function detectDevToolsOrZoom() {
+          if(!baselineReady) return;
+
+          const outerW = window.outerWidth;
+          const outerH = window.outerHeight;
+          const innerW = window.innerWidth;
+          const innerH = window.innerHeight;
+
+          const widthRatio  = innerW / outerW;
+          const heightRatio = innerH / outerH;
+
+          const widthDrop  = baseWidthRatio  - widthRatio;
+          const heightDrop = baseHeightRatio - heightRatio;
+
+          const area       = innerW * innerH;
+          const areaDrop   = 1 - (area / baseArea);
+
+          const zoomLikely = innerW < baseInnerW * 0.7;
+          const devtoolsLikely = (widthDrop > 0.20) || (heightDrop > 0.20) || (areaDrop > 0.28);
+
+          if (devtoolsLikely || zoomLikely) showOverlay();
+          else hideOverlay();
+        }
+
+        setInterval(detectDevToolsOrZoom, 700);
+        window.addEventListener('resize', detectDevToolsOrZoom);
+
+        window.addEventListener('keydown', (e) => {
+          const key = e.key || e.keyCode;
+          const isF12 = key === 'F12' || key === 123;
+          const isCtrlShiftI = e.ctrlKey && e.shiftKey && (key === 'I' || key === 'i' || key === 73);
+          if (isF12 || isCtrlShiftI) showOverlay();
+        });
+      }
+      initSecurity();
+    })();
 
     // =========================
     // Background FX
