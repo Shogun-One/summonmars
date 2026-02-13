@@ -1566,56 +1566,9 @@
         overlay.style.display = 'none';
       }
 
-      // === BASELINE: how big is the window *normally*? ===
-      const baseOuterW = window.outerWidth;
-      const baseOuterH = window.outerHeight;
-      const baseInnerW = window.innerWidth;
-      const baseInnerH = window.innerHeight;
-
-      const baseWidthRatio  = baseInnerW / baseOuterW;
-      const baseHeightRatio = baseInnerH / baseOuterH;
-      const baseArea        = baseInnerW * baseInnerH;
-
-      function detectDevToolsOrZoom() {
-        const outerW = window.outerWidth;
-        const outerH = window.outerHeight;
-        const innerW = window.innerWidth;
-        const innerH = window.innerHeight;
-
-        // Current ratios vs shell
-        const widthRatio  = innerW / outerW;
-        const heightRatio = innerH / outerH;
-
-        // How much did ratios drop vs baseline?
-        const widthDrop  = baseWidthRatio  - widthRatio;
-        const heightDrop = baseHeightRatio - heightRatio;
-
         // Area drop (dev tools eat a chunk of area)
         const area       = innerW * innerH;
         const areaDrop   = 1 - (area / baseArea);
-
-        // Phone zoom / heavy zoom detection:
-        // if inner width is much smaller than on load (e.g. 150%+ zoom)
-        const zoomLikely = innerW < baseInnerW * 0.7;
-
-        // Dev tools likely if:
-        //  - ratios fell hard, OR
-        //  - a big chunk of area is gone
-        const devtoolsLikely =
-          widthDrop  > 0.18 ||
-          heightDrop > 0.18 ||
-          areaDrop   > 0.25;
-
-        if (devtoolsLikely || zoomLikely) {
-          showOverlay();
-        } else {
-          hideOverlay();
-        }
-      }
-
-      // Check periodically + on resize
-      setInterval(detectDevToolsOrZoom, 600);
-      window.addEventListener('resize', detectDevToolsOrZoom);
 
       // Instant manual trip on F12 or Ctrl+Shift+I
       window.addEventListener('keydown', (e) => {
