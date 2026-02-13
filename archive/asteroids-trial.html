@@ -1078,7 +1078,7 @@
     const shipImg = new Image();
     shipImg.decoding = "async";
     shipImg.loading = "eager";
-    shipImg.src = "images/archive/spaceship.png";
+    shipImg.src = "images/spaceship.png";
     let shipImgReady = false;
     shipImg.onload = () => { shipImgReady = true; };
     shipImg.onerror = () => { shipImgReady = false; };
@@ -1144,7 +1144,7 @@
       const img = new Image();
       img.decoding = "async";
       img.loading = "eager";
-      img.src = "images/archive/" + fn;
+      img.src = "images/" + fn;
       return img;
     });
 
@@ -1152,7 +1152,7 @@
     const firepowerImg = new Image();
     firepowerImg.decoding = "async";
     firepowerImg.loading = "eager";
-    firepowerImg.src = "images/archive/firepower-up.png";
+    firepowerImg.src = "images/firepower-up.png";
 
     // Warm up boss images to avoid first-draw stutter
     Promise.allSettled(
