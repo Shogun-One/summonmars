@@ -522,11 +522,15 @@
     }
 
     .tmnt-logo-wrap{
-  margin-top: 18px;
-  margin-bottom: 18px;
+  position:absolute;
+  left:50%;
+  transform:translateX(-50%);
+  bottom: 70px;        /* <-- THIS is the knob */
+  width:100%;
   display:flex;
   justify-content:center;
-  width:100%;
+  pointer-events:none;
+  z-index:4;
 }
 
 .tmnt-logo{
@@ -612,6 +616,10 @@ footer {
     <div class="game-shell">
       <canvas id="game" width="505" height="606"></canvas>
 
+        <div class="tmnt-logo-wrap">
+    <img src="images/logo-ico.png" alt="Teenage Mutant Ninja Turtles Logo" class="tmnt-logo">
+  </div>
+
       <!-- Start overlay (2-second grace to toggle music) -->
       <div id="startOverlay" aria-hidden="true">
         <p class="big">GET READY</p>
@@ -646,10 +654,6 @@ footer {
         <span class="ring"><span class="dot"></span></span>
       </button>
     </div>
-
-    <div class="tmnt-logo-wrap">
-  <img src="images/logo-ico.png" alt="Teenage Mutant Ninja Turtles Logo" class="tmnt-logo">
-</div>
 
   <footer>
   © 2026 Summon Mars ™. All rights reserved.
