@@ -1512,114 +1512,159 @@
     document.addEventListener('keyup', (e) => { keysDown[e.key] = false; });
 
     // =========================
-    // Joystick controls
-    // =========================
-    let joyActive = false;
-    let joyVec = { x: 0, y: 0 };
-    const DEADZONE = 0.08;
+// Joystick controls (MOVABLE + TAP TO PAUSE)
+// =========================
+let joyActive = false;
+let joyVec = { x: 0, y: 0 };
+const DEADZONE = 0.08;
 
-    let joyTapStartT = 0;
-    let joyTapStartX = 0;
-    let joyTapStartY = 0;
+// tap-to-pause detection
+let joyTapStartT = 0;
+let joyTapStartX = 0;
+let joyTapStartY = 0;
+let joyDidMove = false;
 
-    function setStickVisual(nx, ny){
-      if(!stickEl) return;
-      const max = 10;
-      stickEl.style.transform = `translate(calc(-50% + ${nx*max}px), calc(-50% + ${ny*max}px))`;
-    }
+// movable base position
+let joyBaseX = 0;
+let joyBaseY = 0;
 
-    function joyFromEvent(ev){
-      const r = joystickEl.getBoundingClientRect();
-      const cx = r.left + r.width/2;
-      const cy = r.top + r.height/2;
+function clamp(v, min, max){ return Math.max(min, Math.min(max, v)); } // (yours already exists, ok to keep)
 
-      let clientX, clientY;
-      if(ev.touches && ev.touches[0]){
-        clientX = ev.touches[0].clientX;
-        clientY = ev.touches[0].clientY;
-      }else{
-        clientX = ev.clientX;
-        clientY = ev.clientY;
-      }
+function setStickVisual(nx, ny){
+  if(!stickEl) return;
+  const max = 12; // stick travel in px
+  stickEl.style.transform = `translate(calc(-50% + ${nx*max}px), calc(-50% + ${ny*max}px))`;
+}
 
-      let dx = clientX - cx;
-      let dy = clientY - cy;
+function setJoyBasePos(clientX, clientY){
+  if(!joystickEl) return;
 
-      const maxDist = Math.max(8, Math.min(r.width, r.height) * 0.30);
-      const dist = Math.hypot(dx,dy) || 1;
+  const r = joystickEl.getBoundingClientRect();
+  const halfW = r.width / 2;
+  const halfH = r.height / 2;
 
-      if(dist > maxDist){
-        dx = (dx/dist) * maxDist;
-        dy = (dy/dist) * maxDist;
-      }
+  // keep it on-screen with a margin so it doesn't get shoved into corners
+  const margin = 18;
+  joyBaseX = clamp(clientX, margin + halfW, window.innerWidth - margin - halfW);
+  joyBaseY = clamp(clientY, margin + halfH, window.innerHeight - margin - halfH);
 
-      let nx = clamp(dx / maxDist, -1, 1);
-      let ny = clamp(dy / maxDist, -1, 1);
+  joystickEl.style.left = joyBaseX + 'px';
+  joystickEl.style.top  = joyBaseY + 'px';
+  joystickEl.style.right = 'auto';
+  joystickEl.style.bottom = 'auto';
+  joystickEl.style.transform = 'translate(-50%, -50%)';
+}
 
-      if(Math.hypot(nx, ny) < DEADZONE){
-        nx = 0; ny = 0;
-      }
+function joyFromEvent(ev){
+  if(!joystickEl) return;
 
-      joyVec.x = nx;
-      joyVec.y = ny;
+  const r = joystickEl.getBoundingClientRect();
+  const cx = r.left + r.width/2;
+  const cy = r.top + r.height/2;
 
-      setStickVisual(nx, ny);
-    }
+  let clientX, clientY;
+  if(ev.touches && ev.touches[0]){
+    clientX = ev.touches[0].clientX;
+    clientY = ev.touches[0].clientY;
+  }else{
+    clientX = ev.clientX;
+    clientY = ev.clientY;
+  }
 
-    function resetJoy(){
-      joyActive = false;
-      joyVec.x = 0;
-      joyVec.y = 0;
-      setStickVisual(0, 0);
-    }
+  let dx = clientX - cx;
+  let dy = clientY - cy;
 
-    function joyEnd(){
-      joyActive = false;
-      joyVec.x = 0; joyVec.y = 0;
-      setStickVisual(0, 0);
-    }
+  const maxDist = Math.max(10, Math.min(r.width, r.height) * 0.34);
+  const dist = Math.hypot(dx,dy) || 1;
 
-    joystickEl.addEventListener('pointerdown', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      joystickEl.setPointerCapture(e.pointerId);
-      joyActive = true;
-      joyTapStartT = performance.now();
-      joyTapStartX = e.clientX;
-      joyTapStartY = e.clientY;
-      joyFromEvent(e);
-    });
+  if(dist > maxDist){
+    dx = (dx/dist) * maxDist;
+    dy = (dy/dist) * maxDist;
+  }
 
-    joystickEl.addEventListener('pointermove', (e) => {
-      if(!joyActive) return;
-      e.preventDefault();
-      e.stopPropagation();
-      joyFromEvent(e);
-    });
+  let nx = clamp(dx / maxDist, -1, 1);
+  let ny = clamp(dy / maxDist, -1, 1);
 
-    joystickEl.addEventListener('pointerup', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
+  if(Math.hypot(nx, ny) < DEADZONE){
+    nx = 0; ny = 0;
+  }
 
-      const dt = performance.now() - joyTapStartT;
-      const moved = Math.hypot(
-        (e.clientX - joyTapStartX),
-        (e.clientY - joyTapStartY)
-      );
+  joyVec.x = nx;
+  joyVec.y = ny;
 
-      if(dt < 220 && moved < 10 && !gameOver){
-        setPaused(!paused);
-      }
+  setStickVisual(nx, ny);
+}
 
-      resetJoy();
-    });
+function resetJoy(){
+  joyActive = false;
+  joyVec.x = 0;
+  joyVec.y = 0;
+  joyDidMove = false;
+  setStickVisual(0, 0);
+}
 
-    joystickEl.addEventListener('pointercancel', resetJoy);
-    joystickEl.addEventListener('lostpointercapture', resetJoy);
-    window.addEventListener('blur', resetJoy);
-    document.addEventListener('visibilitychange', () => {
-      if(document.hidden) resetJoy();
-    });
+// Ensure joystick is positionable
+if(joystickEl){
+  joystickEl.style.position = 'fixed';
+  joystickEl.style.touchAction = 'none';
+}
+
+// Pointer events: tap to pause, drag to move
+joystickEl?.addEventListener('pointerdown', (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+
+  // move joystick base to where the finger/mouse clicked
+  setJoyBasePos(e.clientX, e.clientY);
+
+  joystickEl.setPointerCapture(e.pointerId);
+  joyActive = true;
+
+  joyTapStartT = performance.now();
+  joyTapStartX = e.clientX;
+  joyTapStartY = e.clientY;
+  joyDidMove = false;
+
+  joyFromEvent(e);
+}, { passive:false });
+
+joystickEl?.addEventListener('pointermove', (e) => {
+  if(!joyActive) return;
+  e.preventDefault();
+  e.stopPropagation();
+
+  const moved = Math.hypot(e.clientX - joyTapStartX, e.clientY - joyTapStartY);
+  if(moved > 10) joyDidMove = true;
+
+  joyFromEvent(e);
+}, { passive:false });
+
+joystickEl?.addEventListener('pointerup', (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+
+  const dt = performance.now() - joyTapStartT;
+  const moved = Math.hypot(e.clientX - joyTapStartX, e.clientY - joyTapStartY);
+
+  // Quick tap (and not a drag) = pause toggle
+  if(dt < 220 && moved < 10 && !joyDidMove && !gameOver){
+    setPaused(!paused);
+  }
+
+  resetJoy();
+}, { passive:false });
+
+joystickEl?.addEventListener('pointercancel', (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+  resetJoy();
+}, { passive:false });
+
+joystickEl?.addEventListener('lostpointercapture', resetJoy);
+window.addEventListener('blur', resetJoy);
+document.addEventListener('visibilitychange', () => { if(document.hidden) resetJoy(); 
+});
+
 
     // =========================
     // Shooting (AUTO FIRE)
