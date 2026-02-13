@@ -499,6 +499,11 @@
 }
     
     #startOverlay.active{ display:flex; }
+
+    #startOverlay:not(.active){
+  display:none !important;
+}
+
     #startOverlay .big{
       font-family:Orbitron, system-ui, sans-serif;
       font-size:1.7rem;
