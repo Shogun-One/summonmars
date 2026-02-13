@@ -255,15 +255,29 @@
   border-bottom:4px solid transparent;
 }
 
-/* RED NEON DPAD */
-.dpad-btn{
-  width:140px;
-  height:140px;
-  padding:0;
-  display:grid;
-  place-items:center;
+/* ===== MOBILE DPAD (big, tap-friendly, bottom area) ===== */
+
+/* Stop .bubble-btn from rounding/clipping the Dpad container */
+#dpadBtn{
+  position: fixed !important;          /* anchors it lower */
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  bottom: 112px !important;            /* above footer (48px) + banner (14px) */
+  margin: 0 !important;
+
+  width: 190px !important;
+  height: 190px !important;
+
+  border-radius: 18px !important;      /* NOT a circle */
+  background: transparent !important;  /* no bubble background */
+  border: none !important;
+  box-shadow: none !important;
 }
 
+/* Desktop: hide */
+@media (min-width: 960px){
+  #dpadBtn{ display:none !important; }
+}
 
 .dpad{
   position:relative;
@@ -273,24 +287,30 @@
 
 .dpad button{
   position:absolute;
-  width:48px;
-  height:48px;
-  background:rgba(255,0,0,0.18);
-  border:1px solid rgba(255,60,60,0.8);
-  border-radius:8px;
-  box-shadow:0 0 12px rgba(255,0,0,0.6);
+  width: 72px;
+  height: 72px;
+
+  background: rgba(255,0,0,0.18);
+  border: 2px solid rgba(255,60,60,0.85);
+  border-radius: 16px;
+  box-shadow: 0 0 14px rgba(255,0,0,0.65);
   cursor:pointer;
+
+  /* makes taps nicer on mobile */
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 .dpad button:active{
-  transform:scale(0.92);
-  box-shadow:0 0 18px rgba(255,0,0,1);
+  transform: scale(0.94);
+  box-shadow: 0 0 20px rgba(255,0,0,1);
 }
 
-.dpad .up{ top:0; left:28px; }
-.dpad .down{ bottom:0; left:28px; }
-.dpad .left{ left:0; top:28px; }
-.dpad .right{ right:0; top:28px; }
+/* Perfect plus layout */
+.dpad .up    { top: 0;    left: 59px; }
+.dpad .down  { bottom: 0; left: 59px; }
+.dpad .left  { left: 0;   top: 59px; }
+.dpad .right { right: 0;  top: 59px; }
     
 /* Music bubble (bottom-right) */
 .music-btn{ right:14px; }
