@@ -91,7 +91,12 @@
     .subtitle strong{ color:var(--accent-soft); font-weight:800; }
 
     .hud{
-  margin-top:0;             /* WAS .05rem */
+  display:flex;
+  flex-wrap:wrap;
+  gap:.55rem;
+  justify-content:center;
+  align-items:center;
+  margin-top:.25rem;
 }
     
 .hud .pill{
@@ -124,20 +129,12 @@
 
     canvas#game{
   border-radius:18px;
-  background:
-    radial-gradient(circle at 50% 0%,
-      rgba(60,255,156,0.45) 0%,
-      rgba(20,120,60,0.55) 25%,
-      rgba(10,40,20,0.92) 70%,
-      rgba(5,2,10,0.98) 100%
-    ),
-    repeating-radial-gradient(
-      circle at center,
-      rgba(157,255,191,0.08),
-      rgba(157,255,191,0.08) 1px,
-      transparent 1px,
-      transparent 4px
-    );
+  bbackground:
+  linear-gradient(
+    to bottom,
+    rgba(8, 18, 12, 0.95),
+    rgba(5, 2, 10, 0.98)
+  );
   box-shadow:
     0 0 35px rgba(0,0,0,.8),
     0 0 45px rgba(60,255,156,.55),
@@ -571,13 +568,13 @@
 
     }
 
-    .tmnt-logo-wrap {
-  position: absolute;
-  left: 50%;
-  bottom: 0;
-  transform: translate(-50%, 20%);
-  z-index: 5;
-  pointer-events: none;
+    .tmnt-logo-wrap{
+  position:absolute;
+  left:50%;
+  bottom:-8px;                 /* was 0 */
+  transform:translate(-50%, 40%); /* was 20% */
+  z-index:5;
+  pointer-events:none;
 }
 
 .tmnt-logo {
