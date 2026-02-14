@@ -1162,9 +1162,12 @@ bassAnalyser.smoothingTimeConstant = 0.75;
 
 sourceNode = audioCtx.createMediaElementSource(music);
 
-// full-range analyser (for glow)
+// send audio straight to speakers (clean)
+sourceNode.connect(audioCtx.destination);
+
+// analyser is for visuals only (no audio pass-through)
 sourceNode.connect(analyser);
-analyser.connect(audioCtx.destination);
+
 
 // bass-only analyser (for kick detection)
 sourceNode.connect(bassFilter);
@@ -1235,41 +1238,38 @@ bassFilter.connect(bassAnalyser);
   if(bossPulse) intensity *= 1.8;
   document.documentElement.style.setProperty('--pulse', intensity + 'px');
 
-    // ===== bass kick detector (better: compare LOW vs MID so synth doesn't fake it) =====
-  // With fftSize=256, low bins represent actual low frequencies better.
-  // We calculate: bassScore = LOW - (MID * weight). This filters out synthy mid energy.
-  let low = 0, mid = 0;
+      // ===== bass kick detector (use bassAnalyser lowpass feed) =====
+  if(!bassAnalyser){
+    app.__bassPrev = 0;
+    app.__bassKick = 0;
+  } else {
+    const b = new Uint8Array(bassAnalyser.frequencyBinCount);
+    bassAnalyser.getByteFrequencyData(b);
 
-  // Low end: bins 1..6 (skip bin 0 DC)
-  for(let i=1;i<=6 && i<data.length;i++) low += data[i];
-  low /= 6;
+    // true low bins only (kick/sub). ignore mids entirely.
+    let low = 0;
+    const lowBins = Math.min(8, b.length); // bins 0..7
+    for(let i=0;i<lowBins;i++) low += b[i];
+    low /= lowBins;
 
-  // Mid band: bins 10..24
-  let midCount = 0;
-  for(let i=10;i<=24 && i<data.length;i++){ mid += data[i]; midCount++; }
-  mid /= Math.max(1, midCount);
+    // normalize 0..1
+    const bassN = Math.max(0, Math.min(1, (low - 20) / 160));
 
-  // bassScore favors true low-end punches
-  let bassScore = Math.max(0, low - (mid * 0.55));
+    // hit detection (rising edge)
+    const prev = app.__bassPrev || 0;
+    const rising = bassN - prev;
+    app.__bassPrev = bassN;
 
-  // normalize 0..1
-  const bassN = Math.max(0, Math.min(1, (bassScore - 8) / 70));
+    // decay (snappy)
+    app.__bassKick = (app.__bassKick || 0) * 0.70;
 
-  // detect "hit" = bass rises fast past threshold
-  const prev = app.__bassPrev || 0;
-  const rising = bassN - prev;
-  app.__bassPrev = bassN;
+    const HIT_THRESHOLD  = 0.32;
+    const RISE_THRESHOLD = 0.08;
 
-  // decay kick (snappy)
-  app.__bassKick = (app.__bassKick || 0) * 0.72;
-
-  const HIT_THRESHOLD  = 0.28;   // lower, because bassN is now cleaner
-  const RISE_THRESHOLD = 0.08;
-
-  if(bassN > HIT_THRESHOLD && rising > RISE_THRESHOLD){
-    app.__bassKick = Math.min(1, (app.__bassKick || 0) + bassN);
+    if(bassN > HIT_THRESHOLD && rising > RISE_THRESHOLD){
+      app.__bassKick = Math.min(1, (app.__bassKick || 0) + bassN);
+    }
   }
-
 
   // ===== apply shake ONLY from the kick impulse =====
   const k = app.__bassKick || 0;
