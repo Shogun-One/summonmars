@@ -301,6 +301,18 @@
   }
   .music-btn.on .dot{ opacity:1; }
 
+    /* Bass jiggle for the two bottom bubbles (only when music is ON) */
+:root{
+  --uiShakeX: 0px;
+  --uiShakeY: 0px;
+}
+
+body.music-on .difficulty-btn,
+body.music-on .music-btn{
+  transform: translate3d(var(--uiShakeX), var(--uiShakeY), 0);
+}
+
+
   .controls{
     margin-top:0;
     line-height:1.2;
@@ -1074,10 +1086,11 @@ h1{
     let musicOn = false;
 
     function setMusicUI(on){
-      musicBtn.classList.toggle('on', on);
-      musicBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
-      musicLabel.textContent = on ? 'Music On' : 'Music Off';
-    }
+  musicBtn.classList.toggle('on', on);
+  musicBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+  musicLabel.textContent = on ? 'Music On' : 'Music Off';
+  document.body.classList.toggle('music-on', on);
+}
     setMusicUI(false);
 
     // =====================
@@ -1134,29 +1147,52 @@ h1{
     });
 
     function updatePulse(){
-      if(!pulseActive || !analyser){
-        document.documentElement.style.setProperty('--pulse', '0px');
-        return;
-      }
+  // sleep when music off
+  if(!pulseActive || !analyser){
+    document.documentElement.style.setProperty('--pulse', '0px');
+    document.documentElement.style.setProperty('--uiShakeX', '0px');
+    document.documentElement.style.setProperty('--uiShakeY', '0px');
+    app.__enemyShakeX = 0;
+    app.__enemyShakeY = 0;
+    return;
+  }
 
-      const data = new Uint8Array(analyser.frequencyBinCount);
-      analyser.getByteFrequencyData(data);
+  const data = new Uint8Array(analyser.frequencyBinCount);
+  analyser.getByteFrequencyData(data);
 
-      let avg = 0;
-      for(let i=0;i<data.length;i++){
-        avg += data[i];
-      }
-      avg /= data.length;
+  // overall avg (your existing glow pulse)
+  let avg = 0;
+  for(let i=0;i<data.length;i++) avg += data[i];
+  avg /= data.length;
 
-      // scale intensity
-      let intensity = avg * 0.25;
+  let intensity = avg * 0.25;
+  if(bossPulse) intensity *= 1.8;
+  document.documentElement.style.setProperty('--pulse', intensity + 'px');
 
-      if(bossPulse){
-        intensity *= 1.8; // boss boost
-      }
+  // bass avg: first ~10 bins
+  let bass = 0;
+  const bassBins = Math.min(10, data.length);
+  for(let i=0;i<bassBins;i++) bass += data[i];
+  bass /= bassBins;
 
-      document.documentElement.style.setProperty('--pulse', intensity + 'px');
-    }
+  // normalize 0..1
+  let bassN = Math.max(0, Math.min(1, (bass - 30) / 120));
+
+  // tiny shake values
+  const t = performance.now() / 1000;
+  const amp = bassN * 2.0; // px
+  const sx = Math.sin(t * 42) * amp;
+  const sy = Math.cos(t * 48) * amp;
+
+  // UI shake via CSS vars
+  document.documentElement.style.setProperty('--uiShakeX', sx.toFixed(2) + 'px');
+  document.documentElement.style.setProperty('--uiShakeY', sy.toFixed(2) + 'px');
+
+  // Enemy shake used by render()
+  app.__enemyShakeX = sx * 0.9;
+  app.__enemyShakeY = sy * 0.9;
+}
+
 
     // =========================
     // HUD elements
@@ -1313,8 +1349,14 @@ function showStartOverlay(on){
     };
 
     app.Enemy.prototype.render = function () {
-      app.ctx.drawImage(Resources.get(this.sprite), this.x, this.y + app.DRAW_Y_OFFSET + app.Y_ALIGN.enemy);
-    };
+  const ex = (musicOn && app.__enemyShakeX) ? app.__enemyShakeX : 0;
+  const ey = (musicOn && app.__enemyShakeY) ? app.__enemyShakeY : 0;
+  app.ctx.drawImage(Resources.get(this.sprite),
+    this.x + ex,
+    this.y + app.DRAW_Y_OFFSET + app.Y_ALIGN.enemy + ey
+  );
+};
+
 
     app.Player = function (sprite) {
       this.life = 3;
