@@ -1178,18 +1178,21 @@
     bestEl.textContent = bestScore;
 
     // Start overlay / 2-second grace
-    const startOverlay = document.getElementById('startOverlay');
+const startOverlay = document.getElementById('startOverlay');
 const logoWrap = document.querySelector('.tmnt-logo-wrap');
 
-    function setLogo(on){
+function setLogo(on){
   if (!logoWrap) return;
   logoWrap.classList.toggle('show-on-overlay', !!on);
 }
 
 function showStartOverlay(on){
-  startOverlay.classList.toggle('active', on);
+  if (!startOverlay) return;
+  startOverlay.classList.toggle('active', !!on);
   startOverlay.setAttribute('aria-hidden', on ? 'false' : 'true');
-  setLogo(on); // ✅ logo only during GET READY
+
+  // logo only during overlays
+  setLogo(on);
 }
 
   // ✅ show logo only on GET READY overlay
