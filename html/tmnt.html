@@ -218,25 +218,29 @@
   .bubble-btn:hover{ filter:brightness(1.08); }
   .bubble-btn:active{ transform:translateY(1px); }
 
-  .bubble-btn .ring{
-    width:80px;
-    height:80px;
-    border-radius:999px;
-    border:1px solid rgba(228,228,255,.30);
-    display:grid;
-    place-items:center;
-    box-shadow: inset 0 0 14px rgba(157,255,191,.12);
-    position:relative;
-    overflow:hidden;
-    background: radial-gradient(circle at 35% 30%, rgba(255,255,255,.14), rgba(0,0,0,.35) 45%, rgba(0,0,0,.78) 100%);
+ .bubble-btn .ring{
+  width:100%;
+  height:100%;
+  border-radius:999px;
+  border:1px solid rgba(228,228,255,.18);
+  display:grid;
+  place-items:center;
+  position:relative;
+  overflow:hidden;
 
-  }
+  background: radial-gradient(circle at 35% 30%,
+    rgba(255,255,255,.14),
+    rgba(0,0,0,.35) 45%,
+    rgba(0,0,0,.78) 100%);
+
+  box-shadow: inset 0 0 10px rgba(0,0,0,.35);
+}
 
     /* speaker dustcap */
 .bubble-btn .ring::after{
   content:"";
   position:absolute;
-  inset:8px;
+  inset:22px;                 /* smaller center = bigger cone */
   border-radius:999px;
   background: radial-gradient(circle at 35% 30%,
     rgba(255,255,255,.18),
@@ -251,6 +255,7 @@
   position:absolute;
   inset:0px;
   border-radius:999px;
+  border:1px solid rgba(157,255,191,.18);
   background: radial-gradient(circle at 35% 30%,
     rgba(255,255,255,.10),
     rgba(0,0,0,.40) 45%,
@@ -258,6 +263,7 @@
   box-shadow: inset 0 0 6px rgba(0,0,0,.45);
   transform: scale(calc(1 + (var(--bassKick) * 0.14)));
   transition: transform 70ms linear;
+  
 }
 
     
@@ -300,6 +306,36 @@
   .restart-btn:active{
     transform: translateX(-50%) translateY(1px);
   }
+
+    /* Restart gets its own size + placement */
+.restart-btn{
+  width:28px;                 /* ~1/3 of the big 80px bubbles */
+  height:28px;
+  top:78px;                   /* move it down near riverbed */
+  bottom:auto;
+}
+
+/* keep its inner ring fitting its new size */
+.restart-btn .ring{
+  width:100%;
+  height:100%;
+  border-radius:999px;
+}
+
+/* shrink the icon to match */
+.restart-btn .icon{
+  width:10px;
+  height:10px;
+  border-width:2px;
+}
+.restart-btn .icon:after{
+  top:-3px;
+  right:-2px;
+  width:10px;
+  height:10px;
+  border-left-width:5px;
+}
+
 
   .restart-btn .icon{
     width:18px;
