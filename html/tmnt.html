@@ -7,7 +7,7 @@
   <link rel="icon" href="/images/tmnt/tmnticon.png" />
 
   <!-- Spacey title + clean HUD fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.googleapis.com"><!-- Desktop splash stamps -->
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
 
@@ -619,37 +619,111 @@ body.music-on .music-btn .ring{
     drop-shadow(0 0 28px rgba(60,255,156,.18));
 }
 
-  /* ===== Stamps locked to tile centers (platform-proof) ===== */
+  /* ===== Stamp ↔ Subwoofer Toggle (stamp-sized woofers) ===== */
+
 :root{
   --tileW: 101px;
   --tileH: 83px;
+  --stampSize: 110px;
 }
 
-/* shared stamp styling */
-.splash{
+/* stamp slot anchor (tile locked + 1.5 tiles down) */
+.stamp-slot.splash{
   position:absolute;
-  width:110px;
-  height:auto;
-  opacity:0.85;
+  width: var(--stampSize);
+  height: var(--stampSize);
   pointer-events:none;
   z-index:4;
-  filter: drop-shadow(0 0 14px rgba(60,255,156,.25));
 
-  /* ✅ DOWN 1.5 tiles from your previous top */
   top: calc(390px + (1.5 * var(--tileH)));
-
-  /* ✅ center stamp on its anchor point */
   transform: translate(-50%, -50%);
 }
 
-/* ✅ Tile 2 center = 30% across (2nd of 5 columns) */
-.splash-right{
-  left: 30%;
+/* tile centers */
+.stamp-slot.splash-right{ left:30%; }
+.stamp-slot.splash-left{ left:70%; }
+
+/* stamp image */
+.stamp-img{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  opacity:.9;
+  transition: opacity 140ms ease;
+  filter: drop-shadow(0 0 14px rgba(60,255,156,.25));
 }
 
-/* ✅ Tile 4 center = 70% across (4th of 5 columns) */
-.splash-left{
-  left: 70%;
+/* woofer body */
+.stamp-woofer{
+  position:absolute;
+  inset:0;
+  border-radius:999px;
+  opacity:0;
+  transform: scale(.96);
+  transition: opacity 180ms ease, transform 200ms ease;
+  background: radial-gradient(circle at 35% 30%,
+    rgba(255,255,255,.12),
+    rgba(60,255,156,.05) 50%,
+    rgba(0,0,0,.65) 100%);
+  border: 1px solid rgba(157,255,191,.35);
+  box-shadow:
+    0 0 18px rgba(60,255,156,.22),
+    inset 0 0 16px rgba(0,0,0,.55);
+}
+
+/* cone */
+.stamp-woofer::before{
+  content:"";
+  position:absolute;
+  left:50%;
+  top:50%;
+  width:100%;
+  height:100%;
+  border-radius:999px;
+  transform: translate(-50%, -50%) scale(calc(1 + (var(--bassKick) * 0.16)));
+  border:1px solid rgba(228,228,255,.15);
+  background: radial-gradient(circle at 35% 30%,
+    rgba(255,255,255,.10),
+    rgba(0,0,0,.45) 60%,
+    rgba(0,0,0,.90) 100%);
+  transition: transform 70ms linear;
+}
+
+/* dustcap */
+.stamp-woofer::after{
+  content:"";
+  position:absolute;
+  left:50%;
+  top:50%;
+  width:60%;
+  height:60%;
+  border-radius:999px;
+  transform: translate(-50%, -50%) scale(calc(1 + (var(--bassKick) * 0.08)));
+  background: radial-gradient(circle at 35% 30%,
+    rgba(255,255,255,.18),
+    rgba(0,0,0,.55) 65%,
+    rgba(0,0,0,.95) 100%);
+  border:1px solid rgba(157,255,191,.15);
+  transition: transform 70ms linear;
+}
+
+/* === MUSIC TOGGLE === */
+body.music-on .stamp-img{
+  opacity:0;
+}
+
+body.music-on .stamp-woofer{
+  opacity:1;
+  transform:scale(1);
+}
+
+/* subtle bass shake */
+body.music-on .stamp-slot{
+  transform:
+    translate(-50%, -50%)
+    translate3d(var(--uiShakeX), var(--uiShakeY), 0);
 }
 
 
@@ -860,9 +934,17 @@ h1{
     <div class="game-shell">
       <canvas id="game" width="505" height="498"></canvas>
 
-      <!-- Desktop splash stamps -->
-      <img src="/images/tmnt/splashleft.png" class="splash splash-left" alt="">
-      <img src="/images/tmnt/splashright.png" class="splash splash-right" alt="">
+      <!-- Desktop splash stamps / stamp-subwoofers -->
+<div class="stamp-slot splash splash-left" aria-hidden="true">
+  <img src="/images/tmnt/splashleft.png" class="stamp-img" alt="">
+  <div class="stamp-woofer" aria-hidden="true"></div>
+</div>
+
+<div class="stamp-slot splash splash-right" aria-hidden="true">
+  <img src="/images/tmnt/splashright.png" class="stamp-img" alt="">
+  <div class="stamp-woofer" aria-hidden="true"></div>
+</div>
+
 
       <div class="tmnt-logo-wrap">
         <img src="/images/tmnt/tmnt-logo-1.png" alt="Teenage Mutant Ninja Turtles Logo" class="tmnt-logo">
