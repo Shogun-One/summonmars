@@ -1183,13 +1183,15 @@ footer {
   app.ctx.drawImage(Resources.get(this.sprite), this.x, this.y + app.DRAW_Y_OFFSET);
 };
 
-    app.Player.prototype.handleInput = function (dir) {
-      if (!dir) return;
-      if (dir === "up" && this.y > 0) this.y -= app.GAME_CONFIG.TILE_HEIGHT;
-      if (dir === "down" && this.y < 400) this.y += app.GAME_CONFIG.TILE_HEIGHT;
-      if (dir === "right" && this.x < 404) this.x += app.GAME_CONFIG.TILE_WIDTH;
-      if (dir === "left" && this.x > 0) this.x -= app.GAME_CONFIG.TILE_WIDTH;
-    };
+    aapp.Player.prototype.handleInput = function (dir) {
+  if (!dir) return;
+
+  if (dir === "up"   && this.y > 0)   this.y -= app.GAME_CONFIG.TILE_HEIGHT;
+  if (dir === "down" && this.y < 498) this.y += app.GAME_CONFIG.TILE_HEIGHT;  // bottom row is 498
+
+  if (dir === "left"  && this.x > 0)   this.x -= app.GAME_CONFIG.TILE_WIDTH;
+  if (dir === "right" && this.x < 404) this.x += app.GAME_CONFIG.TILE_WIDTH; // last col is 404
+};
 
     // --- Pizza (collectible) ---
     app.Pizza = function () {
@@ -1253,10 +1255,12 @@ footer {
 };
 app.DRAW_Y_OFFSET = -30; // tweak: -20, -30, -40 until perfect
 
+      app.START_X = 202;
+      app.START_Y = 415;
 
       app.ACTORS = {
         player: new app.Player(),
-          aallEnemies: [
+          allEnemies: [
   new app.Enemy(60),
   new app.Enemy(143),
   new app.Enemy(226),
@@ -1328,10 +1332,10 @@ app.DRAW_Y_OFFSET = -30; // tweak: -20, -30, -40 until perfect
         app.GameState.updateFromScore(0);
 
         app.ACTORS.allEnemies = [
-  new app.Enemy(70),
-  new app.Enemy(140),
-  new app.Enemy(210),
-  new app.Enemy(280) // NEW lane
+  new app.Enemy(60),
+  new app.Enemy(143),
+  new app.Enemy(226),
+  new app.Enemy(309)
 ];
 
         app.ACTORS.pizza = new app.Pizza();
@@ -1389,7 +1393,7 @@ allEnemies.forEach(function (enemy) {
     if (player.life <= 0) {
       // snap to default start
       player.x = 202;
-      player.y = 415;
+      player.y = app.START_Y;
 
       // stop the run
       app.__running = false;
@@ -1407,8 +1411,8 @@ allEnemies.forEach(function (enemy) {
     }
 
     // keep score, just re-center and give a short grace
-    player.x = 200;
-    player.y = 415;
+    player.x = app.START_X;
+    player.y = app.START_Y;
     startWithCountdown(1200);
 
     updateHud();
@@ -1425,8 +1429,8 @@ if (player.y <= 0) {
     initRun(true);
   } else {
     // keep score, reset position and give a short grace
-    player.x = 200;
-    player.y = 415;
+    player.x = app.START_X;
+    player.y = app.START_Y;
     startWithCountdown(1200);
   }
 }
@@ -1439,8 +1443,8 @@ if (between(player.x, pizza.x - 60, pizza.x + 60) && between(player.y, pizza.y -
   pizza.update();
 
   // Reset player to starting position (bottom center) after grabbing pizza
-  player.x = 200;
-  player.y = 415;
+  player.x = app.START_X;
+  player.y = app.START_Y;
 
   // light ramp: add tiny grace to read HUD (feels arcade-y)
   startWithCountdown(450);
@@ -1474,7 +1478,7 @@ if (between(player.x, pizza.x - 60, pizza.x + 60) && between(player.y, pizza.y -
 
         while (allEnemies.length < desiredCount) {
           var laneIndex = allEnemies.length % 4;
-          var laneY = 70 + laneIndex * app.GAME_CONFIG.TILE_HEIGHT;
+          var laneY = 60 + laneIndex * app.GAME_CONFIG.TILE_HEIGHT;
           allEnemies.push(new app.Enemy(laneY));
         }
 
