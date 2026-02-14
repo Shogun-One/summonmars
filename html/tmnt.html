@@ -1238,7 +1238,8 @@ canvas#game{
 
       // movement bounds (grid space)
 app.MIN_Y = -app.GAME_CONFIG.TILE_HEIGHT;      // one tile ABOVE the water row
-app.MAX_Y = app.GAME_CONFIG.TILE_HEIGHT * 5;   // bottom grass row
+app.MAX_Y = app.START_Y;
+  // bottom grass row
 
       app.Y_ALIGN = { player: -18, enemy: -14, pizza: -20, heart: -20 };
 
