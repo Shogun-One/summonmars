@@ -510,7 +510,7 @@
   left: 50%;
   transform: translateX(-50%);
   bottom: calc(var(--dpad-bottom) + var(--dpad-size) + var(--logo-gap));
-  z-index: 12;                  /* ABOVE dpad (10) */
+  z-index: 12;
   pointer-events: none;
 }
 
@@ -518,22 +518,38 @@
   display:block;
 }
 
-.tmnt-logo{
-  max-width: 260px;
-  height: auto;
-  display: block;
-  filter:
-    drop-shadow(0 0 18px rgba(60,255,156,.35))
-    drop-shadow(0 0 28px rgba(60,255,156,.18));
+
+.tmnt-logo-wrap.show-on-overlay{
+  display:block;
 }
 
-/* keep your desktop rule if you want it hidden on desktop */
-@media (min-width: 960px){
-  .tmnt-logo-wrap,
-  .tmnt-logo-wrap.show-on-overlay{
-    display:none !important;
+  .tmnt-logo {
+    max-width: 260px;
+    height: auto;
+    display: block;
+    filter:
+      drop-shadow(0 0 18px rgba(60,255,156,.35))
+      drop-shadow(0 0 28px rgba(60,255,156,.18));
   }
-}
+
+  /* ===== Desktop Splash Stamps ===== */
+  .splash{
+    position:absolute;
+    top:18px;
+    width:110px;
+    height:auto;
+    opacity:0.85;
+    pointer-events:none;
+    z-index:4;
+    filter: drop-shadow(0 0 14px rgba(60,255,156,.25));
+  }
+  .splash-left{ left:0; }
+  .splash-right{ right:0; }
+
+  /* Hide stamps on mobile */
+  @media (max-width:960px){
+    .splash{ display:none; }
+  }
 
   /* --- FIXED FOOTER + COUNTER --- */
   footer {
@@ -667,11 +683,11 @@
     </div>
 
     <div class="hud">
-      <div class="pill">🍕: <b id="score">0</b></div>
-      <div class="pill">🏆: <b id="best">0</b></div>
-      <div class="pill">🥋: <b id="level">1</b></div>
-      <div class="pill">❤️: <b id="lives">3</b></div>
-      <div class="pill">🩼: <b id="diffLabel">Sewer</b></div>
+      <div class="pill">Slices: <b id="score">0</b></div>
+      <div class="pill">Best: <b id="best">0</b></div>
+      <div class="pill">Level: <b id="level">1</b></div>
+      <div class="pill">Lives: <b id="lives">3</b></div>
+      <div class="pill">Difficulty: <b id="diffLabel">Sewer</b></div>
     </div>
 
     <div class="game-shell">
@@ -1146,32 +1162,17 @@
     let bestScore = Number(localStorage.getItem('tmntBest') || 0);
     bestEl.textContent = bestScore;
 
+    // Start overlay / 2-second grace
     const startOverlay = document.getElementById('startOverlay');
-const gameOverOverlay = document.getElementById('gameOverOverlay');
 const logoWrap = document.querySelector('.tmnt-logo-wrap');
-
-function setLogoOverlayVisible(on){
-  if (!logoWrap) return;
-  logoWrap.classList.toggle('show-on-overlay', !!on);
-}
 
 function showStartOverlay(on){
   startOverlay.classList.toggle('active', on);
   startOverlay.setAttribute('aria-hidden', on ? 'false' : 'true');
 
-  // ✅ show logo during the 2s grace "GET READY"
-  setLogoOverlayVisible(on);
+  // ✅ show logo only on GET READY overlay
+  if (logoWrap) logoWrap.classList.toggle('show-on-overlay', on);
 }
-
-function showGameOverOverlay(on){
-  if (!gameOverOverlay) return;
-  gameOverOverlay.classList.toggle('active', on);
-  gameOverOverlay.setAttribute('aria-hidden', on ? 'false' : 'true');
-
-  // ✅ show logo on GAME OVER too
-  setLogoOverlayVisible(on);
-}
-
 
     app.GameState = {
       level: 1,
@@ -1448,7 +1449,10 @@ function showGameOverOverlay(on){
               app.__running = false;
               app.__gameOver = true;
 
-              showGameOverOverlay(true);
+              const go = document.getElementById('gameOverOverlay');
+              if (go) { go.classList.add('active'); go.setAttribute('aria-hidden', 'false'); }
+              if (logoWrap) logoWrap.classList.add('show-on-overlay');
+
 
               updateHud();
               return;
@@ -1473,7 +1477,10 @@ function showGameOverOverlay(on){
             app.__running = false;
             app.__gameOver = true;
 
-            showGameOverOverlay(true);
+            const go = document.getElementById('gameOverOverlay');
+            if (go) { go.classList.add('active'); go.setAttribute('aria-hidden', 'false'); }
+            if (logoWrap) logoWrap.classList.add('show-on-overlay');
+
 
             updateHud();
             return;
