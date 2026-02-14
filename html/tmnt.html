@@ -701,7 +701,7 @@ footer {
     </div>
 
     <div class="game-shell">
-      <canvas id="game" width="505" height="606"></canvas>
+      <canvas id="game" width="505" height="523"></canvas>
 
       <!-- Desktop splash stamps -->
 <img src="/images/tmnt/splashleft.png" class="splash splash-left" alt="">
@@ -1224,7 +1224,7 @@ footer {
   if (!dir) return;
 
   if (dir === "up"   && this.y > 0)   this.y -= app.GAME_CONFIG.TILE_HEIGHT;
-  if (dir === "down" && this.y < 498) this.y += app.GAME_CONFIG.TILE_HEIGHT;  // bottom row is 498
+  if (dir === "down" && this.y < 415) this.y += app.GAME_CONFIG.TILE_HEIGHT;  // bottom row is 498
 
   if (dir === "left"  && this.x > 0)   this.x -= app.GAME_CONFIG.TILE_WIDTH;
   if (dir === "right" && this.x < 404) this.x += app.GAME_CONFIG.TILE_WIDTH; // last col is 404
@@ -1286,7 +1286,7 @@ footer {
     (function (global) {
       app.GAME_CONFIG = {
   CANVAS_WIDTH: 505,
-  CANVAS_HEIGHT: 606,
+  CANVAS_HEIGHT: 523,  // 606 - 83 (one tile)
   TILE_HEIGHT: 83,   // match row * 83 render grid
   TILE_WIDTH: 101    // match col * 101 render grid
 };
@@ -1536,15 +1536,14 @@ if (between(player.x, pizza.x - 60, pizza.x + 60) && between(player.y, pizza.y -
 
         // tiles
         var rowImages = [
-          "/images/tmnt/water-block.png",
-          "/images/tmnt/stone-block.png",
-          "/images/tmnt/stone-block.png",
-          "/images/tmnt/stone-block.png",
-          "/images/tmnt/stone-block.png",   // NEW lane
-          "/images/tmnt/grass-block1.png",
-          "/images/tmnt/grass-block.png"
-        ];
-        var numRows = 7;
+  "/images/tmnt/water-block.png",
+  "/images/tmnt/stone-block.png",
+  "/images/tmnt/stone-block.png",
+  "/images/tmnt/stone-block.png",
+  "/images/tmnt/stone-block.png",
+  "/images/tmnt/grass-block.png"
+];
+        var numRows = 6;
         var numCols = 5;
 
         for (var row = 0; row < numRows; row++) {
