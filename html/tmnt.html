@@ -1143,7 +1143,9 @@ h1{
       if(audioCtx) return;
       audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       analyser = audioCtx.createAnalyser();
-      analyser.fftSize = 128;
+      analyser.fftSize = 256;
+      analyser.smoothingTimeConstant = 0.55;
+
 
       sourceNode = audioCtx.createMediaElementSource(music);
       sourceNode.connect(analyser);
@@ -1212,31 +1214,41 @@ h1{
   if(bossPulse) intensity *= 1.8;
   document.documentElement.style.setProperty('--pulse', intensity + 'px');
 
-  // ===== bass kick detector (NEW) =====
-  let bass = 0;
-  const bassBins = Math.min(10, data.length); // low end
-  for(let i=0;i<bassBins;i++) bass += data[i];
-  bass /= bassBins;
+    // ===== bass kick detector (better: compare LOW vs MID so synth doesn't fake it) =====
+  // With fftSize=256, low bins represent actual low frequencies better.
+  // We calculate: bassScore = LOW - (MID * weight). This filters out synthy mid energy.
+  let low = 0, mid = 0;
+
+  // Low end: bins 1..6 (skip bin 0 DC)
+  for(let i=1;i<=6 && i<data.length;i++) low += data[i];
+  low /= 6;
+
+  // Mid band: bins 10..24
+  let midCount = 0;
+  for(let i=10;i<=24 && i<data.length;i++){ mid += data[i]; midCount++; }
+  mid /= Math.max(1, midCount);
+
+  // bassScore favors true low-end punches
+  let bassScore = Math.max(0, low - (mid * 0.55));
 
   // normalize 0..1
-  const bassN = Math.max(0, Math.min(1, (bass - 25) / 140));
+  const bassN = Math.max(0, Math.min(1, (bassScore - 8) / 70));
 
-  // detect "hit" = rising bass crosses a threshold
+  // detect "hit" = bass rises fast past threshold
   const prev = app.__bassPrev || 0;
-  const rising = (bassN - prev);
+  const rising = bassN - prev;
   app.__bassPrev = bassN;
 
-  // decay the existing kick (so it fades out)
+  // decay kick (snappy)
   app.__bassKick = (app.__bassKick || 0) * 0.72;
 
-  // trigger a new kick only on real hits
-  const HIT_THRESHOLD = 0.58;     // how strong the bass must be
-  const RISE_THRESHOLD = 0.12;    // how fast it must rise
+  const HIT_THRESHOLD  = 0.28;   // lower, because bassN is now cleaner
+  const RISE_THRESHOLD = 0.08;
 
   if(bassN > HIT_THRESHOLD && rising > RISE_THRESHOLD){
-    // set a punchy impulse (cap at 1)
     app.__bassKick = Math.min(1, (app.__bassKick || 0) + bassN);
   }
+
 
   // ===== apply shake ONLY from the kick impulse =====
   const k = app.__bassKick || 0;
@@ -1432,8 +1444,16 @@ function showStartOverlay(on){
 
     app.Player.prototype.renderText = function () {};
     app.Player.prototype.render = function () {
-      app.ctx.drawImage(Resources.get(this.sprite), this.x, this.y + app.DRAW_Y_OFFSET + app.Y_ALIGN.player);
-    };
+  const px = (musicOn && app.__enemyShakeX) ? app.__enemyShakeX : 0;
+  const py = (musicOn && app.__enemyShakeY) ? app.__enemyShakeY : 0;
+
+  app.ctx.drawImage(
+    Resources.get(this.sprite),
+    this.x + px,
+    this.y + app.DRAW_Y_OFFSET + app.Y_ALIGN.player + py
+  );
+};
+
 
     app.Player.prototype.handleInput = function (dir) {
       if (!dir) return;
