@@ -1423,7 +1423,13 @@
 
         for (var row = 0; row < numRows; row++) {
           for (var col = 0; col < numCols; col++) {
-            ctx.drawImage(Resources.get(rowImages[row]), col * 101, row * 83 + app.DRAW_Y_OFFSET);
+            ctx.drawImage(
+            Resources.get(rowImages[row]),
+            col * app.GAME_CONFIG.TILE_WIDTH,
+            row * app.GAME_CONFIG.TILE_HEIGHT + app.DRAW_Y_OFFSET,
+            app.GAME_CONFIG.TILE_WIDTH,
+            app.GAME_CONFIG.TILE_HEIGHT
+            );
           }
         }
 
