@@ -150,10 +150,11 @@
   }
 
   .game-shell{
-    position:relative;
-    width:100%;
-    display:flex;
-    justify-content:center;
+  position:relative;
+  width:100%;
+  display:flex;
+  flex-direction:column;   /* ← ADD THIS */
+  align-items:center;      /* ← ADD THIS */
 
     /* move game window DOWN a bit (without changing the page stack) */
     margin-top: 10px;
