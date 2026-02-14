@@ -619,8 +619,8 @@
 
 /* the drawn pad "plate" */
 .touchpad-plate{
-  width:110px;
-  height:110px;
+  width:10px;
+  height:160px;
   border-radius:28px;
   border:1px solid rgba(157,255,191,.30);
   background:rgba(0,0,0,.22);
@@ -652,10 +652,30 @@
 }
 
 /* arrow positions */
-.touch-up{ left:50%; top:6px; transform:translateX(-50%); }
-.touch-down{ left:50%; bottom:6px; transform:translateX(-50%); }
-.touch-left{ left:16px; top:50%; transform:translateY(-50%); }
-.touch-right{ right:16px; top:50%; transform:translateY(-50%); }
+.touch-up{
+  left:50%;
+  top:12px;
+  transform:translateX(-50%);
+}
+
+.touch-down{
+  left:50%;
+  bottom:12px;
+  transform:translateX(-50%);
+}
+
+.touch-left{
+  left:12px;
+  top:50%;
+  transform:translateY(-50%);
+}
+
+.touch-right{
+  right:12px;
+  top:50%;
+  transform:translateY(-50%);
+}
+
 
 /* show only on mobile */
 @media (max-width:560px){
