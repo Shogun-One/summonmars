@@ -225,8 +225,40 @@
     place-items:center;
     box-shadow: inset 0 0 14px rgba(157,255,191,.12);
     position:relative;
+    overflow:hidden;
+    background: radial-gradient(circle at 35% 30%, rgba(255,255,255,.14), rgba(0,0,0,.35) 45%, rgba(0,0,0,.78) 100%);
+
   }
 
+    /* speaker dustcap */
+.bubble-btn .ring::after{
+  content:"";
+  position:absolute;
+  inset:12px;
+  border-radius:999px;
+  background: radial-gradient(circle at 35% 30%,
+    rgba(255,255,255,.18),
+    rgba(0,0,0,.55) 60%,
+    rgba(0,0,0,.88) 100%);
+  transform: scale(calc(1 + (var(--bassKick) * 0.08)));
+}
+
+    /* speaker cone */
+.bubble-btn .ring::before{
+  content:"";
+  position:absolute;
+  inset:5px;
+  border-radius:999px;
+  background: radial-gradient(circle at 35% 30%,
+    rgba(255,255,255,.10),
+    rgba(0,0,0,.40) 45%,
+    rgba(0,0,0,.82) 100%);
+  box-shadow: inset 0 0 16px rgba(0,0,0,.55);
+  transform: scale(calc(1 + (var(--bassKick) * 0.14)));
+  transition: transform 70ms linear;
+}
+
+    
   .bubble-btn .label{
     position:absolute;
     bottom:62px;
@@ -305,13 +337,20 @@
 :root{
   --uiShakeX: 0px;
   --uiShakeY: 0px;
+  --bassKick: 0;
 }
 
-body.music-on .difficulty-btn,
-body.music-on .music-btn{
-  transform: translate3d(var(--uiShakeX), var(--uiShakeY), 0);
+
+:root{
+  --bassKick: 0; /* 0..1 from JS */
 }
 
+/* shake + pump only the speaker cone (ring), not the whole bubble */
+body.music-on .difficulty-btn .ring,
+body.music-on .music-btn .ring{
+  transform: translate3d(var(--uiShakeX), var(--uiShakeY), 0)
+             scale(calc(1 + (var(--bassKick) * 0.12)));
+}
 
   .controls{
     margin-top:0;
@@ -1188,11 +1227,11 @@ h1{
   app.__bassPrev = bassN;
 
   // decay the existing kick (so it fades out)
-  app.__bassKick = (app.__bassKick || 0) * 0.82;
+  app.__bassKick = (app.__bassKick || 0) * 0.72;
 
   // trigger a new kick only on real hits
-  const HIT_THRESHOLD = 0.45;     // how strong the bass must be
-  const RISE_THRESHOLD = 0.10;    // how fast it must rise
+  const HIT_THRESHOLD = 0.58;     // how strong the bass must be
+  const RISE_THRESHOLD = 0.12;    // how fast it must rise
 
   if(bassN > HIT_THRESHOLD && rising > RISE_THRESHOLD){
     // set a punchy impulse (cap at 1)
@@ -1201,6 +1240,8 @@ h1{
 
   // ===== apply shake ONLY from the kick impulse =====
   const k = app.__bassKick || 0;
+  document.documentElement.style.setProperty('--bassKick', String(k));
+
   const amp = k * 3.0; // px (tiny shake)
 
   // jitter (random-ish) so it feels like a thump, not a vibration
