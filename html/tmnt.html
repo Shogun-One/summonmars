@@ -13,14 +13,19 @@
 
   <style>
   :root{
-    --bg1:#05030b;
-    --bg2:#0b2a12;
-    --accent:#3cff9c;         /* neon green */
-    --accent-soft:#9dffbf;    /* softer green */
-    --hud:#e4e4ff;
-    --danger:#ff2a2a;
-    --ink:#07060a;
-  }
+  --bg1:#05030b;
+  --bg2:#0b2a12;
+  --accent:#3cff9c;
+  --accent-soft:#9dffbf;
+  --hud:#e4e4ff;
+  --danger:#ff2a2a;
+  --ink:#07060a;
+
+  /* NEW: DPAD geometry so logo can lock above it */
+  --dpad-bottom: 88px;
+  --dpad-size: 190px;
+  --logo-gap: 14px; /* space between dpad and logo */
+}
 
   *{ box-sizing:border-box; }
 
@@ -498,15 +503,25 @@
       0 0 30px #ff0000;
   }
 
-  /* ✅ LOGO: float ABOVE overlays and glow more */
-  .tmnt-logo-wrap{
-    position:absolute;
-    left:50%;
-    bottom:-8px;
-    transform:translate(-50%, 40%);
-    z-index:12;              /* was 5, now above startOverlay + gameOverOverlay */
-    pointer-events:none;
-  }
+    /* ✅ LOGO: hidden during gameplay, only shown on overlays via JS class */
+.tmnt-logo-wrap{
+  display:none;                 /* default: hidden */
+  position: fixed;              /* lock to viewport */
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: calc(var(--dpad-bottom) + var(--dpad-size) + var(--logo-gap));
+  z-index: 12;
+  pointer-events: none;
+}
+
+.tmnt-logo-wrap.show-on-overlay{
+  display:block;
+}
+
+
+.tmnt-logo-wrap.show-on-overlay{
+  display:block;
+}
 
   .tmnt-logo {
     max-width: 260px;
@@ -569,9 +584,9 @@
     position: fixed;
     left: 50%;
     transform: translateX(-50%);
-    bottom: 88px;                 /* was 112px: drop it lower */
-    width: 190px;
-    height: 190px;
+    bottom: var(--dpad-bottom);
+    width: var(--dpad-size);
+    height: var(--dpad-size);
     border-radius: 18px;
     background: transparent;
     border: none;
@@ -1151,10 +1166,15 @@
 
     // Start overlay / 2-second grace
     const startOverlay = document.getElementById('startOverlay');
-    function showStartOverlay(on){
-      startOverlay.classList.toggle('active', on);
-      startOverlay.setAttribute('aria-hidden', on ? 'false' : 'true');
-    }
+const logoWrap = document.querySelector('.tmnt-logo-wrap');
+
+function showStartOverlay(on){
+  startOverlay.classList.toggle('active', on);
+  startOverlay.setAttribute('aria-hidden', on ? 'false' : 'true');
+
+  // ✅ show logo only on GET READY overlay
+  if (logoWrap) logoWrap.classList.toggle('show-on-overlay', on);
+}
 
     app.GameState = {
       level: 1,
@@ -1433,6 +1453,8 @@
 
               const go = document.getElementById('gameOverOverlay');
               if (go) { go.classList.add('active'); go.setAttribute('aria-hidden', 'false'); }
+              if (logoWrap) logoWrap.classList.add('show-on-overlay');
+
 
               updateHud();
               return;
@@ -1459,6 +1481,8 @@
 
             const go = document.getElementById('gameOverOverlay');
             if (go) { go.classList.add('active'); go.setAttribute('aria-hidden', 'false'); }
+            if (logoWrap) logoWrap.classList.add('show-on-overlay');
+
 
             updateHud();
             return;
