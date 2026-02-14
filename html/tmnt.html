@@ -595,9 +595,6 @@
 
    /* ===== MOBILE TOUCHPAD (fixed bottom) ===== */
 .mobile-touchpad{
-  position:fixed;
-  left:0;
-  bottom:0;
   width:100%;
   height:115px;
 
@@ -605,19 +602,19 @@
   align-items:center;
   justify-content:center;
 
-  background:linear-gradient(
-    to top,
-    rgba(0,0,0,.92),
-    rgba(0,0,0,.65)
-  );
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  margin-top:10px;           /* space under game window */
+  margin-bottom:6px;         /* tiny cushion before footer area */
 
-  border-top:1px solid rgba(157,255,191,.22);
-  box-shadow:0 -14px 55px rgba(60,255,156,.14);
+  background:rgba(0,0,0,.22);  /* lighter “attached” plate feel */
+  border:1px solid rgba(157,255,191,.18);
+  border-radius:18px;
 
-  z-index:30;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+
+  box-shadow:0 0 22px rgba(60,255,156,.10);
 }
+
 
 /* the drawn pad "plate" */
 .touchpad-plate{
@@ -666,7 +663,6 @@
  
 
   /* Small screens tuning */
-  body{ padding: 10px 10px 180px; }
     h1{ font-size:1.35rem; }
     .subtitle{ font-size:.9rem; }
     .bubble-btn{ bottom:12px; width:52px; height:52px; }
@@ -685,7 +681,7 @@ h1{
 }
     
     /* keep reserve consistent on small */
-    body{ padding: 10px 10px 180px; }
+    body{ padding: 10px 10px 110px; }
 
   }
 </style>
@@ -749,6 +745,16 @@ h1{
         <p class="big">GET READY</p>
         <div class="small">Music bubble is waiting patiently 😌</div>
       </div>
+
+       <!-- Mobile Touchpad -->
+<div class="mobile-touchpad" aria-hidden="false">
+  <div class="touchpad-plate">
+    <div class="touch-arrow touch-up" data-dir="up">↑</div>
+    <div class="touch-arrow touch-left" data-dir="left">←</div>
+    <div class="touch-arrow touch-right" data-dir="right">→</div>
+    <div class="touch-arrow touch-down" data-dir="down">↓</div>
+  </div>
+</div>
 
       <!-- Game Over overlay -->
       <div id="gameOverOverlay" aria-hidden="true">
@@ -1783,16 +1789,6 @@ function showStartOverlay(on){
       });
     })();
   </script>
-
-  <!-- Mobile Touchpad -->
-<div class="mobile-touchpad" aria-hidden="false">
-  <div class="touchpad-plate">
-    <div class="touch-arrow touch-up" data-dir="up">↑</div>
-    <div class="touch-arrow touch-left" data-dir="left">←</div>
-    <div class="touch-arrow touch-right" data-dir="right">→</div>
-    <div class="touch-arrow touch-down" data-dir="down">↓</div>
-  </div>
-</div>
   
   <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 </body>
