@@ -644,38 +644,55 @@
   color:var(--accent-soft);
   user-select:none;
   -webkit-user-select:none;
-  touch-action:none;
+  touch-action: manipulation;
+
+  /* ✅ fix: combine centering + nudge + scale in ONE transform */
+  --tx: 0px;
+  --ty: 0px;
+  --pressX: 0px;
+  --pressY: 0px;
+  --scale: 1;
+  transform: translate(calc(var(--tx) + var(--pressX)), calc(var(--ty) + var(--pressY))) scale(var(--scale));
+  transition: transform 90ms ease, background 90ms ease;
 }
 
 .touch-arrow:active{
   background:rgba(60,255,156,.18);
-  transform:scale(.96);
+  --scale: .96;
+  --pressX: var(--pressActiveX, 0px);
+  --pressY: var(--pressActiveY, 0px);
 }
+
 
 /* arrow positions */
 .touch-up{
   left:50%;
   top:12px;
-  transform:translateX(-50%);
+  --tx:-50%;
+  --pressActiveY:-6px;
 }
 
 .touch-down{
   left:50%;
   bottom:12px;
-  transform:translateX(-50%);
+  --tx:-50%;
+  --pressActiveY:6px;
 }
 
 .touch-left{
   left:12px;
   top:50%;
-  transform:translateY(-50%);
+  --ty:-50%;
+  --pressActiveX:-6px;
 }
 
 .touch-right{
   right:12px;
   top:50%;
-  transform:translateY(-50%);
+  --ty:-50%;
+  --pressActiveX:6px;
 }
+
 
 
 /* show only on mobile */
