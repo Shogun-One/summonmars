@@ -373,6 +373,13 @@ body.music-on .music-btn .ring{
              scale(calc(1 + (var(--bassKick) * 0.12)));
 }
 
+    /* ALSO shake + pump the OUTSIDE stamp woofers */
+body.music-on .stamp-woofer{
+  transform: translate3d(var(--uiShakeX), var(--uiShakeY), 0)
+             scale(calc(1 + (var(--bassKick) * 0.12)));
+}
+
+
   .controls{
     margin-top:0;
     line-height:1.2;
