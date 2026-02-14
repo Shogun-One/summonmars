@@ -619,26 +619,33 @@ body.music-on .music-btn .ring{
     drop-shadow(0 0 28px rgba(60,255,156,.18));
 }
 
-  /* ===== Desktop Splash Stamps ===== */
-  .splash{
-  position:absolute;
-  bottom:-55px;   /* THIS is the magic */
-  width:110px;
-  height:auto;
-  opacity:0.9;
-  pointer-events:none;
-  z-index:6;
-  filter: drop-shadow(0 0 14px rgba(60,255,156,.25));
+  /* ===== Desktop Splash Stamps (platform-proof) ===== */
+:root{
+  --tile: 101px;                 /* 1 tile width */
+  --stamp-diag: var(--tile);     /* move distance */
 }
 
-    .splash-left{
-  left:262px;  /* tile 2 center (252) + 10 padding */
-  transform: translateX(-50%);
+.splash{
+  position:absolute;
+  top: 390px;                    /* keep your vertical placement */
+  width:110px;
+  height:auto;
+  opacity:0.85;
+  pointer-events:none;
+  z-index:4;
+  filter: drop-shadow(0 0 14px rgba(60,255,156,.25));
+
+  /* BOTH stamps move together NW (↖) by 1 tile */
+  transform: translate(calc(-1 * var(--stamp-diag)), calc(-1 * var(--stamp-diag)));
+}
+
+/* anchor to canvas width instead of magic pixels */
+.splash-left{
+  left: 40%;                     /* tune this to sit on left turtle face */
 }
 
 .splash-right{
-  left:464px;  /* tile 4 center (454) + 10 padding */
-  transform: translateX(-50%);
+  left: 72%;                     /* tune this to sit on right turtle face */
 }
 
 
