@@ -1232,11 +1232,12 @@ canvas#game{
       app.ACTORS = {
         player: new app.Player(),
         allEnemies: [
-          new app.Enemy(0),
-          new app.Enemy(83),
-          new app.Enemy(166),
-          new app.Enemy(249)
-        ],
+  new app.Enemy(-83),
+  new app.Enemy(0),
+  new app.Enemy(83),
+  new app.Enemy(166)
+],
+
         pizza: new app.Pizza(),
         heart: new app.Heart()
       };
@@ -1293,7 +1294,7 @@ canvas#game{
         app.ACTORS.player.score = 0;
         app.GameState.updateFromScore(0);
 
-        aapp.ACTORS.allEnemies = [
+        app.ACTORS.allEnemies = [
   new app.Enemy(0),
   new app.Enemy(83),
   new app.Enemy(166),
@@ -1369,15 +1370,16 @@ canvas#game{
           }
         });
 
-        if (player.y <= 0) {
-          player.life--;
-          if (player.life <= 0) initRun(true);
-          else {
-            player.x = app.START_X;
-            player.y = app.START_Y;
-            startWithCountdown(1200);
-          }
-        }
+        if (player.y <= -app.GAME_CONFIG.TILE_HEIGHT) {
+  // reached the goal row: score instead of die
+  player.score += 1;
+  app.GameState.updateFromScore(player.score);
+
+  player.x = app.START_X;
+  player.y = app.START_Y;
+
+  startWithCountdown(450);
+}
 
         if (between(player.x, pizza.x - 60, pizza.x + 60) && between(player.y, pizza.y - 10, pizza.y + 10)) {
           var currentType = pizza.pizzaTypes[pizza.typeIndex];
@@ -1416,7 +1418,7 @@ canvas#game{
 
         while (allEnemies.length < desiredCount) {
           var laneIndex = allEnemies.length % 4;
-          var laneY = laneIndex * app.GAME_CONFIG.TILE_HEIGHT;
+          var laneY = -app.GAME_CONFIG.TILE_HEIGHT + laneIndex * app.GAME_CONFIG.TILE_HEIGHT;
           allEnemies.push(new app.Enemy(laneY));
         }
 
