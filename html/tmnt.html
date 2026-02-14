@@ -1332,6 +1332,7 @@ function showStartOverlay(on){
 
     app.Player.prototype.handleInput = function (dir) {
       if (!dir) return;
+      if (!app.__running || app.__gameOver || window.__securityFreeze) return;
 
       if (dir === "up"    && this.y > app.MIN_Y) this.y -= app.GAME_CONFIG.TILE_HEIGHT;
       if (dir === "down"  && this.y < app.MAX_Y) this.y += app.GAME_CONFIG.TILE_HEIGHT;
