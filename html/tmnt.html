@@ -621,24 +621,26 @@ body.music-on .music-btn .ring{
 
   /* ===== Desktop Splash Stamps ===== */
   .splash{
-    position:absolute;
-    top:390px;
-    width:110px;
-    height:auto;
-    opacity:0.85;
-    pointer-events:none;
-    z-index:4;
-    filter: drop-shadow(0 0 14px rgba(60,255,156,.25));
-  }
+  position:absolute;
+  bottom:-55px;   /* THIS is the magic */
+  width:110px;
+  height:auto;
+  opacity:0.9;
+  pointer-events:none;
+  z-index:6;
+  filter: drop-shadow(0 0 14px rgba(60,255,156,.25));
+}
+
     .splash-left{
-  left: 262px;        /* center of tile 2 */
+  left:262px;  /* tile 2 center (252) + 10 padding */
   transform: translateX(-50%);
 }
 
 .splash-right{
-  left: 464px;        /* center of tile 4 */
+  left:464px;  /* tile 4 center (454) + 10 padding */
   transform: translateX(-50%);
 }
+
 
   /* --- FIXED FOOTER + COUNTER --- */
   footer {
