@@ -141,11 +141,9 @@
   border: 1px solid rgba(157,255,191,.22);
 
   box-shadow:
-    0 0 35px rgba(0,0,0,.85),
-    0 0 55px rgba(60,255,156,.45),
+    0 0 calc(35px + var(--pulse, 0px)) rgba(0,0,0,.85),
+    0 0 calc(55px + var(--pulse, 0px)) rgba(60,255,156,.45),
     inset 0 0 26px rgba(60,255,156,.18);
-
-  z-index:2;
 }
 
 canvas#game{
@@ -987,22 +985,82 @@ canvas#game{
     async function toggleMusic(){
       try{
         if(!musicOn){
-          music.volume = 0.75;
-          await music.play();
-          musicOn = true;
-          setMusicUI(true);
-        }else{
-          music.pause();
-          musicOn = false;
-          setMusicUI(false);
-        }
+
+  setupAudioAnalyzer();
+  if(audioCtx.state === "suspended") await audioCtx.resume();
+
+  music.volume = 0.75;
+  await music.play();
+
+  pulseActive = true;
+
+  musicOn = true;
+  setMusicUI(true);
+
+}else{
+
+  music.pause();
+
+  pulseActive = false;
+  bossPulse = false;
+  document.documentElement.style.setProperty('--pulse','0px');
+
+  musicOn = false;
+  setMusicUI(false);
+
+}
+
       }catch(err){
         musicOn = false;
         setMusicUI(false);
         console.warn('Music could not start:', err);
       }
-    }
+      
     musicBtn.addEventListener('click', (e) => { e.preventDefault(); toggleMusic(); });
+
+    // =====================
+// Ambient Pulse System
+// =====================
+let audioCtx, analyser, sourceNode;
+let pulseActive = false;
+let bossPulse = false;
+
+function setupAudioAnalyzer(){
+  if(audioCtx) return;
+
+  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  analyser = audioCtx.createAnalyser();
+  analyser.fftSize = 128;
+
+  sourceNode = audioCtx.createMediaElementSource(music);
+  sourceNode.connect(analyser);
+  analyser.connect(audioCtx.destination);
+}
+
+function updatePulse(){
+  if(!pulseActive){
+    document.documentElement.style.setProperty('--pulse', '0px');
+    return;
+  }
+
+  const data = new Uint8Array(analyser.frequencyBinCount);
+  analyser.getByteFrequencyData(data);
+
+  let avg = 0;
+  for(let i=0;i<data.length;i++){
+    avg += data[i];
+  }
+  avg /= data.length;
+
+  // scale intensity
+  let intensity = avg * 0.25;
+
+  if(bossPulse){
+    intensity *= 1.8; // boss boost
+  }
+
+  document.documentElement.style.setProperty('--pulse', intensity + 'px');
+}
 
     // =========================
     // HUD elements
@@ -1237,14 +1295,13 @@ canvas#game{
       app.DRAW_Y_OFFSET = -35;
 
       // movement bounds (grid space)
-app.MIN_Y = -app.GAME_CONFIG.TILE_HEIGHT;      // one tile ABOVE the water row
+app.START_X = 202;
+app.START_Y = 332;
+
+app.MIN_Y = -app.GAME_CONFIG.TILE_HEIGHT;
 app.MAX_Y = app.START_Y;
-  // bottom grass row
 
-      app.Y_ALIGN = { player: -18, enemy: -14, pizza: -20, heart: -20 };
-
-      app.START_X = 202;
-      app.START_Y = 332;
+app.Y_ALIGN = { player: -18, enemy: -14, pizza: -20, heart: -20 };
 
       app.ACTORS = {
         player: new app.Player(),
@@ -1504,8 +1561,9 @@ if (player.y < 0) {
         lastTime = ts;
 
         update(dt);
-        drawSky();
-        render();
+updatePulse();
+drawSky();
+render();
 
         rafId = win.requestAnimationFrame(main);
       }
