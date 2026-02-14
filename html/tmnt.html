@@ -1389,7 +1389,7 @@ allEnemies.forEach(function (enemy) {
     if (player.life <= 0) {
       // snap to default start
       player.x = 200;
-      player.y = 350;
+      player.y = 420;
 
       // stop the run
       app.__running = false;
@@ -1408,7 +1408,7 @@ allEnemies.forEach(function (enemy) {
 
     // keep score, just re-center and give a short grace
     player.x = 200;
-    player.y = 350;
+    player.y = 420;
     startWithCountdown(1200);
 
     updateHud();
@@ -1426,7 +1426,7 @@ if (player.y <= 0) {
   } else {
     // keep score, reset position and give a short grace
     player.x = 200;
-    player.y = 350;
+    player.y = 420;
     startWithCountdown(1200);
   }
 }
@@ -1440,7 +1440,7 @@ if (between(player.x, pizza.x - 60, pizza.x + 60) && between(player.y, pizza.y -
 
   // Reset player to starting position (bottom center) after grabbing pizza
   player.x = 200;
-  player.y = 350;
+  player.y = 420;
 
   // light ramp: add tiny grace to read HUD (feels arcade-y)
   startWithCountdown(450);
