@@ -528,7 +528,7 @@
   position: fixed;
   left: 50%;
   transform: translateX(-50%);
-  bottom: calc(var(--dpad-bottom) + (var(--dpad-size) * 0.55)); /* sits OVER the dpad */
+  bottom: 150px; /* adjust if you want it higher/lower */
   z-index: 12;
   pointer-events: none;
 }
@@ -593,59 +593,6 @@
     z-index: 20;
   }
 
-  /* ===== MOBILE DPAD (single definition, no duplicates) ===== */
-  #dpadBtn{
-    position: fixed;
-    left: 50%;
-    transform: translateX(-50%);
-    bottom: var(--dpad-bottom);
-    width: var(--dpad-size);
-    height: var(--dpad-size);
-    border-radius: 18px;
-    background: transparent;
-    border: none;
-    box-shadow: none;
-
-    z-index: 10;                  /* ✅ BELOW logo (12), ABOVE page stuff */
-    padding: 0;
-  }
-
-  @media (min-width: 960px){
-    #dpadBtn{ display:none !important; }
-    body{ padding-bottom: 110px; } /* smaller reserve on desktop */
-  }
-
-  .dpad{
-    position:relative;
-    width:100%;
-    height:100%;
-  }
-
-  .dpad button{
-    position:absolute;
-    width: 72px;
-    height: 72px;
-
-    background: rgba(255,0,0,0.18);
-    border: 2px solid rgba(255,60,60,0.85);
-    border-radius: 16px;
-    box-shadow: 0 0 14px rgba(255,0,0,0.65);
-    cursor:pointer;
-
-    -webkit-tap-highlight-color: transparent;
-    touch-action: manipulation;
-  }
-
-  .dpad button:active{
-    transform: scale(0.94);
-    box-shadow: 0 0 20px rgba(255,0,0,1);
-  }
-
-  .dpad .up    { top: 0;    left: 59px; }
-  .dpad .down  { bottom: 0; left: 59px; }
-  .dpad .left  { left: 0;   top: 59px; }
-  .dpad .right { right: 0;  top: 59px; }
-
   /* Small screens tuning */
   @media (max-width:560px){
     h1{ font-size:1.35rem; }
@@ -657,7 +604,7 @@
     .security-banner{ bottom:10px; font-size:.7rem; }
 
     /* keep reserve consistent on small */
-    body{ padding: 10px 10px 170px; }
+    body{ padding: 10px 10px 110px; }
 
   }
 </style>
@@ -744,16 +691,6 @@
         <span class="label" id="musicLabel">Music Off</span>
         <span class="ring"><span class="dot"></span></span>
       </button>
-    </div>
-  </div>
-
-  <!-- Mobile DPad -->
-  <div class="bubble-btn dpad-btn" id="dpadBtn" aria-label="DPad">
-    <div class="dpad">
-      <button class="up" data-dir="up"></button>
-      <button class="left" data-dir="left"></button>
-      <button class="right" data-dir="right"></button>
-      <button class="down" data-dir="down"></button>
     </div>
   </div>
 
@@ -1733,22 +1670,6 @@ function showStartOverlay(on){
           app.ACTORS.player.handleInput(dir);
         }
       }, { passive:false });
-    })();
-
-    // DPAD click movement
-    (function(){
-      const pad = document.getElementById('dpadBtn');
-      if(!pad) return;
-
-      pad.querySelectorAll('button').forEach(btn=>{
-        btn.addEventListener('click', function(e){
-          e.preventDefault();
-          const dir = this.getAttribute('data-dir');
-          if (window.app && app.ACTORS && app.ACTORS.player){
-            app.ACTORS.player.handleInput(dir);
-          }
-        });
-      });
     })();
 
     // Character select hookup
