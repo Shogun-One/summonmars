@@ -1177,8 +1177,7 @@
     let bestScore = Number(localStorage.getItem('tmntBest') || 0);
     bestEl.textContent = bestScore;
 
-    // Start overlay / 2-second grace
-const startOverlay = document.getElementById('startOverlay');
+    const startOverlay = document.getElementById('startOverlay');
 const logoWrap = document.querySelector('.tmnt-logo-wrap');
 
 function setLogo(on){
@@ -1191,12 +1190,8 @@ function showStartOverlay(on){
   startOverlay.classList.toggle('active', !!on);
   startOverlay.setAttribute('aria-hidden', on ? 'false' : 'true');
 
-  // logo only during overlays
+  // logo only during overlays (GET READY countdown)
   setLogo(on);
-}
-
-  // ✅ show logo only on GET READY overlay
-  if (logoWrap) logoWrap.classList.toggle('show-on-overlay', on);
 }
 
     app.GameState = {
@@ -1557,7 +1552,7 @@ function showStartOverlay(on){
 
         while (allEnemies.length < desiredCount) {
           var laneIndex = allEnemies.length % 4;
-          var laneY = -app.GAME_CONFIG.TILE_HEIGHT + laneIndex * app.GAME_CONFIG.TILE_HEIGHT;
+          var laneY = laneIndex * app.GAME_CONFIG.TILE_HEIGHT;
           allEnemies.push(new app.Enemy(laneY));
         }
 
