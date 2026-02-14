@@ -913,35 +913,39 @@ body.music-on .stamp-woofer{
 
 
 
-/* show only on mobile */
+/* ===== MOBILE (everything in one place) ===== */
 @media (max-width:560px){
+
+  /* IMPORTANT: stop vertical centering on phones */
+  body{
+    justify-content:flex-start;   /* was center */
+    padding: 10px 10px 90px;      /* bottom reserve still */
+  }
+
   .mobile-touchpad{ display:flex; }
-}
- 
+
+  /* LIFT EVERYTHING (TMNT -> stamps) up to your red X */
+  .wrapper{
+    transform: translateY(-55px); /* tweak: -45 .. -80 */
+    gap:.05rem;
+  }
 
   /* Small screens tuning */
-    .title-top{ font-size:2.2rem; }
-    .title-sub{ font-size:1.1rem; }
-    .subtitle{ font-size:.9rem; }
-    .bubble-btn{ bottom:12px; width:52px; height:52px; }
-    .difficulty-btn{ left:12px; }
-    .music-btn{ right:12px; }
-    .bubble-btn .label{ bottom:60px; }
-    .security-banner{ bottom:10px; font-size:.7rem; }
+  .title-top{ font-size:2.2rem; }
+  .title-sub{ font-size:1.1rem; }
+  .subtitle{ font-size:.9rem; }
 
-    .wrapper{
-  margin-top:-10px;
-  gap:.05rem;
+  .bubble-btn{ bottom:12px; width:52px; height:52px; }
+  .difficulty-btn{ left:12px; }
+  .music-btn{ right:12px; }
+  .bubble-btn .label{ bottom:60px; }
+
+  .security-banner{ bottom:10px; font-size:.7rem; }
+
+  h1{ line-height:1.1; }
 }
 
-h1{
-  line-height:1.1;
-}
-    
-    /* keep reserve consistent on small */
-     body{ padding: 6px 10px 90px; }
 
-  }
 </style>
 
 </head>
