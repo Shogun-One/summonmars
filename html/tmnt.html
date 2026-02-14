@@ -295,18 +295,6 @@
     box-shadow:0 0 10px rgba(60,255,156,.55);
   }
 
-  /* Restart bubble (TOP-CENTER over the game window) */
-  .restart-btn{
-    top: 12px;
-    bottom: auto;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 8;
-  }
-  .restart-btn:active{
-    transform: translateX(-50%) translateY(1px);
-  }
-
     /* Restart gets its own size + placement */
 .restart-btn{
   width:28px;                 /* ~1/3 of the big 80px bubbles */
@@ -376,11 +364,6 @@
   --uiShakeX: 0px;
   --uiShakeY: 0px;
   --bassKick: 0;
-}
-
-
-:root{
-  --bassKick: 0; /* 0..1 from JS */
 }
 
 /* shake + pump only the speaker cone (ring), not the whole bubble */
