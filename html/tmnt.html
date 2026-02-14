@@ -1163,7 +1163,7 @@ footer {
     };
 
     app.Enemy.prototype.render = function () {
-  app.ctx.drawImage(Resources.get(this.sprite), this.x, this.y + app.DRAW_Y_OFFSET - 12);
+  app.ctx.drawImage(Resources.get(this.sprite), this.x, this.y + app.DRAW_Y_OFFSET + app.Y_ALIGN.player);
 };
 
 
@@ -1184,7 +1184,7 @@ footer {
   app.ctx.drawImage(
     Resources.get(this.sprite),
     this.x,
-    this.y + app.DRAW_Y_OFFSET - 12
+    this.y + app.DRAW_Y_OFFSET + app.Y_ALIGN.player
   );
 };
 
@@ -1227,7 +1227,7 @@ footer {
     };
 
       app.Pizza.prototype.render = function () { 
-      app.ctx.drawImage(Resources.get(this.sprite), this.x, this.y + app.DRAW_Y_OFFSET - 12); 
+      app.ctx.drawImage(Resources.get(this.sprite), this.x, this.y + app.DRAW_Y_OFFSET + app.Y_ALIGN.pizza); 
     };
 
     // --- Heart (extra life) ---
@@ -1247,7 +1247,7 @@ footer {
     };
 
      app.Heart.prototype.render = function () {
-     app.ctx.drawImage(Resources.get(this.sprite), this.x, this.y + app.DRAW_Y_OFFSET - 12);
+     app.ctx.drawImage(Resources.get(this.sprite), this.x, this.y + app.DRAW_Y_OFFSET + app.Y_ALIGN.heart);
     };
 
     // --- Engine / loop (refactored to support pause + 2s countdown + restart bubble) ---
@@ -1259,6 +1259,13 @@ footer {
   TILE_WIDTH: 101    // match col * 101 render grid
 };
 app.DRAW_Y_OFFSET = -30; // tweak: -20, -30, -40 until perfect
+
+      app.Y_ALIGN = {
+  player: -18,
+  enemy:  -14,
+  pizza:  -20,
+  heart:  -20
+};
 
       app.START_X = 202;
       app.START_Y = 415;
