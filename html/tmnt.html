@@ -1180,7 +1180,11 @@ footer {
     app.Player.prototype.renderText = function () { /* HUD handled in DOM */ };
 
     app.Player.prototype.render = function () {
-  app.ctx.drawImage(Resources.get(this.sprite), this.x, this.y + app.DRAW_Y_OFFSET);
+  app.ctx.drawImage(
+    Resources.get(this.sprite),
+    this.x,
+    this.y + app.DRAW_Y_OFFSET - 12
+  );
 };
 
     app.Player.prototype.handleInput = function (dir) {
@@ -1260,11 +1264,11 @@ app.DRAW_Y_OFFSET = -30; // tweak: -20, -30, -40 until perfect
 
       app.ACTORS = {
         player: new app.Player(),
-          allEnemies: [
-  new app.Enemy(60),
-  new app.Enemy(143),
-  new app.Enemy(226),
-  new app.Enemy(309)
+          aallEnemies: [
+  new app.Enemy(83),
+  new app.Enemy(166),
+  new app.Enemy(249),
+  new app.Enemy(332)
 ],
 
         pizza: new app.Pizza(),
@@ -1332,10 +1336,10 @@ app.DRAW_Y_OFFSET = -30; // tweak: -20, -30, -40 until perfect
         app.GameState.updateFromScore(0);
 
         app.ACTORS.allEnemies = [
-  new app.Enemy(60),
-  new app.Enemy(143),
-  new app.Enemy(226),
-  new app.Enemy(309)
+  new app.Enemy(83),
+  new app.Enemy(166),
+  new app.Enemy(249),
+  new app.Enemy(332)
 ];
 
         app.ACTORS.pizza = new app.Pizza();
@@ -1478,7 +1482,7 @@ if (between(player.x, pizza.x - 60, pizza.x + 60) && between(player.y, pizza.y -
 
         while (allEnemies.length < desiredCount) {
           var laneIndex = allEnemies.length % 4;
-          var laneY = 60 + laneIndex * app.GAME_CONFIG.TILE_HEIGHT;
+          var laneY = 83 + laneIndex * app.GAME_CONFIG.TILE_HEIGHT;
           allEnemies.push(new app.Enemy(laneY));
         }
 
