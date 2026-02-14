@@ -982,6 +982,31 @@ canvas#game{
     }
     setMusicUI(false);
 
+    // =====================
+// Ambient Pulse System
+// =====================
+let audioCtx, analyser, sourceNode;
+let pulseActive = false;
+let bossPulse = false;
+
+function setupAudioAnalyzer(){
+  if(audioCtx) return;
+
+  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  analyser = audioCtx.createAnalyser();
+  analyser.fftSize = 128;
+
+  sourceNode = audioCtx.createMediaElementSource(music);
+  sourceNode.connect(analyser);
+  analyser.connect(audioCtx.destination);
+}
+
+function updatePulse(){
+  if(!pulseActive){
+    document.documentElement.style.setProperty('--pulse', '0px');
+    return;
+  }
+
     async function toggleMusic(){
       try{
         if(!musicOn){
@@ -1015,33 +1040,11 @@ canvas#game{
         setMusicUI(false);
         console.warn('Music could not start:', err);
       }
+    |
       
     musicBtn.addEventListener('click', (e) => { e.preventDefault(); toggleMusic(); });
 
-    // =====================
-// Ambient Pulse System
-// =====================
-let audioCtx, analyser, sourceNode;
-let pulseActive = false;
-let bossPulse = false;
-
-function setupAudioAnalyzer(){
-  if(audioCtx) return;
-
-  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  analyser = audioCtx.createAnalyser();
-  analyser.fftSize = 128;
-
-  sourceNode = audioCtx.createMediaElementSource(music);
-  sourceNode.connect(analyser);
-  analyser.connect(audioCtx.destination);
-}
-
-function updatePulse(){
-  if(!pulseActive){
-    document.documentElement.style.setProperty('--pulse', '0px');
-    return;
-  }
+    
 
   const data = new Uint8Array(analyser.frequencyBinCount);
   analyser.getByteFrequencyData(data);
