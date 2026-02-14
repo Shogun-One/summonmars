@@ -1163,15 +1163,16 @@ footer {
     };
 
     app.Enemy.prototype.render = function () {
-  app.ctx.drawImage(Resources.get(this.sprite), this.x, this.y + app.DRAW_Y_OFFSET);
+  app.ctx.drawImage(Resources.get(this.sprite), this.x, this.y + app.DRAW_Y_OFFSET - 12);
 };
+
 
     // --- Player ---
     app.Player = function (sprite) {
       this.life = 3;
       this.score = 0;
-      this.x = 202;
-      this.y = 390;
+      this.x = app.START_X;
+      this.y = app.START_Y;
       this.sprite = sprite || "/images/tmnt/leo-ico.png";
       app.GameState.updateFromScore(this.score);
     };
@@ -1199,7 +1200,7 @@ footer {
 
     // --- Pizza (collectible) ---
     app.Pizza = function () {
-      this.y = 60;
+      this.y = 83;
       this.x = app.GAME_CONFIG.TILE_WIDTH * Math.floor(Math.random() * 5);
 
       this.pizzaTypes = [
@@ -1226,12 +1227,12 @@ footer {
     };
 
       app.Pizza.prototype.render = function () { 
-      app.ctx.drawImage(Resources.get(this.sprite), this.x, this.y + app.DRAW_Y_OFFSET); 
+      app.ctx.drawImage(Resources.get(this.sprite), this.x, this.y + app.DRAW_Y_OFFSET - 12); 
     };
 
     // --- Heart (extra life) ---
     app.Heart = function () {
-      this.y = 60;
+      this.y = 83;
       this.notVisible = true;
       this.x = -100;
       this.sprite = "/images/tmnt/Heart.png";
@@ -1246,7 +1247,7 @@ footer {
     };
 
      app.Heart.prototype.render = function () {
-     app.ctx.drawImage(Resources.get(this.sprite), this.x, this.y + app.DRAW_Y_OFFSET);
+     app.ctx.drawImage(Resources.get(this.sprite), this.x, this.y + app.DRAW_Y_OFFSET - 12);
     };
 
     // --- Engine / loop (refactored to support pause + 2s countdown + restart bubble) ---
@@ -1264,7 +1265,7 @@ app.DRAW_Y_OFFSET = -30; // tweak: -20, -30, -40 until perfect
 
       app.ACTORS = {
         player: new app.Player(),
-          aallEnemies: [
+          allEnemies: [
   new app.Enemy(83),
   new app.Enemy(166),
   new app.Enemy(249),
@@ -1396,7 +1397,7 @@ allEnemies.forEach(function (enemy) {
 
     if (player.life <= 0) {
       // snap to default start
-      player.x = 202;
+      player.x = app.START_X;
       player.y = app.START_Y;
 
       // stop the run
