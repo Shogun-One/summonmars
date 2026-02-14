@@ -645,8 +645,6 @@
     /* keep reserve consistent on small */
     body{ padding: 10px 10px 170px; }
 
-    /* nudge dpad a hair lower on tiny screens */
-    #dpadBtn{ bottom: 82px; }
   }
 </style>
 
@@ -1329,10 +1327,10 @@ function showStartOverlay(on){
       app.ACTORS = {
         player: new app.Player(),
         allEnemies: [
-          new app.Enemy(-83),
           new app.Enemy(0),
           new app.Enemy(83),
-          new app.Enemy(166)
+          new app.Enemy(166),
+          new app.Enemy(249)
         ],
         pizza: new app.Pizza(),
         heart: new app.Heart()
