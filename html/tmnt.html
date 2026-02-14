@@ -1187,13 +1187,13 @@ footer {
       if (!dir) return;
       if (dir === "up" && this.y > 0) this.y -= app.GAME_CONFIG.TILE_HEIGHT;
       if (dir === "down" && this.y < 400) this.y += app.GAME_CONFIG.TILE_HEIGHT;
-      if (dir === "right" && this.x < 400) this.x += app.GAME_CONFIG.TILE_WIDTH;
+      if (dir === "right" && this.x < 404) this.x += app.GAME_CONFIG.TILE_WIDTH;
       if (dir === "left" && this.x > 0) this.x -= app.GAME_CONFIG.TILE_WIDTH;
     };
 
     // --- Pizza (collectible) ---
     app.Pizza = function () {
-      this.y = 70;
+      this.y = 60;
       this.x = app.GAME_CONFIG.TILE_WIDTH * Math.floor(Math.random() * 5);
 
       this.pizzaTypes = [
@@ -1225,7 +1225,7 @@ footer {
 
     // --- Heart (extra life) ---
     app.Heart = function () {
-      this.y = 70;
+      this.y = 60;
       this.notVisible = true;
       this.x = -100;
       this.sprite = "/images/tmnt/Heart.png";
@@ -1248,20 +1248,20 @@ footer {
       app.GAME_CONFIG = {
   CANVAS_WIDTH: 505,
   CANVAS_HEIGHT: 606,
-  TILE_HEIGHT: 70,
-  TILE_WIDTH: 100
+  TILE_HEIGHT: 83,   // match row * 83 render grid
+  TILE_WIDTH: 101    // match col * 101 render grid
 };
 app.DRAW_Y_OFFSET = -30; // tweak: -20, -30, -40 until perfect
 
 
       app.ACTORS = {
         player: new app.Player(),
-          allEnemies: [
-    new app.Enemy(70),
-    new app.Enemy(140),
-    new app.Enemy(210),
-    new app.Enemy(280)
-  ],
+          aallEnemies: [
+  new app.Enemy(60),
+  new app.Enemy(143),
+  new app.Enemy(226),
+  new app.Enemy(309)
+],
 
         pizza: new app.Pizza(),
         heart: new app.Heart()
