@@ -522,20 +522,20 @@
       0 0 30px #ff0000;
   }
 
-    /* ✅ TMNT LOGO: hidden during gameplay, only shown on overlays */
+/* ✅ TMNT LOGO: hidden during gameplay, only shown on overlays */
 .tmnt-logo-wrap{
   display:none;
   position: fixed;
   left: 50%;
   transform: translateX(-50%);
-  bottom: calc(var(--dpad-bottom) + (var(--dpad-size) * 0.55)); /* sits OVER the dpad */
-  z-index: 12;
+
+  /* LOCKED over DPAD */
+  bottom: calc(var(--dpad-bottom) + (var(--dpad-size) * 0.38));
+  z-index: 10000;              /* 🚀 highest (below security overlay still) */
   pointer-events: none;
 }
 
-.tmnt-logo-wrap.show-on-overlay{
-  display:block;
-}
+.tmnt-logo-wrap.show-on-overlay{ display:block; }
 
 .tmnt-logo{
   max-width: 260px;
@@ -546,24 +546,13 @@
     drop-shadow(0 0 28px rgba(60,255,156,.18));
 }
 
-  /* ===== Desktop Splash Stamps ===== */
-  .splash{
-    position:absolute;
-    top:18px;
-    width:110px;
-    height:auto;
-    opacity:0.85;
-    pointer-events:none;
-    z-index:4;
-    filter: drop-shadow(0 0 14px rgba(60,255,156,.25));
+/* small screens: keep it snug over the dpad */
+@media (max-width:560px){
+  .tmnt-logo{ max-width: 230px; }
+  .tmnt-logo-wrap{
+    bottom: calc(var(--dpad-bottom) + (var(--dpad-size) * 0.34));
   }
-  .splash-left{ left:0; }
-  .splash-right{ right:0; }
-
-  /* Hide stamps on mobile */
-  @media (max-width:960px){
-    .splash{ display:none; }
-  }
+}
 
   /* --- FIXED FOOTER + COUNTER --- */
   footer {
@@ -748,7 +737,7 @@
   </div>
 
   <!-- Mobile DPad -->
-  <div class="bubble-btn dpad-btn" id="dpadBtn" aria-label="DPad">
+  <div class="dpad-btn" id="dpadBtn" aria-label="DPad">
     <div class="dpad">
       <button class="up" data-dir="up"></button>
       <button class="left" data-dir="left"></button>
