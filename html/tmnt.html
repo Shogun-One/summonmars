@@ -28,9 +28,9 @@
   margin:0;
   min-height:100vh;
   display:flex;
-  align-items:flex-start;
+  align-items:center;          /* ← this is key */
   justify-content:center;
-  padding-top:10px;         /* WAS 40px (this is the big "won't budge" culprit) */
+  padding-top:0;               /* remove artificial push */
   font-family:Rajdhani, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   background:radial-gradient(circle at top, var(--bg2), var(--bg1));
   color:var(--hud);
@@ -558,10 +558,6 @@
       .music-btn{ right:12px; }
       .bubble-btn .label{ bottom:60px; }
       .security-banner{ bottom:10px; font-size:.7rem; }
-      body{
-    align-items: flex-start;
-    padding-top: 5px;
-  }
 
   .wrapper{
     margin-top: 0;
