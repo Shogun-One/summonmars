@@ -92,8 +92,17 @@
   }
 
   h1{
+  margin:0;
   font-family:'Luckiest Guy', cursive;
+  text-transform:uppercase;
+  text-align:center;
+  color:var(--accent-soft);
+  text-shadow:0 0 18px rgba(60,255,156,.22);
 }
+
+.title-top{ font-size:2.6rem; letter-spacing:.10em; }
+.title-sub{ font-size:1.3rem; letter-spacing:.12em; margin-top:-6px; }
+
 
   .subtitle{
     font-size:.95rem;
@@ -746,7 +755,8 @@ body.music-on .music-btn .ring{
  
 
   /* Small screens tuning */
-    h1{ font-size:1.35rem; }
+    .title-top{ font-size:2.2rem; }
+    .title-sub{ font-size:1.1rem; }
     .subtitle{ font-size:.9rem; }
     .bubble-btn{ bottom:12px; width:52px; height:52px; }
     .difficulty-btn{ left:12px; }
@@ -797,8 +807,9 @@ h1{
   </div>
 
   <div class="wrapper">
-    <h1>·  TMNT · </h1>
-    <h1>GET THAT SLICE!</h1>
+    <h1 class="title-top">·  TMNT ·</h1>
+    <h1 class="title-sub">GET THAT SLICE!</h1>
+
 
     <div class="controls">
       Move: <strong>[↑][↓][←][→]</strong> / <strong>WASD</strong> / <strong>Arrow Keys</strong>.
@@ -1128,7 +1139,7 @@ h1{
     // =====================
     // Ambient Pulse System (FIXED)
     // =====================
-    let audioCtx, analyser, sourceNode;
+    let audioCtx, analyser, sourceNode, bassAnalyser, bassFilter;
     let pulseActive = false;
     let bossPulse = false;
 
@@ -1140,9 +1151,26 @@ h1{
       analyser.smoothingTimeConstant = 0.55;
 
 
-      sourceNode = audioCtx.createMediaElementSource(music);
-      sourceNode.connect(analyser);
-      analyser.connect(audioCtx.destination);
+      bassFilter = audioCtx.createBiquadFilter();
+bassFilter.type = "lowpass";
+bassFilter.frequency.value = 140;   // true bass focus
+bassFilter.Q.value = 0.7;
+
+bassAnalyser = audioCtx.createAnalyser();
+bassAnalyser.fftSize = 256;
+bassAnalyser.smoothingTimeConstant = 0.75;
+
+sourceNode = audioCtx.createMediaElementSource(music);
+
+// full-range analyser (for glow)
+sourceNode.connect(analyser);
+analyser.connect(audioCtx.destination);
+
+// bass-only analyser (for kick detection)
+sourceNode.connect(bassFilter);
+bassFilter.connect(bassAnalyser);
+
+
     }
 
     async function toggleMusic(){
