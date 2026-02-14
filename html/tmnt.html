@@ -1195,7 +1195,7 @@ footer {
     };
 
     app.Enemy.prototype.render = function () {
-  app.ctx.drawImage(Resources.get(this.sprite), this.x, this.y + app.DRAW_Y_OFFSET + app.Y_ALIGN.player);
+  app.ctx.drawImage(Resources.get(this.sprite), this.x, this.y + app.DRAW_Y_OFFSET + app.Y_ALIGN.enemy);
 };
 
 
@@ -1596,7 +1596,6 @@ if (app.__gameOver){
         "/images/tmnt/water-block.png",
         "/images/tmnt/stone-block.png",
         "/images/tmnt/grass-block.png",
-        "/images/tmnt/grass-block1.png",
 
         "/images/tmnt/tmnticon.png",
         "/images/tmnt/tmnt-logo-1.png",
