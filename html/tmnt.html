@@ -600,6 +600,34 @@
   display: block;
 }
 
+    /* ===== Desktop Splash Stamps ===== */
+
+.splash{
+  position:absolute;
+  top:18px;                 /* near top of game window */
+  width:110px;              /* adjust size later */
+  height:auto;
+  opacity:0.85;
+  pointer-events:none;
+  z-index:4;
+  filter: drop-shadow(0 0 14px rgba(60,255,156,.25));
+}
+
+.splash-left{
+  left:-130px;              /* hugs outside left edge */
+}
+
+.splash-right{
+  right:-130px;             /* hugs outside right edge */
+}
+
+/* Hide on mobile */
+@media (max-width:960px){
+  .splash{
+    display:none;
+  }
+}
+
     /* --- FOOTER POSITIONING --- */
 footer {
   position: fixed;
@@ -674,6 +702,10 @@ footer {
 
     <div class="game-shell">
       <canvas id="game" width="505" height="606"></canvas>
+
+      <!-- Desktop splash stamps -->
+<img src="/images/tmnt/splashleft.png" class="splash splash-left" alt="">
+<img src="/images/tmnt/splashright.png" class="splash splash-right" alt="">
 
         <div class="tmnt-logo-wrap">
     <img src="/images/tmnt/tmnt-logo-1.png" alt="Teenage Mutant Ninja Turtles Logo" class="tmnt-logo">
