@@ -1147,20 +1147,24 @@ h1{
     });
 
     function updatePulse(){
-  // sleep when music off
+  // If music is off, everything sleeps
   if(!pulseActive || !analyser){
     document.documentElement.style.setProperty('--pulse', '0px');
     document.documentElement.style.setProperty('--uiShakeX', '0px');
     document.documentElement.style.setProperty('--uiShakeY', '0px');
     app.__enemyShakeX = 0;
     app.__enemyShakeY = 0;
+
+    // reset kick memory
+    app.__bassPrev = 0;
+    app.__bassKick = 0;
     return;
   }
 
   const data = new Uint8Array(analyser.frequencyBinCount);
   analyser.getByteFrequencyData(data);
 
-  // overall avg (your existing glow pulse)
+  // ===== your ambient glow pulse (keep this) =====
   let avg = 0;
   for(let i=0;i<data.length;i++) avg += data[i];
   avg /= data.length;
@@ -1169,29 +1173,47 @@ h1{
   if(bossPulse) intensity *= 1.8;
   document.documentElement.style.setProperty('--pulse', intensity + 'px');
 
-  // bass avg: first ~10 bins
+  // ===== bass kick detector (NEW) =====
   let bass = 0;
-  const bassBins = Math.min(10, data.length);
+  const bassBins = Math.min(10, data.length); // low end
   for(let i=0;i<bassBins;i++) bass += data[i];
   bass /= bassBins;
 
   // normalize 0..1
-  let bassN = Math.max(0, Math.min(1, (bass - 30) / 120));
+  const bassN = Math.max(0, Math.min(1, (bass - 25) / 140));
 
-  // tiny shake values
-  const t = performance.now() / 1000;
-  const amp = bassN * 2.0; // px
-  const sx = Math.sin(t * 42) * amp;
-  const sy = Math.cos(t * 48) * amp;
+  // detect "hit" = rising bass crosses a threshold
+  const prev = app.__bassPrev || 0;
+  const rising = (bassN - prev);
+  app.__bassPrev = bassN;
 
-  // UI shake via CSS vars
+  // decay the existing kick (so it fades out)
+  app.__bassKick = (app.__bassKick || 0) * 0.82;
+
+  // trigger a new kick only on real hits
+  const HIT_THRESHOLD = 0.55;     // how strong the bass must be
+  const RISE_THRESHOLD = 0.10;    // how fast it must rise
+
+  if(bassN > HIT_THRESHOLD && rising > RISE_THRESHOLD){
+    // set a punchy impulse (cap at 1)
+    app.__bassKick = Math.min(1, (app.__bassKick || 0) + bassN);
+  }
+
+  // ===== apply shake ONLY from the kick impulse =====
+  const k = app.__bassKick || 0;
+  const amp = k * 3.0; // px (tiny shake)
+
+  // jitter (random-ish) so it feels like a thump, not a vibration
+  const sx = (Math.random() * 2 - 1) * amp;
+  const sy = (Math.random() * 2 - 1) * amp;
+
   document.documentElement.style.setProperty('--uiShakeX', sx.toFixed(2) + 'px');
   document.documentElement.style.setProperty('--uiShakeY', sy.toFixed(2) + 'px');
 
-  // Enemy shake used by render()
-  app.__enemyShakeX = sx * 0.9;
-  app.__enemyShakeY = sy * 0.9;
+  app.__enemyShakeX = sx;
+  app.__enemyShakeY = sy;
 }
+
 
 
     // =========================
