@@ -398,10 +398,18 @@ canvas#game{
       flex-direction:column;
       align-items:center;
       justify-content:center;
-      z-index:1000;
       padding:1.2rem;
       text-align:center;
+      /* make sure the character picker ALWAYS receives clicks */
+      pointer-events: auto;
+      z-index: 1000001;
+
     }
+
+#character-select-overlay *{
+  pointer-events: auto;
+}
+    
     #character-select-overlay h2{
       margin:0 0 8px;
       font-family:Orbitron, system-ui, sans-serif;
@@ -1622,12 +1630,20 @@ canvas#game{
       var buttons = overlay.querySelectorAll(".char-btn");
 
       function startWithCharacter(sprite) {
-        if (window.app && app.ACTORS && app.ACTORS.player) {
-          app.ACTORS.player.sprite = sprite;
-          if (app.__restartKeepBest) app.__restartKeepBest();
-        }
-        overlay.style.display = "none";
-      }
+  if (window.app && app.ACTORS && app.ACTORS.player) {
+
+    // set sprite BEFORE restart
+    app.ACTORS.player.sprite = sprite;
+
+    // restart but preserve sprite
+    if (app.__restartKeepBest) {
+      app.__restartKeepBest();
+      app.ACTORS.player.sprite = sprite; // re-apply after restart
+    }
+  }
+
+  overlay.style.display = "none";
+}
 
       buttons.forEach(function (btn) {
         btn.addEventListener("click", function () {
