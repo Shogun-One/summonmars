@@ -619,15 +619,15 @@ body.music-on .music-btn .ring{
     drop-shadow(0 0 28px rgba(60,255,156,.18));
 }
 
-  /* ===== Desktop Splash Stamps (platform-proof) ===== */
+  /* ===== Stamps locked to tile centers (platform-proof) ===== */
 :root{
-  --tile: 101px;                 /* 1 tile width */
-  --stamp-diag: var(--tile);     /* move distance */
+  --tileW: 101px;
+  --tileH: 83px;
 }
 
+/* shared stamp styling */
 .splash{
   position:absolute;
-  top: 390px;                    /* keep your vertical placement */
   width:110px;
   height:auto;
   opacity:0.85;
@@ -635,17 +635,21 @@ body.music-on .music-btn .ring{
   z-index:4;
   filter: drop-shadow(0 0 14px rgba(60,255,156,.25));
 
-  /* BOTH stamps move together NW (↖) by 1 tile */
-  transform: translate(calc(-1 * var(--stamp-diag)), calc(-1 * var(--stamp-diag)));
+  /* ✅ DOWN 1.5 tiles from your previous top */
+  top: calc(390px + (1.5 * var(--tileH)));
+
+  /* ✅ center stamp on its anchor point */
+  transform: translate(-50%, -50%);
 }
 
-/* anchor to canvas width instead of magic pixels */
-.splash-left{
-  left: 40%;                     /* tune this to sit on left turtle face */
-}
-
+/* ✅ Tile 2 center = 30% across (2nd of 5 columns) */
 .splash-right{
-  left: 72%;                     /* tune this to sit on right turtle face */
+  left: 30%;
+}
+
+/* ✅ Tile 4 center = 70% across (4th of 5 columns) */
+.splash-left{
+  left: 70%;
 }
 
 
