@@ -655,7 +655,8 @@ body.music-on .music-btn .ring{
   filter: drop-shadow(0 0 14px rgba(60,255,156,.25));
 }
 
-/* woofer body */
+/* ===== OUTSIDE (stamp) subwoofers: match INSIDE bubble logic ===== */
+
 .stamp-woofer{
   position:absolute;
   inset:0;
@@ -663,51 +664,54 @@ body.music-on .music-btn .ring{
   opacity:0;
   transform: scale(.96);
   transition: opacity 180ms ease, transform 200ms ease;
+
+  /* match ring vibe */
+  border:1px solid rgba(228,228,255,.18);
+  overflow:hidden;
+
   background: radial-gradient(circle at 35% 30%,
-    rgba(255,255,255,.12),
-    rgba(60,255,156,.05) 50%,
-    rgba(0,0,0,.65) 100%);
-  border: 1px solid rgba(157,255,191,.35);
-  box-shadow:
-    0 0 18px rgba(60,255,156,.22),
-    inset 0 0 16px rgba(0,0,0,.55);
+    rgba(255,255,255,.14),
+    rgba(0,0,0,.35) 45%,
+    rgba(0,0,0,.78) 100%);
+
+  box-shadow: inset 0 0 10px rgba(0,0,0,.35), 0 0 18px rgba(60,255,156,.18);
 }
 
-/* cone */
-.stamp-woofer::before{
-  content:"";
-  position:absolute;
-  left:50%;
-  top:50%;
-  width:100%;
-  height:100%;
-  border-radius:999px;
-  transform: translate(-50%, -50%) scale(calc(1 + (var(--bassKick) * 0.16)));
-  border:1px solid rgba(228,228,255,.15);
-  background: radial-gradient(circle at 35% 30%,
-    rgba(255,255,255,.10),
-    rgba(0,0,0,.45) 60%,
-    rgba(0,0,0,.90) 100%);
-  transition: transform 70ms linear;
-}
-
-/* dustcap */
+/* speaker dustcap (matches .bubble-btn .ring::after) */
 .stamp-woofer::after{
   content:"";
   position:absolute;
-  left:50%;
-  top:50%;
-  width:60%;
-  height:60%;
   border-radius:999px;
-  transform: translate(-50%, -50%) scale(calc(1 + (var(--bassKick) * 0.08)));
+
+  /* scale the inset up from 80px bubbles to stampSize */
+  inset: calc(22px * (var(--stampSize) / 80px));
+
   background: radial-gradient(circle at 35% 30%,
     rgba(255,255,255,.18),
-    rgba(0,0,0,.55) 65%,
-    rgba(0,0,0,.95) 100%);
-  border:1px solid rgba(157,255,191,.15);
+    rgba(0,0,0,.55) 60%,
+    rgba(0,0,0,.88) 100%);
+
+  transform: scale(calc(1 + (var(--bassKick) * 0.08)));
+}
+
+/* speaker cone (matches .bubble-btn .ring::before) */
+.stamp-woofer::before{
+  content:"";
+  position:absolute;
+  inset:0px;
+  border-radius:999px;
+
+  border:1px solid rgba(157,255,191,.18);
+  background: radial-gradient(circle at 35% 30%,
+    rgba(255,255,255,.10),
+    rgba(0,0,0,.40) 45%,
+    rgba(0,0,0,.82) 100%);
+  box-shadow: inset 0 0 6px rgba(0,0,0,.45);
+
+  transform: scale(calc(1 + (var(--bassKick) * 0.14)));
   transition: transform 70ms linear;
 }
+
 
 /* === MUSIC TOGGLE === */
 body.music-on .stamp-img{
@@ -720,11 +724,11 @@ body.music-on .stamp-woofer{
 }
 
 /* subtle bass shake */
-body.music-on .stamp-slot{
-  transform:
-    translate(-50%, -50%)
-    translate3d(var(--uiShakeX), var(--uiShakeY), 0);
+body.music-on .stamp-woofer{
+  transform: translate3d(var(--uiShakeX), var(--uiShakeY), 0)
+             scale(calc(1 + (var(--bassKick) * 0.12)));
 }
+
 
 
   /* --- FIXED FOOTER + COUNTER --- */
