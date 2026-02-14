@@ -1169,6 +1169,7 @@ canvas#game{
     app.Player.prototype.handleInput = function (dir) {
       if (!dir) return;
       if (dir === "up"   && this.y > 0)   this.y -= app.GAME_CONFIG.TILE_HEIGHT;
+      if (dir === "down"  && this.y < maxY)  this.y += app.GAME_CONFIG.TILE_HEIGHT;
       if (dir === "left"  && this.x > 0)   this.x -= app.GAME_CONFIG.TILE_WIDTH;
       if (dir === "right" && this.x < 404) this.x += app.GAME_CONFIG.TILE_WIDTH;
     };
