@@ -585,23 +585,19 @@
 
     }
 
-    .tmnt-logo-wrap{
-  position:absolute;
-  left:50%;
-  transform:translateX(-50%);
-  bottom: -150px;        /* <-- THIS is the knob */
-  width:100%;
-  display:flex;
-  justify-content:center;
-  pointer-events:none;
-  z-index:4;
+    .tmnt-logo-wrap {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translate(-50%, 50%);
+  z-index: 5;
+  pointer-events: none;
 }
 
-.tmnt-logo{
-  max-width: 240px;
-  width: 65%;
-  height:auto;
-  opacity: .95;
+.tmnt-logo {
+  max-width: 260px; /* adjust to taste */
+  height: auto;
+  display: block;
 }
 
     /* --- FOOTER POSITIONING --- */
@@ -1556,7 +1552,7 @@ if (app.__gameOver){
         "/images/tmnt/grass-block1.png",
 
         "/images/tmnt/tmnticon.png",
-        "/images/tmnt/logo-ico.png",
+        "/images/tmnt/tmnt-logo-1.png",
         "/images/tmnt/banner.png",
         "/images/tmnt/Selector.png",
 
