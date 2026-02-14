@@ -25,24 +25,23 @@
     *{ box-sizing:border-box; }
 
     body{
-      margin:0;
-      min-height:100vh;
-      display:flex;
-      align-items:flex-start;
-      padding-top:40px;  /* adjust to taste */
-      justify-content:center;
-      font-family:Rajdhani, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-      background:radial-gradient(circle at top, var(--bg2), var(--bg1));
-      color:var(--hud);
-      overflow:hidden;
+  margin:0;
+  min-height:100vh;
+  display:flex;
+  align-items:flex-start;
+  justify-content:center;
+  padding-top:10px;         /* WAS 40px (this is the big "won't budge" culprit) */
+  font-family:Rajdhani, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  background:radial-gradient(circle at top, var(--bg2), var(--bg1));
+  color:var(--hud);
+  overflow:hidden;
 
-      /* --- SECURITY LOCKDOWN PROTOCOLS (like your other pages) --- */
-      -webkit-user-select:none;
-      -moz-user-select:none;
-      -ms-user-select:none;
-      user-select:none;
-      -webkit-touch-callout:none;
-    }
+  -webkit-user-select:none;
+  -moz-user-select:none;
+  -ms-user-select:none;
+  user-select:none;
+  -webkit-touch-callout:none;
+}
 
     img{
       pointer-events:none;
@@ -61,15 +60,15 @@
     }
 
     .wrapper{
-      position:relative;
-      z-index:2;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      gap:.55rem;
-      padding:.25rem;
-      width:min(560px, 100vw);
-    }
+  position:relative;
+  z-index:2;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:.25rem;               /* WAS .55rem */
+  padding:.35rem;           /* WAS .85rem */
+  width:min(560px, 100vw);
+}
 
     h1{
       margin:0;
@@ -92,19 +91,9 @@
     .subtitle strong{ color:var(--accent-soft); font-weight:800; }
 
     .hud{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  width:100%;
-  max-width:520px;
-  font-size:.95rem;
-  opacity:.95;
-  margin-top:.05rem;
-  gap:.45rem;
-
-  flex-wrap: nowrap;     /* <-- LOCK to 1 row */
-  overflow: hidden;      /* prevents weird spill */
+  margin-top:0;             /* WAS .05rem */
 }
+    
 .hud .pill{
   white-space: nowrap;   /* labels never wrap inside pills */
 }
@@ -126,12 +115,12 @@
     }
 
     .game-shell{
-      position:relative;
-      width:100%;
-      display:flex;
-      justify-content:center;
-      margin-top:.1rem;
-    }
+  position:relative;
+  width:100%;
+  display:flex;
+  justify-content:center;
+  margin-top:0;             /* WAS .1rem */
+}
 
     canvas#game{
   border-radius:18px;
@@ -341,13 +330,9 @@
 .music-btn.on .dot{ opacity:1; }
 
     .controls{
-      font-size:.9rem;
-      opacity:.9;
-      text-align:center;
-      margin-top:.15rem;
-      line-height:1.35;
-      max-width:520px;
-    }
+  margin-top:0;             /* keep it tight under title */
+  line-height:1.2;
+}
     .controls strong{ color:var(--accent-soft); }
 
     .hint{
