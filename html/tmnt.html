@@ -29,6 +29,13 @@
 
   *{ box-sizing:border-box; }
 
+    html, body{
+  height: 100%;
+  overflow: hidden;              /* no page scroll */
+  overscroll-behavior: none;     /* stops bounce/scroll chaining */
+}
+
+
   /* ===== Page Layout Fix =====
      Center the playable stack, but reserve space for fixed bottom UI.
      This prevents "looks off-center" when footer/banner/dpad are fixed.
@@ -105,23 +112,35 @@
   .subtitle strong{ color:var(--accent-soft); font-weight:800; }
 
   .hud{
-    display:flex;
-    flex-wrap:nowrap;
-    gap:.55rem;
-    justify-content:center;
-    align-items:center;
-    margin-top:.25rem;
-  }
+  display:flex;
+  flex-wrap:nowrap;
+  justify-content:center;
+  align-items:center;
+
+  width:100%;
+  max-width:100%;
+  overflow:hidden;          /* prevents layout shift */
+
+  gap:clamp(.25rem, 1vw, .55rem);
+  font-size:clamp(.65rem, 2vw, .95rem);
+
+  margin-top:.25rem;
+}
 
   .hud .pill{
-    white-space: nowrap;
-    background:rgba(0,0,0,.22);
-    border:1px solid rgba(157,255,191,.18);
-    border-radius:999px;
-    padding:.3rem .65rem;
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
-  }
+  flex:0 0 auto;            /* prevents shrinking weirdly */
+  white-space:nowrap;
+
+  background:rgba(0,0,0,.22);
+  border:1px solid rgba(157,255,191,.18);
+  border-radius:999px;
+
+  padding:clamp(.2rem, .8vw, .3rem)
+          clamp(.4rem, 1.6vw, .65rem);
+
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
 
   .hud .pill b{
     font-family:Orbitron, system-ui, sans-serif;
@@ -503,13 +522,13 @@
       0 0 30px #ff0000;
   }
 
-    /* ✅ LOGO: hidden during gameplay, only shown on overlays via JS class */
+    /* ✅ TMNT LOGO: hidden during gameplay, only shown on overlays */
 .tmnt-logo-wrap{
-  display:none;                 /* default: hidden */
-  position: fixed;              /* lock to viewport */
+  display:none;
+  position: fixed;
   left: 50%;
   transform: translateX(-50%);
-  bottom: calc(var(--dpad-bottom) + var(--dpad-size) + var(--logo-gap));
+  bottom: calc(var(--dpad-bottom) + (var(--dpad-size) * 0.55)); /* sits OVER the dpad */
   z-index: 12;
   pointer-events: none;
 }
@@ -518,19 +537,14 @@
   display:block;
 }
 
-
-.tmnt-logo-wrap.show-on-overlay{
-  display:block;
+.tmnt-logo{
+  max-width: 260px;
+  height: auto;
+  display: block;
+  filter:
+    drop-shadow(0 0 18px rgba(60,255,156,.35))
+    drop-shadow(0 0 28px rgba(60,255,156,.18));
 }
-
-  .tmnt-logo {
-    max-width: 260px;
-    height: auto;
-    display: block;
-    filter:
-      drop-shadow(0 0 18px rgba(60,255,156,.35))
-      drop-shadow(0 0 28px rgba(60,255,156,.18));
-  }
 
   /* ===== Desktop Splash Stamps ===== */
   .splash{
@@ -1167,9 +1181,16 @@
     const startOverlay = document.getElementById('startOverlay');
 const logoWrap = document.querySelector('.tmnt-logo-wrap');
 
+    function setLogo(on){
+  if (!logoWrap) return;
+  logoWrap.classList.toggle('show-on-overlay', !!on);
+}
+
 function showStartOverlay(on){
   startOverlay.classList.toggle('active', on);
   startOverlay.setAttribute('aria-hidden', on ? 'false' : 'true');
+  setLogo(on); // ✅ logo only during GET READY
+}
 
   // ✅ show logo only on GET READY overlay
   if (logoWrap) logoWrap.classList.toggle('show-on-overlay', on);
@@ -1382,6 +1403,8 @@ function showStartOverlay(on){
         const go = document.getElementById('gameOverOverlay');
         if (go) { go.classList.remove('active'); go.setAttribute('aria-hidden','true'); }
 
+        setLogo(false); // ✅ ensure logo is OFF before we start countdown
+
         const chosenSprite = app.ACTORS.player.sprite || "/images/tmnt/leo-ico.png";
 
         app.ACTORS.player = new app.Player(chosenSprite);
@@ -1452,7 +1475,7 @@ function showStartOverlay(on){
 
               const go = document.getElementById('gameOverOverlay');
               if (go) { go.classList.add('active'); go.setAttribute('aria-hidden', 'false'); }
-              if (logoWrap) logoWrap.classList.add('show-on-overlay');
+              setLogo(true); // ✅ show logo on GAME OVER
 
 
               updateHud();
@@ -1480,7 +1503,7 @@ function showStartOverlay(on){
 
             const go = document.getElementById('gameOverOverlay');
             if (go) { go.classList.add('active'); go.setAttribute('aria-hidden', 'false'); }
-            if (logoWrap) logoWrap.classList.add('show-on-overlay');
+            setLogo(true); // ✅ show logo on GAME OVER
 
 
             updateHud();
