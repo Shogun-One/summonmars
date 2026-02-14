@@ -1167,12 +1167,15 @@ canvas#game{
     };
 
     app.Player.prototype.handleInput = function (dir) {
-      if (!dir) return;
-      if (dir === "up"   && this.y > 0)   this.y -= app.GAME_CONFIG.TILE_HEIGHT;
-      if (dir === "down"  && this.y < maxY)  this.y += app.GAME_CONFIG.TILE_HEIGHT;
-      if (dir === "left"  && this.x > 0)   this.x -= app.GAME_CONFIG.TILE_WIDTH;
-      if (dir === "right" && this.x < 404) this.x += app.GAME_CONFIG.TILE_WIDTH;
-    };
+  if (!dir) return;
+
+  if (dir === "up"    && this.y > app.MIN_Y) this.y -= app.GAME_CONFIG.TILE_HEIGHT;
+  if (dir === "down"  && this.y < app.MAX_Y) this.y += app.GAME_CONFIG.TILE_HEIGHT;
+  if (dir === "left"  && this.x > 0)         this.x -= app.GAME_CONFIG.TILE_WIDTH;
+  if (dir === "right" && this.x < 404)       this.x += app.GAME_CONFIG.TILE_WIDTH;
+};
+
+
 
     app.Pizza = function () {
       this.y = 83;
@@ -1233,13 +1236,14 @@ canvas#game{
       };
       app.DRAW_Y_OFFSET = -35;
 
+      // movement bounds (grid space)
+app.MIN_Y = -app.GAME_CONFIG.TILE_HEIGHT;      // one tile ABOVE the water row
+app.MAX_Y = app.GAME_CONFIG.TILE_HEIGHT * 5;   // bottom grass row
+
       app.Y_ALIGN = { player: -18, enemy: -14, pizza: -20, heart: -20 };
 
       app.START_X = 202;
       app.START_Y = 332;
-
-      // bottom-most lane (row 5: grass)
-var maxY = app.GAME_CONFIG.TILE_HEIGHT * 5;
 
       app.ACTORS = {
         player: new app.Player(),
@@ -1382,8 +1386,8 @@ var maxY = app.GAME_CONFIG.TILE_HEIGHT * 5;
           }
         });
 
-        // Water row is y === 0 (top row in your grid)
-if (player.y === 0) {
+        /// Die only if player tries to move ABOVE water
+if (player.y < 0) {
   player.life--;
 
   if (player.life <= 0) {
