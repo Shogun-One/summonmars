@@ -1183,7 +1183,7 @@ footer {
   app.ctx.drawImage(Resources.get(this.sprite), this.x, this.y + app.DRAW_Y_OFFSET);
 };
 
-    aapp.Player.prototype.handleInput = function (dir) {
+    app.Player.prototype.handleInput = function (dir) {
   if (!dir) return;
 
   if (dir === "up"   && this.y > 0)   this.y -= app.GAME_CONFIG.TILE_HEIGHT;
