@@ -1565,13 +1565,28 @@ function showStartOverlay(on){
     };
 
     app.Enemy.prototype.render = function () {
+  const t = performance.now();
+
+  // Always-on subtle lane wobble (keeps them from looking robotic)
+  const sway = Math.sin(t * this._swaySpd + this._phase) * this._swayAmp;
+
+  // Music-only bass hop: tiny, punchy, and ONLY when bassKick spikes
+  const k = (musicOn && app.__bassKick) ? app.__bassKick : 0;
+
+  // shape the kick so small bumps don't look twitchy
+  const hop = musicOn ? (-Math.pow(k, 1.25) * 7.5) : 0;  // negative = hop UP
+
+  // your existing shake
   const ex = (musicOn && app.__enemyShakeX) ? app.__enemyShakeX : 0;
   const ey = (musicOn && app.__enemyShakeY) ? app.__enemyShakeY : 0;
-  app.ctx.drawImage(Resources.get(this.sprite),
+
+  app.ctx.drawImage(
+    Resources.get(this.sprite),
     this.x + ex,
-    this.y + app.DRAW_Y_OFFSET + app.Y_ALIGN.enemy + ey
+    this.y + app.DRAW_Y_OFFSET + app.Y_ALIGN.enemy + ey + sway + hop
   );
 };
+
 
 
     app.Player = function (sprite) {
