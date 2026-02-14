@@ -1210,15 +1210,15 @@
       app.Y_ALIGN = { player: -18, enemy: -14, pizza: -20, heart: -20 };
 
       app.START_X = 202;
-      app.START_Y = 415;
+      app.START_Y = 332;
 
       app.ACTORS = {
         player: new app.Player(),
         allEnemies: [
+          new app.Enemy(0),
           new app.Enemy(83),
           new app.Enemy(166),
-          new app.Enemy(249),
-          new app.Enemy(332)
+          new app.Enemy(249)
         ],
         pizza: new app.Pizza(),
         heart: new app.Heart()
@@ -1399,7 +1399,7 @@
 
         while (allEnemies.length < desiredCount) {
           var laneIndex = allEnemies.length % 4;
-          var laneY = 83 + laneIndex * app.GAME_CONFIG.TILE_HEIGHT;
+          var laneY = laneIndex * app.GAME_CONFIG.TILE_HEIGHT;
           allEnemies.push(new app.Enemy(laneY));
         }
 
