@@ -126,48 +126,48 @@
     }
 
     .game-shell{
-  position:relative;
-  width:100%;
-  display:flex;
-  justify-content:center;
+      position:relative;
+      width:100%;
+      display:flex;
+      justify-content:center;
 
-  /* move game window DOWN a bit (without changing the page stack) */
-  margin-top: 10px;
+      /* move game window DOWN a bit (without changing the page stack) */
+      margin-top: 10px;
 
-  /* SHADOWBOX FRAME */
-  padding: 10px;                 /* thickness of the “case” */
-  border-radius: 22px;
-  background: rgba(0,0,0,.28);
-  border: 1px solid rgba(157,255,191,.22);
+      /* SHADOWBOX FRAME */
+      padding: 10px;                 /* thickness of the “case” */
+      border-radius: 22px;
+      background: rgba(0,0,0,.28);
+      border: 1px solid rgba(157,255,191,.22);
 
-  box-shadow:
-    0 0 calc(35px + var(--pulse, 0px)) rgba(0,0,0,.85),
-    0 0 calc(55px + var(--pulse, 0px)) rgba(60,255,156,.45),
-    inset 0 0 26px rgba(60,255,156,.18);
-}
+      box-shadow:
+        0 0 calc(35px + var(--pulse, 0px)) rgba(0,0,0,.85),
+        0 0 calc(55px + var(--pulse, 0px)) rgba(60,255,156,.45),
+        inset 0 0 26px rgba(60,255,156,.18);
+    }
 
-canvas#game{
-  border-radius: 16px;
+    canvas#game{
+      border-radius: 16px;
 
-  /* the “screen” */
-  background:
-    linear-gradient(
-      to bottom,
-      rgba(8, 18, 12, 0.95),
-      rgba(5, 2, 10, 0.98)
-    );
+      /* the “screen” */
+      background:
+        linear-gradient(
+          to bottom,
+          rgba(8, 18, 12, 0.95),
+          rgba(5, 2, 10, 0.98)
+        );
 
-  /* remove the big outer shadows from the canvas */
-  box-shadow: inset 0 0 22px rgba(60,255,156,.18);
+      /* remove the big outer shadows from the canvas */
+      box-shadow: inset 0 0 22px rgba(60,255,156,.18);
 
-  touch-action:none;
-  width:100%;
-  max-width:520px;
-  height:auto;
-  display:block;
-  position:relative;
-  z-index:2;
-}
+      touch-action:none;
+      width:100%;
+      max-width:520px;
+      height:auto;
+      display:block;
+      position:relative;
+      z-index:2;
+    }
 
     /* --- Round transparent bubbles (bottom aligned like Asteroids) --- */
     .bubble-btn{
@@ -401,13 +401,12 @@ canvas#game{
       /* make sure the character picker ALWAYS receives clicks */
       pointer-events: auto;
       z-index: 1000001;
-
     }
 
-#character-select-overlay *{
-  pointer-events: auto;
-}
-    
+    #character-select-overlay *{
+      pointer-events: auto;
+    }
+
     #character-select-overlay h2{
       margin:0 0 8px;
       font-family:Orbitron, system-ui, sans-serif;
@@ -983,87 +982,82 @@ canvas#game{
     setMusicUI(false);
 
     // =====================
-// Ambient Pulse System
-// =====================
-let audioCtx, analyser, sourceNode;
-let pulseActive = false;
-let bossPulse = false;
+    // Ambient Pulse System (FIXED)
+    // =====================
+    let audioCtx, analyser, sourceNode;
+    let pulseActive = false;
+    let bossPulse = false;
 
-function setupAudioAnalyzer(){
-  if(audioCtx) return;
+    function setupAudioAnalyzer(){
+      if(audioCtx) return;
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      analyser = audioCtx.createAnalyser();
+      analyser.fftSize = 128;
 
-  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  analyser = audioCtx.createAnalyser();
-  analyser.fftSize = 128;
-
-  sourceNode = audioCtx.createMediaElementSource(music);
-  sourceNode.connect(analyser);
-  analyser.connect(audioCtx.destination);
-}
-
-function updatePulse(){
-  if(!pulseActive){
-    document.documentElement.style.setProperty('--pulse', '0px');
-    return;
-  }
+      sourceNode = audioCtx.createMediaElementSource(music);
+      sourceNode.connect(analyser);
+      analyser.connect(audioCtx.destination);
+    }
 
     async function toggleMusic(){
       try{
         if(!musicOn){
+          setupAudioAnalyzer();
+          if(audioCtx && audioCtx.state === "suspended") await audioCtx.resume();
 
-  setupAudioAnalyzer();
-  if(audioCtx.state === "suspended") await audioCtx.resume();
+          music.volume = 0.75;
+          await music.play();
 
-  music.volume = 0.75;
-  await music.play();
+          pulseActive = true;
+          musicOn = true;
+          setMusicUI(true);
+        }else{
+          music.pause();
 
-  pulseActive = true;
+          pulseActive = false;
+          bossPulse = false;
+          document.documentElement.style.setProperty('--pulse','0px');
 
-  musicOn = true;
-  setMusicUI(true);
-
-}else{
-
-  music.pause();
-
-  pulseActive = false;
-  bossPulse = false;
-  document.documentElement.style.setProperty('--pulse','0px');
-
-  musicOn = false;
-  setMusicUI(false);
-
-}
-
+          musicOn = false;
+          setMusicUI(false);
+        }
       }catch(err){
         musicOn = false;
+        pulseActive = false;
         setMusicUI(false);
         console.warn('Music could not start:', err);
       }
-    |
-      
-    musicBtn.addEventListener('click', (e) => { e.preventDefault(); toggleMusic(); });
+    }
 
-    
+    musicBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      toggleMusic();
+    });
 
-  const data = new Uint8Array(analyser.frequencyBinCount);
-  analyser.getByteFrequencyData(data);
+    function updatePulse(){
+      if(!pulseActive || !analyser){
+        document.documentElement.style.setProperty('--pulse', '0px');
+        return;
+      }
 
-  let avg = 0;
-  for(let i=0;i<data.length;i++){
-    avg += data[i];
-  }
-  avg /= data.length;
+      const data = new Uint8Array(analyser.frequencyBinCount);
+      analyser.getByteFrequencyData(data);
 
-  // scale intensity
-  let intensity = avg * 0.25;
+      let avg = 0;
+      for(let i=0;i<data.length;i++){
+        avg += data[i];
+      }
+      avg /= data.length;
 
-  if(bossPulse){
-    intensity *= 1.8; // boss boost
-  }
+      // scale intensity
+      let intensity = avg * 0.25;
 
-  document.documentElement.style.setProperty('--pulse', intensity + 'px');
-}
+      if(bossPulse){
+        intensity *= 1.8; // boss boost
+      }
+
+      document.documentElement.style.setProperty('--pulse', intensity + 'px');
+    }
 
     // =========================
     // HUD elements
@@ -1228,15 +1222,13 @@ function updatePulse(){
     };
 
     app.Player.prototype.handleInput = function (dir) {
-  if (!dir) return;
+      if (!dir) return;
 
-  if (dir === "up"    && this.y > app.MIN_Y) this.y -= app.GAME_CONFIG.TILE_HEIGHT;
-  if (dir === "down"  && this.y < app.MAX_Y) this.y += app.GAME_CONFIG.TILE_HEIGHT;
-  if (dir === "left"  && this.x > 0)         this.x -= app.GAME_CONFIG.TILE_WIDTH;
-  if (dir === "right" && this.x < 404)       this.x += app.GAME_CONFIG.TILE_WIDTH;
-};
-
-
+      if (dir === "up"    && this.y > app.MIN_Y) this.y -= app.GAME_CONFIG.TILE_HEIGHT;
+      if (dir === "down"  && this.y < app.MAX_Y) this.y += app.GAME_CONFIG.TILE_HEIGHT;
+      if (dir === "left"  && this.x > 0)         this.x -= app.GAME_CONFIG.TILE_WIDTH;
+      if (dir === "right" && this.x < 404)       this.x += app.GAME_CONFIG.TILE_WIDTH;
+    };
 
     app.Pizza = function () {
       this.y = 83;
@@ -1298,23 +1290,22 @@ function updatePulse(){
       app.DRAW_Y_OFFSET = -35;
 
       // movement bounds (grid space)
-app.START_X = 202;
-app.START_Y = 332;
+      app.START_X = 202;
+      app.START_Y = 332;
 
-app.MIN_Y = -app.GAME_CONFIG.TILE_HEIGHT;
-app.MAX_Y = app.START_Y;
+      app.MIN_Y = -app.GAME_CONFIG.TILE_HEIGHT;
+      app.MAX_Y = app.START_Y;
 
-app.Y_ALIGN = { player: -18, enemy: -14, pizza: -20, heart: -20 };
+      app.Y_ALIGN = { player: -18, enemy: -14, pizza: -20, heart: -20 };
 
       app.ACTORS = {
         player: new app.Player(),
         allEnemies: [
-  new app.Enemy(-83),
-  new app.Enemy(0),
-  new app.Enemy(83),
-  new app.Enemy(166)
-],
-
+          new app.Enemy(-83),
+          new app.Enemy(0),
+          new app.Enemy(83),
+          new app.Enemy(166)
+        ],
         pizza: new app.Pizza(),
         heart: new app.Heart()
       };
@@ -1372,11 +1363,11 @@ app.Y_ALIGN = { player: -18, enemy: -14, pizza: -20, heart: -20 };
         app.GameState.updateFromScore(0);
 
         app.ACTORS.allEnemies = [
-  new app.Enemy(0),
-  new app.Enemy(83),
-  new app.Enemy(166),
-  new app.Enemy(249)
-];
+          new app.Enemy(0),
+          new app.Enemy(83),
+          new app.Enemy(166),
+          new app.Enemy(249)
+        ];
 
         app.ACTORS.pizza = new app.Pizza();
         app.ACTORS.heart = new app.Heart();
@@ -1448,29 +1439,29 @@ app.Y_ALIGN = { player: -18, enemy: -14, pizza: -20, heart: -20 };
         });
 
         /// Die only if player tries to move ABOVE water
-if (player.y < 0) {
-  player.life--;
+        if (player.y < 0) {
+          player.life--;
 
-  if (player.life <= 0) {
-    player.x = app.START_X;
-    player.y = app.START_Y;
+          if (player.life <= 0) {
+            player.x = app.START_X;
+            player.y = app.START_Y;
 
-    app.__running = false;
-    app.__gameOver = true;
+            app.__running = false;
+            app.__gameOver = true;
 
-    const go = document.getElementById('gameOverOverlay');
-    if (go) { go.classList.add('active'); go.setAttribute('aria-hidden', 'false'); }
+            const go = document.getElementById('gameOverOverlay');
+            if (go) { go.classList.add('active'); go.setAttribute('aria-hidden', 'false'); }
 
-    updateHud();
-    return;
-  }
+            updateHud();
+            return;
+          }
 
-  player.x = app.START_X;
-  player.y = app.START_Y;
-  startWithCountdown(1200);
+          player.x = app.START_X;
+          player.y = app.START_Y;
+          startWithCountdown(1200);
 
-  updateHud();
-}
+          updateHud();
+        }
 
         if (between(player.x, pizza.x - 60, pizza.x + 60) && between(player.y, pizza.y - 10, pizza.y + 10)) {
           var currentType = pizza.pizzaTypes[pizza.typeIndex];
@@ -1534,11 +1525,11 @@ if (player.y < 0) {
         for (var row = 0; row < numRows; row++) {
           for (var col = 0; col < numCols; col++) {
             ctx.drawImage(
-            Resources.get(rowImages[row]),
-            col * app.GAME_CONFIG.TILE_WIDTH,
-            row * app.GAME_CONFIG.TILE_HEIGHT + app.DRAW_Y_OFFSET,
-            app.GAME_CONFIG.TILE_WIDTH,
-            app.GAME_CONFIG.TILE_HEIGHT
+              Resources.get(rowImages[row]),
+              col * app.GAME_CONFIG.TILE_WIDTH,
+              row * app.GAME_CONFIG.TILE_HEIGHT + app.DRAW_Y_OFFSET,
+              app.GAME_CONFIG.TILE_WIDTH,
+              app.GAME_CONFIG.TILE_HEIGHT
             );
           }
         }
@@ -1564,9 +1555,9 @@ if (player.y < 0) {
         lastTime = ts;
 
         update(dt);
-updatePulse();
-drawSky();
-render();
+        updatePulse();
+        drawSky();
+        render();
 
         rafId = win.requestAnimationFrame(main);
       }
@@ -1714,20 +1705,18 @@ render();
       var buttons = overlay.querySelectorAll(".char-btn");
 
       function startWithCharacter(sprite) {
-  if (window.app && app.ACTORS && app.ACTORS.player) {
+        if (window.app && app.ACTORS && app.ACTORS.player) {
+          // set sprite BEFORE restart
+          app.ACTORS.player.sprite = sprite;
 
-    // set sprite BEFORE restart
-    app.ACTORS.player.sprite = sprite;
-
-    // restart but preserve sprite
-    if (app.__restartKeepBest) {
-      app.__restartKeepBest();
-      app.ACTORS.player.sprite = sprite; // re-apply after restart
-    }
-  }
-
-  overlay.style.display = "none";
-}
+          // restart but preserve sprite
+          if (app.__restartKeepBest) {
+            app.__restartKeepBest();
+            app.ACTORS.player.sprite = sprite; // re-apply after restart
+          }
+        }
+        overlay.style.display = "none";
+      }
 
       buttons.forEach(function (btn) {
         btn.addEventListener("click", function () {
