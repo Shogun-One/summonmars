@@ -1934,11 +1934,17 @@ this.x = app.GAME_CONFIG.TILE_WIDTH * t;
       
       // ===== Canvas Restart (between water and enemies) =====
 const restartHit = {
-  x: (app.GAME_CONFIG.CANVAS_WIDTH / 2) - 26,            // centered
-  y: (0 * app.GAME_CONFIG.TILE_HEIGHT) + app.DRAW_Y_OFFSET + 18, // water row
   w: 52,
-  h: 52
+  h: 52,
+  x: (2 * app.GAME_CONFIG.TILE_WIDTH) 
+       + (app.GAME_CONFIG.TILE_WIDTH / 2) 
+       - (52 / 2),
+  y: (0 * app.GAME_CONFIG.TILE_HEIGHT)
+       + app.DRAW_Y_OFFSET
+       + (app.GAME_CONFIG.TILE_HEIGHT / 2)
+       - (52 / 2)
 };
+
 
 function drawRestartIcon(x, y, size){
   const cx = x + size/2;
