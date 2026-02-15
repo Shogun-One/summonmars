@@ -1827,40 +1827,6 @@ this.x = app.GAME_CONFIG.TILE_WIDTH * t;
 
     };
 
-      this.x = app.GAME_CONFIG.TILE_WIDTH * t;
-  // dt might be undefined depending on your loop; safe default
-  dt = dt || 16;
-
-  if (this._cooldown > 0) {
-    this._cooldown -= dt;
-    return;
-  }
-
-  const player = app.ACTORS.player;
-
-  // Hearts are rare: only eligible every 6 points, and only if you're missing a life
-  if (this.notVisible && player.life < 3 && player.score > 0 && (player.score % 6 === 0)) {
-
-    // 35% chance even when eligible (reduces "so many hearts")
-    if (Math.random() > 0.35) {
-      this._cooldown = 800; // wait a bit before checking again
-      return;
-    }
-
-    this.notVisible = false;
-
-    let t = Math.floor(Math.random() * 5);
-    if (t === this._lastTile) t = (t + 1 + Math.floor(Math.random() * 4)) % 5;
-    this._lastTile = t;
-
-    this.x = app.GAME_CONFIG.TILE_WIDTH * t;
-
-    // stop it from re-triggering instantly if player sits on the lane
-    this._cooldown = 1500;
-  }
-};
-
-
     app.Heart.prototype.render = function () {
       app.ctx.drawImage(Resources.get(this.sprite), this.x, this.y + app.DRAW_Y_OFFSET + app.Y_ALIGN.heart);
     };
