@@ -864,7 +864,7 @@ body.music-on .stamp-woofer{
   margin-bottom:6px;
 
   position: relative;   /* ensures z-index works */
-  z-index: 3;           /* ABOVE canvas (2), BELOW overlays (4+) */
+  z-index: 20001; /* touchpad ABOVE the bubbles */
 
   background:rgba(0,0,0,.22);
   border:1px solid rgba(157,255,191,.18);
@@ -989,6 +989,12 @@ body.music-on .stamp-woofer{
 
 /* ===== MOBILE (everything in one place) ===== */
 @media (max-width:560px){
+  .difficulty-btn,
+  .music-btn{
+    bottom: 140px !important; /* lift them above the touchpad */
+    z-index: 20002 !important;
+  }
+}
 
   body{
     justify-content:flex-start;
