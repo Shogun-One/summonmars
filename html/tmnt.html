@@ -20,8 +20,6 @@
   --hud:#e4e4ff;
   --danger:#ff2a2a;
   --ink:#07060a;
-  --bottom-ui: 190px;
-
 
   /* NEW: DPAD geometry so logo can lock above it */
   --dpad-bottom: 88px;
@@ -51,7 +49,7 @@
     align-items:center;
 
     /* Reserve space for footer + banner + dpad (mobile) */
-    padding: 14px 10px var(--bottom-ui); 170px;
+    padding: 14px 10px 170px;
 
     font-family:Rajdhani, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
     background:radial-gradient(circle at top, var(--bg2), var(--bg1));
@@ -92,8 +90,7 @@
     margin-top:0;                 /* IMPORTANT: stop the sneaky nudge */
     width:min(560px, 100vw);
 
-    /* transform: translateY(var(--stack-shift)); */
-    transform: none;
+    transform: translateY(var(--stack-shift));
 
   }
 
@@ -319,78 +316,6 @@
     pointer-events:none;
   }
 
-    /* ✅ Labels always on top of the bubble graphics */
-.bubble-btn{
-  overflow: visible; /* safety: never clip the label */
-}
-
-.bubble-btn .ring{
-  position: relative; 
-  z-index: 1;         /* keep speaker art below */
-}
-
-.bubble-btn .label{
-  z-index: 5;         /* put text above everything */
-}
-
-   /* ===== Restart→Difficulty hint (red neon callout) ===== */
-.diff-hint{
-  position:absolute;
-  left:50%;
-  bottom:92px;                 /* sits above the bubble */
-  transform:translateX(-50%);
-  display:none;
-  z-index:99999;
-  pointer-events:none;
-}
-
-  /* Right-side hold hint for fullscreen (music button) */
-.fs-hint{
-  left: auto;
-  right: 0;
-  bottom: 92px;
-  transform: none;
-}
- 
-.diff-hint.show{ display:block; }
-
-.diff-hint__bubble{
-  position:relative;
-  padding:.35rem .6rem;
-  border-radius:999px;
-  font-size:.72rem;
-  letter-spacing:.08em;
-  text-transform:uppercase;
-
-  color:#ff2a2a;
-  background:rgba(0,0,0,.55);
-  border:1px solid rgba(255,42,42,.55);
-
-  text-shadow:
-    0 0 8px rgba(255,42,42,.65),
-    0 0 16px rgba(255,0,0,.35);
-
-  box-shadow:
-    0 0 16px rgba(255,42,42,.28),
-    inset 0 0 10px rgba(255,42,42,.12);
-  white-space:nowrap;
-}
-
-/* little pointer arrow down to the button */
-.diff-hint__bubble::after{
-  content:"";
-  position:absolute;
-  left:50%;
-  bottom:-8px;
-  transform:translateX(-50%);
-  width:0;height:0;
-  border-left:8px solid transparent;
-  border-right:8px solid transparent;
-  border-top:8px solid rgba(255,42,42,.70);
-  filter: drop-shadow(0 0 10px rgba(255,42,42,.35));
-}
- 
-
   /* Difficulty bubble (bottom-left) */
   .difficulty-btn{ left:14px; }
   .difficulty-btn .dot{
@@ -488,7 +413,7 @@ body.music-on .music-btn .ring{
     /* ALSO shake + pump the OUTSIDE stamp woofers */
 body.music-on .stamp-woofer{
   transform: translate3d(var(--uiShakeX), var(--uiShakeY), 0)
-             scale(calc(1 + (var(--bassKick) * 0.18)));
+             scale(calc(1 + (var(--bassKick) * 0.12)));
 }
 
 
@@ -508,7 +433,7 @@ body.music-on .stamp-woofer{
   /* VISIBLE DETERRENT BANNER (BOTTOM) */
   .security-banner {
     position: fixed;
-    bottom: 6px;
+    bottom: 14px;
     left: 50%;
     transform: translateX(-50%);
 
@@ -899,7 +824,7 @@ body.music-on .stamp-woofer{
   /* --- FIXED FOOTER + COUNTER --- */
   footer {
     position: fixed;
-    bottom: 18px;
+    bottom: 48px;
     left: 50%;
     transform: translateX(-50%);
     text-align: center;
@@ -914,7 +839,7 @@ body.music-on .stamp-woofer{
 
   .visit-counter {
     position: fixed;
-    bottom: 28px;
+    bottom: 8px;
     right: 14px;
     font-size: 0.7rem;
     opacity: 0.45;
@@ -1070,16 +995,6 @@ body.music-on .stamp-woofer{
     padding: 10px 10px 90px;
   }
 
-  /* --- FINAL FOOTER OVERRIDE (wins) --- */
-body footer{
-  position: fixed;
-  left: 50%;
-  transform: translateX(-50%);
-  bottom: 6px;
-  z-index: 6;
-}
-
-
   .game-shell{
     padding-bottom: 42px;
   }
@@ -1100,7 +1015,7 @@ body footer{
   .music-btn{ right:14px; }
   .bubble-btn .label{ bottom:60px; }
 
-  .security-banner{ bottom:6px; font-size:.7rem; }
+  .security-banner{ bottom:10px; font-size:.7rem; }
 
   h1{ line-height:1.1; }
 }
@@ -1193,20 +1108,10 @@ body footer{
 </div>
 
       <!-- Difficulty bubble (bottom-left) -->
-<button id="difficultyBtn" class="bubble-btn difficulty-btn" type="button" aria-label="Restart" title="Restart">
-
-  <!-- Hint (outside ring + label) -->
-  <div id="diffHint" class="diff-hint" aria-hidden="true">
-    <div class="diff-hint__bubble">
-      Hold for<br><b>Difficulty</b>
-    </div>
-  </div>
-
-  <span class="label" id="diffBtnLabel">Restart</span>
-  <span class="ring"><span class="dot"></span></span>
-
-</button>
-
+      <button id="difficultyBtn" class="bubble-btn difficulty-btn" type="button" aria-label="Difficulty" title="Difficulty">
+        <span class="label">Difficulty</span>
+        <span class="ring"><span class="dot"></span></span>
+      </button>
 
       <!-- Restart bubble (top-center) -->
       <button id="restartBtn" class="bubble-btn restart-btn" type="button" aria-label="Restart" title="Restart">
@@ -1214,27 +1119,18 @@ body footer{
       </button>
 
       <!-- Music bubble (bottom-right) -->
-<button id="musicBtn" class="bubble-btn music-btn" type="button" aria-label="Music On/Off" title="Music On/Off">
-
-  <!-- Hint (same style as diffHint) -->
-  <div id="fsHint" class="diff-hint fs-hint" aria-hidden="true">
-    <div class="diff-hint__bubble">
-      Hold for<br><b>Fullscreen</b>
+      <button id="musicBtn" class="bubble-btn music-btn" type="button" aria-label="Music On/Off" title="Music On/Off">
+        <span class="label" id="musicLabel">Music Off</span>
+        <span class="ring"><span class="dot"></span></span>
+      </button>
     </div>
-  </div>
-
-  <span class="label" id="musicLabel">Music Off</span>
-  <span class="ring"><span class="dot"></span></span>
-</button>
-
 
       <div class="mobile-touchpad">
   <div class="touchpad-plate">
-    <div class="touch-arrow touch-up" data-dir="up">▲</div>
-    <div class="touch-arrow touch-left" data-dir="left">◀</div>
-    <div class="touch-arrow touch-right" data-dir="right">▶</div>
-<div class="touch-arrow touch-down" data-dir="down">▼</div>
-
+    <div class="touch-arrow touch-up">▲</div>
+    <div class="touch-arrow touch-left">◀</div>
+    <div class="touch-arrow touch-right">▶</div>
+    <div class="touch-arrow touch-down">▼</div>
   </div>
 </div>
     
@@ -1488,23 +1384,6 @@ body footer{
     // =========================
     const musicBtn = document.getElementById('musicBtn');
 
-    const fsHint = document.getElementById('fsHint');
-let fsHintTimer = null;
-
-function showFsHint(){
-  if(!fsHint) return;
-
-  fsHint.classList.add('show');
-  fsHint.setAttribute('aria-hidden','false');
-
-  clearTimeout(fsHintTimer);
-  fsHintTimer = setTimeout(() => {
-    fsHint.classList.remove('show');
-    fsHint.setAttribute('aria-hidden','true');
-  }, 1500);
-}
-
-
     function toggleFullscreen(){
   const doc = document;
   const el  = document.documentElement;
@@ -1624,7 +1503,7 @@ bassFilter.connect(bassAnalyser);
           musicOn = true;
           setMusicUI(true);
 
-          //showFullscreenHint();
+          showFullscreenHint();
 
         }else{
           music.pause();
@@ -1647,10 +1526,8 @@ bassFilter.connect(bassAnalyser);
     musicBtn.addEventListener('click', (e) => {
   e.preventDefault();
   if (fsHoldFired) return;   // if it was a hold, don't also toggle music
-  showFsHint();              // show for 1.5s after tap
   toggleMusic();
 });
-
 
     function updatePulse(){
   // If music is off, everything sleeps
@@ -1702,7 +1579,7 @@ bassFilter.connect(bassAnalyser);
     app.__bassPrev = bassN;
 
     // decay (snappy)
-    app.__bassKick = (app.__bassKick || 0) * 0.60;
+    app.__bassKick = (app.__bassKick || 0) * 0.70;
 
     const HIT_THRESHOLD  = 0.32;
     const RISE_THRESHOLD = 0.08;
@@ -1757,93 +1634,14 @@ bassFilter.connect(bassAnalyser);
     }
     applyDifficultyUI();
 
-    // ===== Restart-first Difficulty button behavior =====
-const diffHint = document.getElementById('diffHint');
-let diffArmed = false;          // when true, next tap cycles difficulty
-let diffHintTimer = null;
-
-function showDiffHint(){
-  if(!diffHint) return;
-  diffHint.classList.add('show');
-  diffHint.setAttribute('aria-hidden','false');
-
-  clearTimeout(diffHintTimer);
-  diffHintTimer = setTimeout(() => {
-    diffHint.classList.remove('show');
-    diffHint.setAttribute('aria-hidden','true');
-    // auto-disarm if they ignore it
-    diffArmed = false;
-  }, 1600);
-}
-
-function hideDiffHint(){
-  if(!diffHint) return;
-  diffHint.classList.remove('show');
-  diffHint.setAttribute('aria-hidden','true');
-  clearTimeout(diffHintTimer);
-}
-
-function hideDiffHint(){
-  if(!diffHint) return;
-  diffHint.classList.remove('show');
-  diffHint.setAttribute('aria-hidden','true');
-  clearTimeout(diffHintTimer);
-}
-
-/* NEW HOLD LOGIC STARTS HERE */
-
-let diffHoldTimer = null;
-let diffHoldFired = false;
-
-// HOLD for difficulty
-difficultyBtn.addEventListener('pointerdown', () => {
-  diffHoldFired = false;
-
-  clearTimeout(diffHoldTimer);
-  diffHoldTimer = setTimeout(() => {
-    diffHoldFired = true;
-
-    diffIndex = (diffIndex + 1) % DIFFS.length;
-    applyDifficultyUI();
-
-    if (window.app && app.ACTORS && app.ACTORS.allEnemies) {
-      app.ACTORS.allEnemies.forEach(en =>
-        en && en.updateVelocityRandomizer && en.updateVelocityRandomizer()
-      );
-    }
-  }, 500);
-});
-
-difficultyBtn.addEventListener('pointerup', () => {
-  clearTimeout(diffHoldTimer);
-
-  // If we did NOT hold, treat as restart
-  if (!diffHoldFired) {
-    if (app && app.__restartKeepBest) {
-      app.__restartKeepBest();
-    } else {
-      location.reload();
-      return;
-    }
-
-    // ✅ After a tap-restart, show the hint for ~1.6s
-    showDiffHint();
-  }
-});
-
-
-difficultyBtn.addEventListener('pointercancel', () => {
-  clearTimeout(diffHoldTimer);
-
-  if(diffHint){
-    diffHint.classList.remove('show');
-    diffHint.setAttribute('aria-hidden','true');
-  }
-});
-
-
-/* NEW HOLD LOGIC ENDS HERE */
-
+    difficultyBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      diffIndex = (diffIndex + 1) % DIFFS.length;
+      applyDifficultyUI();
+      if (window.app && app.ACTORS && app.ACTORS.allEnemies) {
+        app.ACTORS.allEnemies.forEach(en => en && en.updateVelocityRandomizer && en.updateVelocityRandomizer());
+      }
+    });
 
     // =========================
     // Game resources loader
@@ -2558,7 +2356,47 @@ canvas.addEventListener("pointerdown", (e) => {
       }
     });
 
-    // Touchpad swipe + tap support (FIXED: pointer events, no ghost clicks)
+    // Mobile swipe input
+    (function(){
+      const canvas = document.getElementById('game');
+      let sx=0, sy=0, active=false;
+
+      function getXY(ev){
+        const t = (ev.touches && ev.touches[0]) ? ev.touches[0] : ev;
+        return { x: t.clientX, y: t.clientY };
+      }
+
+      canvas.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        const p = getXY(e);
+        sx=p.x; sy=p.y; active=true;
+      }, { passive:false });
+
+      canvas.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        if(!active) return;
+        active=false;
+
+        const p = (e.changedTouches && e.changedTouches[0]) ? e.changedTouches[0] : null;
+        if(!p) return;
+
+        const dx = p.clientX - sx;
+        const dy = p.clientY - sy;
+        const ax = Math.abs(dx), ay = Math.abs(dy);
+
+        if(Math.max(ax,ay) < 18) return;
+
+        let dir;
+        if(ax > ay) dir = dx > 0 ? "right" : "left";
+        else dir = dy > 0 ? "down" : "up";
+
+        if (window.app && app.ACTORS && app.ACTORS.player) {
+          app.ACTORS.player.handleInput(dir);
+        }
+      }, { passive:false });
+    })();
+
+    // Touchpad swipe + tap support
 (function(){
   const plate = document.querySelector('.touchpad-plate');
   if(!plate) return;
@@ -2569,36 +2407,34 @@ canvas.addEventListener("pointerdown", (e) => {
     }
   }
 
-  // Make arrows tappable
-  plate.querySelectorAll('.touch-arrow').forEach(a => {
-    a.addEventListener('pointerdown', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      const dir = a.getAttribute('data-dir');
-      if (dir) move(dir);
-    }, { passive:false });
+  // TAP (click arrows or plate sections)
+  plate.addEventListener('click', function(e){
+    const el = e.target.closest('[data-dir]');
+    if(!el) return;
+    e.preventDefault();
+    move(el.getAttribute('data-dir'));
   });
 
-  // Swipe (pointer)
+  // SWIPE
   let sx=0, sy=0, active=false;
 
-  plate.addEventListener('pointerdown', (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    sx = e.clientX;
-    sy = e.clientY;
+  plate.addEventListener('touchstart', function(e){
+    const t = e.touches && e.touches[0];
+    if(!t) return;
+    sx = t.clientX;
+    sy = t.clientY;
     active = true;
-    plate.setPointerCapture?.(e.pointerId);
   }, { passive:false });
 
-  plate.addEventListener('pointerup', (e) => {
+  plate.addEventListener('touchend', function(e){
     if(!active) return;
-    e.preventDefault();
-    e.stopPropagation();
     active = false;
 
-    const dx = e.clientX - sx;
-    const dy = e.clientY - sy;
+    const t = e.changedTouches && e.changedTouches[0];
+    if(!t) return;
+
+    const dx = t.clientX - sx;
+    const dy = t.clientY - sy;
     const ax = Math.abs(dx);
     const ay = Math.abs(dy);
 
@@ -2611,9 +2447,7 @@ canvas.addEventListener("pointerdown", (e) => {
     move(dir);
   }, { passive:false });
 
-  plate.addEventListener('pointercancel', () => { active=false; });
 })();
-
 
     // Character select hookup
     (function () {
