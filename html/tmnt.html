@@ -1155,6 +1155,7 @@ body.music-on .stamp-woofer{
       <button class="char-btn" data-sprite="/images/tmnt/splinter-ico.png">Splinter</button>
       <button class="char-btn" data-sprite="/images/tmnt/baxter.png">Baxter</button>
     </div>
+  </div>
 
   <script>
     // =========================
@@ -1194,6 +1195,10 @@ body.music-on .stamp-woofer{
         const securityOverlay = document.getElementById('securityOverlay');
         const securityReloadBtn = document.getElementById('securityReloadBtn');
         const securityDismissBtn = document.getElementById('securityDismissBtn');
+
+        if (!securityOverlay || !securityReloadBtn || !securityDismissBtn) {
+  return; // security UI is disabled/removed, don't crash the game
+}
 
         const nedryAudio = new Audio('/mp3/jurrasicpassword.mp3');
         let devtoolsOpen = false;
@@ -2420,7 +2425,7 @@ if (!app.__gameOver) {
             app.__restartKeepBest();
             app.ACTORS.player.sprite = sprite; // re-apply after restart
           }
-          overlay.classList.add("hidden");   // ← ADD THIS LINE
+            overlay.style.display = "none";
   // overlay.style.display = "none";  ← keep commented
         }
        // overlay.style.display = "none";
