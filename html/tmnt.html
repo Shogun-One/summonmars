@@ -20,6 +20,8 @@
   --hud:#e4e4ff;
   --danger:#ff2a2a;
   --ink:#07060a;
+  --bottom-ui: 190px;
+
 
   /* NEW: DPAD geometry so logo can lock above it */
   --dpad-bottom: 88px;
@@ -49,7 +51,7 @@
     align-items:center;
 
     /* Reserve space for footer + banner + dpad (mobile) */
-    padding: 14px 10px 170px;
+    padding: 14px 10px var(--bottom-ui); 170px;
 
     font-family:Rajdhani, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
     background:radial-gradient(circle at top, var(--bg2), var(--bg1));
@@ -90,7 +92,8 @@
     margin-top:0;                 /* IMPORTANT: stop the sneaky nudge */
     width:min(560px, 100vw);
 
-    transform: translateY(var(--stack-shift));
+    /* transform: translateY(var(--stack-shift)); */
+    transform: none;
 
   }
 
@@ -1066,6 +1069,16 @@ body.music-on .stamp-woofer{
     justify-content:flex-start;
     padding: 10px 10px 90px;
   }
+
+  /* --- FINAL FOOTER OVERRIDE (wins) --- */
+body footer{
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 6px;
+  z-index: 6;
+}
+
 
   .game-shell{
     padding-bottom: 42px;
