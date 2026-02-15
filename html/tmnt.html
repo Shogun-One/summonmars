@@ -904,19 +904,22 @@ footer{
   position: fixed;
   left: 50%;
   transform: translateX(-50%);
-  bottom: 6px;                 /* ✅ true bottom */
-  margin: 0;
 
+  /* ✅ keep footer clear of the two bottom bubble buttons */
+  bottom: calc(22px + 52px + 10px);
+
+  margin: 0;
   text-align: center;
   font-size: 0.8rem;
   letter-spacing: 0.08em;
   color: rgba(255,255,255,0.85);
 
-  z-index: 2;                  /* ✅ stays UNDER your bottom buttons */
+  z-index: 1;                 /* under buttons */
   pointer-events: none;
   white-space: nowrap;
   width: max-content;
 }
+
 
 .visit-counter{
   position: fixed;
@@ -1237,7 +1240,6 @@ footer{
   </div> 
 </div>
 
-      </div>
 
   <footer>© 2026 Summon Mars ™. All rights reserved.</footer>
 
