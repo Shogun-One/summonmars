@@ -1751,6 +1751,12 @@ let diffHoldFired = false;
 difficultyBtn.addEventListener('pointerdown', () => {
   diffHoldFired = false;
 
+  // 🔴 SHOW red hold hint immediately
+  if(diffHint){
+    diffHint.classList.add('show');
+    diffHint.setAttribute('aria-hidden','false');
+  }
+
   clearTimeout(diffHoldTimer);
   diffHoldTimer = setTimeout(() => {
     diffHoldFired = true;
@@ -1769,6 +1775,12 @@ difficultyBtn.addEventListener('pointerdown', () => {
 difficultyBtn.addEventListener('pointerup', () => {
   clearTimeout(diffHoldTimer);
 
+  // 🔴 HIDE hint when finger lifts
+  if(diffHint){
+    diffHint.classList.remove('show');
+    diffHint.setAttribute('aria-hidden','true');
+  }
+
   if (!diffHoldFired) {
     if (app && app.__restartKeepBest) {
       app.__restartKeepBest();
@@ -1780,7 +1792,13 @@ difficultyBtn.addEventListener('pointerup', () => {
 
 difficultyBtn.addEventListener('pointercancel', () => {
   clearTimeout(diffHoldTimer);
+
+  if(diffHint){
+    diffHint.classList.remove('show');
+    diffHint.setAttribute('aria-hidden','true');
+  }
 });
+
 
 /* NEW HOLD LOGIC ENDS HERE */
 
