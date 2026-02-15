@@ -332,53 +332,11 @@
   bottom:auto;
   z-index:1;
 
-  display:none;   /* <-- ADD THIS LINE RIGHT HERE */
-}
+  display: none;
+ }
 
 
-/* keep its inner ring fitting its new size */
-.restart-btn .ring{
-  width:100%;
-  height:100%;
-  border-radius:999px;
-}
 
-/* shrink the icon to match */
-.restart-btn .icon{
-  width:10px;
-  height:10px;
-  border-width:2px;
-}
-.restart-btn .icon:after{
-  top:-3px;
-  right:-2px;
-  width:10px;
-  height:10px;
-  border-left-width:5px;
-}
-
-
-  .restart-btn .icon{
-    width:18px;
-    height:18px;
-    border-radius:50%;
-    border:2px solid rgba(255,231,255,.92);
-    border-right-color:transparent;
-    transform:rotate(-45deg);
-    box-shadow:0 0 12px rgba(157,255,191,.35);
-  }
-
-  .restart-btn .icon:after{
-    content:'';
-    position:absolute;
-    top:-4px;
-    right:-2px;
-    width:15px;
-    height:15px;
-    border-left:6px solid rgba(255,231,255,.92);
-    border-top:4px solid transparent;
-    border-bottom:4px solid transparent;
-  }
 
   /* Music bubble (bottom-right) */
   .music-btn{ right:14px; }
@@ -1127,7 +1085,7 @@ body.music-on .stamp-woofer{
 <div id="hint-right" class="neon-hover-hint">Hold for... Fullscreen ▼</div>
 
       <!-- Difficulty bubble (bottom-left) -->
-      <button id="difficultyBtn" class="bubble-btn difficulty-btn" type="button" aria-label="Restart" title="Difficulty">
+      <button id="difficultyBtn" class="bubble-btn difficulty-btn" type="button" aria-label="Restart" title="Restart">
         <span class="label">Restart</span>
         <span class="ring"><span class="dot"></span></span>
       </button>
@@ -1522,12 +1480,6 @@ bassFilter.connect(bassAnalyser);
         console.warn('Music could not start:', err);
       }
     }
-
-    musicBtn.addEventListener('click', (e) => {
-  e.preventDefault();
-  if (fsHoldFired) return;   // if it was a hold, don't also toggle music
-  toggleMusic();
-});
 
     function updatePulse(){
   // If music is off, everything sleeps
@@ -2317,7 +2269,7 @@ if (!app.__gameOver) {
     })(this);
 
     // Restart bubble hook
-    document.getElementById('restartBtn').addEventListener('click', (e) => {
+    document.getElementById('// document.getElementById('restartBtn').addEventListener('click', (e) => {').addEventListener('click', (e) => {
 
       // Canvas restart tap/click
 canvas.addEventListener("pointerdown", (e) => {
@@ -2479,6 +2431,48 @@ canvas.addEventListener("pointerdown", (e) => {
         if (e.key === "n" || e.key === "N") overlay.style.display = "flex";
       });
     })();
+
+    // --- TAP & HOLD LOGIC ---
+function setupBubbleButton(btnId, hintId, tapAction, holdAction) {
+    const btn = document.getElementById(btnId);
+    const hint = document.getElementById(hintId);
+    if (!btn || !hint) return;
+    let timer = null;
+    let holdFired = false;
+
+    btn.addEventListener('pointerdown', (e) => {
+        holdFired = false;
+        timer = setTimeout(() => {
+            holdFired = true;
+            holdAction();
+        }, 600);
+    });
+
+    btn.addEventListener('pointerup', (e) => {
+        clearTimeout(timer);
+        if (!holdFired) {
+            tapAction();
+            hint.style.display = 'block';
+            setTimeout(() => { hint.style.display = 'none'; }, 1500);
+        }
+    });
+    btn.addEventListener('pointerleave', () => clearTimeout(timer));
+}
+
+// Left Button: Tap = Restart, Hold = Difficulty
+setupBubbleButton('difficultyBtn', 'hint-left', 
+    () => { if(window.app && app.__restartKeepBest) app.__restartKeepBest(); }, 
+    () => { 
+        diffIndex = (diffIndex + 1) % DIFFS.length; 
+        applyDifficultyUI(); 
+    }
+);
+
+// Right Button: Tap = Music, Hold = Fullscreen
+setupBubbleButton('musicBtn', 'hint-right', 
+    () => { toggleMusic(); }, 
+    () => { toggleFullscreen(); }
+);
   </script>
   
   <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
