@@ -466,7 +466,14 @@
 
     /* Bass jiggle for the two bottom bubbles (only when music is ON) */
 :root{
+  /* ...keep your existing vars... */
+  --banner-h: 28px;   /* approximate height of "Protected From Bad Vibes" pill */
+  --footer-gap: 10px; /* spacing between banner and footer */
+}
+
   --stack-shift: -20px;
+
+  
   --dpad-lift: -25px;  /* negative = UP, positive = DOWN */
   --stamp-lift: 2px;   /* positive = DOWN, negative = UP */
 
@@ -893,33 +900,39 @@ body.music-on .stamp-woofer{
 
 
 
-  /* --- FIXED FOOTER + COUNTER --- */
-  footer {
-    position: fixed;
-    bottom: 48px;
-    left: 50%;
-    transform: translateX(-50%);
-    text-align: center;
-    font-size: 0.8rem;
-    letter-spacing: 0.08em;
-    color: rgba(255,255,255,0.85);
-    z-index: 6;
-    pointer-events: none;
-    white-space: nowrap;
-    width: max-content;
-  }
+  /* --- FIXED FOOTER + COUNTER (won't mess with layout) --- */
+footer{
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: calc(14px + var(--banner-h) + var(--footer-gap)); /* always under banner */
+  margin: 0;
 
-  .visit-counter {
-    position: fixed;
-    bottom: 8px;
-    right: 14px;
-    font-size: 0.7rem;
-    opacity: 0.45;
-    letter-spacing: 0.08em;
-    color: rgba(255,255,255,0.75);
-    pointer-events: none;
-    z-index: 20;
-  }
+  text-align: center;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  color: rgba(255,255,255,0.85);
+
+  z-index: 6;
+  pointer-events: none;
+  white-space: nowrap;
+  width: max-content;
+}
+
+.visit-counter{
+  position: fixed;
+  bottom: 8px;     /* true bottom */
+  right: 14px;
+
+  font-size: 0.7rem;
+  opacity: 0.45;
+  letter-spacing: 0.08em;
+  color: rgba(255,255,255,0.75);
+
+  pointer-events: none;
+  z-index: 20;
+}
+
 
     
     
