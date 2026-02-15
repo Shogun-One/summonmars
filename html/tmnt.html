@@ -1929,12 +1929,15 @@ this.x = app.GAME_CONFIG.TILE_WIDTH * t;
       var win = global.window;
       var canvas = doc.getElementById("game");
       var ctx = canvas.getContext("2d");
+
+      
+      
       // ===== Canvas Restart (between water and enemies) =====
 const restartHit = {
-  x: (app.GAME_CONFIG.CANVAS_WIDTH / 2) - 14,      // centered
-  y: (1 * app.GAME_CONFIG.TILE_HEIGHT) + app.DRAW_Y_OFFSET + 8, // water row area
-  w: 28,
-  h: 28
+  x: (app.GAME_CONFIG.CANVAS_WIDTH / 2) - 26,            // centered
+  y: (0 * app.GAME_CONFIG.TILE_HEIGHT) + app.DRAW_Y_OFFSET + 18, // water row
+  w: 52,
+  h: 52
 };
 
 function drawRestartIcon(x, y, size){
@@ -1973,6 +1976,22 @@ function drawRestartIcon(x, y, size){
       var rafId = 0;
 
       app.ctx = ctx;
+
+      // Click/tap restart icon on the canvas
+canvas.addEventListener("pointerdown", (e) => {
+  const r = canvas.getBoundingClientRect();
+  const mx = (e.clientX - r.left) * (canvas.width / r.width);
+  const my = (e.clientY - r.top) * (canvas.height / r.height);
+
+  if (
+    mx >= restartHit.x && mx <= restartHit.x + restartHit.w &&
+    my >= restartHit.y && my <= restartHit.y + restartHit.h
+  ) {
+    e.preventDefault();
+    if (app.__restartKeepBest) app.__restartKeepBest();
+  }
+}, { passive: false });
+
 
       canvas.width = app.GAME_CONFIG.CANVAS_WIDTH;
       canvas.height = app.GAME_CONFIG.CANVAS_HEIGHT;
