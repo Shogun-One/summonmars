@@ -2420,6 +2420,8 @@ if (!app.__gameOver) {
             app.__restartKeepBest();
             app.ACTORS.player.sprite = sprite; // re-apply after restart
           }
+          overlay.classList.add("hidden");   // ← ADD THIS LINE
+  // overlay.style.display = "none";  ← keep commented
         }
        // overlay.style.display = "none";
       }
