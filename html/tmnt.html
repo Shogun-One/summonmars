@@ -330,6 +330,55 @@
   z-index: 5;         /* put text above everything */
 }
 
+   /* ===== Restart→Difficulty hint (red neon callout) ===== */
+.diff-hint{
+  position:absolute;
+  left:50%;
+  bottom:92px;                 /* sits above the bubble */
+  transform:translateX(-50%);
+  display:none;
+  z-index:99999;
+  pointer-events:none;
+}
+
+.diff-hint.show{ display:block; }
+
+.diff-hint__bubble{
+  position:relative;
+  padding:.35rem .6rem;
+  border-radius:999px;
+  font-size:.72rem;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+
+  color:#ff2a2a;
+  background:rgba(0,0,0,.55);
+  border:1px solid rgba(255,42,42,.55);
+
+  text-shadow:
+    0 0 8px rgba(255,42,42,.65),
+    0 0 16px rgba(255,0,0,.35);
+
+  box-shadow:
+    0 0 16px rgba(255,42,42,.28),
+    inset 0 0 10px rgba(255,42,42,.12);
+  white-space:nowrap;
+}
+
+/* little pointer arrow down to the button */
+.diff-hint__bubble::after{
+  content:"";
+  position:absolute;
+  left:50%;
+  bottom:-8px;
+  transform:translateX(-50%);
+  width:0;height:0;
+  border-left:8px solid transparent;
+  border-right:8px solid transparent;
+  border-top:8px solid rgba(255,42,42,.70);
+  filter: drop-shadow(0 0 10px rgba(255,42,42,.35));
+}
+ 
 
   /* Difficulty bubble (bottom-left) */
   .difficulty-btn{ left:14px; }
@@ -1123,8 +1172,15 @@ body.music-on .stamp-woofer{
 </div>
 
       <!-- Difficulty bubble (bottom-left) -->
-      <button id="difficultyBtn" class="bubble-btn difficulty-btn" type="button" aria-label="Difficulty" title="Difficulty">
-        <span class="label">Difficulty</span>
+      <button id="difficultyBtn" class="bubble-btn difficulty-btn" type="button" aria-label="Restart" title="Restart">
+
+        <div id="diffHint" class="diff-hint" aria-hidden="true">
+  <div class="diff-hint__bubble">
+    Tap again for <b>Difficulty</b>
+  </div>
+</div>
+        
+        <span class="label" id="diffBtnLabel">Restart</span>
         <span class="ring"><span class="dot"></span></span>
       </button>
 
@@ -1650,14 +1706,66 @@ bassFilter.connect(bassAnalyser);
     }
     applyDifficultyUI();
 
-    difficultyBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      diffIndex = (diffIndex + 1) % DIFFS.length;
-      applyDifficultyUI();
-      if (window.app && app.ACTORS && app.ACTORS.allEnemies) {
-        app.ACTORS.allEnemies.forEach(en => en && en.updateVelocityRandomizer && en.updateVelocityRandomizer());
-      }
-    });
+    // ===== Restart-first Difficulty button behavior =====
+const diffHint = document.getElementById('diffHint');
+let diffArmed = false;          // when true, next tap cycles difficulty
+let diffHintTimer = null;
+
+function showDiffHint(){
+  if(!diffHint) return;
+  diffHint.classList.add('show');
+  diffHint.setAttribute('aria-hidden','false');
+
+  clearTimeout(diffHintTimer);
+  diffHintTimer = setTimeout(() => {
+    diffHint.classList.remove('show');
+    diffHint.setAttribute('aria-hidden','true');
+    // auto-disarm if they ignore it
+    diffArmed = false;
+  }, 1600);
+}
+
+function hideDiffHint(){
+  if(!diffHint) return;
+  diffHint.classList.remove('show');
+  diffHint.setAttribute('aria-hidden','true');
+  clearTimeout(diffHintTimer);
+}
+
+difficultyBtn.addEventListener('click', (e) => {
+  e.preventDefault();
+
+  // If we're "armed", this click cycles difficulty instead of restarting
+  if(diffArmed){
+    diffArmed = false;
+    hideDiffHint();
+
+    diffIndex = (diffIndex + 1) % DIFFS.length;
+    applyDifficultyUI();
+
+    // refresh enemy velocities (your existing behavior)
+    if (window.app && app.ACTORS && app.ACTORS.allEnemies) {
+      app.ACTORS.allEnemies.forEach(en => en && en.updateVelocityRandomizer && en.updateVelocityRandomizer());
+    }
+    return;
+  }
+
+  // Default behavior: Restart (keep best score)
+  // Prefer your in-game restart function if it exists:
+  if (app && app.__restartKeepBest) {
+    app.__restartKeepBest();
+  } else if (app && app.__running !== undefined) {
+    // fallback: soft reset if your restart function isn't wired yet
+    location.reload();
+  } else {
+    location.reload();
+  }
+
+  // After restarting, arm for difficulty and show hint
+  diffArmed = true;
+  showDiffHint();
+});
+
 
     // =========================
     // Game resources loader
