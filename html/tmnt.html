@@ -175,6 +175,13 @@
       inset 0 0 26px rgba(60,255,156,.18);
   }
 
+    .screen-area{
+  position:relative;
+  width:100%;
+  max-width:520px; /* match canvas max-width */
+}
+
+    
   canvas#game{
     border-radius: 16px;
 
@@ -831,6 +838,8 @@ body.music-on .stamp-woofer{
     z-index: 20;
   }
 
+    
+    
    /* ===== MOBILE TOUCHPAD (fixed bottom) ===== */
 .mobile-touchpad{
   width:100%;
@@ -1036,6 +1045,8 @@ body.music-on .stamp-woofer{
     </div>
 
     <div class="game-shell">
+      <div class="screen-area">
+
       <canvas id="game" width="505" height="498"></canvas>
 
       <!-- Desktop splash stamps / stamp-subwoofers -->
@@ -1059,15 +1070,7 @@ body.music-on .stamp-woofer{
         <p class="big">GET READY</p>
       </div>
 
-       <!-- Mobile Touchpad -->
-<div class="mobile-touchpad" aria-hidden="false">
-  <div class="touchpad-plate">
-    <div class="touch-arrow touch-up" data-dir="up">↑</div>
-    <div class="touch-arrow touch-left" data-dir="left">←</div>
-    <div class="touch-arrow touch-right" data-dir="right">→</div>
-    <div class="touch-arrow touch-down" data-dir="down">↓</div>
-  </div>
-</div>
+       
 
       <!-- Game Over overlay -->
       <div id="gameOverOverlay" aria-hidden="true">
@@ -1080,7 +1083,6 @@ body.music-on .stamp-woofer{
   <p class="big red">HOLD THE MUSIC BUTTON</p>
   <div class="small">TO TOGGLE FULL SCREEN VIEW!</div>
 </div>
-
       
       <!-- Difficulty bubble (bottom-left) -->
       <button id="difficultyBtn" class="bubble-btn difficulty-btn" type="button" aria-label="Difficulty" title="Difficulty">
@@ -1120,7 +1122,6 @@ body.music-on .stamp-woofer{
       <button class="char-btn" data-sprite="/images/tmnt/splinter-ico.png">Splinter</button>
       <button class="char-btn" data-sprite="/images/tmnt/baxter.png">Baxter</button>
     </div>
-  </div>
 
   <script>
     // =========================
