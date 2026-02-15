@@ -316,6 +316,21 @@
     pointer-events:none;
   }
 
+    /* ✅ Labels always on top of the bubble graphics */
+.bubble-btn{
+  overflow: visible; /* safety: never clip the label */
+}
+
+.bubble-btn .ring{
+  position: relative; 
+  z-index: 1;         /* keep speaker art below */
+}
+
+.bubble-btn .label{
+  z-index: 5;         /* put text above everything */
+}
+
+
   /* Difficulty bubble (bottom-left) */
   .difficulty-btn{ left:14px; }
   .difficulty-btn .dot{
