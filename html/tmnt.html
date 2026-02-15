@@ -1751,12 +1751,6 @@ let diffHoldFired = false;
 difficultyBtn.addEventListener('pointerdown', () => {
   diffHoldFired = false;
 
-  // 🔴 SHOW red hold hint immediately
-  if(diffHint){
-    diffHint.classList.add('show');
-    diffHint.setAttribute('aria-hidden','false');
-  }
-
   clearTimeout(diffHoldTimer);
   diffHoldTimer = setTimeout(() => {
     diffHoldFired = true;
@@ -1775,20 +1769,20 @@ difficultyBtn.addEventListener('pointerdown', () => {
 difficultyBtn.addEventListener('pointerup', () => {
   clearTimeout(diffHoldTimer);
 
-  // 🔴 HIDE hint when finger lifts
-  if(diffHint){
-    diffHint.classList.remove('show');
-    diffHint.setAttribute('aria-hidden','true');
-  }
-
+  // If we did NOT hold, treat as restart
   if (!diffHoldFired) {
     if (app && app.__restartKeepBest) {
       app.__restartKeepBest();
     } else {
       location.reload();
+      return;
     }
+
+    // ✅ After a tap-restart, show the hint for ~1.6s
+    showDiffHint();
   }
 });
+
 
 difficultyBtn.addEventListener('pointercancel', () => {
   clearTimeout(diffHoldTimer);
