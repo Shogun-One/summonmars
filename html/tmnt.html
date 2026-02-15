@@ -390,7 +390,7 @@
 
     /* Bass jiggle for the two bottom bubbles (only when music is ON) */
 :root{
-  --stack-shift: -30px;
+  --stack-shift: -25px;
 
   --uiShakeX: 0px;
   --uiShakeY: 0px;
@@ -993,7 +993,7 @@ body.music-on .stamp-woofer{
   .mobile-touchpad{ display:flex; }
 
   .wrapper{
-    transform: translateY(15px);
+    transform: translateY(calc(15px + var(--stack-shift)));
     gap:.05rem;
   }
 
