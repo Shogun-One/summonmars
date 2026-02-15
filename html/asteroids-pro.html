@@ -714,7 +714,7 @@
         // Guard (prevents hard crashes if any IDs are missing)
         if (!securityOverlay || !securityReloadBtn || !securityDismissBtn) return;
 
-        const nedryAudio = new Audio('mp3/jurrasicpassword.mp3');
+        const nedryAudio = new Audio('/mp3/jurrasicpassword.mp3');
         let devtoolsOpen = false;
 
         function showOverlay() {
@@ -982,10 +982,10 @@
 
     // Music
     const musicBtn = document.getElementById('musicBtn');
-    const music = new Audio('mp3/asteroids-track.mp3');
+    const music = new Audio('/mp3/asteroids-track.mp3');
 
     // Boss incoming sting
-    const bossSting = new Audio('mp3/boss-sting.mp3');
+    const bossSting = new Audio('/mp3/boss-sting.mp3');
     bossSting.preload = 'auto';
     bossSting.volume = 0.60;
 
@@ -1144,15 +1144,15 @@
       const img = new Image();
       img.decoding = "async";
       img.loading = "eager";
-      img.src = "images/asteroids/" + fn;
-      return img;
+      img.src = "/images/asteroids/" + fn;
+      return img; 
     });
 
     // Firepower icon (MOVED UP so it exists before warmup decode calls)
     const firepowerImg = new Image();
     firepowerImg.decoding = "async";
     firepowerImg.loading = "eager";
-    firepowerImg.src = "images/asteroids/firepower-up.png";
+    firepowerImg.src = "/images/asteroids/firepower-up.png";
 
     // Warm up boss images to avoid first-draw stutter
     Promise.allSettled(
