@@ -80,17 +80,19 @@
   }
 
   .wrapper{
-  position:relative;
-  z-index:2;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:.15rem;
-  padding:.15rem .35rem .35rem;
-  margin-top: var(--stack-shift);
-  width:min(560px, 100vw);
-}
+    position:relative;
+    z-index:2;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:.15rem;
+    padding:.15rem .35rem .35rem;
+    margin-top:0;                 /* IMPORTANT: stop the sneaky nudge */
+    width:min(560px, 100vw);
 
+    transform: translateY(var(--stack-shift));
+
+  }
 
   h1{
   margin:0;
@@ -464,20 +466,14 @@
 
     /* Bass jiggle for the two bottom bubbles (only when music is ON) */
 :root{
-  /* keep your existing vars ABOVE this if you already have them */
-  --banner-h: 28px;     /* height of "Protected From Bad Vibes" pill */
-  --footer-gap: 10px;   /* spacing between banner and footer */
-
   --stack-shift: -20px;
-
-  --dpad-lift: -25px;   /* negative = UP, positive = DOWN */
-  --stamp-lift: 2px;    /* positive = DOWN, negative = UP */
+  --dpad-lift: -25px;  /* negative = UP, positive = DOWN */
+  --stamp-lift: 2px;   /* positive = DOWN, negative = UP */
 
   --uiShakeX: 0px;
   --uiShakeY: 0px;
   --bassKick: 0;
 }
-
 
 /* shake + pump only the speaker cone (ring), not the whole bubble */
 body.music-on .difficulty-btn .ring,
@@ -897,43 +893,33 @@ body.music-on .stamp-woofer{
 
 
 
-/* === Bottom bar (footer + visitors) lives OUTSIDE the game layout === */
-.bottom-bar{
-  position: fixed;
-  left: 0;
-  right: 0;
+  /* --- FIXED FOOTER + COUNTER --- */
+  footer {
+    position: fixed;
+    bottom: 48px;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    font-size: 0.8rem;
+    letter-spacing: 0.08em;
+    color: rgba(255,255,255,0.85);
+    z-index: 6;
+    pointer-events: none;
+    white-space: nowrap;
+    width: max-content;
+  }
 
-  /* sits ABOVE the "Protected From Bad Vibes" pill */
-  bottom: 48px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  padding: 0 14px;
-  pointer-events: none;
-  z-index: 6;
-}
-
-.bottom-bar__center{
-  font-size: 0.78rem;
-  letter-spacing: 0.08em;
-  color: rgba(255,255,255,0.78);
-  text-align: center;
-  white-space: nowrap;
-}
-
-.bottom-bar__right{
-  position: absolute;
-  right: 14px;
-  font-size: 0.7rem;
-  letter-spacing: 0.08em;
-  opacity: 0.45;
-  color: rgba(255,255,255,0.75);
-  white-space: nowrap;
-}
-
-
+  .visit-counter {
+    position: fixed;
+    bottom: 8px;
+    right: 14px;
+    font-size: 0.7rem;
+    opacity: 0.45;
+    letter-spacing: 0.08em;
+    color: rgba(255,255,255,0.75);
+    pointer-events: none;
+    z-index: 20;
+  }
 
     
     
@@ -1078,7 +1064,7 @@ body.music-on .stamp-woofer{
 
   body{
     justify-content:flex-start;
-    padding: 10px 10px 175px;
+    padding: 10px 10px 90px;
   }
 
   .game-shell{
@@ -1088,10 +1074,9 @@ body.music-on .stamp-woofer{
   .mobile-touchpad{ display:flex; }
 
   .wrapper{
-  margin-top: calc(15px + var(--stack-shift));
-  gap: .05rem;
-}
-
+    transform: translateY(calc(15px + var(--stack-shift)));
+    gap:.05rem;
+  }
 
   .title-top{ font-size:2.2rem; }
   .title-sub{ font-size:1.1rem; }
@@ -1102,18 +1087,7 @@ body.music-on .stamp-woofer{
   .music-btn{ right:14px; }
   .bubble-btn .label{ bottom:60px; }
 
- /* keep security banner fixed on mobile too */
-.security-banner{
-  position: fixed;
-  bottom: 14px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 9999;
-  white-space: nowrap;
-  width: max-content;
-}
-
-
+  .security-banner{ bottom:10px; font-size:.7rem; }
 
   h1{ line-height:1.1; }
 }
@@ -1248,13 +1222,19 @@ body.music-on .stamp-woofer{
     <div class="touch-arrow touch-right" data-dir="right">▶</div>
 <div class="touch-arrow touch-down" data-dir="down">▼</div>
 
-  </div> 
+  </div>
 </div>
+    
+  </div>
 
+  <footer>© 2026 Summon Mars ™. All rights reserved.</footer>
 
+  <div class="visit-counter">
+    Visitors: <span id="busuanzi_value_site_uv"></span>
+  </div>
 
-  
       
+
   <!-- Character select overlay -->
   <div id="character-select-overlay">
     <h2>Choose Your Hero</h2>
@@ -1268,8 +1248,6 @@ body.music-on .stamp-woofer{
       <button class="char-btn" data-sprite="/images/tmnt/splinter-ico.png">Splinter</button>
       <button class="char-btn" data-sprite="/images/tmnt/baxter.png">Baxter</button>
     </div>
-
-    
 
   <script>
     // =========================
@@ -1298,8 +1276,6 @@ body.music-on .stamp-woofer{
         }catch{}
       }, 3000);
     });
-
-    
 
     (function () {
       function initSecurity() {
@@ -2625,7 +2601,6 @@ canvas.addEventListener("pointerdown", (e) => {
   plate.addEventListener('pointercancel', () => { active=false; });
 })();
 
-    
 
     // Character select hookup
     (function () {
@@ -2657,12 +2632,6 @@ canvas.addEventListener("pointerdown", (e) => {
       });
     })();
   </script>
-
-    <footer>© 2026 Summon Mars ™. All rights reserved.</footer>
-
-<div class="visit-counter">
-  Visitors: <span id="busuanzi_value_site_uv"></span>
-</div>
   
   <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 </body>
