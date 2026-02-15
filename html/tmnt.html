@@ -867,18 +867,29 @@ body.music-on .stamp-woofer{
   width:52px;
   height:52px;
   border-radius:16px;
-  border:1px solid rgba(157,255,191,.40);
-  background:rgba(60,255,156,.08);
+
+  border:1px solid rgba(255,42,42,.65);
+  background:rgba(255,42,42,.08);
+
   display:flex;
   align-items:center;
   justify-content:center;
   font-size:26px;
-  color:var(--accent-soft);
+
+  color:#ff2a2a;
+  text-shadow:
+    0 0 8px #ff2a2a,
+    0 0 16px #ff0000,
+    0 0 28px #ff0000;
+
+  box-shadow:
+    0 0 18px rgba(255,42,42,.25),
+    inset 0 0 10px rgba(255,42,42,.18);
+
   user-select:none;
   -webkit-user-select:none;
   touch-action: manipulation;
 
-  /* ✅ fix: combine centering + nudge + scale in ONE transform */
   --tx: 0px;
   --ty: 0px;
   --pressX: 0px;
@@ -888,8 +899,13 @@ body.music-on .stamp-woofer{
   transition: transform 90ms ease, background 90ms ease;
 }
 
+
 .touch-arrow:active{
-  background:rgba(60,255,156,.18);
+  background:rgba(255,42,42,.22);
+  box-shadow:
+    0 0 28px rgba(255,42,42,.45),
+    inset 0 0 16px rgba(255,42,42,.35);
+
   --scale: .96;
   --pressX: var(--pressActiveX, 0px);
   --pressY: var(--pressActiveY, 0px);
