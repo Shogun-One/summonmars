@@ -1687,11 +1687,28 @@ function showStartOverlay(on){
     };
 
     app.Enemy.prototype.chooseSprite = function () {
-      var level = app.GameState.level;
-      var batchSize = Math.min(app.ENEMY_SPRITES.length, 3 + Math.floor(level / 3) * 2);
-      var index = Math.floor(Math.random() * batchSize);
-      this.sprite = app.ENEMY_SPRITES[index];
-    };
+  var level = app.GameState.level;
+  var batchSize = Math.min(app.ENEMY_SPRITES.length, 3 + Math.floor(level / 3) * 2);
+
+  const SHARK = "/images/tmnt/shark.png";
+
+  // Build a "lane-legal" sprite pool
+  var pool = app.ENEMY_SPRITES.slice(0, batchSize);
+
+  // Sharks ONLY in the lane directly in front of the water (y === 0)
+  if (this.y !== 0) {
+    pool = pool.filter(s => s !== SHARK);
+  } else {
+    // Optional: make sharks show up a bit more often in the water-front lane
+    if (pool.includes(SHARK) && Math.random() < 0.35) {
+      this.sprite = SHARK;
+      return;
+    }
+  }
+
+  var index = Math.floor(Math.random() * pool.length);
+  this.sprite = pool[index];
+};
 
     app.Enemy.prototype.randomSpeed = function () { this.x += this.randomVelocity; };
 
