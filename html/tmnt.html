@@ -392,6 +392,7 @@
 :root{
   --stack-shift: -20px;
   --dpad-lift: -11px;  /* negative = UP, positive = DOWN */
+  --stamp-lift: 7px;   /* positive = DOWN, negative = UP */
 
   --uiShakeX: 0px;
   --uiShakeY: 0px;
@@ -714,7 +715,7 @@ body.music-on .stamp-woofer{
   pointer-events:none;
   z-index:4;
 
-  top: calc(390px + (1.5 * var(--tileH)));
+  top: calc(390px + (1.5 * var(--tileH)) + var(--stamp-lift));
   transform: translate(-50%, -50%);
 }
 
