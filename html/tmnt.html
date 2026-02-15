@@ -80,19 +80,17 @@
   }
 
   .wrapper{
-    position:relative;
-    z-index:2;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    gap:.15rem;
-    padding:.15rem .35rem .35rem;
-    margin-top:0;                 /* IMPORTANT: stop the sneaky nudge */
-    width:min(560px, 100vw);
+  position:relative;
+  z-index:2;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:.15rem;
+  padding:.15rem .35rem .35rem;
+  margin-top: var(--stack-shift);
+  width:min(560px, 100vw);
+}
 
-    transform: translateY(var(--stack-shift));
-
-  }
 
   h1{
   margin:0;
@@ -1089,9 +1087,10 @@ footer{
   .mobile-touchpad{ display:flex; }
 
   .wrapper{
-    transform: translateY(calc(15px + var(--stack-shift)));
-    gap:.05rem;
-  }
+  margin-top: calc(15px + var(--stack-shift));
+  gap: .05rem;
+}
+
 
   .title-top{ font-size:2.2rem; }
   .title-sub{ font-size:1.1rem; }
@@ -1240,12 +1239,13 @@ footer{
   </div> 
 </div>
 
+<footer>© 2026 Summon Mars ™. All rights reserved.</footer>
 
-  <footer>© 2026 Summon Mars ™. All rights reserved.</footer>
+<div class="visit-counter">
+  Visitors: <span id="busuanzi_value_site_uv"></span>
+</div>
 
-  <div class="visit-counter">
-    Visitors: <span id="busuanzi_value_site_uv"></span>
-  </div>
+  
       
   <!-- Character select overlay -->
   <div id="character-select-overlay">
@@ -1260,6 +1260,8 @@ footer{
       <button class="char-btn" data-sprite="/images/tmnt/splinter-ico.png">Splinter</button>
       <button class="char-btn" data-sprite="/images/tmnt/baxter.png">Baxter</button>
     </div>
+
+    
 
   <script>
     // =========================
@@ -2615,6 +2617,7 @@ canvas.addEventListener("pointerdown", (e) => {
   plate.addEventListener('pointercancel', () => { active=false; });
 })();
 
+    
 
     // Character select hookup
     (function () {
