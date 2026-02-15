@@ -1078,7 +1078,7 @@ body.music-on .stamp-woofer{
 
   body{
     justify-content:flex-start;
-    padding: 10px 10px 90px;
+    padding: 10px 10px 175px;
   }
 
   .game-shell{
@@ -1102,11 +1102,17 @@ body.music-on .stamp-woofer{
   .music-btn{ right:14px; }
   .bubble-btn .label{ bottom:60px; }
 
+ /* keep security banner fixed on mobile too */
 .security-banner{
-  position: static;   /* ← not fixed anymore */
-  margin: 18px auto 0;
-  display: inline-block;
+  position: fixed;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  white-space: nowrap;
+  width: max-content;
 }
+
 
 
   h1{ line-height:1.1; }
