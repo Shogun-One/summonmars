@@ -1127,10 +1127,11 @@ body.music-on .stamp-woofer{
 
       <div class="mobile-touchpad">
   <div class="touchpad-plate">
-    <div class="touch-arrow touch-up">▲</div>
-    <div class="touch-arrow touch-left">◀</div>
-    <div class="touch-arrow touch-right">▶</div>
-    <div class="touch-arrow touch-down">▼</div>
+    <div class="touch-arrow touch-up" data-dir="up">▲</div>
+    <div class="touch-arrow touch-left" data-dir="left">◀</div>
+    <div class="touch-arrow touch-right" data-dir="right">▶</div>
+<div class="touch-arrow touch-down" data-dir="down">▼</div>
+
   </div>
 </div>
     
@@ -2356,47 +2357,7 @@ canvas.addEventListener("pointerdown", (e) => {
       }
     });
 
-    // Mobile swipe input
-    (function(){
-      const canvas = document.getElementById('game');
-      let sx=0, sy=0, active=false;
-
-      function getXY(ev){
-        const t = (ev.touches && ev.touches[0]) ? ev.touches[0] : ev;
-        return { x: t.clientX, y: t.clientY };
-      }
-
-      canvas.addEventListener('touchstart', (e) => {
-        e.preventDefault();
-        const p = getXY(e);
-        sx=p.x; sy=p.y; active=true;
-      }, { passive:false });
-
-      canvas.addEventListener('touchend', (e) => {
-        e.preventDefault();
-        if(!active) return;
-        active=false;
-
-        const p = (e.changedTouches && e.changedTouches[0]) ? e.changedTouches[0] : null;
-        if(!p) return;
-
-        const dx = p.clientX - sx;
-        const dy = p.clientY - sy;
-        const ax = Math.abs(dx), ay = Math.abs(dy);
-
-        if(Math.max(ax,ay) < 18) return;
-
-        let dir;
-        if(ax > ay) dir = dx > 0 ? "right" : "left";
-        else dir = dy > 0 ? "down" : "up";
-
-        if (window.app && app.ACTORS && app.ACTORS.player) {
-          app.ACTORS.player.handleInput(dir);
-        }
-      }, { passive:false });
-    })();
-
-    // Touchpad swipe + tap support
+    // Touchpad swipe + tap support (FIXED: pointer events, no ghost clicks)
 (function(){
   const plate = document.querySelector('.touchpad-plate');
   if(!plate) return;
@@ -2407,34 +2368,36 @@ canvas.addEventListener("pointerdown", (e) => {
     }
   }
 
-  // TAP (click arrows or plate sections)
-  plate.addEventListener('click', function(e){
-    const el = e.target.closest('[data-dir]');
-    if(!el) return;
-    e.preventDefault();
-    move(el.getAttribute('data-dir'));
+  // Make arrows tappable
+  plate.querySelectorAll('.touch-arrow').forEach(a => {
+    a.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const dir = a.getAttribute('data-dir');
+      if (dir) move(dir);
+    }, { passive:false });
   });
 
-  // SWIPE
+  // Swipe (pointer)
   let sx=0, sy=0, active=false;
 
-  plate.addEventListener('touchstart', function(e){
-    const t = e.touches && e.touches[0];
-    if(!t) return;
-    sx = t.clientX;
-    sy = t.clientY;
+  plate.addEventListener('pointerdown', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    sx = e.clientX;
+    sy = e.clientY;
     active = true;
+    plate.setPointerCapture?.(e.pointerId);
   }, { passive:false });
 
-  plate.addEventListener('touchend', function(e){
+  plate.addEventListener('pointerup', (e) => {
     if(!active) return;
+    e.preventDefault();
+    e.stopPropagation();
     active = false;
 
-    const t = e.changedTouches && e.changedTouches[0];
-    if(!t) return;
-
-    const dx = t.clientX - sx;
-    const dy = t.clientY - sy;
+    const dx = e.clientX - sx;
+    const dy = e.clientY - sy;
     const ax = Math.abs(dx);
     const ay = Math.abs(dy);
 
@@ -2447,7 +2410,9 @@ canvas.addEventListener("pointerdown", (e) => {
     move(dir);
   }, { passive:false });
 
+  plate.addEventListener('pointercancel', () => { active=false; });
 })();
+
 
     // Character select hookup
     (function () {
