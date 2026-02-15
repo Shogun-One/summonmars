@@ -654,14 +654,6 @@ body.music-on .stamp-woofer{
   font-size:.95rem;
   opacity:.9;
 }
-
-
-    <!-- Fullscreen hint popup -->
-<div id="fullscreenHint" aria-hidden="true">
-  <p class="big red">HOLD THE MUSIC BUTTON</p>
-  <div class="small">TO TOGGLE FULL SCREEN VIEW!</div>
-</div>
-
     
     /* ✅ TMNT LOGO: hidden during gameplay, only shown on overlays */
 .tmnt-logo-wrap{
@@ -721,28 +713,6 @@ body.music-on .stamp-woofer{
   opacity:.9;
   transition: opacity 140ms ease;
   filter: drop-shadow(0 0 14px rgba(60,255,156,.25));
-}
-
-/* ===== OUTSIDE (stamp) subwoofers: match INSIDE bubble logic ===== */
-
-.stamp-woofer{
-  position:absolute;
-  inset:0;
-  border-radius:999px;
-  opacity:0;
-  transform: scale(.96);
-  transition: opacity 180ms ease, transform 200ms ease;
-
-  /* match ring vibe */
-  border:1px solid rgba(228,228,255,.18);
-  overflow:hidden;
-
-  background: radial-gradient(circle at 35% 30%,
-    rgba(255,255,255,.14),
-    rgba(0,0,0,.35) 45%,
-    rgba(0,0,0,.78) 100%);
-
-  box-shadow: inset 0 0 10px rgba(0,0,0,.35), 0 0 18px rgba(60,255,156,.18);
 }
 
 /* ===== OUTSIDE (stamp) woofers: same logic, scaled up ===== */
@@ -1077,6 +1047,13 @@ body.music-on .stamp-woofer{
         <div class="small">Press Restart to Try Again</div>
       </div>
 
+<!-- Fullscreen hint popup -->
+<div id="fullscreenHint" aria-hidden="true">
+  <p class="big red">HOLD THE MUSIC BUTTON</p>
+  <div class="small">TO TOGGLE FULL SCREEN VIEW!</div>
+</div>
+
+      
       <!-- Difficulty bubble (bottom-left) -->
       <button id="difficultyBtn" class="bubble-btn difficulty-btn" type="button" aria-label="Difficulty" title="Difficulty">
         <span class="label">Difficulty</span>
@@ -1343,6 +1320,41 @@ body.music-on .stamp-woofer{
     // =========================
     const musicBtn = document.getElementById('musicBtn');
 
+    function toggleFullscreen(){
+  const doc = document;
+  const el  = document.documentElement;
+
+  const isFS = doc.fullscreenElement || doc.webkitFullscreenElement || doc.msFullscreenElement;
+
+  if(!isFS){
+    (el.requestFullscreen || el.webkitRequestFullscreen || el.msRequestFullscreen).call(el);
+  }else{
+    (doc.exitFullscreen || doc.webkitExitFullscreen || doc.msExitFullscreen).call(doc);
+  }
+}
+
+let fsHoldTimer = null;
+let fsHoldFired = false;
+
+musicBtn.addEventListener('pointerdown', () => {
+  fsHoldFired = false;
+  clearTimeout(fsHoldTimer);
+
+  fsHoldTimer = setTimeout(() => {
+    fsHoldFired = true;
+    toggleFullscreen();
+  }, 500); // hold time
+});
+
+function clearHold(){
+  clearTimeout(fsHoldTimer);
+}
+
+musicBtn.addEventListener('pointerup', clearHold);
+musicBtn.addEventListener('pointercancel', clearHold);
+musicBtn.addEventListener('pointerleave', clearHold);
+
+
     const fullscreenHint = document.getElementById('fullscreenHint');
 let hintTimeout = null;
 
@@ -1448,9 +1460,10 @@ bassFilter.connect(bassAnalyser);
     }
 
     musicBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      toggleMusic();
-    });
+  e.preventDefault();
+  if (fsHoldFired) return;   // if it was a hold, don't also toggle music
+  toggleMusic();
+});
 
     function updatePulse(){
   // If music is off, everything sleeps
