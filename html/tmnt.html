@@ -758,21 +758,45 @@ body.music-on .stamp-woofer{
 
 
 
-/* === MUSIC TOGGLE === */
+/* === MUSIC TOGGLE (FLIP instead of pop) === */
+
+/* give the stamp slot 3D depth + keep your tile-lock translate */
+.stamp-slot.splash{
+  perspective: 700px;
+  transform: translate(-50%, -50%) translate3d(var(--uiShakeX), var(--uiShakeY), 0);
+}
+
+/* both faces flip smoothly */
+.stamp-img,
+.stamp-woofer{
+  backface-visibility: hidden;
+  transform-style: preserve-3d;
+  transition: transform 320ms ease, opacity 220ms ease;
+}
+
+/* default state: show stamp (front) */
+.stamp-img{
+  opacity: 0.9;
+  transform: rotateY(0deg);
+}
+
+/* default state: hide woofer (back) */
+.stamp-woofer{
+  opacity: 0;
+  transform: rotateY(180deg) scale(1);
+}
+
+/* music ON: flip to woofer */
 body.music-on .stamp-img{
-  opacity:0;
+  opacity: 0;
+  transform: rotateY(-180deg);
 }
 
 body.music-on .stamp-woofer{
-  opacity:1;
-  transform:scale(1);
+  opacity: 1;
+  transform: rotateY(0deg) scale(1);
 }
 
-/* subtle bass shake */
-body.music-on .stamp-woofer{
-  transform: translate3d(var(--uiShakeX), var(--uiShakeY), 0)
-             scale(calc(1 + (var(--bassKick) * 0.12)));
-}
 
 
 
