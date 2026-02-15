@@ -6,669 +6,660 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="icon" href="/images/tmnt/tmnticon.png" />
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com"><!-- Desktop splash stamps -->
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Rajdhani:wght@400;600;700&family=Orbitron:wght@600;700;800&display=swap" rel="stylesheet">
 
   <style>
-    :root{
-      --bg1:#05030b;
-      --bg2:#0b2a12;
-      --accent:#3cff9c;
-      --accent-soft:#9dffbf;
-      --hud:#e4e4ff;
-      --danger:#ff2a2a;
-      --ink:#07060a;
+  :root{
+    --bg1:#05030b;
+    --bg2:#0b2a12;
+    --accent:#3cff9c;
+    --accent-soft:#9dffbf;
+    --hud:#e4e4ff;
+    --danger:#ff2a2a;
+    --ink:#07060a;
 
-      --stack-shift: -20px;
-      --dpad-lift: -25px;  /* negative = UP, positive = DOWN */
-      --stamp-lift: 2px;   /* positive = DOWN, negative = UP */
+    /* DPAD */
+    --dpad-bottom: 88px;
+    --dpad-size: 190px;
+    --logo-gap: 14px;
 
-      --uiShakeX: 0px;
-      --uiShakeY: 0px;
-      --bassKick: 0;
+    /* dials */
+    --stack-shift: -20px;
+    --dpad-lift: 18px;   /* ✅ was -25px (too high). + = DOWN */
+    --stamp-lift: 2px;
 
-      --tileW: 101px;
-      --tileH: 83px;
-      --stampSize: 110px;
-    }
+    --uiShakeX: 0px;
+    --uiShakeY: 0px;
+    --bassKick: 0;
+  }
 
-    *{ box-sizing:border-box; }
+  *{ box-sizing:border-box; }
 
-    html, body{
-      height:100%;
-      overflow:hidden;
-      overscroll-behavior:none;
-    }
+  html, body{
+    height: 100%;
+    overflow: hidden;
+    overscroll-behavior: none;
+  }
 
+  body{
+    margin:0;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+
+    padding: 14px 10px 170px;
+
+    font-family:Rajdhani, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    background:radial-gradient(circle at top, var(--bg2), var(--bg1));
+    color:var(--hud);
+    overflow:hidden;
+
+    -webkit-user-select:none;
+    -moz-user-select:none;
+    -ms-user-select:none;
+    user-select:none;
+    -webkit-touch-callout:none;
+  }
+
+  img{
+    pointer-events:none;
+    -webkit-user-drag:none;
+    user-drag:none;
+  }
+
+  #bgfx{
+    position:fixed;
+    inset:0;
+    width:100vw;
+    height:100vh;
+    z-index:0;
+    pointer-events:none;
+  }
+
+  .wrapper{
+    position:relative;
+    z-index:2;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:.15rem;
+    padding:.15rem .35rem .35rem;
+    margin-top:0;
+    width:min(560px, 100vw);
+    transform: translateY(var(--stack-shift));
+  }
+
+  h1{
+    margin:0;
+    font-family:'Luckiest Guy', cursive;
+    text-transform:uppercase;
+    text-align:center;
+    color:var(--accent-soft);
+    text-shadow:0 0 18px rgba(60,255,156,.22);
+  }
+  .title-top{ font-size:2.6rem; letter-spacing:.10em; }
+  .title-sub{ font-size:1.3rem; letter-spacing:.12em; margin-top:-6px; }
+
+  .hud{
+    display:flex;
+    flex-wrap:nowrap;
+    justify-content:center;
+    align-items:center;
+    width:100%;
+    max-width:100%;
+    overflow:hidden;
+    gap:clamp(.25rem, 1vw, .55rem);
+    font-size:clamp(.65rem, 2vw, .95rem);
+    margin-top:.25rem;
+  }
+
+  .hud .pill{
+    flex:0 0 auto;
+    white-space:nowrap;
+    background:rgba(0,0,0,.22);
+    border:1px solid rgba(157,255,191,.18);
+    border-radius:999px;
+    padding:clamp(.2rem, .8vw, .3rem) clamp(.4rem, 1.6vw, .65rem);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+  }
+  .hud .pill b{
+    font-family:Orbitron, system-ui, sans-serif;
+    letter-spacing:.06em;
+    color:var(--accent-soft);
+    font-weight:800;
+  }
+
+  .controls{
+    margin-top:0;
+    line-height:1.2;
+    text-align:center;
+  }
+  .controls strong{ color:var(--accent-soft); }
+
+  .game-shell{
+    position:relative;
+    width:100%;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    margin-top: 10px;
+    padding-bottom: 32px;
+
+    padding: 10px;
+    border-radius: 22px;
+    background: rgba(0,0,0,.28);
+    border: 1px solid rgba(157,255,191,.22);
+    box-shadow:
+      0 0 calc(35px + var(--pulse, 0px)) rgba(0,0,0,.85),
+      0 0 calc(55px + var(--pulse, 0px)) rgba(60,255,156,.45),
+      inset 0 0 26px rgba(60,255,156,.18);
+  }
+
+  .screen-area{
+    position:relative;
+    width:100%;
+    max-width:520px;
+  }
+
+  canvas#game{
+    border-radius: 16px;
+    background:
+      linear-gradient(
+        to bottom,
+        rgba(8, 18, 12, 0.95),
+        rgba(5, 2, 10, 0.98)
+      );
+    box-shadow: inset 0 0 22px rgba(60,255,156,.18);
+    touch-action:none;
+    width:100%;
+    max-width:520px;
+    height:auto;
+    display:block;
+    position:relative;
+    z-index:2;
+  }
+
+  .bubble-btn{
+    position:absolute;
+    bottom:14px;
+    width:80px;
+    height:80px;
+    border-radius:999px;
+    border:1px solid rgba(157,255,191,.45);
+    background:radial-gradient(circle at 30% 30%, rgba(255,255,255,.10), rgba(60,255,156,.05) 55%, rgba(0,0,0,.22));
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    box-shadow:0 0 18px rgba(60,255,156,.18);
+    cursor:pointer;
+    display:grid;
+    place-items:center;
+    user-select:none;
+    z-index:3;
+    padding:0;
+  }
+  .bubble-btn:hover{ filter:brightness(1.08); }
+  .bubble-btn:active{ transform:translateY(1px); }
+
+  .bubble-btn .ring{
+    width:100%;
+    height:100%;
+    border-radius:999px;
+    position:relative;
+    overflow:hidden;
+    border:1px solid rgba(228,228,255,.22);
+    background:
+      radial-gradient(circle at 35% 30%, rgba(255,255,255,.18), rgba(0,0,0,.55) 55%, rgba(0,0,0,.92) 100%);
+    box-shadow:
+      inset 0 0 0 2px rgba(0,0,0,.35),
+      inset 0 0 0 10px rgba(0,0,0,.18),
+      inset 0 0 18px rgba(0,0,0,.55),
+      0 0 18px rgba(60,255,156,.16);
+  }
+  .bubble-btn .ring::before{
+    content:"";
+    position:absolute;
+    inset: 2px;
+    border-radius:999px;
+    background:
+      radial-gradient(circle at 35% 30%,
+        rgba(255,255,255,.14),
+        rgba(0,0,0,.35) 45%,
+        rgba(0,0,0,.88) 100%);
+    box-shadow:
+      inset 0 0 0 2px rgba(255,255,255,.06),
+      inset 0 0 10px rgba(0,0,0,.55);
+    transform: scale(calc(1 + (var(--bassKick) * 0.20)));
+    transition: transform 70ms linear;
+  }
+  .bubble-btn .ring::after{
+    content:"";
+    position:absolute;
+    inset: 14px;
+    border-radius:999px;
+    background:
+      radial-gradient(circle at 35% 30%,
+        rgba(255,255,255,.22),
+        rgba(0,0,0,.55) 60%,
+        rgba(0,0,0,.92) 100%),
+      repeating-radial-gradient(circle,
+        rgba(255,255,255,.05) 0 1px,
+        rgba(0,0,0,0) 1px 4px);
+    box-shadow: inset 0 0 0 1px rgba(157,255,191,.10);
+    transform: scale(calc(1 + (var(--bassKick) * 0.12)));
+  }
+
+  .bubble-btn .label{
+    position:absolute;
+    bottom:62px;
+    left:50%;
+    transform:translateX(-50%);
+    font-size:.72rem;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:rgba(228,228,255,.85);
+    background:rgba(0,0,0,.25);
+    border:1px solid rgba(157,255,191,.18);
+    padding:.22rem .55rem;
+    border-radius:999px;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    white-space:nowrap;
+    opacity:.95;
+    pointer-events:none;
+  }
+
+  .difficulty-btn{ left:14px; }
+  .difficulty-btn .dot{
+    width:10px;height:10px;border-radius:999px;
+    background:rgba(157,255,191,.95);
+    box-shadow:0 0 10px rgba(60,255,156,.55);
+  }
+
+  .restart-btn{
+    width:28px;
+    height:28px;
+    top:5px;
+    bottom:auto;
+    z-index:1;
+    display:none;
+  }
+
+  .music-btn{ right:14px; }
+  .music-btn .dot{
+    width:8px;height:8px;border-radius:999px;
+    background:rgba(157,255,191,.95);
+    box-shadow:0 0 10px rgba(60,255,156,.65);
+    opacity:.35;
+    transition:opacity .2s ease;
+  }
+  .music-btn.on .dot{ opacity:1; }
+
+  body.music-on .difficulty-btn .ring,
+  body.music-on .music-btn .ring{
+    transform: translate3d(var(--uiShakeX), var(--uiShakeY), 0)
+               scale(calc(1 + (var(--bassKick) * 0.12)));
+  }
+
+  /* Security banner */
+  .security-banner {
+    position: fixed;
+    bottom: 14px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 6px 14px;
+    font-size: 0.65rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #ff3b3b;
+    background: rgba(0, 0, 0, 0.55);
+    border: 1px solid rgba(255, 59, 59, 0.4);
+    border-radius: 999px;
+    box-shadow: 0 0 14px rgba(255, 59, 59, 0.25);
+    z-index: 9999;
+    pointer-events: none;
+    white-space: nowrap;
+    width: max-content;
+  }
+
+  .security-overlay{
+    position:fixed;
+    inset:0;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    background:rgba(0,0,0,.92);
+    z-index:999999;
+    padding:2rem;
+    text-align:center;
+  }
+  .security-overlay.active{ display:flex; }
+
+  .security-card{
+    width:min(720px, 92vw);
+    border-radius:22px;
+    border:1px solid rgba(255,42,42,.35);
+    background:radial-gradient(circle at 20% 10%, rgba(255,42,42,.18), rgba(0,0,0,.75) 55%, rgba(0,0,0,.92));
+    box-shadow:0 0 40px rgba(255,42,42,.14), inset 0 0 24px rgba(255,42,42,.08);
+    padding:1.4rem 1.2rem;
+  }
+  .security-title{
+    margin:0;
+    font-family:Orbitron, system-ui, sans-serif;
+    font-size:1.65rem;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:rgba(255,80,80,.95);
+    text-shadow:0 0 18px rgba(255,42,42,.35);
+  }
+
+  /* Character select overlay */
+  #character-select-overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.90);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    padding:1.2rem;
+    text-align:center;
+    pointer-events: auto;
+    z-index: 1000001;
+  }
+  #character-select-overlay *{ pointer-events:auto; }
+  #character-select-overlay h2{
+    margin:0 0 8px;
+    font-family:Orbitron, system-ui, sans-serif;
+    color:var(--accent-soft);
+    letter-spacing:.1em;
+    text-transform:uppercase;
+  }
+  .char-grid{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:12px;
+  }
+  .char-btn{
+    width:220px;
+    padding:10px;
+    border-radius:12px;
+    border:1px solid rgba(157,255,191,.42);
+    background:rgba(0,0,0,.28);
+    color:rgba(228,228,255,.95);
+    cursor:pointer;
+    font-size:1rem;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    box-shadow:0 0 14px rgba(60,255,156,.12);
+    text-align:center;
+  }
+
+  /* Overlays */
+  #startOverlay, #gameOverOverlay, #fullscreenHint{
+    position:absolute;
+    inset:0;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    flex-direction:column;
+    text-align:center;
+    border-radius:18px;
+    pointer-events:none;
+  }
+  #startOverlay{ background:rgba(0,0,0,.35); z-index:4; }
+  #gameOverOverlay{ background:rgba(0,0,0,.65); z-index:5; }
+  #fullscreenHint{ background:rgba(0,0,0,.55); z-index:6; }
+
+  #startOverlay.active,
+  #gameOverOverlay.active,
+  #fullscreenHint.active{ display:flex; }
+
+  .overlay-restart-btn{
+    margin-top:18px;
+    padding:10px 22px;
+    border-radius:999px;
+    border:1px solid rgba(157,255,191,.45);
+    background:rgba(0,0,0,.35);
+    color:var(--accent-soft);
+    font-family:Rajdhani, sans-serif;
+    font-size:1rem;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    cursor:pointer;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    box-shadow:0 0 18px rgba(60,255,156,.18);
+    transition: transform .1s ease, filter .1s ease;
+    pointer-events:auto; /* ✅ buttons clickable */
+  }
+  .overlay-restart-btn:hover{ filter:brightness(1.1); }
+  .overlay-restart-btn:active{ transform:translateY(1px); }
+
+  /* TMNT logo only on overlays */
+  .tmnt-logo-wrap{
+    display:none;
+    position:absolute;
+    top:50%;
+    left:50%;
+    transform:translate(-50%, -50%);
+    z-index:12;
+    pointer-events:none;
+  }
+  .tmnt-logo-wrap.show-on-overlay{ display:block; }
+  .tmnt-logo{
+    max-width:260px;
+    height:auto;
+    display:block;
+    filter:
+      drop-shadow(0 0 18px rgba(60,255,156,.35))
+      drop-shadow(0 0 28px rgba(60,255,156,.18));
+  }
+
+  /* stamps */
+  :root{
+    --tileW: 101px;
+    --tileH: 83px;
+    --stampSize: 110px;
+  }
+  .stamp-slot.splash{
+    position:absolute;
+    width: var(--stampSize);
+    height: var(--stampSize);
+    pointer-events:none;
+    z-index:4;
+    top: calc(390px + (1.5 * var(--tileH)) + var(--stamp-lift));
+    transform: translate(-50%, -50%);
+  }
+  .stamp-slot.splash-right{ left:30%; }
+  .stamp-slot.splash-left{ left:70%; }
+
+  .stamp-img{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    object-fit:contain;
+    opacity:.9;
+    transition: opacity 140ms ease;
+    filter: drop-shadow(0 0 14px rgba(60,255,156,.25));
+  }
+
+  .stamp-woofer{
+    position:absolute;
+    inset:0;
+    border-radius:999px;
+    overflow:hidden;
+    opacity:0;
+    transform: scale(.96);
+    transition: opacity 180ms ease, transform 200ms ease;
+    border:1px solid rgba(228,228,255,.22);
+    background:
+      radial-gradient(circle at 35% 30%, rgba(255,255,255,.18), rgba(0,0,0,.55) 55%, rgba(0,0,0,.92) 100%);
+    box-shadow:
+      inset 0 0 0 2px rgba(0,0,0,.35),
+      inset 0 0 0 12px rgba(0,0,0,.16),
+      inset 0 0 22px rgba(0,0,0,.55),
+      0 0 22px rgba(60,255,156,.18);
+  }
+  .stamp-woofer::before{
+    content:"";
+    position:absolute;
+    inset: 8px;
+    border-radius:999px;
+    background:
+      radial-gradient(circle at 35% 30%,
+        rgba(255,255,255,.14),
+        rgba(0,0,0,.35) 45%,
+        rgba(0,0,0,.88) 100%);
+    box-shadow:
+      inset 0 0 0 2px rgba(255,255,255,.06),
+      inset 0 0 12px rgba(0,0,0,.55);
+    transform: scale(calc(1 + (var(--bassKick) * 0.20)));
+    transition: transform 70ms linear;
+  }
+  .stamp-woofer::after{
+    content:"";
+    position:absolute;
+    inset: 28px;
+    border-radius:999px;
+    background:
+      radial-gradient(circle at 35% 30%,
+        rgba(255,255,255,.22),
+        rgba(0,0,0,.55) 60%,
+        rgba(0,0,0,.92) 100%),
+      repeating-radial-gradient(circle,
+        rgba(255,255,255,.05) 0 1px,
+        rgba(0,0,0,0) 1px 5px);
+    box-shadow: inset 0 0 0 1px rgba(157,255,191,.10);
+    transform: scale(calc(1 + (var(--bassKick) * 0.12)));
+  }
+
+  body.music-on .stamp-img{ opacity:0; }
+  body.music-on .stamp-woofer{ opacity:1; transform:scale(1); }
+
+  body.music-on .stamp-woofer{
+    transform: translate3d(var(--uiShakeX), var(--uiShakeY), 0)
+               scale(calc(1 + (var(--bassKick) * 0.12)));
+  }
+
+  footer{
+    position: fixed;
+    bottom: 48px;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    font-size: 0.8rem;
+    letter-spacing: 0.08em;
+    color: rgba(255,255,255,0.85);
+    z-index: 6;
+    pointer-events: none;
+    white-space: nowrap;
+    width: max-content;
+  }
+
+  .visit-counter{
+    position: fixed;
+    bottom: 8px;
+    right: 14px;
+    font-size: 0.7rem;
+    opacity: 0.45;
+    letter-spacing: 0.08em;
+    color: rgba(255,255,255,0.75);
+    pointer-events: none;
+    z-index: 20;
+  }
+
+  .mobile-touchpad{
+    width:100%;
+    height:115px;
+    display:none;
+    align-items:center;
+    justify-content:center;
+
+    margin-top: calc(-8px + var(--dpad-lift));
+    margin-bottom:6px;
+
+    position: relative;
+    z-index: 3;
+
+    background:rgba(0,0,0,.22);
+    border:1px solid rgba(157,255,191,.18);
+    border-radius:18px;
+
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    box-shadow:0 0 22px rgba(60,255,156,.10);
+  }
+
+  .touchpad-plate{
+    width:190px;
+    height:190px;
+    border-radius:28px;
+    border:none;
+    background:rgba(0,0,0,.22);
+    box-shadow: 0 0 22px rgba(0,0,0,.55);
+    position:relative;
+  }
+
+  .touch-arrow{
+    position:absolute;
+    width:52px;
+    height:52px;
+    border-radius:16px;
+    border:1px solid rgba(255,42,42,.65);
+    background:rgba(255,42,42,.08);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:26px;
+    color:#ff2a2a;
+    text-shadow: 0 0 8px #ff2a2a, 0 0 16px #ff0000, 0 0 28px #ff0000;
+    box-shadow: 0 0 18px rgba(255,42,42,.25), inset 0 0 10px rgba(255,42,42,.18);
+    user-select:none;
+    -webkit-user-select:none;
+    touch-action: manipulation;
+    cursor:pointer;
+  }
+
+  .touch-up{ left:50%; top:16px; transform:translateX(-50%); }
+  .touch-down{ left:50%; bottom:16px; transform:translateX(-50%); }
+  .touch-left{ left:16px; top:50%; transform:translateY(-50%); }
+  .touch-right{ right:16px; top:50%; transform:translateY(-50%); }
+
+  .difficulty-btn,
+  .music-btn{
+    position: fixed !important;
+    bottom: 22px !important;
+    z-index: 10000;
+  }
+  .difficulty-btn{ left: 14px !important; }
+  .music-btn{ right: 14px !important; }
+
+  @media (max-width:560px){
     body{
-      margin:0;
-      min-height:100vh;
-      display:flex;
-      flex-direction:column;
-      justify-content:center;
-      align-items:center;
-
-      padding: 14px 10px 170px;
-
-      font-family:Rajdhani, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-      background:radial-gradient(circle at top, var(--bg2), var(--bg1));
-      color:var(--hud);
-
-      -webkit-user-select:none;
-      user-select:none;
-      -webkit-touch-callout:none;
+      justify-content:flex-start;
+      padding: 10px 10px 90px;
     }
-
-    img{
-      pointer-events:none;
-      -webkit-user-drag:none;
-      user-drag:none;
-    }
-
-    #bgfx{
-      position:fixed;
-      inset:0;
-      width:100vw;
-      height:100vh;
-      z-index:0;
-      pointer-events:none;
-    }
-
+    .game-shell{ padding-bottom: 42px; }
+    .mobile-touchpad{ display:flex; }
     .wrapper{
-      position:relative;
-      z-index:2;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      gap:.15rem;
-      padding:.15rem .35rem .35rem;
-      margin-top:0;
-      width:min(560px, 100vw);
-      transform: translateY(var(--stack-shift));
+      transform: translateY(calc(15px + var(--stack-shift)));
+      gap:.05rem;
     }
-
-    h1{
-      margin:0;
-      font-family:'Luckiest Guy', cursive;
-      text-transform:uppercase;
-      text-align:center;
-      color:var(--accent-soft);
-      text-shadow:0 0 18px rgba(60,255,156,.22);
-      line-height:1.05;
-    }
-    .title-top{ font-size:2.6rem; letter-spacing:.10em; }
-    .title-sub{ font-size:1.3rem; letter-spacing:.12em; margin-top:-6px; }
-
-    .controls{
-      margin-top:0;
-      line-height:1.2;
-      text-align:center;
-    }
-    .controls strong{ color:var(--accent-soft); }
-
-    .hud{
-      display:flex;
-      flex-wrap:nowrap;
-      justify-content:center;
-      align-items:center;
-      width:100%;
-      max-width:100%;
-      overflow:hidden;
-      gap:clamp(.25rem, 1vw, .55rem);
-      font-size:clamp(.65rem, 2vw, .95rem);
-      margin-top:.25rem;
-    }
-
-    .hud .pill{
-      flex:0 0 auto;
-      white-space:nowrap;
-      background:rgba(0,0,0,.22);
-      border:1px solid rgba(157,255,191,.18);
-      border-radius:999px;
-      padding:clamp(.2rem, .8vw, .3rem) clamp(.4rem, 1.6vw, .65rem);
-      backdrop-filter: blur(6px);
-      -webkit-backdrop-filter: blur(6px);
-    }
-
-    .hud .pill b{
-      font-family:system-ui, sans-serif;
-      letter-spacing:.06em;
-      color:var(--accent-soft);
-      font-weight:800;
-    }
-
-    .game-shell{
-      position:relative;
-      width:100%;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-
-      margin-top: 10px;
-      padding-bottom: 32px;
-
-      padding: 10px;
-      border-radius: 22px;
-      background: rgba(0,0,0,.28);
-      border: 1px solid rgba(157,255,191,.22);
-
-      box-shadow:
-        0 0 calc(35px + var(--pulse, 0px)) rgba(0,0,0,.85),
-        0 0 calc(55px + var(--pulse, 0px)) rgba(60,255,156,.45),
-        inset 0 0 26px rgba(60,255,156,.18);
-    }
-
-    .screen-area{
-      position:relative;
-      width:100%;
-      max-width:520px;
-    }
-
-    canvas#game{
-      border-radius: 16px;
-      background: linear-gradient(to bottom, rgba(8, 18, 12, 0.95), rgba(5, 2, 10, 0.98));
-      box-shadow: inset 0 0 22px rgba(60,255,156,.18);
-      touch-action:none;
-      width:100%;
-      max-width:520px;
-      height:auto;
-      display:block;
-      position:relative;
-      z-index:2;
-    }
-
-    /* bubbles */
-    .bubble-btn{
-      position:absolute;
-      bottom:14px;
-      width:80px;
-      height:80px;
-      border-radius:999px;
-      border:1px solid rgba(157,255,191,.45);
-      background:radial-gradient(circle at 30% 30%, rgba(255,255,255,.10), rgba(60,255,156,.05) 55%, rgba(0,0,0,.22));
-      backdrop-filter: blur(6px);
-      -webkit-backdrop-filter: blur(6px);
-      box-shadow:0 0 18px rgba(60,255,156,.18);
-      cursor:pointer;
-      display:grid;
-      place-items:center;
-      user-select:none;
-      z-index:3;
-      padding:0;
-    }
-    .bubble-btn:hover{ filter:brightness(1.08); }
-    .bubble-btn:active{ transform:translateY(1px); }
-
-    .bubble-btn .label{
-      position:absolute;
-      bottom:62px;
-      left:50%;
-      transform:translateX(-50%);
-      font-size:.72rem;
-      letter-spacing:.08em;
-      text-transform:uppercase;
-      color:rgba(228,228,255,.85);
-      background:rgba(0,0,0,.25);
-      border:1px solid rgba(157,255,191,.18);
-      padding:.22rem .55rem;
-      border-radius:999px;
-      backdrop-filter: blur(6px);
-      -webkit-backdrop-filter: blur(6px);
-      white-space:nowrap;
-      opacity:.95;
-      pointer-events:none;
-    }
-
-    /* speaker ring */
-    .bubble-btn .ring{
-      width:100%;
-      height:100%;
-      border-radius:999px;
-      position:relative;
-      overflow:hidden;
-
-      border:1px solid rgba(228,228,255,.22);
-      background: radial-gradient(circle at 35% 30%, rgba(255,255,255,.18), rgba(0,0,0,.55) 55%, rgba(0,0,0,.92) 100%);
-      box-shadow:
-        inset 0 0 0 2px rgba(0,0,0,.35),
-        inset 0 0 0 10px rgba(0,0,0,.18),
-        inset 0 0 18px rgba(0,0,0,.55),
-        0 0 18px rgba(60,255,156,.16);
-    }
-
-    .bubble-btn .ring::before{
-      content:"";
-      position:absolute;
-      inset: 2px;
-      border-radius:999px;
-      background: radial-gradient(circle at 35% 30%, rgba(255,255,255,.14), rgba(0,0,0,.35) 45%, rgba(0,0,0,.88) 100%);
-      box-shadow: inset 0 0 0 2px rgba(255,255,255,.06), inset 0 0 10px rgba(0,0,0,.55);
-      transform: scale(calc(1 + (var(--bassKick) * 0.20)));
-      transition: transform 70ms linear;
-    }
-
-    .bubble-btn .ring::after{
-      content:"";
-      position:absolute;
-      inset: 14px;
-      border-radius:999px;
-      background:
-        radial-gradient(circle at 35% 30%, rgba(255,255,255,.22), rgba(0,0,0,.55) 60%, rgba(0,0,0,.92) 100%),
-        repeating-radial-gradient(circle, rgba(255,255,255,.05) 0 1px, rgba(0,0,0,0) 1px 4px);
-      box-shadow: inset 0 0 0 1px rgba(157,255,191,.10);
-      transform: scale(calc(1 + (var(--bassKick) * 0.12)));
-    }
-
-    .difficulty-btn{ left:14px; }
-    .music-btn{ right:14px; }
-
-    .difficulty-btn .dot{
-      width:10px;height:10px;border-radius:999px;
-      background:rgba(157,255,191,.95);
-      box-shadow:0 0 10px rgba(60,255,156,.55);
-      position:relative;
-      z-index:2;
-    }
-
-    .music-btn .dot{
-      width:8px;height:8px;border-radius:999px;
-      background:rgba(157,255,191,.95);
-      box-shadow:0 0 10px rgba(60,255,156,.65);
-      opacity:.35;
-      transition:opacity .2s ease;
-      position:relative;
-      z-index:2;
-    }
-    .music-btn.on .dot{ opacity:1; }
-
-    /* hide tiny restart bubble */
-    .restart-btn{ display:none !important; }
-
-    /* music-on shake */
-    body.music-on .difficulty-btn .ring,
-    body.music-on .music-btn .ring{
-      transform: translate3d(var(--uiShakeX), var(--uiShakeY), 0)
-                scale(calc(1 + (var(--bassKick) * 0.12)));
-    }
-
-    /* security banner */
-    .security-banner{
-      position: fixed;
-      bottom: 14px;
-      left: 50%;
-      transform: translateX(-50%);
-      padding: 6px 14px;
-      font-size: 0.65rem;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: #ff3b3b;
-      background: rgba(0, 0, 0, 0.55);
-      border: 1px solid rgba(255, 59, 59, 0.4);
-      border-radius: 999px;
-      box-shadow: 0 0 14px rgba(255, 59, 59, 0.25);
-      z-index: 9999;
-      pointer-events: none;
-      white-space: nowrap;
-      width: max-content;
-    }
-
-    .security-overlay{
-      position:fixed;
-      inset:0;
-      display:none;
-      align-items:center;
-      justify-content:center;
-      background:rgba(0,0,0,.92);
-      z-index:999999;
-      padding:2rem;
-      text-align:center;
-    }
-    .security-overlay.active{ display:flex; }
-
-    .security-card{
-      width:min(720px, 92vw);
-      border-radius:22px;
-      border:1px solid rgba(255,42,42,.35);
-      background:radial-gradient(circle at 20% 10%, rgba(255,42,42,.18), rgba(0,0,0,.75) 55%, rgba(0,0,0,.92));
-      box-shadow:0 0 40px rgba(255,42,42,.14), inset 0 0 24px rgba(255,42,42,.08);
-      padding:1.4rem 1.2rem;
-    }
-    .security-title{
-      margin:0;
-      font-size:1.65rem;
-      letter-spacing:.12em;
-      text-transform:uppercase;
-      color:rgba(255,80,80,.95);
-      text-shadow:0 0 18px rgba(255,42,42,.35);
-      font-family:system-ui, sans-serif;
-    }
-    .security-sub{ margin:.6rem 0 0; color:rgba(255,230,230,.92); opacity:.9; line-height:1.5; font-size:1rem; }
-    .security-small{ margin:.8rem 0 0; font-size:.9rem; color:rgba(228,228,255,.8); opacity:.85; }
-
-    .security-actions{ margin-top:1rem; display:flex; gap:.6rem; justify-content:center; flex-wrap:wrap; }
-    .security-actions button{
-      padding:.45rem 1rem;
-      border-radius:999px;
-      border:none;
-      cursor:pointer;
-      font-weight:900;
-      letter-spacing:.08em;
-      text-transform:uppercase;
-      font-family:Rajdhani, system-ui, sans-serif;
-    }
-    .security-actions .danger{ background:rgba(255,42,42,.95); color:#120006; box-shadow:0 0 14px rgba(255,42,42,.35); }
-    .security-actions .secondary{ background:rgba(228,228,255,.12); color:rgba(228,228,255,.92); border:1px solid rgba(228,228,255,.25); }
-
-    /* character select */
-    #character-select-overlay{
-      position:fixed;
-      inset:0;
-      background:rgba(0,0,0,.90);
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      justify-content:center;
-      padding:1.2rem;
-      text-align:center;
-      pointer-events:auto;
-      z-index:1000001;
-    }
-    #character-select-overlay *{ pointer-events:auto; }
-    #character-select-overlay h2{
-      margin:0 0 8px;
-      color:var(--accent-soft);
-      letter-spacing:.1em;
-      text-transform:uppercase;
-      font-family:system-ui, sans-serif;
-    }
-    #character-select-overlay p{ margin:.1rem 0 1rem; opacity:.9; max-width:520px; }
-    .char-grid{ display:flex; flex-direction:column; align-items:center; gap:12px; }
-    .char-btn{
-      width:220px;
-      padding:10px 10px;
-      border-radius:12px;
-      border:1px solid rgba(157,255,191,.42);
-      background:rgba(0,0,0,.28);
-      color:rgba(228,228,255,.95);
-      cursor:pointer;
-      font-size:1rem;
-      backdrop-filter: blur(6px);
-      -webkit-backdrop-filter: blur(6px);
-      box-shadow:0 0 14px rgba(60,255,156,.12);
-      text-align:center;
-    }
-    .char-btn:hover{ filter:brightness(1.08); }
-
-    /* overlays (click-through except their button) */
-    #startOverlay, #gameOverOverlay, #fullscreenHint{
-      position:absolute;
-      inset:0;
-      display:none;
-      align-items:center;
-      justify-content:center;
-      flex-direction:column;
-      text-align:center;
-      border-radius:18px;
-      pointer-events:none;
-    }
-
-    #startOverlay{ background:rgba(0,0,0,.35); z-index:4; }
-    #gameOverOverlay{ background:rgba(0,0,0,.65); z-index:5; }
-    #fullscreenHint{ background:rgba(0,0,0,.55); z-index:6; }
-
-    #startOverlay.active, #gameOverOverlay.active, #fullscreenHint.active{ display:flex; }
-
-    #startOverlay .big{
-      font-size:1.7rem;
-      letter-spacing:.12em;
-      color:rgba(157,255,191,.95);
-      text-shadow:0 0 18px rgba(60,255,156,.25);
-      margin:0;
-      font-family:system-ui, sans-serif;
-    }
-
-    #gameOverOverlay .big.red,
-    #fullscreenHint .big.red{
-      font-size:2rem;
-      letter-spacing:.14em;
-      color:#ff2a2a;
-      text-shadow:0 0 8px #ff2a2a, 0 0 16px #ff0000, 0 0 30px #ff0000;
-      margin:0;
-      font-family:system-ui, sans-serif;
-    }
-
-    #fullscreenHint .big.red{ font-size:1.4rem; }
-    #fullscreenHint .small{ margin-top:.5rem; font-size:.95rem; opacity:.9; }
-
-    .overlay-restart-btn{
-      margin-top:18px;
-      padding:10px 22px;
-      border-radius:999px;
-      border:1px solid rgba(157,255,191,.45);
-      background:rgba(0,0,0,.35);
-      color:var(--accent-soft);
-      font-family:Rajdhani, sans-serif;
-      font-size:1rem;
-      letter-spacing:.08em;
-      text-transform:uppercase;
-      cursor:pointer;
-      backdrop-filter: blur(6px);
-      -webkit-backdrop-filter: blur(6px);
-      box-shadow:0 0 18px rgba(60,255,156,.18);
-      transition: transform .1s ease, filter .1s ease;
-      pointer-events:auto; /* IMPORTANT: clickable even though overlay is pointer-events:none */
-    }
-    .overlay-restart-btn:hover{ filter:brightness(1.1); }
-    .overlay-restart-btn:active{ transform:translateY(1px); }
-
-    /* TMNT LOGO only on overlays */
-    .tmnt-logo-wrap{
-      display:none;
-      position:absolute;
-      top:50%;
-      left:50%;
-      transform:translate(-50%, -50%);
-      z-index:12;
-      pointer-events:none;
-    }
-    .tmnt-logo-wrap.show-on-overlay{ display:block; }
-    .tmnt-logo{
-      max-width:260px;
-      height:auto;
-      display:block;
-      filter: drop-shadow(0 0 18px rgba(60,255,156,.35)) drop-shadow(0 0 28px rgba(60,255,156,.18));
-    }
-
-    /* stamps + woofers */
-    .stamp-slot.splash{
-      position:absolute;
-      width: var(--stampSize);
-      height: var(--stampSize);
-      pointer-events:none;
-      z-index:4;
-      top: calc(390px + (1.5 * var(--tileH)) + var(--stamp-lift));
-      transform: translate(-50%, -50%);
-    }
-    .stamp-slot.splash-right{ left:30%; }
-    .stamp-slot.splash-left{ left:70%; }
-
-    .stamp-img{
-      position:absolute;
-      inset:0;
-      width:100%;
-      height:100%;
-      object-fit:contain;
-      opacity:.9;
-      transition: opacity 140ms ease;
-      filter: drop-shadow(0 0 14px rgba(60,255,156,.25));
-    }
-
-    .stamp-woofer{
-      position:absolute;
-      inset:0;
-      border-radius:999px;
-      overflow:hidden;
-      opacity:0;
-      transform: scale(.96);
-      transition: opacity 180ms ease, transform 200ms ease;
-      border:1px solid rgba(228,228,255,.22);
-      background: radial-gradient(circle at 35% 30%, rgba(255,255,255,.18), rgba(0,0,0,.55) 55%, rgba(0,0,0,.92) 100%);
-      box-shadow:
-        inset 0 0 0 2px rgba(0,0,0,.35),
-        inset 0 0 0 12px rgba(0,0,0,.16),
-        inset 0 0 22px rgba(0,0,0,.55),
-        0 0 22px rgba(60,255,156,.18);
-    }
-    .stamp-woofer::before{
-      content:"";
-      position:absolute;
-      inset: 8px;
-      border-radius:999px;
-      background: radial-gradient(circle at 35% 30%, rgba(255,255,255,.14), rgba(0,0,0,.35) 45%, rgba(0,0,0,.88) 100%);
-      box-shadow: inset 0 0 0 2px rgba(255,255,255,.06), inset 0 0 12px rgba(0,0,0,.55);
-      transform: scale(calc(1 + (var(--bassKick) * 0.20)));
-      transition: transform 70ms linear;
-    }
-    .stamp-woofer::after{
-      content:"";
-      position:absolute;
-      inset: 28px;
-      border-radius:999px;
-      background:
-        radial-gradient(circle at 35% 30%, rgba(255,255,255,.22), rgba(0,0,0,.55) 60%, rgba(0,0,0,.92) 100%),
-        repeating-radial-gradient(circle, rgba(255,255,255,.05) 0 1px, rgba(0,0,0,0) 1px 5px);
-      box-shadow: inset 0 0 0 1px rgba(157,255,191,.10);
-      transform: scale(calc(1 + (var(--bassKick) * 0.12)));
-    }
-
-    body.music-on .stamp-img{ opacity:0; }
-    body.music-on .stamp-woofer{ opacity:1; transform:scale(1); }
-    body.music-on .stamp-woofer{
-      transform: translate3d(var(--uiShakeX), var(--uiShakeY), 0)
-                scale(calc(1 + (var(--bassKick) * 0.12)));
-    }
-
-    footer{
-      position: fixed;
-      bottom: 48px;
-      left: 50%;
-      transform: translateX(-50%);
-      text-align: center;
-      font-size: 0.8rem;
-      letter-spacing: 0.08em;
-      color: rgba(255,255,255,0.85);
-      z-index: 6;
-      pointer-events: none;
-      white-space: nowrap;
-      width: max-content;
-    }
-
-    .visit-counter{
-      position: fixed;
-      bottom: 8px;
-      right: 14px;
-      font-size: 0.7rem;
-      opacity: 0.45;
-      letter-spacing: 0.08em;
-      color: rgba(255,255,255,0.75);
-      pointer-events: none;
-      z-index: 20;
-    }
-
-    /* mobile touchpad */
-    .mobile-touchpad{
-      width:100%;
-      height:115px;
-
-      display:none;
-      align-items:center;
-      justify-content:center;
-
-      margin-top: calc(-8px + var(--dpad-lift));
-      margin-bottom:6px;
-
-      position: relative;
-      z-index: 3;
-
-      background:rgba(0,0,0,.22);
-      border:1px solid rgba(157,255,191,.18);
-      border-radius:18px;
-
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-
-      box-shadow:0 0 22px rgba(60,255,156,.10);
-    }
-
-    .touchpad-plate{
-      width:190px;
-      height:190px;
-      border-radius:28px;
-      border:none;
-      background:rgba(0,0,0,.22);
-      box-shadow: 0 0 22px rgba(0,0,0,.55);
-      position:relative;
-    }
-
-    .touch-arrow{
-      position:absolute;
-      width:52px;
-      height:52px;
-      border-radius:16px;
-      border:1px solid rgba(255,42,42,.65);
-      background:rgba(255,42,42,.08);
-
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-size:26px;
-      color:#ff2a2a;
-      text-shadow:0 0 8px #ff2a2a, 0 0 16px #ff0000, 0 0 28px #ff0000;
-
-      box-shadow: 0 0 18px rgba(255,42,42,.25), inset 0 0 10px rgba(255,42,42,.18);
-      user-select:none;
-      -webkit-user-select:none;
-      touch-action: manipulation;
-
-      --tx: 0px; --ty: 0px; --pressX: 0px; --pressY: 0px; --scale: 1;
-      transform: translate(calc(var(--tx) + var(--pressX)), calc(var(--ty) + var(--pressY))) scale(var(--scale));
-      transition: transform 90ms ease, background 90ms ease;
-    }
-
-    .touch-arrow:active{
-      background:rgba(255,42,42,.22);
-      box-shadow:0 0 28px rgba(255,42,42,.45), inset 0 0 16px rgba(255,42,42,.35);
-      --scale: .96;
-      --pressX: var(--pressActiveX, 0px);
-      --pressY: var(--pressActiveY, 0px);
-    }
-
-    .touch-up{ left:50%; top:16px; --tx:-50%; --pressActiveY:-6px; }
-    .touch-down{ left:50%; bottom:16px; --tx:-50%; --pressActiveY:6px; }
-    .touch-left{ left:16px; top:50%; --ty:-50%; --pressActiveX:-6px; }
-    .touch-right{ right:16px; top:50%; --ty:-50%; --pressActiveX:6px; }
-
-    /* pull diff/music out */
-    .difficulty-btn, .music-btn{
-      position: fixed !important;
-      bottom: 22px !important;
-      z-index: 10000;
-    }
-    .difficulty-btn{ left: 14px !important; }
-    .music-btn{ right: 14px !important; }
-
-    @media (max-width:560px){
-      body{ justify-content:flex-start; padding: 10px 10px 90px; }
-      .game-shell{ padding-bottom: 42px; }
-      .mobile-touchpad{ display:flex; }
-      .wrapper{ transform: translateY(calc(15px + var(--stack-shift))); gap:.05rem; }
-      .title-top{ font-size:2.2rem; }
-      .title-sub{ font-size:1.1rem; }
-      .bubble-btn{ bottom:12px; width:52px; height:52px; }
-      .bubble-btn .label{ bottom:60px; }
-      .security-banner{ bottom:10px; font-size:.7rem; }
-    }
+    .title-top{ font-size:2.2rem; }
+    .title-sub{ font-size:1.1rem; }
+    .bubble-btn{ bottom:12px; width:52px; height:52px; }
+    .bubble-btn .label{ bottom:60px; }
+    .security-banner{ bottom:10px; font-size:.7rem; }
+    h1{ line-height:1.1; }
+  }
   </style>
 </head>
 
@@ -684,7 +675,9 @@
         Logging communications : Security Active<br/>
         Unauthorized inspection prohibited!
       </p>
-      <p class="security-small">Tip: close DevTools / return to normal view / reduce zoom.</p>
+      <p class="security-small">
+        Tip: close DevTools / return to normal view / reduce zoom.
+      </p>
       <div class="security-actions">
         <button id="securityReloadBtn" class="danger" type="button">Reload</button>
         <button id="securityDismissBtn" class="secondary" type="button">Dismiss</button>
@@ -693,7 +686,7 @@
   </div>
 
   <div class="wrapper">
-    <h1 class="title-top">·  TMNT ·</h1>
+    <h1 class="title-top">· TMNT ·</h1>
     <h1 class="title-sub">GET THAT SLICE!</h1>
 
     <div class="controls">
@@ -748,32 +741,29 @@
       </button>
 
       <button id="restartBtn" class="bubble-btn restart-btn" type="button" aria-label="Restart" title="Restart">
-        <span class="ring"></span>
+        <span class="ring"><span class="icon"></span></span>
       </button>
 
       <button id="musicBtn" class="bubble-btn music-btn" type="button" aria-label="Music On/Off" title="Music On/Off">
         <span class="label" id="musicLabel">Music Off</span>
         <span class="ring"><span class="dot"></span></span>
       </button>
+    </div>
 
-      <div class="mobile-touchpad">
-        <div class="touchpad-plate">
-          <div class="touch-arrow touch-up" data-dir="up">▲</div>
-          <div class="touch-arrow touch-left" data-dir="left">◀</div>
-          <div class="touch-arrow touch-right" data-dir="right">▶</div>
-          <div class="touch-arrow touch-down" data-dir="down">▼</div>
-        </div>
+    <div class="mobile-touchpad">
+      <div class="touchpad-plate" id="touchpadPlate">
+        <div class="touch-arrow touch-up" data-dir="up">▲</div>
+        <div class="touch-arrow touch-left" data-dir="left">◀</div>
+        <div class="touch-arrow touch-right" data-dir="right">▶</div>
+        <div class="touch-arrow touch-down" data-dir="down">▼</div>
       </div>
     </div>
   </div>
 
   <footer>© 2026 Summon Mars ™. All rights reserved.</footer>
+  <div class="visit-counter">Visitors: <span id="busuanzi_value_site_uv"></span></div>
 
-  <div class="visit-counter">
-    Visitors: <span id="busuanzi_value_site_uv"></span>
-  </div>
-
-  <!-- Character select overlay -->
+  <!-- ✅ CLOSE THIS OVERLAY PROPERLY -->
   <div id="character-select-overlay">
     <h2>Choose Your Hero</h2>
     <p>Then dodge traffic and grab that pizza!</p>
@@ -789,409 +779,603 @@
   </div>
 
   <script>
-    // =========================
-    // Cosplay Security (F12 / Ctrl+Shift+I)
-    // =========================
-    document.addEventListener('DOMContentLoaded', () => {
-      document.addEventListener('contextmenu', e => e.preventDefault());
-      document.ondragstart = () => false;
+  // =========================
+  // “Cosplay Security”
+  // =========================
+  document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('contextmenu', e => e.preventDefault());
+    document.ondragstart = () => false;
 
-      document.onkeydown = function(e) {
-        if (e.keyCode === 123) return false;
-        if (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 67 || e.keyCode === 74)) return false;
-        if (e.ctrlKey && (e.keyCode === 85 || e.keyCode === 83)) return false;
-      };
+    document.onkeydown = function(e) {
+      if (e.keyCode === 123) return false;
+      if (e.ctrlKey && e.shiftKey &&
+          (e.keyCode === 'I'.charCodeAt(0) ||
+           e.keyCode === 'C'.charCodeAt(0) ||
+           e.keyCode === 'J'.charCodeAt(0))) return false;
+      if (e.ctrlKey &&
+          (e.keyCode === 'U'.charCodeAt(0) ||
+           e.keyCode === 'S'.charCodeAt(0))) return false;
+    };
 
-      setInterval(() => {
-        try { console.log("%c TRACKING...", "color: red; font-size: 20px; font-weight: bold;"); } catch {}
-      }, 3000);
-    });
-
-    (function () {
-      function initSecurity() {
-        const securityOverlay = document.getElementById('securityOverlay');
-        const securityReloadBtn = document.getElementById('securityReloadBtn');
-        const securityDismissBtn = document.getElementById('securityDismissBtn');
-
-        const nedryAudio = new Audio('/mp3/jurrasicpassword.mp3');
-        let devtoolsOpen = false;
-
-        function showOverlay() {
-          if (devtoolsOpen) return;
-          devtoolsOpen = true;
-          securityOverlay.classList.add('active');
-          securityOverlay.setAttribute('aria-hidden','false');
-
-          try { if (window.__tmntMusic && !window.__tmntMusic.paused) window.__tmntMusic.pause(); } catch {}
-          try { nedryAudio.currentTime = 0; nedryAudio.play().catch(()=>{}); } catch {}
-          window.__securityFreeze = true;
-        }
-
-        function hideOverlay() {
-          if (!devtoolsOpen) return;
-          devtoolsOpen = false;
-          securityOverlay.classList.remove('active');
-          securityOverlay.setAttribute('aria-hidden','true');
-          window.__securityFreeze = false;
-        }
-
-        securityReloadBtn.addEventListener('click', () => location.reload());
-        securityDismissBtn.addEventListener('click', hideOverlay);
-
-        window.addEventListener('keydown', (e) => {
-          const key = e.key || e.keyCode;
-          const isF12 = key === 'F12' || key === 123;
-          const isCtrlShiftI = e.ctrlKey && e.shiftKey && (key === 'I' || key === 'i' || key === 73);
-          if (isF12 || isCtrlShiftI) showOverlay();
-        });
-      }
-      initSecurity();
-    })();
-
-    // =========================
-    // Background FX (stars)
-    // =========================
-    const bg = document.getElementById('bgfx');
-    const bgc = bg.getContext('2d', { alpha:true });
-
-    function resizeBG(){
-      const dpr = Math.max(1, Math.floor(window.devicePixelRatio || 1));
-      bg.width = Math.floor(window.innerWidth * dpr);
-      bg.height = Math.floor(window.innerHeight * dpr);
-      bg.style.width = window.innerWidth + 'px';
-      bg.style.height = window.innerHeight + 'px';
-      bgc.setTransform(dpr,0,0,dpr,0,0);
-    }
-    window.addEventListener('resize', resizeBG);
-    resizeBG();
-
-    function rand(min,max){ return Math.random()*(max-min)+min; }
-    function clamp(v,min,max){ return Math.max(min, Math.min(max, v)); }
-
-    const skyStars = [];
-    const skyCount = 130;
-    const skyShooters = [];
-    let nextShooterAt = performance.now() + rand(1200, 3200);
-
-    function initSky(){
-      skyStars.length = 0;
-      for(let i=0;i<skyCount;i++){
-        skyStars.push({
-          x: rand(0, window.innerWidth),
-          y: rand(0, window.innerHeight),
-          r: rand(0.7, 1.8),
-          vy: rand(6, 18),
-          a: rand(0.12, 0.55),
-          tw: rand(0.6, 1.8),
-          ph: rand(0, Math.PI*2)
-        });
-      }
-      skyShooters.length = 0;
-      nextShooterAt = performance.now() + rand(1200, 3800);
-    }
-    initSky();
-    window.addEventListener('resize', initSky);
-
-    function spawnSkyShooter(){
-      const fromLeft = Math.random() < 0.5;
-      const sx = fromLeft ? rand(-120, window.innerWidth*0.35) : rand(window.innerWidth*0.65, window.innerWidth+120);
-      const sy = rand(-140, window.innerHeight*0.35);
-      const ang = fromLeft ? rand(0.85, 1.15) : rand(2.0, 2.3);
-      const spd = rand(520, 920);
-      const life = rand(420, 740);
-
-      skyShooters.push({ x:sx,y:sy, vx:Math.cos(ang)*spd, vy:Math.sin(ang)*spd, life, maxLife:life, len:rand(120,220) });
-    }
-
-    function updateSky(dt){
-      const dtSec = dt/1000;
-      for(const s of skyStars){
-        s.y -= s.vy * dtSec;
-        if(s.y < -10){
-          s.y = window.innerHeight + rand(10, 120);
-          s.x = rand(0, window.innerWidth);
-        }
-      }
-
-      const now = performance.now();
-      if(now > nextShooterAt && skyShooters.length < 2){
-        spawnSkyShooter();
-        nextShooterAt = now + rand(1600, 5200);
-      }
-
-      for(let i=skyShooters.length-1;i>=0;i--){
-        const st = skyShooters[i];
-        st.x += st.vx*dtSec;
-        st.y += st.vy*dtSec;
-        st.life -= dt;
-        if(st.life <= 0 || st.x < -400 || st.x > window.innerWidth+400 || st.y > window.innerHeight+500){
-          skyShooters.splice(i,1);
-        }
-      }
-    }
-
-    function drawSky(){
-      bgc.clearRect(0,0, window.innerWidth, window.innerHeight);
-
-      const g = bgc.createRadialGradient(window.innerWidth*0.5, window.innerHeight*0.25, 40, window.innerWidth*0.5, window.innerHeight*0.5, Math.max(window.innerWidth, window.innerHeight));
-      g.addColorStop(0,'rgba(255,255,255,0.00)');
-      g.addColorStop(1,'rgba(0,0,0,0.45)');
-      bgc.fillStyle = g;
-      bgc.fillRect(0,0, window.innerWidth, window.innerHeight);
-
-      for(const s of skyStars){
-        const tw = (Math.sin((performance.now()/1000)*s.tw + s.ph)+1)/2;
-        const a = clamp(s.a*(0.7 + tw*0.6), 0.06, 0.9);
-        bgc.fillStyle = `rgba(228,228,255,${a})`;
-        bgc.beginPath();
-        bgc.arc(s.x, s.y, s.r, 0, Math.PI*2);
-        bgc.fill();
-      }
-
-      for(const st of skyShooters){
-        const t = clamp(st.life / st.maxLife, 0, 1);
-        const mag = Math.hypot(st.vx,st.vy) || 1;
-        const ux = st.vx/mag, uy = st.vy/mag;
-        const tx = st.x - ux*st.len;
-        const ty = st.y - uy*st.len;
-
-        const lg = bgc.createLinearGradient(tx,ty, st.x,st.y);
-        lg.addColorStop(0, `rgba(157,255,191,0)`);
-        lg.addColorStop(0.55, `rgba(157,255,191,${0.20*t})`);
-        lg.addColorStop(1, `rgba(255,231,255,${0.95})`);
-
-        bgc.strokeStyle = lg;
-        bgc.lineWidth = 2.2;
-        bgc.beginPath();
-        bgc.moveTo(tx,ty);
-        bgc.lineTo(st.x,st.y);
-        bgc.stroke();
-
-        bgc.fillStyle = `rgba(255,231,255,${0.95})`;
-        bgc.beginPath();
-        bgc.arc(st.x, st.y, 2.1, 0, Math.PI*2);
-        bgc.fill();
-      }
-    }
-
-    // =========================
-    // Music + Fullscreen hold
-    // =========================
-    const musicBtn = document.getElementById('musicBtn');
-    const fullscreenHint = document.getElementById('fullscreenHint');
-    const musicLabel = document.getElementById('musicLabel');
-
-    const music = new Audio('/mp3/tmnt-music.mp3');
-    window.__tmntMusic = music;
-    music.loop = true;
-    music.preload = 'auto';
-    let musicOn = false;
-
-    function setMusicUI(on){
-      musicBtn.classList.toggle('on', on);
-      musicBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
-      musicLabel.textContent = on ? 'Music On' : 'Music Off';
-      document.body.classList.toggle('music-on', on);
-    }
-    setMusicUI(false);
-
-    function toggleFullscreen(){
-      const doc = document;
-      const el  = document.documentElement;
-      const isFS = doc.fullscreenElement || doc.webkitFullscreenElement || doc.msFullscreenElement;
-      if(!isFS){
-        (el.requestFullscreen || el.webkitRequestFullscreen || el.msRequestFullscreen).call(el);
-      }else{
-        (doc.exitFullscreen || doc.webkitExitFullscreen || doc.msExitFullscreen).call(doc);
-      }
-    }
-
-    let fsHoldTimer = null;
-    let fsHoldFired = false;
-
-    musicBtn.addEventListener('pointerdown', () => {
-      fsHoldFired = false;
-      clearTimeout(fsHoldTimer);
-      fsHoldTimer = setTimeout(() => {
-        fsHoldFired = true;
-        toggleFullscreen();
-      }, 500);
-    });
-
-    function clearHold(){ clearTimeout(fsHoldTimer); }
-    musicBtn.addEventListener('pointerup', clearHold);
-    musicBtn.addEventListener('pointercancel', clearHold);
-    musicBtn.addEventListener('pointerleave', clearHold);
-
-    let hintTimeout = null;
-    function showFullscreenHint(){
-      if(!fullscreenHint) return;
-      fullscreenHint.classList.add('active');
-      fullscreenHint.setAttribute('aria-hidden','false');
-      clearTimeout(hintTimeout);
-      hintTimeout = setTimeout(()=>{
-        fullscreenHint.classList.remove('active');
-        fullscreenHint.setAttribute('aria-hidden','true');
-      }, 1500);
-    }
-
-    // audio analyzer + pulse
-    let audioCtx, analyser, sourceNode, bassAnalyser, bassFilter;
-    let pulseActive = false;
-    let bossPulse = false;
-
-    function setupAudioAnalyzer(){
-      if(audioCtx) return;
-      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      analyser = audioCtx.createAnalyser();
-      analyser.fftSize = 256;
-      analyser.smoothingTimeConstant = 0.55;
-
-      bassFilter = audioCtx.createBiquadFilter();
-      bassFilter.type = "lowpass";
-      bassFilter.frequency.value = 140;
-      bassFilter.Q.value = 0.7;
-
-      bassAnalyser = audioCtx.createAnalyser();
-      bassAnalyser.fftSize = 256;
-      bassAnalyser.smoothingTimeConstant = 0.75;
-
-      sourceNode = audioCtx.createMediaElementSource(music);
-      sourceNode.connect(audioCtx.destination);
-      sourceNode.connect(analyser);
-      sourceNode.connect(bassFilter);
-      bassFilter.connect(bassAnalyser);
-    }
-
-    async function toggleMusic(){
+    setInterval(() => {
       try{
-        if(!musicOn){
-          setupAudioAnalyzer();
-          if(audioCtx && audioCtx.state === "suspended") await audioCtx.resume();
-          music.volume = 0.75;
-          await music.play();
-          pulseActive = true;
-          musicOn = true;
-          setMusicUI(true);
-          showFullscreenHint();
-        }else{
-          music.pause();
-          pulseActive = false;
-          bossPulse = false;
-          document.documentElement.style.setProperty('--pulse','0px');
-          musicOn = false;
-          setMusicUI(false);
-        }
-      }catch(err){
-        musicOn = false;
+        console.log("%c TRACKING...","color: red; font-size: 20px; font-weight: bold;");
+      }catch{}
+    }, 3000);
+  });
+
+  (function () {
+    function initSecurity() {
+      if (!document.body) {
+        window.addEventListener('load', initSecurity, { once: true });
+        return;
+      }
+
+      const securityOverlay = document.getElementById('securityOverlay');
+      const securityReloadBtn = document.getElementById('securityReloadBtn');
+      const securityDismissBtn = document.getElementById('securityDismissBtn');
+
+      const nedryAudio = new Audio('/mp3/jurrasicpassword.mp3');
+      let devtoolsOpen = false;
+
+      function showOverlay() {
+        if (devtoolsOpen) return;
+        devtoolsOpen = true;
+        securityOverlay.classList.add('active');
+        securityOverlay.setAttribute('aria-hidden','false');
+
+        try { if (window.__tmntMusic && !window.__tmntMusic.paused) window.__tmntMusic.pause(); } catch {}
+        try { nedryAudio.currentTime = 0; nedryAudio.play().catch(() => {}); } catch {}
+
+        window.__securityFreeze = true;
+      }
+
+      function hideOverlay() {
+        if (!devtoolsOpen) return;
+        devtoolsOpen = false;
+        securityOverlay.classList.remove('active');
+        securityOverlay.setAttribute('aria-hidden','true');
+        window.__securityFreeze = false;
+      }
+
+      securityReloadBtn.addEventListener('click', () => location.reload());
+      securityDismissBtn.addEventListener('click', hideOverlay);
+
+      window.addEventListener('keydown', (e) => {
+        const key = e.key || e.keyCode;
+        const isF12 = key === 'F12' || key === 123;
+        const isCtrlShiftI = e.ctrlKey && e.shiftKey && (key === 'I' || key === 'i' || key === 73);
+        if (isF12 || isCtrlShiftI) showOverlay();
+      });
+    }
+    initSecurity();
+  })();
+
+  // =========================
+  // Background FX
+  // =========================
+  const bg = document.getElementById('bgfx');
+  const bgc = bg.getContext('2d', { alpha: true });
+
+  function resizeBG(){
+    const dpr = Math.max(1, Math.floor(window.devicePixelRatio || 1));
+    bg.width = Math.floor(window.innerWidth * dpr);
+    bg.height = Math.floor(window.innerHeight * dpr);
+    bg.style.width = window.innerWidth + 'px';
+    bg.style.height = window.innerHeight + 'px';
+    bgc.setTransform(dpr,0,0,dpr,0,0);
+  }
+  window.addEventListener('resize', resizeBG);
+  resizeBG();
+
+  function rand(min,max){ return Math.random()*(max-min)+min; }
+  function clamp(v,min,max){ return Math.max(min, Math.min(max, v)); }
+
+  const skyStars = [];
+  const skyCount = 130;
+  const skyShooters = [];
+  let nextShooterAt = performance.now() + rand(1200, 3200);
+
+  function initSky(){
+    skyStars.length = 0;
+    for(let i=0;i<skyCount;i++){
+      skyStars.push({
+        x: rand(0, window.innerWidth),
+        y: rand(0, window.innerHeight),
+        r: rand(0.7, 1.8),
+        vy: rand(6, 18),
+        a: rand(0.12, 0.55),
+        tw: rand(0.6, 1.8),
+        ph: rand(0, Math.PI*2)
+      });
+    }
+    skyShooters.length = 0;
+    nextShooterAt = performance.now() + rand(1200, 3800);
+  }
+  initSky();
+  window.addEventListener('resize', initSky);
+
+  function spawnSkyShooter(){
+    const fromLeft = Math.random() < 0.5;
+    const sx = fromLeft ? rand(-120, window.innerWidth*0.35) : rand(window.innerWidth*0.65, window.innerWidth+120);
+    const sy = rand(-140, window.innerHeight*0.35);
+    const ang = fromLeft ? rand(0.85, 1.15) : rand(2.0, 2.3);
+    const spd = rand(520, 920);
+    const life = rand(420, 740);
+
+    skyShooters.push({
+      x:sx,y:sy,
+      vx:Math.cos(ang)*spd,
+      vy:Math.sin(ang)*spd,
+      life, maxLife: life,
+      len: rand(120, 220)
+    });
+  }
+
+  function updateSky(dt){
+    const dtSec = dt/1000;
+
+    for(const s of skyStars){
+      s.y -= s.vy * dtSec;
+      if(s.y < -10){
+        s.y = window.innerHeight + rand(10, 120);
+        s.x = rand(0, window.innerWidth);
+        s.vy = rand(6, 18);
+        s.r = rand(0.7, 1.8);
+        s.a = rand(0.12, 0.55);
+        s.tw = rand(0.6, 1.8);
+        s.ph = rand(0, Math.PI*2);
+      }
+    }
+
+    const now = performance.now();
+    if(now > nextShooterAt && skyShooters.length < 2){
+      spawnSkyShooter();
+      nextShooterAt = now + rand(1600, 5200);
+    }
+
+    for(let i=skyShooters.length-1;i>=0;i--){
+      const st = skyShooters[i];
+      st.x += st.vx*dtSec;
+      st.y += st.vy*dtSec;
+      st.life -= dt;
+      if(st.life <= 0 || st.x < -400 || st.x > window.innerWidth+400 || st.y > window.innerHeight+500){
+        skyShooters.splice(i,1);
+      }
+    }
+  }
+
+  function drawSky(){
+    bgc.clearRect(0,0, window.innerWidth, window.innerHeight);
+
+    const g = bgc.createRadialGradient(window.innerWidth*0.5, window.innerHeight*0.25, 40, window.innerWidth*0.5, window.innerHeight*0.5, Math.max(window.innerWidth, window.innerHeight));
+    g.addColorStop(0,'rgba(255,255,255,0.00)');
+    g.addColorStop(1,'rgba(0,0,0,0.45)');
+    bgc.fillStyle = g;
+    bgc.fillRect(0,0, window.innerWidth, window.innerHeight);
+
+    for(const s of skyStars){
+      const tw = (Math.sin((performance.now()/1000)*s.tw + s.ph)+1)/2;
+      const a = clamp(s.a*(0.7 + tw*0.6), 0.06, 0.9);
+      bgc.fillStyle = `rgba(228,228,255,${a})`;
+      bgc.beginPath();
+      bgc.arc(s.x, s.y, s.r, 0, Math.PI*2);
+      bgc.fill();
+    }
+
+    for(const st of skyShooters){
+      const t = clamp(st.life / st.maxLife, 0, 1);
+      const dx = st.vx, dy = st.vy;
+      const mag = Math.hypot(dx,dy) || 1;
+      const ux = dx/mag, uy = dy/mag;
+      const tx = st.x - ux*st.len;
+      const ty = st.y - uy*st.len;
+
+      const lg = bgc.createLinearGradient(tx,ty, st.x,st.y);
+      lg.addColorStop(0, `rgba(157,255,191,0)`);
+      lg.addColorStop(0.55, `rgba(157,255,191,${0.20*t})`);
+      lg.addColorStop(1, `rgba(255,231,255,${0.95})`);
+
+      bgc.strokeStyle = lg;
+      bgc.lineWidth = 2.2;
+      bgc.beginPath();
+      bgc.moveTo(tx,ty);
+      bgc.lineTo(st.x,st.y);
+      bgc.stroke();
+
+      bgc.fillStyle = `rgba(255,231,255,${0.95})`;
+      bgc.beginPath();
+      bgc.arc(st.x, st.y, 2.1, 0, Math.PI*2);
+      bgc.fill();
+    }
+  }
+
+  // =========================
+  // Music
+  // =========================
+  const musicBtn = document.getElementById('musicBtn');
+  const fullscreenHint = document.getElementById('fullscreenHint');
+  let hintTimeout = null;
+
+  function toggleFullscreen(){
+    const doc = document;
+    const el  = document.documentElement;
+    const isFS = doc.fullscreenElement || doc.webkitFullscreenElement || doc.msFullscreenElement;
+
+    if(!isFS){
+      (el.requestFullscreen || el.webkitRequestFullscreen || el.msRequestFullscreen).call(el);
+    }else{
+      (doc.exitFullscreen || doc.webkitExitFullscreen || doc.msExitFullscreen).call(doc);
+    }
+  }
+
+  let fsHoldTimer = null;
+  let fsHoldFired = false;
+
+  musicBtn.addEventListener('pointerdown', () => {
+    fsHoldFired = false;
+    clearTimeout(fsHoldTimer);
+    fsHoldTimer = setTimeout(() => {
+      fsHoldFired = true;
+      toggleFullscreen();
+    }, 500);
+  });
+
+  function clearHold(){ clearTimeout(fsHoldTimer); }
+  musicBtn.addEventListener('pointerup', clearHold);
+  musicBtn.addEventListener('pointercancel', clearHold);
+  musicBtn.addEventListener('pointerleave', clearHold);
+
+  function showFullscreenHint(){
+    if(!fullscreenHint) return;
+    fullscreenHint.classList.add('active');
+    fullscreenHint.setAttribute('aria-hidden','false');
+    clearTimeout(hintTimeout);
+    hintTimeout = setTimeout(()=>{
+      fullscreenHint.classList.remove('active');
+      fullscreenHint.setAttribute('aria-hidden','true');
+    }, 1500);
+  }
+
+  const musicLabel = document.getElementById('musicLabel');
+  const music = new Audio('/mp3/tmnt-music.mp3');
+  window.__tmntMusic = music;
+  music.loop = true;
+  music.preload = 'auto';
+  let musicOn = false;
+
+  function setMusicUI(on){
+    musicBtn.classList.toggle('on', on);
+    musicBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    musicLabel.textContent = on ? 'Music On' : 'Music Off';
+    document.body.classList.toggle('music-on', on);
+  }
+  setMusicUI(false);
+
+  let audioCtx, analyser, sourceNode, bassAnalyser, bassFilter;
+  let pulseActive = false;
+  let bossPulse = false;
+
+  function setupAudioAnalyzer(){
+    if(audioCtx) return;
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    analyser = audioCtx.createAnalyser();
+    analyser.fftSize = 256;
+    analyser.smoothingTimeConstant = 0.55;
+
+    bassFilter = audioCtx.createBiquadFilter();
+    bassFilter.type = "lowpass";
+    bassFilter.frequency.value = 140;
+    bassFilter.Q.value = 0.7;
+
+    bassAnalyser = audioCtx.createAnalyser();
+    bassAnalyser.fftSize = 256;
+    bassAnalyser.smoothingTimeConstant = 0.75;
+
+    sourceNode = audioCtx.createMediaElementSource(music);
+    sourceNode.connect(audioCtx.destination);
+    sourceNode.connect(analyser);
+    sourceNode.connect(bassFilter);
+    bassFilter.connect(bassAnalyser);
+  }
+
+  async function toggleMusic(){
+    try{
+      if(!musicOn){
+        setupAudioAnalyzer();
+        if(audioCtx && audioCtx.state === "suspended") await audioCtx.resume();
+        music.volume = 0.75;
+        await music.play();
+        pulseActive = true;
+        musicOn = true;
+        setMusicUI(true);
+        showFullscreenHint();
+      }else{
+        music.pause();
         pulseActive = false;
+        bossPulse = false;
+        document.documentElement.style.setProperty('--pulse','0px');
+        musicOn = false;
         setMusicUI(false);
-        console.warn('Music could not start:', err);
       }
+    }catch(err){
+      musicOn = false;
+      pulseActive = false;
+      setMusicUI(false);
+      console.warn('Music could not start:', err);
     }
+  }
 
-    musicBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      if (fsHoldFired) return;
-      toggleMusic();
-    });
+  musicBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    if (fsHoldFired) return;
+    toggleMusic();
+  });
 
-    // =========================
-    // Resources loader
-    // =========================
-    (function () {
-      var resourceCache = {};
-      var readyCallbacks = [];
+  // =========================
+  // HUD + Difficulty
+  // =========================
+  const scoreEl = document.getElementById('score');
+  const bestEl  = document.getElementById('best');
+  const levelEl = document.getElementById('level');
+  const livesEl = document.getElementById('lives');
 
-      function load(urlOrArr) {
-        if (Array.isArray(urlOrArr)) urlOrArr.forEach(function (url) { _load(url); });
-        else _load(urlOrArr);
-      }
+  const diffLabelEl = document.getElementById('diffLabel');
+  const difficultyBtn = document.getElementById('difficultyBtn');
 
-      function _load(url) {
-        if (resourceCache[url]) return resourceCache[url];
-        var img = new Image();
-        img.onload = function () {
-          resourceCache[url] = img;
-          if (isReady()) readyCallbacks.forEach(function (func) { func(); });
-        };
-        resourceCache[url] = false;
-        img.src = url;
-      }
+  const DIFFS = [
+    { name: "Sewer",    speedMul: 0.85, extraEnemiesCap: 0, spawnMul: 0.85 },
+    { name: "Dojo",     speedMul: 1.00, extraEnemiesCap: 0, spawnMul: 1.00 },
+    { name: "Mutant",   speedMul: 1.12, extraEnemiesCap: 1, spawnMul: 1.12 },
+    { name: "Ninja",    speedMul: 1.25, extraEnemiesCap: 1, spawnMul: 1.25 },
+    { name: "Shredder", speedMul: 1.40, extraEnemiesCap: 2, spawnMul: 1.40 },
+  ];
+  let diffIndex = 0;
 
-      function get(url) { return resourceCache[url]; }
+  function applyDifficultyUI(){ diffLabelEl.textContent = DIFFS[diffIndex].name; }
+  applyDifficultyUI();
 
-      function isReady() {
-        for (var k in resourceCache) {
-          if (Object.prototype.hasOwnProperty.call(resourceCache, k) && !resourceCache[k]) return false;
-        }
-        return true;
-      }
-
-      function onReady(func) { readyCallbacks.push(func); }
-
-      window.Resources = { load: load, get: get, onReady: onReady, isReady: isReady };
-    })();
-
-    // =========================
-    // Game core
-    // =========================
-    var app = window.app || (window.app = {});
-    const scoreEl = document.getElementById('score');
-    const bestEl  = document.getElementById('best');
-    const levelEl = document.getElementById('level');
-    const livesEl = document.getElementById('lives');
-    const diffLabelEl = document.getElementById('diffLabel');
-    const difficultyBtn = document.getElementById('difficultyBtn');
-
-    let bestScore = Number(localStorage.getItem('tmntBest') || 0);
-    bestEl.textContent = bestScore;
-
-    const startOverlay = document.getElementById('startOverlay');
-    const gameOverOverlay = document.getElementById('gameOverOverlay');
-    const logoWrap = document.querySelector('.tmnt-logo-wrap');
-
-    function setLogo(on){
-      if (!logoWrap) return;
-      logoWrap.classList.toggle('show-on-overlay', !!on);
-    }
-
-    function showStartOverlay(on){
-      if (!startOverlay) return;
-      startOverlay.classList.toggle('active', !!on);
-      startOverlay.setAttribute('aria-hidden', on ? 'false' : 'true');
-      setLogo(on);
-    }
-
-    function showGameOverOverlay(on){
-      if (!gameOverOverlay) return;
-      gameOverOverlay.classList.toggle('active', !!on);
-      gameOverOverlay.setAttribute('aria-hidden', on ? 'false' : 'true');
-      setLogo(on);
-    }
-
-    // Difficulty tiers
-    const DIFFS = [
-      { name: "Sewer",    speedMul: 0.85, extraEnemiesCap: 0 },
-      { name: "Dojo",     speedMul: 1.00, extraEnemiesCap: 0 },
-      { name: "Mutant",   speedMul: 1.12, extraEnemiesCap: 1 },
-      { name: "Ninja",    speedMul: 1.25, extraEnemiesCap: 1 },
-      { name: "Shredder", speedMul: 1.40, extraEnemiesCap: 2 },
-    ];
-    let diffIndex = 0;
-    function applyDifficultyUI(){ diffLabelEl.textContent = DIFFS[diffIndex].name; }
+  difficultyBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    diffIndex = (diffIndex + 1) % DIFFS.length;
     applyDifficultyUI();
+    if (window.app && app.ACTORS && app.ACTORS.allEnemies) {
+      app.ACTORS.allEnemies.forEach(en => en && en.updateVelocityRandomizer && en.updateVelocityRandomizer());
+    }
+  });
 
-    difficultyBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      diffIndex = (diffIndex + 1) % DIFFS.length;
-      applyDifficultyUI();
-      if (app.ACTORS && app.ACTORS.allEnemies) {
-        app.ACTORS.allEnemies.forEach(en => en && en.updateVelocityRandomizer && en.updateVelocityRandomizer());
+  // =========================
+  // Resource loader
+  // =========================
+  (function () {
+    var resourceCache = {};
+    var readyCallbacks = [];
+
+    function load(urlOrArr) {
+      if (Array.isArray(urlOrArr)) urlOrArr.forEach(function (url) { _load(url); });
+      else _load(urlOrArr);
+    }
+
+    function _load(url) {
+      if (resourceCache[url]) return resourceCache[url];
+
+      var img = new Image();
+      img.onload = function () {
+        resourceCache[url] = img;
+        if (isReady()) readyCallbacks.forEach(function (func) { func(); });
+      };
+      resourceCache[url] = false;
+      img.src = url;
+    }
+
+    function get(url) { return resourceCache[url]; }
+
+    function isReady() {
+      for (var k in resourceCache) {
+        if (Object.prototype.hasOwnProperty.call(resourceCache, k) && !resourceCache[k]) return false;
       }
-    });
+      return true;
+    }
 
-    app.GAME_CONFIG = { CANVAS_WIDTH:505, CANVAS_HEIGHT:498, TILE_HEIGHT:83, TILE_WIDTH:101 };
+    function onReady(func) { readyCallbacks.push(func); }
+
+    window.Resources = { load: load, get: get, onReady: onReady, isReady: isReady };
+  })();
+
+  // =========================
+  // TMNT Game Logic
+  // =========================
+  var app = app || {};
+
+  let bestScore = Number(localStorage.getItem('tmntBest') || 0);
+  bestEl.textContent = bestScore;
+
+  const startOverlay = document.getElementById('startOverlay');
+  const logoWrap = document.querySelector('.tmnt-logo-wrap');
+
+  function setLogo(on){
+    if (!logoWrap) return;
+    logoWrap.classList.toggle('show-on-overlay', !!on);
+  }
+
+  function showStartOverlay(on){
+    if (!startOverlay) return;
+    startOverlay.classList.toggle('active', !!on);
+    startOverlay.setAttribute('aria-hidden', on ? 'false' : 'true');
+    setLogo(on);
+  }
+
+  app.GameState = {
+    level: 1,
+    updateFromScore: function (score) { this.level = Math.max(1, score); },
+    getDifficultyTier: function () { return Math.floor((this.level - 1) / 5); }
+  };
+
+  app.ENEMY_SPRITES = [
+    "/images/tmnt/fsoldier1.png",
+    "/images/tmnt/fsoldier2.png",
+    "/images/tmnt/bebop.png",
+    "/images/tmnt/Rocksteady2.png",
+    "/images/tmnt/shredder-ico.png",
+    "/images/tmnt/krang.png",
+    "/images/tmnt/shark.png",
+    "/images/tmnt/boo.png",
+    "/images/tmnt/TurtleVan-ico.png",
+    "/images/tmnt/Rock.png",
+    "/images/tmnt/RiggsCat.png"
+  ];
+
+  app.Enemy = function (y) {
+    this.y = y;
+    this._phase = Math.random() * Math.PI * 2;
+    this._swayAmp = 3 + Math.random() * 2;
+    this._swaySpd = 0.003 + Math.random() * 0.0015;
+
+    this.randomStartPos();
+    this.chooseSprite();
+    this.updateVelocityRandomizer();
+  };
+
+  app.Enemy.prototype.randomStartPos = function () { this.x = -(Math.random() * 400); };
+
+  app.Enemy.prototype.updateVelocityRandomizer = function () {
+    var tier = app.GameState.getDifficultyTier();
+    var d = DIFFS[diffIndex];
+    var base = 1.4 + Math.random() * 2.2;
+    var multiplier = 1 + tier * 0.32;
+    this.randomVelocity = base * multiplier * d.speedMul;
+  };
+
+  app.Enemy.prototype.chooseSprite = function () {
+    var level = app.GameState.level;
+    var batchSize = Math.min(app.ENEMY_SPRITES.length, 3 + Math.floor(level / 3) * 2);
+
+    const SHARK = "/images/tmnt/shark.png";
+    var pool = app.ENEMY_SPRITES.slice(0, batchSize);
+
+    if (this.y !== 0) {
+      pool = pool.filter(s => s !== SHARK);
+    } else {
+      if (pool.includes(SHARK) && Math.random() < 0.35) {
+        this.sprite = SHARK;
+        return;
+      }
+    }
+
+    var index = Math.floor(Math.random() * pool.length);
+    this.sprite = pool[index];
+  };
+
+  app.Enemy.prototype.update = function () {
+    this.x += this.randomVelocity;
+    if (this.x > 600) {
+      this.randomStartPos();
+      this.updateVelocityRandomizer();
+      this.chooseSprite();
+    }
+  };
+
+  app.Enemy.prototype.render = function () {
+    const t = performance.now();
+    const sway = Math.sin(t * this._swaySpd + this._phase) * this._swayAmp;
+    const k = (musicOn && app.__bassKick) ? app.__bassKick : 0;
+    const hop = musicOn ? (-Math.pow(k, 1.25) * 7.5) : 0;
+    const ex = (musicOn && app.__enemyShakeX) ? app.__enemyShakeX : 0;
+    const ey = (musicOn && app.__enemyShakeY) ? app.__enemyShakeY : 0;
+
+    app.ctx.drawImage(
+      Resources.get(this.sprite),
+      this.x + ex,
+      this.y + app.DRAW_Y_OFFSET + app.Y_ALIGN.enemy + ey + sway + hop
+    );
+  };
+
+  app.Player = function (sprite) {
+    this.life = 3;
+    this.score = 0;
+    this.x = app.START_X;
+    this.y = app.START_Y;
+    this.sprite = sprite || "/images/tmnt/leo-ico.png";
+    app.GameState.updateFromScore(this.score);
+  };
+
+  app.Player.prototype.render = function () {
+    const px = (musicOn && app.__enemyShakeX) ? app.__enemyShakeX : 0;
+    const py = (musicOn && app.__enemyShakeY) ? app.__enemyShakeY : 0;
+
+    app.ctx.drawImage(
+      Resources.get(this.sprite),
+      this.x + px,
+      this.y + app.DRAW_Y_OFFSET + app.Y_ALIGN.player + py
+    );
+  };
+
+  app.Player.prototype.handleInput = function (dir) {
+    if (!dir) return;
+    if (!app.__running || app.__gameOver || window.__securityFreeze) return;
+
+    if (dir === "up"    && this.y > app.MIN_Y) this.y -= app.GAME_CONFIG.TILE_HEIGHT;
+    if (dir === "down"  && this.y < app.MAX_Y) this.y += app.GAME_CONFIG.TILE_HEIGHT;
+    if (dir === "left"  && this.x > 0)         this.x -= app.GAME_CONFIG.TILE_WIDTH;
+    if (dir === "right" && this.x < 404)       this.x += app.GAME_CONFIG.TILE_WIDTH;
+  };
+
+  app.Pizza = function () {
+    this._lastTile = -1;
+    this.y = 83;
+    this.x = app.GAME_CONFIG.TILE_WIDTH * Math.floor(Math.random() * 5);
+
+    this.pizzaTypes = [
+      { sprite: "/images/tmnt/pizza-ico.png",  value: 1, icon: "/images/tmnt/100pts.png" },
+      { sprite: "/images/tmnt/pizza-box.png",  value: 2, icon: "/images/tmnt/150pts.png" },
+      { sprite: "/images/tmnt/pizzacomp.png",  value: 3, icon: "/images/tmnt/200pts.png" }
+    ];
+
+    this.typeIndex = 0;
+    this.sprite = this.pizzaTypes[this.typeIndex].sprite;
+    this.pointsIcon = this.pizzaTypes[this.typeIndex].icon;
+  };
+
+  app.Pizza.prototype.update = function () {
+    var level = app.GameState.level;
+    if (level <= 10) this.typeIndex = 0;
+    else if (level <= 20) this.typeIndex = 1;
+    else this.typeIndex = 2;
+
+    var current = this.pizzaTypes[this.typeIndex];
+    this.sprite = current.sprite;
+    this.pointsIcon = current.icon;
+
+    let t = Math.floor(Math.random() * 5);
+    if (t === this._lastTile) t = (t + 1 + Math.floor(Math.random() * 4)) % 5;
+    this._lastTile = t;
+    this.x = app.GAME_CONFIG.TILE_WIDTH * t;
+  };
+
+  app.Pizza.prototype.render = function () {
+    app.ctx.drawImage(Resources.get(this.sprite), this.x, this.y + app.DRAW_Y_OFFSET + app.Y_ALIGN.pizza);
+  };
+
+  app.Heart = function () {
+    this.y = 83;
+    this.notVisible = true;
+    this.x = -100;
+    this.sprite = "/images/tmnt/Heart.png";
+  };
+
+  app.Heart.prototype.update = function () {};
+  app.Heart.prototype.render = function () {
+    app.ctx.drawImage(Resources.get(this.sprite), this.x, this.y + app.DRAW_Y_OFFSET + app.Y_ALIGN.heart);
+  };
+
+  // ========= ENGINE =========
+  (function (global) {
+    app.GAME_CONFIG = {
+      CANVAS_WIDTH: 505,
+      CANVAS_HEIGHT: 498,
+      TILE_HEIGHT: 83,
+      TILE_WIDTH: 101
+    };
     app.DRAW_Y_OFFSET = -35;
 
     app.START_X = 202;
@@ -1200,149 +1384,7 @@
     app.MIN_Y = -app.GAME_CONFIG.TILE_HEIGHT;
     app.MAX_Y = app.START_Y;
 
-    app.Y_ALIGN = { player:-18, enemy:-14, pizza:-20, heart:-20 };
-
-    app.GameState = {
-      level: 1,
-      updateFromScore: function(score){ this.level = Math.max(1, score); },
-      getDifficultyTier: function(){ return Math.floor((this.level - 1) / 5); }
-    };
-
-    app.ENEMY_SPRITES = [
-      "/images/tmnt/fsoldier1.png",
-      "/images/tmnt/fsoldier2.png",
-      "/images/tmnt/bebop.png",
-      "/images/tmnt/Rocksteady2.png",
-      "/images/tmnt/shredder-ico.png",
-      "/images/tmnt/krang.png",
-      "/images/tmnt/shark.png",
-      "/images/tmnt/boo.png",
-      "/images/tmnt/TurtleVan-ico.png",
-      "/images/tmnt/Rock.png",
-      "/images/tmnt/RiggsCat.png"
-    ];
-
-    app.Enemy = function(y){
-      this.y = y;
-      this._phase = Math.random() * Math.PI * 2;
-      this._swayAmp = 3 + Math.random() * 2;
-      this._swaySpd = 0.003 + Math.random() * 0.0015;
-      this.randomStartPos();
-      this.chooseSprite();
-      this.updateVelocityRandomizer();
-    };
-
-    app.Enemy.prototype.randomStartPos = function(){ this.x = -(Math.random() * 400); };
-    app.Enemy.prototype.updateVelocityRandomizer = function(){
-      var tier = app.GameState.getDifficultyTier();
-      var d = DIFFS[diffIndex];
-      var base = 1.4 + Math.random() * 2.2;
-      var multiplier = 1 + tier * 0.32;
-      this.randomVelocity = base * multiplier * d.speedMul;
-    };
-
-    app.Enemy.prototype.chooseSprite = function(){
-      var level = app.GameState.level;
-      var batchSize = Math.min(app.ENEMY_SPRITES.length, 3 + Math.floor(level / 3) * 2);
-      const SHARK = "/images/tmnt/shark.png";
-      var pool = app.ENEMY_SPRITES.slice(0, batchSize);
-
-      if (this.y !== 0) pool = pool.filter(s => s !== SHARK);
-      else if (pool.includes(SHARK) && Math.random() < 0.35){ this.sprite = SHARK; return; }
-
-      this.sprite = pool[Math.floor(Math.random() * pool.length)];
-    };
-
-    app.Enemy.prototype.update = function(){
-      this.x += this.randomVelocity;
-      if (this.x > 600){
-        this.randomStartPos();
-        this.updateVelocityRandomizer();
-        this.chooseSprite();
-      }
-    };
-
-    app.Enemy.prototype.render = function(ctx){
-      const t = performance.now();
-      const sway = Math.sin(t * this._swaySpd + this._phase) * this._swayAmp;
-      const k = (musicOn && app.__bassKick) ? app.__bassKick : 0;
-      const hop = musicOn ? (-Math.pow(k, 1.25) * 7.5) : 0;
-      const ex = (musicOn && app.__enemyShakeX) ? app.__enemyShakeX : 0;
-      const ey = (musicOn && app.__enemyShakeY) ? app.__enemyShakeY : 0;
-
-      const img = Resources.get(this.sprite);
-      if(img) ctx.drawImage(img, this.x + ex, this.y + app.DRAW_Y_OFFSET + app.Y_ALIGN.enemy + ey + sway + hop);
-    };
-
-    app.Player = function(sprite){
-      this.life = 3;
-      this.score = 0;
-      this.x = app.START_X;
-      this.y = app.START_Y;
-      this.sprite = sprite || "/images/tmnt/leo-ico.png";
-      app.GameState.updateFromScore(this.score);
-    };
-
-    app.Player.prototype.render = function(ctx){
-      const px = (musicOn && app.__enemyShakeX) ? app.__enemyShakeX : 0;
-      const py = (musicOn && app.__enemyShakeY) ? app.__enemyShakeY : 0;
-      const img = Resources.get(this.sprite);
-      if(img) ctx.drawImage(img, this.x + px, this.y + app.DRAW_Y_OFFSET + app.Y_ALIGN.player + py);
-    };
-
-    app.Player.prototype.handleInput = function(dir){
-      if (!dir) return;
-      if (!app.__running || app.__gameOver || window.__securityFreeze) return;
-
-      if (dir === "up"    && this.y > app.MIN_Y) this.y -= app.GAME_CONFIG.TILE_HEIGHT;
-      if (dir === "down"  && this.y < app.MAX_Y) this.y += app.GAME_CONFIG.TILE_HEIGHT;
-      if (dir === "left"  && this.x > 0)         this.x -= app.GAME_CONFIG.TILE_WIDTH;
-      if (dir === "right" && this.x < 404)       this.x += app.GAME_CONFIG.TILE_WIDTH;
-    };
-
-    app.Pizza = function(){
-      this._lastTile = -1;
-      this.y = 83;
-      this.x = app.GAME_CONFIG.TILE_WIDTH * Math.floor(Math.random() * 5);
-      this.pizzaTypes = [
-        { sprite: "/images/tmnt/pizza-ico.png",  value: 1 },
-        { sprite: "/images/tmnt/pizza-box.png",  value: 2 },
-        { sprite: "/images/tmnt/pizzacomp.png",  value: 3 }
-      ];
-      this.typeIndex = 0;
-      this.sprite = this.pizzaTypes[this.typeIndex].sprite;
-    };
-
-    app.Pizza.prototype.update = function(){
-      var level = app.GameState.level;
-      if (level <= 10) this.typeIndex = 0;
-      else if (level <= 20) this.typeIndex = 1;
-      else this.typeIndex = 2;
-
-      this.sprite = this.pizzaTypes[this.typeIndex].sprite;
-
-      let t = Math.floor(Math.random() * 5);
-      if (t === this._lastTile) t = (t + 1 + Math.floor(Math.random() * 4)) % 5;
-      this._lastTile = t;
-      this.x = app.GAME_CONFIG.TILE_WIDTH * t;
-    };
-
-    app.Pizza.prototype.render = function(ctx){
-      const img = Resources.get(this.sprite);
-      if(img) ctx.drawImage(img, this.x, this.y + app.DRAW_Y_OFFSET + app.Y_ALIGN.pizza);
-    };
-
-    app.Heart = function(){
-      this.y = 83;
-      this.notVisible = true;
-      this.x = -100;
-      this.sprite = "/images/tmnt/Heart.png";
-    };
-    app.Heart.prototype.update = function(){};
-    app.Heart.prototype.render = function(ctx){
-      const img = Resources.get(this.sprite);
-      if(img) ctx.drawImage(img, this.x, this.y + app.DRAW_Y_OFFSET + app.Y_ALIGN.heart);
-    };
+    app.Y_ALIGN = { player: -18, enemy: -14, pizza: -20, heart: -20 };
 
     app.ACTORS = {
       player: new app.Player(),
@@ -1351,21 +1393,24 @@
       heart: new app.Heart()
     };
 
-    const canvas = document.getElementById("game");
-    const ctx = canvas.getContext("2d");
+    var doc = global.document;
+    var win = global.window;
+    var canvas = doc.getElementById("game");
+    var ctx = canvas.getContext("2d");
+
     app.ctx = ctx;
 
     canvas.width = app.GAME_CONFIG.CANVAS_WIDTH;
     canvas.height = app.GAME_CONFIG.CANVAS_HEIGHT;
 
+    let rafId = null;
+    let lastTime = performance.now();
+
     app.__running = false;
     app.__countdownUntil = Infinity;
     app.__gameOver = false;
 
-    let rafId = null;
-    let lastTime = performance.now();
-
-    function between(x, min, max){ return x >= min && x <= max; }
+    function between(x, min, max) { return x >= min && x <= max; }
 
     function updateHud(){
       const p = app.ACTORS.player;
@@ -1373,7 +1418,7 @@
       levelEl.textContent = String(app.GameState.level);
       livesEl.textContent = String(p.life);
 
-      if (p.score > bestScore){
+      if (p.score > bestScore) {
         bestScore = p.score;
         bestEl.textContent = String(bestScore);
         localStorage.setItem('tmntBest', String(bestScore));
@@ -1388,9 +1433,12 @@
     }
 
     function initRun(keepBest){
-      if (rafId) cancelAnimationFrame(rafId);
+      if (rafId) win.cancelAnimationFrame(rafId);
 
-      showGameOverOverlay(false);
+      app.__gameOver = false;
+      const go = document.getElementById('gameOverOverlay');
+      if (go) { go.classList.remove('active'); go.setAttribute('aria-hidden','true'); }
+
       setLogo(false);
 
       const chosenSprite = app.ACTORS.player.sprite || "/images/tmnt/leo-ico.png";
@@ -1402,15 +1450,14 @@
 
       if(!keepBest){
         bestScore = 0;
-        localStorage.setItem('tmntBest','0');
+        localStorage.setItem('tmntBest', '0');
         bestEl.textContent = '0';
       }
 
+      lastTime = performance.now();
       updateHud();
       startWithCountdown(2000);
-
-      lastTime = performance.now();
-      rafId = requestAnimationFrame(main);
+      rafId = win.requestAnimationFrame(main);
     }
 
     function updatePulse(){
@@ -1418,7 +1465,6 @@
         document.documentElement.style.setProperty('--pulse', '0px');
         document.documentElement.style.setProperty('--uiShakeX', '0px');
         document.documentElement.style.setProperty('--uiShakeY', '0px');
-        document.documentElement.style.setProperty('--bassKick', '0');
         app.__enemyShakeX = 0;
         app.__enemyShakeY = 0;
         app.__bassPrev = 0;
@@ -1437,10 +1483,7 @@
       if(bossPulse) intensity *= 1.8;
       document.documentElement.style.setProperty('--pulse', intensity + 'px');
 
-      if(!bassAnalyser){
-        app.__bassPrev = 0;
-        app.__bassKick = 0;
-      }else{
+      if(bassAnalyser){
         const b = new Uint8Array(bassAnalyser.frequencyBinCount);
         bassAnalyser.getByteFrequencyData(b);
 
@@ -1450,6 +1493,7 @@
         low /= lowBins;
 
         const bassN = Math.max(0, Math.min(1, (low - 20) / 160));
+
         const prev = app.__bassPrev || 0;
         const rising = bassN - prev;
         app.__bassPrev = bassN;
@@ -1462,6 +1506,8 @@
         if(bassN > HIT_THRESHOLD && rising > RISE_THRESHOLD){
           app.__bassKick = Math.min(1, (app.__bassKick || 0) + bassN);
         }
+      } else {
+        app.__bassKick = 0;
       }
 
       const k = app.__bassKick || 0;
@@ -1478,97 +1524,128 @@
       app.__enemyShakeY = sy;
     }
 
-    function checkCollisions(){
-      const allEnemies = app.ACTORS.allEnemies;
-      const player = app.ACTORS.player;
-      const pizza = app.ACTORS.pizza;
-      const heart = app.ACTORS.heart;
+    function update(dt) {
+      if (window.__securityFreeze) return;
 
-      // enemy collision
-      for(const enemy of allEnemies){
-        if (between(player.x, enemy.x - 60, enemy.x + 60) && between(player.y, enemy.y - 10, enemy.y + 10)){
+      updateSky(dt);
+
+      if (!app.__running){
+        const now = performance.now();
+        if (now >= app.__countdownUntil){
+          app.__running = true;
+          showStartOverlay(false);
+        } else {
+          return;
+        }
+      }
+
+      updateEntities(dt);
+      checkCollisions();
+    }
+
+    function checkCollisions() {
+      var allEnemies = app.ACTORS.allEnemies;
+      var player = app.ACTORS.player;
+      var heart = app.ACTORS.heart;
+      var pizza = app.ACTORS.pizza;
+
+      allEnemies.forEach(function (enemy) {
+        if (between(player.x, enemy.x - 60, enemy.x + 60) &&
+            between(player.y, enemy.y - 10, enemy.y + 10)) {
+
           player.life--;
 
-          if(player.life <= 0){
-            player.x = app.START_X; player.y = app.START_Y;
+          if (player.life <= 0) {
+            player.x = app.START_X;
+            player.y = app.START_Y;
             app.__running = false;
             app.__gameOver = true;
-            showGameOverOverlay(true);
+
+            const go = document.getElementById('gameOverOverlay');
+            if (go) { go.classList.add('active'); go.setAttribute('aria-hidden', 'false'); }
+            setLogo(true);
+
             updateHud();
             return;
           }
 
-          player.x = app.START_X; player.y = app.START_Y;
+          player.x = app.START_X;
+          player.y = app.START_Y;
           startWithCountdown(1200);
           updateHud();
-          return;
         }
-      }
+      });
 
-      // water rule: die only if player tries to move ABOVE water
-      if (player.y < 0){
+      if (player.y < 0) {
         player.life--;
 
-        if(player.life <= 0){
-          player.x = app.START_X; player.y = app.START_Y;
+        if (player.life <= 0) {
+          player.x = app.START_X;
+          player.y = app.START_Y;
           app.__running = false;
           app.__gameOver = true;
-          showGameOverOverlay(true);
+
+          const go = document.getElementById('gameOverOverlay');
+          if (go) { go.classList.add('active'); go.setAttribute('aria-hidden', 'false'); }
+          setLogo(true);
+
           updateHud();
           return;
         }
 
-        player.x = app.START_X; player.y = app.START_Y;
+        player.x = app.START_X;
+        player.y = app.START_Y;
         startWithCountdown(1200);
         updateHud();
-        return;
       }
 
-      // pizza pickup
-      if (between(player.x, pizza.x - 60, pizza.x + 60) && between(player.y, pizza.y - 10, pizza.y + 10)){
-        const cur = pizza.pizzaTypes[pizza.typeIndex];
-        player.score += cur.value;
+      if (between(player.x, pizza.x - 60, pizza.x + 60) &&
+          between(player.y, pizza.y - 10, pizza.y + 10)) {
+        var currentType = pizza.pizzaTypes[pizza.typeIndex];
+        player.score += currentType.value;
         app.GameState.updateFromScore(player.score);
         pizza.update();
-        player.x = app.START_X; player.y = app.START_Y;
+
+        player.x = app.START_X;
+        player.y = app.START_Y;
         startWithCountdown(450);
-        updateHud();
-        return;
       }
 
-      // heart pickup (currently hidden)
-      if (between(player.x, heart.x - 60, heart.x + 60) && between(player.y, heart.y - 10, heart.y + 10)){
+      if (between(player.x, heart.x - 60, heart.x + 60) &&
+          between(player.y, heart.y - 10, heart.y + 10)) {
         player.life++;
         heart.notVisible = true;
         heart.x = -100;
         startWithCountdown(350);
-        updateHud();
-        return;
       }
 
       updateHud();
     }
 
-    function updateEntities(){
-      const allEnemies = app.ACTORS.allEnemies;
-      const diff = DIFFS[diffIndex];
-      const baseExtra = Math.min(2, app.GameState.getDifficultyTier());
-      const extraCount = Math.min(3, baseExtra + diff.extraEnemiesCap);
-      let desiredCount = Math.min(8, 4 + extraCount);
+    function updateEntities(dt) {
+      var allEnemies = app.ACTORS.allEnemies;
+      var diff = DIFFS[diffIndex];
 
-      while(allEnemies.length < desiredCount){
-        const laneIndex = allEnemies.length % 4;
-        allEnemies.push(new app.Enemy(laneIndex * app.GAME_CONFIG.TILE_HEIGHT));
+      var baseExtra = Math.min(2, app.GameState.getDifficultyTier());
+      var extraFromDiff = diff.extraEnemiesCap;
+      var extraCount = Math.min(3, baseExtra + extraFromDiff);
+      var desiredCount = 4 + extraCount;
+      desiredCount = Math.min(desiredCount, 8);
+
+      while (allEnemies.length < desiredCount) {
+        var laneIndex = allEnemies.length % 4;
+        var laneY = laneIndex * app.GAME_CONFIG.TILE_HEIGHT;
+        allEnemies.push(new app.Enemy(laneY));
       }
 
-      for(const e of allEnemies) e.update();
-      app.ACTORS.heart.update();
+      allEnemies.forEach(function (enemy) { enemy.update(dt); });
+      app.ACTORS.heart.update(dt);
     }
 
-    function render(){
-      // background tiles (simple classic frogger look)
-      const rowH = app.GAME_CONFIG.TILE_HEIGHT;
-      const colW = app.GAME_CONFIG.TILE_WIDTH;
+    // ✅ RESTORED render() (your tiles + your actors)
+    function render() {
+      const tileW = app.GAME_CONFIG.TILE_WIDTH;
+      const tileH = app.GAME_CONFIG.TILE_HEIGHT;
 
       const water = Resources.get("/images/tmnt/water-block.png");
       const stone = Resources.get("/images/tmnt/stone-block.png");
@@ -1576,56 +1653,25 @@
 
       ctx.clearRect(0,0, canvas.width, canvas.height);
 
-      // top water row (row 0)
-      for(let c=0;c<5;c++){
-        if(water) ctx.drawImage(water, c*colW, 0);
+      // row 0 water
+      for(let c=0;c<5;c++) if(water) ctx.drawImage(water, c*tileW, 0);
+
+      // rows 1..4 stone
+      for(let r=1;r<=4;r++){
+        for(let c=0;c<5;c++) if(stone) ctx.drawImage(stone, c*tileW, r*tileH);
       }
-      // stone rows (rows 1..3)
-      for(let r=1;r<=3;r++){
-        for(let c=0;c<5;c++){
-          if(stone) ctx.drawImage(stone, c*colW, r*rowH);
-        }
-      }
-      // grass rows (rows 4..5)
-      for(let r=4;r<=5;r++){
-        for(let c=0;c<5;c++){
-          if(grass) ctx.drawImage(grass, c*colW, r*rowH);
-        }
-      }
+
+      // row 5 grass (bottom only)
+      for(let c=0;c<5;c++) if(grass) ctx.drawImage(grass, c*tileW, 5*tileH);
 
       // actors
-      app.ACTORS.pizza.render(ctx);
-      app.ACTORS.heart.render(ctx);
-      app.ACTORS.allEnemies.forEach(e => e.render(ctx));
-      app.ACTORS.player.render(ctx);
-
-      // optional: highlight last tile when game over
-      if(app.__gameOver){
-        ctx.fillStyle = 'rgba(255,0,0,0.25)';
-        ctx.fillRect(2*colW, 5*rowH + app.DRAW_Y_OFFSET, colW, rowH);
-      }
+      app.ACTORS.pizza.render();
+      app.ACTORS.heart.render();
+      app.ACTORS.allEnemies.forEach(e => e.render());
+      app.ACTORS.player.render();
     }
 
-    function update(dt){
-      if (window.__securityFreeze) return;
-
-      updateSky(dt);
-
-      if(!app.__running){
-        const now = performance.now();
-        if(now >= app.__countdownUntil){
-          app.__running = true;
-          showStartOverlay(false);
-        }else{
-          return;
-        }
-      }
-
-      updateEntities();
-      checkCollisions();
-    }
-
-    function main(ts){
+    function main(ts) {
       const dt = clamp(ts - lastTime, 0, 40);
       lastTime = ts;
 
@@ -1634,135 +1680,18 @@
       drawSky();
       render();
 
-      rafId = requestAnimationFrame(main);
+      rafId = win.requestAnimationFrame(main);
     }
 
     app.__restartKeepBest = function(){ initRun(true); };
     app.__restartHard = function(){ initRun(false); };
 
-    // Overlay restart buttons
-    document.getElementById('overlayRestartBtnStart')?.addEventListener('click', (e) => {
-      e.preventDefault();
-      if (app.__restartKeepBest) app.__restartKeepBest();
-    });
-    document.getElementById('overlayRestartBtnGameOver')?.addEventListener('click', (e) => {
-      e.preventDefault();
-      if (app.__restartKeepBest) app.__restartKeepBest();
-    });
-
-    // Keyboard input (prevent scroll) + movement
-    document.addEventListener("keydown", function (e) {
-      const blockKeys = [37, 38, 39, 40, 65, 68, 83, 87];
-      if (blockKeys.includes(e.keyCode)) e.preventDefault();
-    });
-
-    document.addEventListener("keyup", function (e) {
-      const allowedKeys = { 37:"left",38:"up",39:"right",40:"down", 65:"left",87:"up",68:"right",83:"down" };
-      const dir = allowedKeys[e.keyCode];
-      if (dir && app.ACTORS && app.ACTORS.player) app.ACTORS.player.handleInput(dir);
-    });
-
-    // Mobile swipe input on canvas
-    (function(){
-      let sx=0, sy=0, active=false;
-      function getXY(ev){
-        const t = (ev.touches && ev.touches[0]) ? ev.touches[0] : ev;
-        return { x: t.clientX, y: t.clientY };
-      }
-
-      canvas.addEventListener('touchstart', (e) => {
-        e.preventDefault();
-        const p = getXY(e);
-        sx=p.x; sy=p.y; active=true;
-      }, { passive:false });
-
-      canvas.addEventListener('touchend', (e) => {
-        e.preventDefault();
-        if(!active) return;
-        active=false;
-
-        const p = (e.changedTouches && e.changedTouches[0]) ? e.changedTouches[0] : null;
-        if(!p) return;
-
-        const dx = p.clientX - sx;
-        const dy = p.clientY - sy;
-        const ax = Math.abs(dx), ay = Math.abs(dy);
-        if(Math.max(ax,ay) < 18) return;
-
-        const dir = ax > ay ? (dx > 0 ? "right" : "left") : (dy > 0 ? "down" : "up");
-        app.ACTORS.player.handleInput(dir);
-      }, { passive:false });
-    })();
-
-    // Touchpad tap + swipe
-    (function(){
-      const plate = document.querySelector('.touchpad-plate');
-      if(!plate) return;
-
-      function move(dir){
-        if (app.ACTORS && app.ACTORS.player) app.ACTORS.player.handleInput(dir);
-      }
-
-      plate.addEventListener('click', function(e){
-        const el = e.target.closest('[data-dir]');
-        if(!el) return;
-        e.preventDefault();
-        move(el.getAttribute('data-dir'));
-      });
-
-      let sx=0, sy=0, active=false;
-      plate.addEventListener('touchstart', function(e){
-        const t = e.touches && e.touches[0];
-        if(!t) return;
-        sx = t.clientX; sy = t.clientY; active = true;
-      }, { passive:false });
-
-      plate.addEventListener('touchend', function(e){
-        if(!active) return;
-        active = false;
-
-        const t = e.changedTouches && e.changedTouches[0];
-        if(!t) return;
-
-        const dx = t.clientX - sx;
-        const dy = t.clientY - sy;
-        const ax = Math.abs(dx), ay = Math.abs(dy);
-        if(Math.max(ax, ay) < 15) return;
-
-        const dir = ax > ay ? (dx > 0 ? "right" : "left") : (dy > 0 ? "down" : "up");
-        move(dir);
-      }, { passive:false });
-    })();
-
-    // Character select hookup
-    (function(){
-      const overlay = document.getElementById("character-select-overlay");
-      const buttons = overlay.querySelectorAll(".char-btn");
-
-      function startWithCharacter(sprite){
-        app.ACTORS.player.sprite = sprite;
-        if (app.__restartKeepBest) app.__restartKeepBest();
-        overlay.style.display = "none";
-      }
-
-      buttons.forEach(btn => btn.addEventListener("click", function(){
-        startWithCharacter(this.getAttribute("data-sprite"));
-      }));
-
-      document.addEventListener("keyup", function(e){
-        if (e.key === "n" || e.key === "N") overlay.style.display = "flex";
-      });
-    })();
-
-    // Load art and start loop
     Resources.load([
       "/images/tmnt/water-block.png",
       "/images/tmnt/stone-block.png",
       "/images/tmnt/grass-block.png",
-
       "/images/tmnt/tmnticon.png",
       "/images/tmnt/tmnt-logo-1.png",
-
       "/images/tmnt/leo-ico.png",
       "/images/tmnt/raph-ico.png",
       "/images/tmnt/mikey-ico.png",
@@ -1770,7 +1699,6 @@
       "/images/tmnt/april-ico.png",
       "/images/tmnt/Casey-Jones.png",
       "/images/tmnt/baxter.png",
-
       "/images/tmnt/fsoldier1.png",
       "/images/tmnt/fsoldier2.png",
       "/images/tmnt/bebop.png",
@@ -1782,16 +1710,99 @@
       "/images/tmnt/TurtleVan-ico.png",
       "/images/tmnt/Rock.png",
       "/images/tmnt/RiggsCat.png",
-
       "/images/tmnt/pizza-ico.png",
       "/images/tmnt/pizza-box.png",
       "/images/tmnt/pizzacomp.png",
+      "/images/tmnt/100pts.png",
+      "/images/tmnt/150pts.png",
+      "/images/tmnt/200pts.png",
       "/images/tmnt/Heart.png"
     ]);
 
     Resources.onReady(function(){
-      initRun(true); // start game loop (keeps best)
+      lastTime = performance.now();
+      if (rafId) win.cancelAnimationFrame(rafId);
+      rafId = win.requestAnimationFrame(main);
     });
+  })(this);
+
+  // Keyboard input (prevent scroll) + movement
+  document.addEventListener("keydown", function (e) {
+    var blockKeys = [37, 38, 39, 40, 65, 68, 83, 87];
+    if (blockKeys.indexOf(e.keyCode) !== -1) e.preventDefault();
+  });
+
+  document.addEventListener("keyup", function (e) {
+    var allowedKeys = {
+      37: "left",  38: "up",  39: "right", 40: "down",
+      65: "left",  87: "up",  68: "right", 83: "down"
+    };
+    var dir = allowedKeys[e.keyCode];
+    if (dir && window.app && app.ACTORS && app.ACTORS.player) {
+      app.ACTORS.player.handleInput(dir);
+    }
+  });
+
+  // Touchpad click support
+  (function(){
+    const plate = document.getElementById('touchpadPlate');
+    if(!plate) return;
+    plate.addEventListener('pointerdown', function(e){
+      const el = e.target.closest('[data-dir]');
+      if(!el) return;
+      e.preventDefault();
+      if (window.app && app.ACTORS && app.ACTORS.player) {
+        app.ACTORS.player.handleInput(el.getAttribute('data-dir'));
+      }
+    });
+  })();
+
+  // Character select hookup
+  (function () {
+    var overlay = document.getElementById("character-select-overlay");
+    var buttons = overlay.querySelectorAll(".char-btn");
+
+    function startWithCharacter(sprite) {
+      if (window.app && app.ACTORS && app.ACTORS.player) {
+        app.ACTORS.player.sprite = sprite;
+        if (app.__restartKeepBest) {
+          app.__restartKeepBest();
+          app.ACTORS.player.sprite = sprite;
+        }
+      }
+      overlay.style.display = "none";
+    }
+
+    buttons.forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        startWithCharacter(this.getAttribute("data-sprite"));
+      });
+    });
+
+    document.addEventListener("keyup", function (e) {
+      if (e.key === "n" || e.key === "N") overlay.style.display = "flex";
+    });
+  })();
+
+  // ✅ Overlay Restart buttons (this was incorrectly inside CSS before)
+  document.addEventListener("DOMContentLoaded", function(){
+    const overlayRestartStart = document.getElementById('overlayRestartBtnStart');
+    const overlayRestartGameOver = document.getElementById('overlayRestartBtnGameOver');
+
+    if (overlayRestartStart){
+      overlayRestartStart.addEventListener('click', function(e){
+        e.preventDefault();
+        if (window.app && app.__restartKeepBest) app.__restartKeepBest();
+      });
+    }
+
+    if (overlayRestartGameOver){
+      overlayRestartGameOver.addEventListener('click', function(e){
+        e.preventDefault();
+        if (window.app && app.__restartKeepBest) app.__restartKeepBest();
+      });
+    }
+  });
   </script>
 
   <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
