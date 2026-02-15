@@ -660,13 +660,16 @@ body.music-on .stamp-woofer{
     /* ✅ TMNT LOGO: hidden during gameplay, only shown on overlays */
 .tmnt-logo-wrap{
   display:none;
-  position: fixed;
-  left: 50%;
-  transform: translateX(-50%);
-  bottom: 175px; /* adjust if you want it higher/lower */
-  z-index: 12;
-  pointer-events: none;
+
+  position:absolute;     /* anchor to .game-shell */
+  top:50%;
+  left:50%;
+
+  transform:translate(-50%, -50%);
+  z-index:12;
+  pointer-events:none;
 }
+
 
 .tmnt-logo-wrap.show-on-overlay{
   display:block;
@@ -1054,7 +1057,6 @@ body.music-on .stamp-woofer{
       <!-- Start overlay -->
       <div id="startOverlay" aria-hidden="true">
         <p class="big">GET READY</p>
-        <div class="small">Music bubble is waiting patiently 😌</div>
       </div>
 
        <!-- Mobile Touchpad -->
