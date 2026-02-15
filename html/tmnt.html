@@ -619,6 +619,50 @@ body.music-on .stamp-woofer{
       0 0 30px #ff0000;
   }
 
+    /* Fullscreen hint popup */
+#fullscreenHint{
+  position:absolute;
+  inset:0;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  text-align:center;
+  background:rgba(0,0,0,.55);
+  z-index:6;
+  pointer-events:none;
+  border-radius:18px;
+}
+
+#fullscreenHint.active{
+  display:flex;
+}
+
+#fullscreenHint .big.red{
+  font-family:Orbitron, system-ui, sans-serif;
+  font-size:1.4rem;
+  letter-spacing:.14em;
+  color:#ff2a2a;
+  text-shadow:
+    0 0 8px #ff2a2a,
+    0 0 16px #ff0000,
+    0 0 30px #ff0000;
+}
+
+#fullscreenHint .small{
+  margin-top:.5rem;
+  font-size:.95rem;
+  opacity:.9;
+}
+
+
+    <!-- Fullscreen hint popup -->
+<div id="fullscreenHint" aria-hidden="true">
+  <p class="big red">HOLD THE MUSIC BUTTON</p>
+  <div class="small">TO TOGGLE FULL SCREEN VIEW!</div>
+</div>
+
+    
     /* ✅ TMNT LOGO: hidden during gameplay, only shown on overlays */
 .tmnt-logo-wrap{
   display:none;
@@ -1298,6 +1342,23 @@ body.music-on .stamp-woofer{
     // Music (user gesture required)
     // =========================
     const musicBtn = document.getElementById('musicBtn');
+
+    const fullscreenHint = document.getElementById('fullscreenHint');
+let hintTimeout = null;
+
+function showFullscreenHint(){
+  if(!fullscreenHint) return;
+
+  fullscreenHint.classList.add('active');
+  fullscreenHint.setAttribute('aria-hidden','false');
+
+  clearTimeout(hintTimeout);
+  hintTimeout = setTimeout(()=>{
+    fullscreenHint.classList.remove('active');
+    fullscreenHint.setAttribute('aria-hidden','true');
+  }, 1500);
+}
+
     const musicLabel = document.getElementById('musicLabel');
     const music = new Audio('/mp3/tmnt-music.mp3');
     window.__tmntMusic = music;
@@ -1365,6 +1426,9 @@ bassFilter.connect(bassAnalyser);
           pulseActive = true;
           musicOn = true;
           setMusicUI(true);
+
+          showFullscreenHint();
+
         }else{
           music.pause();
 
