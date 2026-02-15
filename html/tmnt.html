@@ -856,14 +856,17 @@ body.music-on .stamp-woofer{
   width:100%;
   height:115px;
 
-  display:none;              /* hidden on desktop */
+  display:none;
   align-items:center;
   justify-content:center;
 
-  margin-top: calc(-8px + var(--dpad-lift));           /* space under game window */
-  margin-bottom:6px;         /* tiny cushion before footer area */
+  margin-top: calc(-8px + var(--dpad-lift));
+  margin-bottom:6px;
 
-  background:rgba(0,0,0,.22);  /* lighter “attached” plate feel */
+  position: relative;   /* ensures z-index works */
+  z-index: 3;           /* ABOVE canvas (2), BELOW overlays (4+) */
+
+  background:rgba(0,0,0,.22);
   border:1px solid rgba(157,255,191,.18);
   border-radius:18px;
 
@@ -871,12 +874,8 @@ body.music-on .stamp-woofer{
   -webkit-backdrop-filter: blur(8px);
 
   box-shadow:0 0 22px rgba(60,255,156,.10);
-  .mobile-touchpad{
-  /* ...your existing stuff... */
-
-  position: relative;   /* ✅ makes z-index apply */
-  z-index: 3;           /* ✅ above canvas (2), below overlays (4+) */
 }
+
 
 
 /* the drawn pad "plate" */
