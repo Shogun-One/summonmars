@@ -793,6 +793,13 @@ body.music-on .stamp-woofer{
     pointer-events: none;
     white-space: nowrap;
     width: max-content;
+    
+    /* Give it a box look */
+    background: rgba(0,0,0,0.55);
+    padding: 6px 14px;
+    border: 1px solid rgba(157,255,191,0.25);
+    border-radius: 999px;
+    backdrop-filter: blur(4px);
   }
 
   .visit-counter {
@@ -1095,6 +1102,7 @@ body.music-on .stamp-woofer{
         <span class="label" id="musicLabel">Music Off</span>
         <span class="ring"><span class="dot"></span></span>
       </button>
+    </div> 
     </div>
 
       <div class="mobile-touchpad">
@@ -2267,29 +2275,6 @@ if (!app.__gameOver) {
       });
 
     })(this);
-
-    // Restart bubble hook
-    document.getElementById('// document.getElementById('restartBtn').addEventListener('click', (e) => {').addEventListener('click', (e) => {
-
-      // Canvas restart tap/click
-canvas.addEventListener("pointerdown", (e) => {
-  const r = canvas.getBoundingClientRect();
-  const mx = (e.clientX - r.left) * (canvas.width / r.width);
-  const my = (e.clientY - r.top) * (canvas.height / r.height);
-
-  if (
-    mx >= restartHit.x && mx <= restartHit.x + restartHit.w &&
-    my >= restartHit.y && my <= restartHit.y + restartHit.h
-  ) {
-    e.preventDefault();
-    if (window.app && app.__restartKeepBest) app.__restartKeepBest();
-  }
-}, { passive: false });
-
-      
-      e.preventDefault();
-      if (window.app && app.__restartKeepBest) app.__restartKeepBest();
-    });
 
     // Keyboard input (prevent scroll) + movement
     document.addEventListener("keydown", function (e) {
