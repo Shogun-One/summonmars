@@ -2268,11 +2268,11 @@ if (!app.__gameOver) {
         "/images/tmnt/Gem Orange.png"
       ]);
 
-      Resources.onReady(function(){
+      /*Resources.onReady(function(){
         lastTime = performance.now();
         if (rafId) win.cancelAnimationFrame(rafId);
         rafId = win.requestAnimationFrame(main);
-      });
+      }); */
 
     })(this);
 
@@ -2403,7 +2403,7 @@ if (!app.__gameOver) {
             app.ACTORS.player.sprite = sprite; // re-apply after restart
           }
         }
-        overlay.style.display = "none";
+       // overlay.style.display = "none";
       }
 
       buttons.forEach(function (btn) {
