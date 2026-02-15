@@ -1779,6 +1779,9 @@ function showStartOverlay(on){
     };
 
     app.Pizza = function () {
+
+      this._lastTile = -1;
+
       this.y = 83;
       this.x = app.GAME_CONFIG.TILE_WIDTH * Math.floor(Math.random() * 5);
 
@@ -1802,7 +1805,12 @@ function showStartOverlay(on){
       var current = this.pizzaTypes[this.typeIndex];
       this.sprite = current.sprite;
       this.pointsIcon = current.icon;
-      this.x = app.GAME_CONFIG.TILE_WIDTH * Math.floor(Math.random() * 5);
+      let t = Math.floor(Math.random() * 5);
+      
+if (t === this._lastTile) t = (t + 1 + Math.floor(Math.random() * 4)) % 5; // guaranteed different
+this._lastTile = t;
+this.x = app.GAME_CONFIG.TILE_WIDTH * t;
+
     };
 
     app.Pizza.prototype.render = function () {
@@ -1814,15 +1822,44 @@ function showStartOverlay(on){
       this.notVisible = true;
       this.x = -100;
       this.sprite = "/images/tmnt/Heart.png";
+      this._lastTile = -1;
+      this._cooldown = 0; // ms
+
     };
 
-    app.Heart.prototype.update = function () {
-      var player = app.ACTORS.player;
-      if (this.notVisible && (player.score % player.life) % 2 && player.score > player.life) {
-        this.notVisible = false;
-        this.x = app.GAME_CONFIG.TILE_WIDTH * Math.floor(Math.random() * 5);
-      }
-    };
+      this.x = app.GAME_CONFIG.TILE_WIDTH * t;
+  // dt might be undefined depending on your loop; safe default
+  dt = dt || 16;
+
+  if (this._cooldown > 0) {
+    this._cooldown -= dt;
+    return;
+  }
+
+  const player = app.ACTORS.player;
+
+  // Hearts are rare: only eligible every 6 points, and only if you're missing a life
+  if (this.notVisible && player.life < 3 && player.score > 0 && (player.score % 6 === 0)) {
+
+    // 35% chance even when eligible (reduces "so many hearts")
+    if (Math.random() > 0.35) {
+      this._cooldown = 800; // wait a bit before checking again
+      return;
+    }
+
+    this.notVisible = false;
+
+    let t = Math.floor(Math.random() * 5);
+    if (t === this._lastTile) t = (t + 1 + Math.floor(Math.random() * 4)) % 5;
+    this._lastTile = t;
+
+    this.x = app.GAME_CONFIG.TILE_WIDTH * t;
+
+    // stop it from re-triggering instantly if player sits on the lane
+    this._cooldown = 1500;
+  }
+};
+
 
     app.Heart.prototype.render = function () {
       app.ctx.drawImage(Resources.get(this.sprite), this.x, this.y + app.DRAW_Y_OFFSET + app.Y_ALIGN.heart);
