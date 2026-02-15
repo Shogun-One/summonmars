@@ -1827,6 +1827,10 @@ this.x = app.GAME_CONFIG.TILE_WIDTH * t;
 
     };
 
+    app.Heart.prototype.update = function (dt) {
+  // do nothing for now — just prevent crash
+};
+
     app.Heart.prototype.render = function () {
       app.ctx.drawImage(Resources.get(this.sprite), this.x, this.y + app.DRAW_Y_OFFSET + app.Y_ALIGN.heart);
     };
