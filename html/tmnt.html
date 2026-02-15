@@ -961,6 +961,16 @@ body.music-on .stamp-woofer{
   --pressActiveX:6px;
 }
 
+/* Pull ONLY difficulty + music OUT of game-shell */
+.difficulty-btn,
+.music-btn{
+  position: fixed !important;
+  bottom: 14px !important;
+  z-index: 10000;
+}
+
+.difficulty-btn{ left: 14px !important; }
+.music-btn{ right: 14px !important; }
 
 
 /* ===== MOBILE (everything in one place) ===== */
