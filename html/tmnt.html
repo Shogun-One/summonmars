@@ -897,34 +897,42 @@ body.music-on .stamp-woofer{
 
 
 
-  /* --- FIXED FOOTER + COUNTER (won't mess with layout) --- */
-footer{
+/* === Bottom bar (footer + visitors) lives OUTSIDE the game layout === */
+.bottom-bar{
   position: fixed;
-  left: 50%;
-  transform: translateX(-50%);
-  bottom: 4px;
-  z-index: 5;
-  font-size: 0.8rem;
-  letter-spacing: 0.08em;
-  color: rgba(255,255,255,0.85);
+  left: 0;
+  right: 0;
+
+  /* sits ABOVE the "Protected From Bad Vibes" pill */
+  bottom: 48px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0 14px;
   pointer-events: none;
+  z-index: 6;
 }
 
+.bottom-bar__center{
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  color: rgba(255,255,255,0.78);
+  text-align: center;
+  white-space: nowrap;
+}
 
-
-.visit-counter{
-  position: fixed;
-  bottom: 8px;     /* true bottom */
+.bottom-bar__right{
+  position: absolute;
   right: 14px;
-
   font-size: 0.7rem;
-  opacity: 0.45;
   letter-spacing: 0.08em;
+  opacity: 0.45;
   color: rgba(255,255,255,0.75);
-
-  pointer-events: none;
-  z-index: 20;
+  white-space: nowrap;
 }
+
 
 
     
@@ -1235,11 +1243,7 @@ footer{
   </div> 
 </div>
 
-<footer>© 2026 Summon Mars ™. All rights reserved.</footer>
 
-<div class="visit-counter">
-  Visitors: <span id="busuanzi_value_site_uv"></span>
-</div>
 
   
       
@@ -2645,6 +2649,12 @@ canvas.addEventListener("pointerdown", (e) => {
       });
     })();
   </script>
+
+    <footer>© 2026 Summon Mars ™. All rights reserved.</footer>
+
+<div class="visit-counter">
+  Visitors: <span id="busuanzi_value_site_uv"></span>
+</div>
   
   <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 </body>
