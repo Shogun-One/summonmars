@@ -1172,17 +1172,20 @@ body.music-on .stamp-woofer{
 </div>
 
       <!-- Difficulty bubble (bottom-left) -->
-      <button id="difficultyBtn" class="bubble-btn difficulty-btn" type="button" aria-label="Restart" title="Restart">
+<button id="difficultyBtn" class="bubble-btn difficulty-btn" type="button" aria-label="Restart" title="Restart">
 
-        <div id="diffHint" class="diff-hint" aria-hidden="true">
-  <div class="diff-hint__bubble">
-  Restarted ✅ Tap again for <b>Difficulty</b>
-</div>
+  <!-- Hint (outside ring + label) -->
+  <div id="diffHint" class="diff-hint" aria-hidden="true">
+    <div class="diff-hint__bubble">
+      Hold for<br><b>Difficulty</b>
+    </div>
+  </div>
 
-        
-        <span class="label" id="diffBtnLabel">Restart</span>
-        <span class="ring"><span class="dot"></span></span>
-      </button>
+  <span class="label" id="diffBtnLabel">Restart</span>
+  <span class="ring"><span class="dot"></span></span>
+
+</button>
+
 
       <!-- Restart bubble (top-center) -->
       <button id="restartBtn" class="bubble-btn restart-btn" type="button" aria-label="Restart" title="Restart">
@@ -1732,39 +1735,54 @@ function hideDiffHint(){
   clearTimeout(diffHintTimer);
 }
 
-difficultyBtn.addEventListener('click', (e) => {
-  e.preventDefault();
+function hideDiffHint(){
+  if(!diffHint) return;
+  diffHint.classList.remove('show');
+  diffHint.setAttribute('aria-hidden','true');
+  clearTimeout(diffHintTimer);
+}
 
-  // If we're "armed", this click cycles difficulty instead of restarting
-  if(diffArmed){
-    diffArmed = false;
-    hideDiffHint();
+/* NEW HOLD LOGIC STARTS HERE */
+
+let diffHoldTimer = null;
+let diffHoldFired = false;
+
+// HOLD for difficulty
+difficultyBtn.addEventListener('pointerdown', () => {
+  diffHoldFired = false;
+
+  clearTimeout(diffHoldTimer);
+  diffHoldTimer = setTimeout(() => {
+    diffHoldFired = true;
 
     diffIndex = (diffIndex + 1) % DIFFS.length;
     applyDifficultyUI();
 
-    // refresh enemy velocities (your existing behavior)
     if (window.app && app.ACTORS && app.ACTORS.allEnemies) {
-      app.ACTORS.allEnemies.forEach(en => en && en.updateVelocityRandomizer && en.updateVelocityRandomizer());
+      app.ACTORS.allEnemies.forEach(en =>
+        en && en.updateVelocityRandomizer && en.updateVelocityRandomizer()
+      );
     }
-    return;
-  }
-
-  // Default behavior: Restart (keep best score)
-  // Prefer your in-game restart function if it exists:
-  if (app && app.__restartKeepBest) {
-    app.__restartKeepBest();
-  } else if (app && app.__running !== undefined) {
-    // fallback: soft reset if your restart function isn't wired yet
-    location.reload();
-  } else {
-    location.reload();
-  }
-
-  // After restarting, arm for difficulty and show hint
-  diffArmed = true;
-  showDiffHint();
+  }, 500);
 });
+
+difficultyBtn.addEventListener('pointerup', () => {
+  clearTimeout(diffHoldTimer);
+
+  if (!diffHoldFired) {
+    if (app && app.__restartKeepBest) {
+      app.__restartKeepBest();
+    } else {
+      location.reload();
+    }
+  }
+});
+
+difficultyBtn.addEventListener('pointercancel', () => {
+  clearTimeout(diffHoldTimer);
+});
+
+/* NEW HOLD LOGIC ENDS HERE */
 
 
     // =========================
