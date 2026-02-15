@@ -326,12 +326,15 @@
 
     /* Restart gets its own size + placement */
 .restart-btn{
-  width:28px;                 /* ~1/3 of the big 80px bubbles */
+  width:28px;
   height:28px;
-  top:5px;                   /* move it down near riverbed */
+  top:5px;
   bottom:auto;
   z-index:1;
+
+  display:none;   /* <-- ADD THIS LINE RIGHT HERE */
 }
+
 
 /* keep its inner ring fitting its new size */
 .restart-btn .ring{
@@ -1926,6 +1929,46 @@ this.x = app.GAME_CONFIG.TILE_WIDTH * t;
       var win = global.window;
       var canvas = doc.getElementById("game");
       var ctx = canvas.getContext("2d");
+      // ===== Canvas Restart (between water and enemies) =====
+const restartHit = {
+  x: (app.GAME_CONFIG.CANVAS_WIDTH / 2) - 14,      // centered
+  y: (1 * app.GAME_CONFIG.TILE_HEIGHT) + app.DRAW_Y_OFFSET + 8, // water row area
+  w: 28,
+  h: 28
+};
+
+function drawRestartIcon(x, y, size){
+  const cx = x + size/2;
+  const cy = y + size/2;
+  const r  = size * 0.35;
+
+  ctx.save();
+  ctx.globalAlpha = 0.95;
+
+  // soft glow
+  ctx.shadowColor = "rgba(60,255,156,0.35)";
+  ctx.shadowBlur  = 10;
+
+  // ring
+  ctx.lineWidth = 2.2;
+  ctx.strokeStyle = "rgba(255,231,255,0.95)";
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, Math.PI * 0.25, Math.PI * 1.75);
+  ctx.stroke();
+
+  // arrow head
+  ctx.shadowBlur = 0;
+  ctx.fillStyle = "rgba(255,231,255,0.95)";
+  ctx.beginPath();
+  ctx.moveTo(cx + r*0.95, cy - r*0.35);
+  ctx.lineTo(cx + r*0.55, cy - r*0.95);
+  ctx.lineTo(cx + r*0.35, cy - r*0.45);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.restore();
+}
+
       var lastTime = 0;
       var rafId = 0;
 
@@ -2152,6 +2195,12 @@ this.x = app.GAME_CONFIG.TILE_WIDTH * t;
           }
         }
 
+        // draw restart BETWEEN water tiles and enemies
+if (!app.__gameOver) {
+  drawRestartIcon(restartHit.x, restartHit.y, restartHit.w);
+}
+
+
         if (app.__gameOver){
           ctx.fillStyle = 'rgba(255,0,0,0.35)';
           ctx.fillRect(2*101, 5*83 + app.DRAW_Y_OFFSET, 101, 83);
@@ -2240,6 +2289,23 @@ this.x = app.GAME_CONFIG.TILE_WIDTH * t;
 
     // Restart bubble hook
     document.getElementById('restartBtn').addEventListener('click', (e) => {
+
+      // Canvas restart tap/click
+canvas.addEventListener("pointerdown", (e) => {
+  const r = canvas.getBoundingClientRect();
+  const mx = (e.clientX - r.left) * (canvas.width / r.width);
+  const my = (e.clientY - r.top) * (canvas.height / r.height);
+
+  if (
+    mx >= restartHit.x && mx <= restartHit.x + restartHit.w &&
+    my >= restartHit.y && my <= restartHit.y + restartHit.h
+  ) {
+    e.preventDefault();
+    if (window.app && app.__restartKeepBest) app.__restartKeepBest();
+  }
+}, { passive: false });
+
+      
       e.preventDefault();
       if (window.app && app.__restartKeepBest) app.__restartKeepBest();
     });
