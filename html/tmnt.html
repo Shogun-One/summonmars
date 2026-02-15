@@ -871,6 +871,11 @@ body.music-on .stamp-woofer{
   -webkit-backdrop-filter: blur(8px);
 
   box-shadow:0 0 22px rgba(60,255,156,.10);
+  .mobile-touchpad{
+  /* ...your existing stuff... */
+
+  position: relative;   /* ✅ makes z-index apply */
+  z-index: 3;           /* ✅ above canvas (2), below overlays (4+) */
 }
 
 
