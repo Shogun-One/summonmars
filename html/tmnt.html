@@ -1007,6 +1007,22 @@ body.music-on .stamp-woofer{
 #hint-left { left: 14px; }
 #hint-right { right: 14px; }
 @keyframes hintFloat { from { transform: translateY(0); } to { transform: translateY(-5px); } }
+
+/* -- FIRST TRY FOR REPAIR (Grk) */
+/* Force character buttons to receive clicks no matter what */
+#character-select-overlay,
+#character-select-overlay *,
+.char-grid,
+.char-btn {
+  pointer-events: all !important;
+  touch-action: manipulation !important;
+  user-select: text !important; /* allow text selection if needed */
+}
+
+/* Make sure nothing above it blocks */
+#character-select-overlay {
+  z-index: 9999999 !important; /* higher than everything else */
+}
     
 </style>
 
