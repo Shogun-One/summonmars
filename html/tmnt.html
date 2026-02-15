@@ -699,6 +699,7 @@ body.music-on .stamp-woofer{
   /* ===== Stamp ↔ Subwoofer Toggle (stamp-sized woofers) ===== */
 
 :root{
+  --dpad-lift: -11px;  /* negative = UP, positive = DOWN */
   --tileW: 101px;
   --tileH: 83px;
   --stampSize: 110px;
@@ -854,7 +855,7 @@ body.music-on .stamp-woofer{
   align-items:center;
   justify-content:center;
 
-  margin-top:-8px;           /* space under game window */
+  margin-top: calc(-8px + var(--dpad-lift));           /* space under game window */
   margin-bottom:6px;         /* tiny cushion before footer area */
 
   background:rgba(0,0,0,.22);  /* lighter “attached” plate feel */
