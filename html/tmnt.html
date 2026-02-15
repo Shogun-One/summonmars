@@ -341,6 +341,14 @@
   pointer-events:none;
 }
 
+  /* Right-side hold hint for fullscreen (music button) */
+.fs-hint{
+  left: auto;
+  right: 0;
+  bottom: 92px;
+  transform: none;
+}
+ 
 .diff-hint.show{ display:block; }
 
 .diff-hint__bubble{
@@ -1193,11 +1201,19 @@ body.music-on .stamp-woofer{
       </button>
 
       <!-- Music bubble (bottom-right) -->
-      <button id="musicBtn" class="bubble-btn music-btn" type="button" aria-label="Music On/Off" title="Music On/Off">
-        <span class="label" id="musicLabel">Music Off</span>
-        <span class="ring"><span class="dot"></span></span>
-      </button>
+<button id="musicBtn" class="bubble-btn music-btn" type="button" aria-label="Music On/Off" title="Music On/Off">
+
+  <!-- Hint (same style as diffHint) -->
+  <div id="fsHint" class="diff-hint fs-hint" aria-hidden="true">
+    <div class="diff-hint__bubble">
+      Hold for<br><b>Fullscreen</b>
     </div>
+  </div>
+
+  <span class="label" id="musicLabel">Music Off</span>
+  <span class="ring"><span class="dot"></span></span>
+</button>
+
 
       <div class="mobile-touchpad">
   <div class="touchpad-plate">
@@ -1459,6 +1475,23 @@ body.music-on .stamp-woofer{
     // =========================
     const musicBtn = document.getElementById('musicBtn');
 
+    const fsHint = document.getElementById('fsHint');
+let fsHintTimer = null;
+
+function showFsHint(){
+  if(!fsHint) return;
+
+  fsHint.classList.add('show');
+  fsHint.setAttribute('aria-hidden','false');
+
+  clearTimeout(fsHintTimer);
+  fsHintTimer = setTimeout(() => {
+    fsHint.classList.remove('show');
+    fsHint.setAttribute('aria-hidden','true');
+  }, 1500);
+}
+
+
     function toggleFullscreen(){
   const doc = document;
   const el  = document.documentElement;
@@ -1578,7 +1611,7 @@ bassFilter.connect(bassAnalyser);
           musicOn = true;
           setMusicUI(true);
 
-          showFullscreenHint();
+          //showFullscreenHint();
 
         }else{
           music.pause();
@@ -1601,8 +1634,10 @@ bassFilter.connect(bassAnalyser);
     musicBtn.addEventListener('click', (e) => {
   e.preventDefault();
   if (fsHoldFired) return;   // if it was a hold, don't also toggle music
+  showFsHint();              // show for 1.5s after tap
   toggleMusic();
 });
+
 
     function updatePulse(){
   // If music is off, everything sleeps
