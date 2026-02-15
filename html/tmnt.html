@@ -160,6 +160,8 @@
 
     /* move game window DOWN a bit (without changing the page stack) */
     margin-top: 10px;
+    padding-bottom: 32px; /* NEW: buffer under the gameplay window */
+
 
     /* SHADOWBOX FRAME */
     padding: 10px;                 /* thickness of the “case” */
@@ -850,16 +852,22 @@ body.music-on .stamp-woofer{
 
 
 /* the drawn pad "plate" */
-/* the drawn pad "plate" */
 .touchpad-plate{
-  width:160px;
-  height:160px;
+  width:190px;
+  height:190px;
   border-radius:28px;
-  border:1px solid rgba(157,255,191,.30);
+
+  border:1px solid rgba(255,42,42,.45);
   background:rgba(0,0,0,.22);
-  box-shadow: inset 0 0 18px rgba(60,255,156,.10), 0 0 22px rgba(0,0,0,.55);
+
+  box-shadow:
+    inset 0 0 18px rgba(255,42,42,.12),
+    0 0 22px rgba(0,0,0,.55),
+    0 0 18px rgba(255,42,42,.18);
+
   position:relative;
 }
+
 
 /* arrows */
 .touch-arrow{
@@ -946,21 +954,22 @@ body.music-on .stamp-woofer{
 /* ===== MOBILE (everything in one place) ===== */
 @media (max-width:560px){
 
-  /* IMPORTANT: stop vertical centering on phones */
   body{
-    justify-content:flex-start;   /* was center */
-    padding: 10px 10px 90px;      /* bottom reserve still */
+    justify-content:flex-start;
+    padding: 10px 10px 90px;
+  }
+
+  .game-shell{
+    padding-bottom: 42px;
   }
 
   .mobile-touchpad{ display:flex; }
 
-  /* LIFT EVERYTHING (TMNT -> stamps) up to your red X */
   .wrapper{
     transform: translateY(15px);
     gap:.05rem;
   }
 
-  /* Small screens tuning */
   .title-top{ font-size:2.2rem; }
   .title-sub{ font-size:1.1rem; }
   .subtitle{ font-size:.9rem; }
@@ -974,6 +983,7 @@ body.music-on .stamp-woofer{
 
   h1{ line-height:1.1; }
 }
+
 
 
 </style>
