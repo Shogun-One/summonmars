@@ -1004,6 +1004,25 @@ body.music-on .stamp-woofer{
     box-shadow: 0 0 10px rgba(255, 42, 42, 0.5);
     animation: hintFloat 0.5s infinite alternate;
 }
+
+    /* little pointer arrow */
+.neon-hover-hint::after{
+  content:"";
+  position:absolute;
+  bottom:-10px;
+  left:22px;
+  border-width:10px 10px 0 10px;
+  border-style:solid;
+  border-color:#ff2a2a transparent transparent transparent;
+  filter: drop-shadow(0 0 6px rgba(255,42,42,.55));
+}
+
+/* right hint arrow aligns on the right side */
+#hint-right::after{
+  left:auto;
+  right:22px;
+}
+
 #hint-left { left: 14px; }
 #hint-right { right: 14px; }
 @keyframes hintFloat { from { transform: translateY(0); } to { transform: translateY(-5px); } }
@@ -1033,10 +1052,9 @@ body.music-on .stamp-woofer{
   <canvas id="bgfx" aria-hidden="true"></canvas>
 
   <!-- VISIBLE DETERRENT BANNER -->
-  <!-- REMOVING Sec Banner for testing 
+
   <div class="security-banner">Protected From Bad Vibes</div>
 
-  <!-- cosplay security overlay --
   <div id="securityOverlay" class="security-overlay" aria-hidden="true">
     <div class="security-card" role="dialog" aria-modal="true" aria-label="Security Breach">
       <h2 class="security-title">SECURITY BREACH DETECTED</h2>
@@ -1053,7 +1071,6 @@ body.music-on .stamp-woofer{
       </div>
     </div>
   </div>
-  -->
 
   <div class="wrapper">
     <h1 class="title-top">·  TMNT ·</h1>
@@ -1106,29 +1123,35 @@ body.music-on .stamp-woofer{
         <div class="small">Press Restart to Try Again</div>
       </div>
 
-      <div id="hint-left" class="neon-hover-hint">Hold for... Difficulty ▼</div>
-<div id="hint-right" class="neon-hover-hint">Hold for... Fullscreen ▼</div>
-
       <!-- Difficulty bubble (bottom-left) -->
-      <button id="difficultyBtn" class="bubble-btn difficulty-btn" type="button" aria-label="Restart" title="Restart">
+        <button id="difficultyBtn" class="bubble-btn difficulty-btn" type="button"
+        aria-label="Restart" title="Restart">
         <span class="label">Restart</span>
         <span class="ring"><span class="dot"></span></span>
-      </button>
+       </button>
 
-      <!-- Music bubble (bottom-right) -->
-      <button id="musicBtn" class="bubble-btn music-btn" type="button" aria-label="Music On/Off" title="Music On/Off">
+        <!-- Music bubble (bottom-right) -->
+        <button id="musicBtn" class="bubble-btn music-btn" type="button"
+        aria-label="Music On/Off" title="Music On/Off">
         <span class="label" id="musicLabel">Music Off</span>
         <span class="ring"><span class="dot"></span></span>
       </button>
-    </div> 
-    </div>
+
+      <!-- Stealth hold hints (tap shows these) -->
+<div id="hint-left" class="neon-hover-hint" aria-hidden="true">
+  Tap: Restart • Hold 1.5s: Difficulty
+</div>
+
+<div id="hint-right" class="neon-hover-hint" aria-hidden="true">
+  Tap: Music • Hold 1.5s: Fullscreen
+</div>
 
       <div class="mobile-touchpad">
   <div class="touchpad-plate">
-    <div class="touch-arrow touch-up">▲</div>
-    <div class="touch-arrow touch-left">◀</div>
-    <div class="touch-arrow touch-right">▶</div>
-    <div class="touch-arrow touch-down">▼</div>
+    <div class="touch-arrow touch-up" data-dir="up">▲</div>
+    <div class="touch-arrow touch-left" data-dir="left">◀</div>
+    <div class="touch-arrow touch-right" data-dir="right">▶</div>
+    <div class="touch-arrow touch-down" data-dir="down">▼</div>
   </div>
 </div>
     
@@ -1404,26 +1427,6 @@ let fsHoldTimer = null;
 let fsHoldFired = false;
 
 
-<div id="hint-left" class="neon-hover-hint">Hold for Difficulty ▼</div>
-<div id="hint-right" class="neon-hover-hint">Hold for... Fullscreen ▼</div>
-    
-
-    const fullscreenHint = document.getElementById('fullscreenHint');
-let hintTimeout = null;
-
-function showFullscreenHint(){
-  if(!fullscreenHint) return;
-
-  fullscreenHint.classList.add('active');
-  fullscreenHint.setAttribute('aria-hidden','false');
-
-  clearTimeout(hintTimeout);
-  hintTimeout = setTimeout(()=>{
-    fullscreenHint.classList.remove('active');
-    fullscreenHint.setAttribute('aria-hidden','true');
-  }, 1500);
-}
-
     const musicLabel = document.getElementById('musicLabel');
     const music = new Audio('/mp3/tmnt-music.mp3');
     window.__tmntMusic = music;
@@ -1491,9 +1494,7 @@ bassFilter.connect(bassAnalyser);
           pulseActive = true;
           musicOn = true;
           setMusicUI(true);
-
-          showFullscreenHint();
-
+          
         }else{
           music.pause();
 
@@ -1616,15 +1617,6 @@ bassFilter.connect(bassAnalyser);
       diffLabelEl.textContent = DIFFS[diffIndex].name;
     }
     applyDifficultyUI();
-
-    // Left Button: Tap = Restart, Hold = Difficulty
-setupBubbleButton('difficultyBtn', 'hint-left', 
-    () => { if(window.app && app.__restartKeepBest) app.__restartKeepBest(); }, 
-    () => { 
-        diffIndex = (diffIndex + 1) % DIFFS.length; 
-        applyDifficultyUI(); 
-    }
-);
 
     // =========================
     // Game resources loader
@@ -2442,47 +2434,71 @@ if (!app.__gameOver) {
       });
     })();
 
-    // --- TAP & HOLD LOGIC ---
-function setupBubbleButton(btnId, hintId, tapAction, holdAction) {
-    const btn = document.getElementById(btnId);
-    const hint = document.getElementById(hintId);
-    if (!btn || !hint) return;
-    let timer = null;
-    let holdFired = false;
+      // --- TAP & HOLD LOGIC (Stealth Hold Hints) ---
+function setupBubbleButton(btnId, hintId, tapAction, holdAction, holdMs = 1500) {
+  const btn  = document.getElementById(btnId);
+  const hint = document.getElementById(hintId);
+  if (!btn) return;
 
-    btn.addEventListener('pointerdown', (e) => {
-        holdFired = false;
-        timer = setTimeout(() => {
-            holdFired = true;
-            holdAction();
-        }, 600);
-    });
+  let timer = null;
+  let holdFired = false;
 
-    btn.addEventListener('pointerup', (e) => {
-        clearTimeout(timer);
-        if (!holdFired) {
-            tapAction();
-            hint.style.display = 'block';
-            setTimeout(() => { hint.style.display = 'none'; }, 1500);
-        }
-    });
-    btn.addEventListener('pointerleave', () => clearTimeout(timer));
+  const showHint = () => {
+    hint.style.display = "block";
+    clearTimeout(hint.__t);
+    hint.__t = setTimeout(() => { hint.style.display = "none"; }, 1500);
+  };
+
+  btn.addEventListener("pointerdown", (e) => {
+    e.preventDefault();
+    holdFired = false;
+
+    // keep this interaction contained
+    btn.setPointerCapture?.(e.pointerId);
+
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      holdFired = true;
+      holdAction?.();
+      // Optional: uncomment if you ALSO want the hint after holding:
+      // showHint();
+    }, holdMs);
+  }, { passive: false });
+
+  btn.addEventListener("pointerup", (e) => {
+    e.preventDefault();
+    clearTimeout(timer);
+
+    if (!holdFired) {
+      tapAction?.();   // normal behavior first
+      showHint();      // then reveal the “secret hold” hint
+    }
+  }, { passive: false });
+
+  btn.addEventListener("pointercancel", () => clearTimeout(timer));
+  btn.addEventListener("pointerleave", () => clearTimeout(timer));
 }
 
-// Left Button: Tap = Restart, Hold = Difficulty
-setupBubbleButton('difficultyBtn', 'hint-left', 
-    () => { if(window.app && app.__restartKeepBest) app.__restartKeepBest(); }, 
-    () => { 
-        diffIndex = (diffIndex + 1) % DIFFS.length; 
-        applyDifficultyUI(); 
-    }
+// Left Button: Tap = Restart, Hold = Difficulty (stealth)
+setupBubbleButton(
+  "difficultyBtn",
+  "hint-left",
+  () => { if (window.app && app.__restartKeepBest) app.__restartKeepBest(); },
+  () => {
+    diffIndex = (diffIndex + 1) % DIFFS.length;
+    applyDifficultyUI();
+  }
 );
 
-// Right Button: Tap = Music, Hold = Fullscreen
-setupBubbleButton('musicBtn', 'hint-right', 
-    () => { toggleMusic(); }, 
-    () => { toggleFullscreen(); }
+// Right Button: Tap = Music, Hold = Fullscreen (same pattern)
+setupBubbleButton(
+  "musicBtn",
+  "hint-right",
+  () => { toggleMusic(); },
+  () => { toggleFullscreen(); }
 );
+
+    
   </script>
   
   <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
