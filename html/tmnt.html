@@ -2396,10 +2396,13 @@ canvas.addEventListener("pointerdown", (e) => {
       }, { passive:false });
     })();
 
-    // Touchpad swipe + tap support (FIXED)
+    // Touchpad swipe + tap support (FIXED v2)
 (function(){
     const plate = document.querySelector('.touchpad-plate');
     if(!plate) return;
+
+    let sx = 0, sy = 0;
+    let isMoving = false;
 
     function move(dir){
         if (window.app && app.ACTORS && app.ACTORS.player) {
@@ -2407,45 +2410,44 @@ canvas.addEventListener("pointerdown", (e) => {
         }
     }
 
-    // 1. FIXED: Use 'pointerup' for buttons to ensure movement registers after the tap
-    // and prevent interference with the swipe start.
-    plate.querySelectorAll('.touch-arrow').forEach(a => {
-        a.addEventListener('pointerup', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            const dir = a.getAttribute('data-dir');
-            if (dir && !activeSwipe) move(dir); // Only move if we didn't just perform a long swipe
-        }, { passive:false });
+    // Handle the Arrow Buttons
+    plate.querySelectorAll('.touch-arrow').forEach(btn => {
+        // Use pointerdown for the visual "light up" (CSS :active handles this)
+        // but trigger the move logic here.
+        btn.addEventListener('pointerdown', (e) => {
+            e.stopPropagation(); // Prevents the speed-up bug
+            const dir = btn.getAttribute('data-dir');
+            if (dir) move(dir);
+        }, { passive: false });
     });
 
-    // 2. FIXED: Improved swipe logic to prevent "Enemies Speeding Up"
-    let sx=0, sy=0, activeSwipe=false;
-
+    // Handle the Plate (Swipe)
     plate.addEventListener('pointerdown', (e) => {
-        // Stop event bubbling to prevent the game loop from jittering
+        // IMPORTANT: stopPropagation prevents the event from bubbling up
+        // to the body/document which often triggers the game loop spikes.
         e.stopPropagation(); 
         sx = e.clientX;
         sy = e.clientY;
-        activeSwipe = false; 
+        isMoving = true;
         plate.setPointerCapture(e.pointerId);
-    }, { passive:false });
+    }, { passive: false });
 
     plate.addEventListener('pointerup', (e) => {
-        e.preventDefault();
+        if (!isMoving) return;
+        isMoving = false;
         e.stopPropagation();
-        
+
         const dx = e.clientX - sx;
         const dy = e.clientY - sy;
         const ax = Math.abs(dx);
         const ay = Math.abs(dy);
 
-        // If movement is more than 15px, it's a swipe
-        if(Math.max(ax, ay) > 15) {
-            activeSwipe = true;
+        // Minimal distance to count as a swipe (20px)
+        if (Math.max(ax, ay) > 20) {
             const dir = ax > ay ? (dx > 0 ? "right" : "left") : (dy > 0 ? "down" : "up");
             move(dir);
         }
-    }, { passive:false });
+    }, { passive: false });
 })();
 
     // Character select hookup
