@@ -695,6 +695,50 @@
 /* ===== TMNT-style Bubbles (anchored to the GAME WINDOW, not the screen) ===== */
 .game-shell{ position:relative; }
 
+/* ===== TAP HINTS (ported from TMNT) ===== */
+.game-shell .neon-hover-hint{
+  position:absolute;
+  bottom: 92px;               /* sits above the split bubbles */
+  z-index: 50;
+  padding: 10px 12px;
+  background: rgba(0,0,0,0.72);
+  border: 1px solid rgba(255,138,192,0.35);
+  border-radius: 14px;
+  color: rgba(255,231,255,0.95);
+  font-family: 'Share Tech Mono', ui-monospace, Menlo, monospace;
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  max-width: 220px;
+  display:none;
+  box-shadow: 0 0 18px rgba(255,59,130,0.22);
+}
+.game-shell .neon-hover-hint.show{ display:block; }
+
+.game-shell .neon-hover-hint::after{
+  content:"";
+  position:absolute;
+  top:100%;
+  left:50%;
+  transform: translateX(-50%);
+  border-width: 10px;
+  border-style: solid;
+  border-color: rgba(0,0,0,0.72) transparent transparent transparent;
+  filter: drop-shadow(0 2px 3px rgba(255,59,130,0.18));
+}
+
+/* anchor the hints to the two bubbles */
+.game-shell #hint-left{ left:25%; transform: translateX(-50%); }
+.game-shell #hint-right{ left:75%; transform: translateX(-50%); }
+
+@media (max-width:520px){
+  .game-shell .neon-hover-hint{
+    bottom: 86px;
+    font-size: 0.74rem;
+    padding: 9px 10px;
+    max-width: 200px;
+  }
+}
+
 /* ===== BOTTOM SPLIT BUBBLES – HALF IN / HALF OUT ===== */
 .game-shell .bubble-btn{
   position:absolute;
@@ -810,9 +854,11 @@
         <span class="ring"><span class="dot"></span></span>
       </button>
 
+      <!-- Tap hints (ported from TMNT) -->
+      <div id="hint-left" class="neon-hover-hint">Hold for Difficulty</div>
+      <div id="hint-right" class="neon-hover-hint">Hold for Fullscreen</div>
 
-
-      <button <div class="center-controls">
+      <div class="center-controls">
         <button id="pauseBtn" class="mini-bubble mini-pause" type="button" aria-label="Pause">
           <span class="label">Pause</span>
           <span class="ring"><span class="icon">II</span></span>
@@ -1194,6 +1240,24 @@ const A = (p) => ASSET_ROOT + String(p).replace(/^\/+/, '');
     }
     setMusicUI(false);
 
+    // =========================
+// Tap Hints (ported from TMNT)
+// =========================
+const hintLeft  = document.getElementById('hint-left');
+const hintRight = document.getElementById('hint-right');
+let hintTimerL = null, hintTimerR = null;
+
+function showHint(el, text, ms = 1500){
+  if(!el) return;
+  el.textContent = text;
+  el.classList.add('show');
+  const isLeft = el.id === 'hint-left';
+  clearTimeout(isLeft ? hintTimerL : hintTimerR);
+  const t = setTimeout(() => el.classList.remove('show'), ms);
+  if(isLeft) hintTimerL = t; else hintTimerR = t;
+}
+
+
     
     // Tap Music = toggle music. Hold 0.5s = fullscreen.
     musicBtn.addEventListener('pointerdown', (e) => {
@@ -1210,10 +1274,11 @@ const A = (p) => ASSET_ROOT + String(p).replace(/^\/+/, '');
     });
 
     musicBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      if (fsHoldFired) { fsHoldFired = false; return; }
-      toggleMusic();
-    });
+  e.preventDefault();
+  if (fsHoldFired) { fsHoldFired = false; return; }
+  toggleMusic();
+  showHint(hintRight, 'Hold for Fullscreen');
+});
 
 async function toggleMusic(){
       try{
@@ -1754,9 +1819,10 @@ function updateBosses(dt){
     }
 
     resetBtn.addEventListener('click', (e) => {
-      if(diffHoldFired){ e.preventDefault(); diffHoldFired = false; return; }
-      resetRun(true);
-    });
+  if(diffHoldFired){ e.preventDefault(); diffHoldFired = false; return; }
+  resetRun(true);
+  showHint(hintLeft, 'Hold for Difficulty');
+});
 
     // Pause button + P key
     function setPaused(p){
