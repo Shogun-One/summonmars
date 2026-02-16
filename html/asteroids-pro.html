@@ -728,7 +728,7 @@ body.music-on .bubble-btn .ring.flip .face.woofer{
     /* --- FOOTER POSITIONING --- */
     footer {
   position: fixed;
-  bottom: 48px;
+  bottom: calc(6px + env(safe-area-inset-bottom));
   left: 50%;
   transform: translateX(-50%);
   text-align: center;
@@ -737,8 +737,7 @@ body.music-on .bubble-btn .ring.flip .face.woofer{
   color: rgba(255,255,255,0.85);
   z-index: 6;
   pointer-events: none;
-
-  white-space: nowrap;   /* ← THIS */
+  white-space: nowrap;
 }
 
     .visit-counter {
