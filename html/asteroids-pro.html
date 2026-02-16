@@ -986,6 +986,7 @@ body.music-on .bubble-btn .ring.flip .face.woofer{
       <canvas id="game" width="480" height="640"></canvas>
       <button id="reset-btn" class="bubble-btn restart-btn" type="button"
         aria-label="Restart" title="Restart">
+<span class="label">Restart</span>
 <span class="ring flip" aria-hidden="true">
   <span class="face stamp">
     <img class="stamp-img" data-asset="images/asteroids/reset-stamp.png" alt="">
@@ -996,10 +997,11 @@ body.music-on .bubble-btn .ring.flip .face.woofer{
       </button>
 
       <button id="musicBtn" class="bubble-btn music-btn" type="button"
-        aria-label="Sound On/Off" title="Sound On/Off">
+        aria-label="Music On/Off" title="Music On/Off">
+<span class="label" id="musicLabel">Music Off</span>
 <span class="ring flip" aria-hidden="true">
   <span class="face stamp">
-    <img class="stamp-img" data-asset="images/asteroids/sound-stamp.png" alt="">
+    <img class="stamp-img" data-asset="images/asteroids/music-stamp.png" alt="">
   </span>
   <span class="face woofer"></span>
   <span class="dot-indicator" aria-hidden="true"></span>
@@ -1391,11 +1393,12 @@ document.querySelectorAll('img[data-asset]').forEach((img) => {
 
     let musicOn = false;
     function setMusicUI(on){
-  musicBtn.classList.toggle('on', on);
-  musicBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
-  try{ document.body.classList.toggle('music-on', on); }catch{}
-}
+      musicBtn.classList.toggle('on', on);
+      musicBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+      musicBtn.querySelector('.label').textContent = on ? 'Music On' : 'Music Off';
+      try{ document.body.classList.toggle('music-on', on); }catch{}
 
+    }
     setMusicUI(false);
 
 // =====================
@@ -1415,7 +1418,7 @@ function setupAudioAnalyzer(){
 
     bassFilter = audioCtx.createBiquadFilter();
     bassFilter.type = "lowpass";
-    bassFilter.frequency.value = 140; // true bass focus
+    bassFilter.frequency.value = 220; // bass focus (a bit higher so it catches more tracks)
     bassFilter.Q.value = 0.7;
 
     bassAnalyser = audioCtx.createAnalyser();
@@ -1446,7 +1449,7 @@ let __bassPrev = 0;
 let __bassKick = 0;
 
 function updateAudioViz(){
-  // sleep when music is off
+  // No music? Keep everything calm.
   if(!pulseActive || !bassAnalyser){
     __bassPrev = 0;
     __bassKick = 0;
@@ -1457,28 +1460,21 @@ function updateAudioViz(){
   const b = new Uint8Array(bassAnalyser.frequencyBinCount);
   bassAnalyser.getByteFrequencyData(b);
 
-  // true low bins only (kick/sub). ignore mids entirely.
+  // Bass energy: average of the lowest bins (more forgiving than the old edge-detector)
+  const lowBins = Math.min(16, b.length); // bins 0..15
   let low = 0;
-  const lowBins = Math.min(8, b.length); // bins 0..7
   for(let i=0;i<lowBins;i++) low += b[i];
   low /= lowBins;
 
-  // normalize 0..1
-  const bassN = Math.max(0, Math.min(1, (low - 20) / 160));
+  // Normalize to 0..1
+  let bassN = Math.max(0, Math.min(1, low / 255));
 
-  // rising edge detector
-  const rising = bassN - __bassPrev;
-  __bassPrev = bassN;
+  // Add a little punch curve so small bass still shows, but big kicks POP
+  bassN = Math.pow(bassN, 0.65);
 
-  // decay (snappy)
-  __bassKick = (__bassKick || 0) * 0.60;
-
-  const HIT_THRESHOLD  = 0.32;
-  const RISE_THRESHOLD = 0.08;
-
-  if(bassN > HIT_THRESHOLD && rising > RISE_THRESHOLD){
-    __bassKick = Math.min(1, (__bassKick || 0) + bassN);
-  }
+  // Smooth decay + take the max for a visible thump
+  __bassKick = (__bassKick || 0) * 0.72;
+  if(bassN > __bassKick) __bassKick = bassN;
 
   document.documentElement.style.setProperty('--bassKick', String(__bassKick || 0));
 }
