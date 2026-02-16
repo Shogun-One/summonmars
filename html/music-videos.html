@@ -405,12 +405,12 @@ footer {
       <h2 class="video-title">Race To Mars - Instrumental Variant</h2>
       <div class="video-wrapper paused">
         <video
-          data-vid="../music-videos/racetomars.mp4"
-          poster="../images/main/racetomars-vidpic2.png"
-          disablepictureinpicture
-          oncontextmenu="return false;"
-          playsinline
-        ></video>
+  poster="../images/main/racetomars-vidpic2.png"
+  playsinline
+  preload="metadata"
+>
+  <source src="../music-videos/racetomars.mp4" type="video/mp4">
+</video>
         <div class="custom-controls">
           <button class="control-btn btn-rewind" title="Rewind 10s">
             <svg viewBox="0 0 24 24"><path d="M11 18V6l-8.5 6 8.5 6zm.5-6l8.5 6V6l-8.5 6z"/></svg>
@@ -436,12 +436,12 @@ footer {
       <h2 class="video-title">Point Of Bloom - Archive Variant</h2>
       <div class="video-wrapper paused">
         <video
-          data-vid="../music-videos/pointofbloom-gh.mp4"
-          poster="../images/main/pointofbloompic.png"
-          disablepictureinpicture
-          oncontextmenu="return false;"
-          playsinline
-        ></video>
+  poster="../images/main/pointofbloompic.png"
+  playsinline
+  preload="metadata"
+>
+  <source src="../music-videos/pointofbloom-gh.mp4" type="video/mp4">
+</video>
         <div class="custom-controls">
           <button class="control-btn btn-rewind" title="Rewind 10s">
             <svg viewBox="0 0 24 24"><path d="M11 18V6l-8.5 6 8.5 6zm.5-6l8.5 6V6l-8.5 6z"/></svg>
@@ -467,12 +467,12 @@ footer {
     <h2 class="video-title">Head's Pace - Instrumental Variant</h2>
     <div class="video-wrapper paused">
       <video
-        data-vid="../music-videos/headspacevid.mp4"
-        poster="../images/main/headspacepic.png"
-        disablepictureinpicture
-        oncontextmenu="return false;"
-        playsinline
-      ></video>
+  poster="../images/main/head-space-pic.png"
+  playsinline
+  preload="metadata"
+>
+  <source src="../music-videos/headspacevid.mp4" type="video/mp4">
+</video>
       <div class="custom-controls">
         <button class="control-btn btn-rewind" title="Rewind 10s">
           <svg viewBox="0 0 24 24"><path d="M11 18V6l-8.5 6 8.5 6zm.5-6l8.5 6V6l-8.5 6z"/></svg>
@@ -497,13 +497,15 @@ footer {
     <div>
       <h2 class="video-title">Street Knock - Instrumental Variant</h2>
       <div class="video-wrapper paused">
+
         <video
-          data-vid="../music-videos/streetknockvid.mp4"
-          poster="../images/main/streetknockpic.png"
-          disablepictureinpicture
-          oncontextmenu="return false;"
-          playsinline
-        ></video>
+  poster="../images/main/street-knock-pic.png"
+  playsinline
+  preload="metadata"
+>
+  <source src="../music-videos/streetknockvid.mp4" type="video/mp4">
+</video>
+        
         <div class="custom-controls">
           <button class="control-btn btn-rewind" title="Rewind 10s">
             <svg viewBox="0 0 24 24"><path d="M11 18V6l-8.5 6 8.5 6zm.5-6l8.5 6V6l-8.5 6z"/></svg>
@@ -528,13 +530,15 @@ footer {
     <div>
       <h2 class="video-title">Night Train - Instrumental Variant</h2>
       <div class="video-wrapper paused">
+
         <video
-          data-vid="../music-videos/nighttrainvid.mp4"
-          poster="../images/main/nighttrainpic.png"
-          disablepictureinpicture
-          oncontextmenu="return false;"
-          playsinline
-        ></video>
+  poster="../images/main/night-train-pic.png"
+  playsinline
+  preload="metadata"
+>
+  <source src="../music-videos/nighttrainvid.mp4" type="video/mp4">
+</video>
+
         <div class="custom-controls">
           <button class="control-btn btn-rewind" title="Rewind 10s">
             <svg viewBox="0 0 24 24"><path d="M11 18V6l-8.5 6 8.5 6zm.5-6l8.5 6V6l-8.5 6z"/></svg>
@@ -559,13 +563,15 @@ footer {
     <div>
       <h2 class="video-title">Ethereal Soundtrack - Instrumental Variant</h2>
       <div class="video-wrapper paused">
+
         <video
-          data-vid="../music-videos/etherealsoundtrack.mp4"
-          poster="../images/main/etherealsoundtrackpic.png"
-          disablepictureinpicture
-          oncontextmenu="return false;"
-          playsinline
-        ></video>
+  poster="../images/main/etherealsoundtrackpic.png"
+  playsinline
+  preload="metadata"
+>
+  <source src="../music-videos/etherealsoundtrack.mp4" type="video/mp4">
+</video>
+
         <div class="custom-controls">
           <button class="control-btn btn-rewind" title="Rewind 10s">
             <svg viewBox="0 0 24 24"><path d="M11 18V6l-8.5 6 8.5 6zm.5-6l8.5 6V6l-8.5 6z"/></svg>
@@ -585,7 +591,7 @@ footer {
         </div>
       </div>
     </div>
-</div> <!-- closes the main videos container
+</div><!-- closes the main videos container -->
 
 <!-- REAL SECTION BREAK BETWEEN VIDEOS AND INFO -->
 <hr class="section-divider">
@@ -650,7 +656,6 @@ footer {
         "color: red; font-size: 20px; font-weight: bold;");
     }, 2000);
 
-    <script>
   (function () {
     // Wait until body exists
     function init() {
