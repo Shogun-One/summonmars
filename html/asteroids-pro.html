@@ -376,24 +376,8 @@
 
 
     .bubble-btn .label{
-      position:absolute;
-      bottom:62px;
-      left:50%;
-      transform:translateX(-50%);
-      font-size:.72rem;
-      letter-spacing:.08em;
-      text-transform:uppercase;
-      color:rgba(228,228,255,.85);
-      background:rgba(0,0,0,.25);
-      border:1px solid rgba(255,138,192,.22);
-      padding:.22rem .55rem;
-      border-radius:999px;
-      backdrop-filter: blur(6px);
-      -webkit-backdrop-filter: blur(6px);
-      white-space:nowrap;
-      opacity:.95;
-      pointer-events:none;
-    }
+  display:none !important;
+}
 
     .restart-btn{ left: 14px; }
     .music-btn{ right: 14px; }
@@ -1009,7 +993,6 @@ body.music-on .bubble-btn .ring.flip .face.woofer{
       <canvas id="game" width="480" height="640"></canvas>
       <button id="reset-btn" class="bubble-btn restart-btn" type="button"
         aria-label="Restart" title="Restart">
-<span class="label">Restart</span>
 <span class="ring flip" aria-hidden="true">
   <span class="face stamp">
     <img class="stamp-img" data-asset="images/asteroids/reset-stamp.png" alt="">
@@ -1021,7 +1004,6 @@ body.music-on .bubble-btn .ring.flip .face.woofer{
 
       <button id="musicBtn" class="bubble-btn music-btn" type="button"
         aria-label="Music On/Off" title="Music On/Off">
-<span class="label" id="musicLabel">Music Off</span>
 <span class="ring flip" aria-hidden="true">
   <span class="face stamp">
     <img class="stamp-img" data-asset="images/asteroids/sound-stamp.png" alt="">
@@ -1416,12 +1398,11 @@ document.querySelectorAll('img[data-asset]').forEach((img) => {
 
     let musicOn = false;
     function setMusicUI(on){
-      musicBtn.classList.toggle('on', on);
-      musicBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
-      musicBtn.querySelector('.label').textContent = on ? 'Music On' : 'Music Off';
-      try{ document.body.classList.toggle('music-on', on); }catch{}
-
-    }
+  musicBtn.classList.toggle('on', on);
+  musicBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+  try{ document.body.classList.toggle('music-on', on); }catch{}
+}
+    
     setMusicUI(false);
 
 // =====================
