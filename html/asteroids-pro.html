@@ -420,6 +420,138 @@
   margin-top:8px;
 }
 
+
+
+/* ===== Stamp -> Speaker FLIP (ported from TMNT) ===== */
+/* We keep the same bubble buttons, but the "ring" becomes a 3D flip card:
+   - Front face: your stamp PNG
+   - Back face: the woofer that bumps with --bassKick
+   Flip is driven by body.music-on (already toggled by setMusicUI). */
+
+.bubble-btn .ring.flip{
+  position:relative;
+  width:100%;
+  height:100%;
+  border-radius:999px;
+  overflow:hidden;
+  perspective:700px;
+  /* keep the existing speaker rim glow */
+  box-shadow:
+    inset 0 0 0 2px rgba(0,0,0,.35),
+    inset 0 0 0 10px rgba(0,0,0,.18),
+    inset 0 0 18px rgba(0,0,0,.55),
+    0 0 18px rgba(255,59,130,.14);
+}
+
+/* kill the old pseudo-speaker on the ring itself (we render it on the woofer face) */
+.bubble-btn .ring.flip::before,
+.bubble-btn .ring.flip::after{ content:none !important; }
+
+.bubble-btn .ring.flip .face{
+  position:absolute;
+  inset:0;
+  border-radius:999px;
+  backface-visibility:hidden;
+  transform-style:preserve-3d;
+  transition: transform 320ms ease, opacity 220ms ease;
+}
+
+/* FRONT: stamp */
+.bubble-btn .ring.flip .face.stamp{
+  opacity:0.95;
+  transform: rotateY(0deg);
+  display:grid;
+  place-items:center;
+  background: rgba(0,0,0,0.08);
+}
+
+.bubble-btn .ring.flip .face.stamp .stamp-img{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  opacity:0.95;
+  filter: drop-shadow(0 0 14px rgba(255,59,130,.18));
+  transform: translateZ(1px);
+  user-select:none;
+  pointer-events:none;
+}
+
+/* BACK: woofer */
+.bubble-btn .ring.flip .face.woofer{
+  opacity:0;
+  transform: rotateY(180deg);
+  border:1px solid rgba(228,228,255,.22);
+  background:
+    radial-gradient(circle at 35% 30%,
+      rgba(255,255,255,.18),
+      rgba(0,0,0,.55) 55%,
+      rgba(0,0,0,.92) 100%);
+}
+
+.bubble-btn .ring.flip .face.woofer::before{
+  content:"";
+  position:absolute;
+  inset: 2px;
+  border-radius:999px;
+  background:
+    radial-gradient(circle at 35% 30%,
+      rgba(255,255,255,.14),
+      rgba(0,0,0,.35) 45%,
+      rgba(0,0,0,.88) 100%);
+  box-shadow:
+    inset 0 0 0 2px rgba(255,255,255,.06),
+    inset 0 0 10px rgba(0,0,0,.55);
+  transform: scale(calc(1 + (var(--bassKick, 0) * 0.25)));
+  transition: transform 60ms linear;
+}
+
+.bubble-btn .ring.flip .face.woofer::after{
+  content:"";
+  position:absolute;
+  inset: 14px;
+  border-radius:999px;
+  background:
+    radial-gradient(circle at 35% 30%,
+      rgba(255,255,255,.22),
+      rgba(0,0,0,.55) 60%,
+      rgba(0,0,0,.92) 100%),
+    repeating-radial-gradient(circle,
+      rgba(255,255,255,.05) 0 1px,
+      rgba(0,0,0,0) 1px 4px);
+  box-shadow: inset 0 0 0 1px rgba(255,138,192,.10);
+  transform: scale(calc(1 + (var(--bassKick, 0) * 0.55)));
+  transition: transform 60ms linear;
+}
+
+/* Default: show stamp, hide woofer */
+.bubble-btn .ring.flip .face.stamp{ opacity:0.95; transform: rotateY(0deg); }
+.bubble-btn .ring.flip .face.woofer{ opacity:0; transform: rotateY(180deg); }
+
+/* Music ON: flip to woofer */
+body.music-on .bubble-btn .ring.flip .face.stamp{
+  opacity:0;
+  transform: rotateY(-180deg);
+}
+body.music-on .bubble-btn .ring.flip .face.woofer{
+  opacity:1;
+  transform: rotateY(0deg);
+}
+
+/* small status dot on the Music bubble (still useful) */
+.bubble-btn .ring.flip .dot-indicator{
+  position:absolute;
+  width:8px;
+  height:8px;
+  border-radius:999px;
+  right:10px;
+  bottom:10px;
+  background:rgba(255,138,192,.95);
+  box-shadow:0 0 10px rgba(255,138,192,.65);
+  opacity:.35;
+  transition: opacity .2s ease;
+}
+#musicBtn.on .dot-indicator{ opacity:1; }
+
     .mini-bubble{
       position:relative;
       top:auto;
@@ -854,14 +986,26 @@
       <canvas id="game" width="480" height="640"></canvas>
       <button id="reset-btn" class="bubble-btn restart-btn" type="button"
         aria-label="Restart" title="Restart">
-        <span class="label">Restart</span>
-        <span class="ring"><span class="dot"></span></span>
+<span class="label">Restart</span>
+<span class="ring flip" aria-hidden="true">
+  <span class="face stamp">
+    <img class="stamp-img" data-asset="images/asteroids/reset-stamp.png" alt="">
+  </span>
+  <span class="face woofer"></span>
+
+</span>
       </button>
 
       <button id="musicBtn" class="bubble-btn music-btn" type="button"
         aria-label="Music On/Off" title="Music On/Off">
-        <span class="label" id="musicLabel">Music Off</span>
-        <span class="ring"><span class="dot"></span></span>
+<span class="label" id="musicLabel">Music Off</span>
+<span class="ring flip" aria-hidden="true">
+  <span class="face stamp">
+    <img class="stamp-img" data-asset="images/asteroids/music-stamp.png" alt="">
+  </span>
+  <span class="face woofer"></span>
+  <span class="dot-indicator" aria-hidden="true"></span>
+</span>
       </button>
 
       <!-- Tap hints (ported from TMNT) -->
@@ -893,6 +1037,11 @@
 // Asset helper (must be defined BEFORE any code uses A())
 const ASSET_ROOT = (location.protocol === 'file:') ? '../' : '/';
 const A = (p) => ASSET_ROOT + String(p).replace(/^\/+/, '');
+
+// Stamp images live outside /html/, so set them via A() to keep file:// and GitHub paths happy.
+document.querySelectorAll('img[data-asset]').forEach((img) => {
+  try { img.src = A(img.dataset.asset); } catch {}
+});
     
     // =========================
     // Cosplay Security (stable)
