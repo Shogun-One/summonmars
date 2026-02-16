@@ -1195,14 +1195,14 @@ const A = (p) => ASSET_ROOT + String(p).replace(/^\/+/, '');
     setMusicUI(false);
 
     
-    // Tap Music = toggle music. Hold 1.5s = fullscreen.
+    // Tap Music = toggle music. Hold 0.5s = fullscreen.
     musicBtn.addEventListener('pointerdown', (e) => {
       fsHoldFired = false;
       clearTimeout(fsHoldTimer);
       fsHoldTimer = setTimeout(() => {
         fsHoldFired = true;
         toggleFullscreen();
-      }, 1500);
+      }, 500);
     });
 
     ['pointerup','pointercancel','pointerleave'].forEach(ev => {
@@ -1234,7 +1234,7 @@ async function toggleMusic(){
       }
     }
     // Difficulty selector
-    // Keep difficulty presets, but drive it via HOLD on the Restart bubble (1.5s)
+    // Keep difficulty presets, but drive it via HOLD on the Restart bubble (0.5s)
     const DIFF_PRESETS = [
       { name: "Easy Peasy",           mult: 0.78 },
       { name: "Gimme more ammo",      mult: 1.00 },
@@ -1261,7 +1261,7 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
       softRestart();
     }
 
-    // HOLD Restart (1.5s) = Difficulty up
+    // HOLD Restart (05s) = Difficulty up
     let diffHoldTimer = null;
     let diffHoldFired = false;
 
@@ -1271,7 +1271,7 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
       diffHoldTimer = setTimeout(() => {
         diffHoldFired = true;
         cycleDifficulty();
-      }, 1500);
+      }, 500);
     });
 
     ['pointerup','pointercancel','pointerleave'].forEach(ev => {
