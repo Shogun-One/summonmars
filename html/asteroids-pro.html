@@ -1075,6 +1075,7 @@ document.querySelectorAll('img[data-asset]').forEach((img) => {
 
     (function () {
       function initSecurity() {
+        let devtoolsOpen = false;
         if (!document.body) {
           window.addEventListener('load', initSecurity, { once: true });
           return;
