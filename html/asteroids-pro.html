@@ -19,6 +19,8 @@
       --hud:#e4e4ff;
       --danger:#ff2a2a;
       --purple:#8a2be2;
+    
+      --bassKick:0;
     }
 
     *{ box-sizing:border-box; }
@@ -344,7 +346,11 @@
       box-shadow:
         inset 0 0 0 2px rgba(255,255,255,.06),
         inset 0 0 10px rgba(0,0,0,.55);
+
+      transform: scale(calc(1 + (var(--bassKick, 0) * 0.25)));
+      transition: transform 60ms linear;
     }
+
 
     .bubble-btn .ring::after{
       content:"";
@@ -363,7 +369,11 @@
 
       box-shadow:
         inset 0 0 0 1px rgba(255,138,192,.10);
+
+      transform: scale(calc(1 + (var(--bassKick, 0) * 0.55)));
+      transition: transform 60ms linear;
     }
+
 
     .bubble-btn .label{
       position:absolute;
@@ -1237,8 +1247,95 @@ const A = (p) => ASSET_ROOT + String(p).replace(/^\/+/, '');
       musicBtn.classList.toggle('on', on);
       musicBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
       musicBtn.querySelector('.label').textContent = on ? 'Music On' : 'Music Off';
+      try{ document.body.classList.toggle('music-on', on); }catch{}
+
     }
     setMusicUI(false);
+
+// =====================
+// Audio Visual: Bass "Kick" -> CSS --bassKick (ported from TMNT)
+// =====================
+let audioCtx, analyser, sourceNode, bassAnalyser, bassFilter;
+let pulseActive = false;
+
+function setupAudioAnalyzer(){
+  if(audioCtx) return;
+  try{
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    analyser = audioCtx.createAnalyser();
+    analyser.fftSize = 256;
+    analyser.smoothingTimeConstant = 0.55;
+
+    bassFilter = audioCtx.createBiquadFilter();
+    bassFilter.type = "lowpass";
+    bassFilter.frequency.value = 140; // true bass focus
+    bassFilter.Q.value = 0.7;
+
+    bassAnalyser = audioCtx.createAnalyser();
+    bassAnalyser.fftSize = 256;
+    bassAnalyser.smoothingTimeConstant = 0.75;
+
+    sourceNode = audioCtx.createMediaElementSource(music);
+
+    // send audio to speakers
+    sourceNode.connect(audioCtx.destination);
+
+    // visual analyser (no pass-through)
+    sourceNode.connect(analyser);
+
+    // bass-only analyser (for kick detection)
+    sourceNode.connect(bassFilter);
+    bassFilter.connect(bassAnalyser);
+  }catch(err){
+        pulseActive = false;
+        document.documentElement.style.setProperty('--bassKick','0');
+console.warn('Audio analyzer init failed:', err);
+    audioCtx = null; analyser = null; sourceNode = null; bassAnalyser = null; bassFilter = null;
+  }
+}
+
+// kick memory (snappy impulse)
+let __bassPrev = 0;
+let __bassKick = 0;
+
+function updateAudioViz(){
+  // sleep when music is off
+  if(!pulseActive || !bassAnalyser){
+    __bassPrev = 0;
+    __bassKick = 0;
+    document.documentElement.style.setProperty('--bassKick', '0');
+    return;
+  }
+
+  const b = new Uint8Array(bassAnalyser.frequencyBinCount);
+  bassAnalyser.getByteFrequencyData(b);
+
+  // true low bins only (kick/sub). ignore mids entirely.
+  let low = 0;
+  const lowBins = Math.min(8, b.length); // bins 0..7
+  for(let i=0;i<lowBins;i++) low += b[i];
+  low /= lowBins;
+
+  // normalize 0..1
+  const bassN = Math.max(0, Math.min(1, (low - 20) / 160));
+
+  // rising edge detector
+  const rising = bassN - __bassPrev;
+  __bassPrev = bassN;
+
+  // decay (snappy)
+  __bassKick = (__bassKick || 0) * 0.60;
+
+  const HIT_THRESHOLD  = 0.32;
+  const RISE_THRESHOLD = 0.08;
+
+  if(bassN > HIT_THRESHOLD && rising > RISE_THRESHOLD){
+    __bassKick = Math.min(1, (__bassKick || 0) + bassN);
+  }
+
+  document.documentElement.style.setProperty('--bassKick', String(__bassKick || 0));
+}
 
     // =========================
 // Tap Hints (ported from TMNT)
@@ -1283,16 +1380,27 @@ function showHint(el, text, ms = 1500){
 async function toggleMusic(){
       try{
         if(!musicOn){
+          setupAudioAnalyzer();
+          if(audioCtx && audioCtx.state === 'suspended') await audioCtx.resume();
+
           music.volume = 0.75;
           await music.play();
+          pulseActive = true;
+
           musicOn = true;
           setMusicUI(true);
         }else{
           music.pause();
+          pulseActive = false;
+          document.documentElement.style.setProperty('--bassKick','0');
+
           musicOn = false;
           setMusicUI(false);
         }
       }catch(err){
+        pulseActive = false;
+        document.documentElement.style.setProperty('--bassKick','0');
+
         musicOn = false;
         setMusicUI(false);
         console.warn('Music could not start:', err);
@@ -3058,6 +3166,8 @@ if (flashTimer > 0) {
 
       update(dt);
 
+
+      updateAudioViz();
       drawSky();
 
       ctx.clearRect(0,0,width,height);
