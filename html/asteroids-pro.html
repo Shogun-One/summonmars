@@ -791,6 +791,11 @@
   </div>
 
   <script>
+
+// Asset helper (must be defined BEFORE any code uses A())
+const ASSET_ROOT = (location.protocol === 'file:') ? '../' : '/';
+const A = (p) => ASSET_ROOT + String(p).replace(/^\/+/, '');
+    
     // =========================
     // Cosplay Security (stable)
     // =========================
@@ -835,8 +840,9 @@
         // Guard (prevents hard crashes if any IDs are missing)
         if (!securityOverlay || !securityReloadBtn || !securityDismissBtn) return;
 
-        const nedryAudio = new Audio(A('mp3/jurrasicpassword.mp3'));
-        let devtoolsOpen = false;
+        let nedryAudio = null;
+        try { nedryAudio = new Audio(A('mp3/jurrasicpassword.mp3')); } catch {}
+
 
         function showOverlay() {
           if (devtoolsOpen) return;
@@ -844,7 +850,7 @@
           securityOverlay.classList.add('active');
           securityOverlay.setAttribute('aria-hidden','false');
           try { if (window.__marsMusic && !window.__marsMusic.paused) window.__marsMusic.pause(); } catch {}
-          try { nedryAudio.currentTime = 0; nedryAudio.play().catch(() => {}); } catch {}
+          try { nedryAudio && (nedryAudio.currentTime = 0, nedryAudio.play().catch(()=>{})); } catch {}
           window.__securityFreeze = true;
         }
 
@@ -1101,11 +1107,6 @@
 
     const width = canvas.width;
     const height = canvas.height;
-
-    
-    // Asset helper: makes local file:// testing work AND keeps GitHub Pages root paths
-    const ASSET_ROOT = (location.protocol === 'file:') ? '../' : '/';
-    const A = (p) => ASSET_ROOT + String(p).replace(/^\/+/, '');
 
     function toggleFullscreen(){
       const doc = document;
