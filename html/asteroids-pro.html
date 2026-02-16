@@ -986,7 +986,6 @@ body.music-on .bubble-btn .ring.flip .face.woofer{
       <canvas id="game" width="480" height="640"></canvas>
       <button id="reset-btn" class="bubble-btn restart-btn" type="button"
         aria-label="Restart" title="Restart">
-<span class="label">Restart</span>
 <span class="ring flip" aria-hidden="true">
   <span class="face stamp">
     <img class="stamp-img" data-asset="images/asteroids/reset-stamp.png" alt="">
@@ -998,7 +997,6 @@ body.music-on .bubble-btn .ring.flip .face.woofer{
 
       <button id="musicBtn" class="bubble-btn music-btn" type="button"
         aria-label="Sound On/Off" title="Sound On/Off">
-<span class="label" id="musicLabel">Sound Off</span>
 <span class="ring flip" aria-hidden="true">
   <span class="face stamp">
     <img class="stamp-img" data-asset="images/asteroids/sound-stamp.png" alt="">
@@ -1393,12 +1391,11 @@ document.querySelectorAll('img[data-asset]').forEach((img) => {
 
     let musicOn = false;
     function setMusicUI(on){
-      musicBtn.classList.toggle('on', on);
-      musicBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
-      musicBtn.querySelector('.label').textContent = on ? 'Music On' : 'Music Off';
-      try{ document.body.classList.toggle('music-on', on); }catch{}
+  musicBtn.classList.toggle('on', on);
+  musicBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+  try{ document.body.classList.toggle('music-on', on); }catch{}
+}
 
-    }
     setMusicUI(false);
 
 // =====================
