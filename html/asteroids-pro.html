@@ -532,6 +532,69 @@
     resetRun(true);
     beginLevel(1);
     requestAnimationFrame(loop);
+
+    // === SUMMON MARS ENGINE STARTUP ===
+// Declaration of missing variables to prevent the "Black Screen" crash
+let joyVec = { x: 0, y: 0 }, joyActive = false, joyDidMove = false;
+let joyTapStartT = 0, joyTapStartX = 0, joyTapStartY = 0;
+let joyBaseX = 0, joyBaseY = 0;
+const DEADZONE = 0.15, JOY_MOVABLE = true;
+
+// Level and Reset Logic
+function resetRun(full = false) {
+    bullets = []; asteroids = []; enemies = []; enemyBullets = []; bosses = []; particles = []; pickups = [];
+    ship.x = width / 2; ship.y = height / 2; ship.vx = 0; ship.vy = 0; ship.exploding = 0;
+    if (full) {
+        score = 0; level = 1; lives = MAX_LIVES; hits = 0; killsThisLevel = 0; bossKills = 0;
+        scoreEl.textContent = "0"; livesEl.textContent = MAX_LIVES; levelEl.textContent = "1";
+    }
+    gameOver = false; running = true; preStartTimer = PRESTART_MS;
+}
+
+function beginLevel(lvl, options = {}) {
+    level = lvl;
+    killsThisLevel = 0;
+    levelEl.textContent = lvl;
+    toNextEl.textContent = "0";
+    if (options.levelUp) levelUpTimer = 1800;
+    if (lvl % 5 === 0) {
+        bossIncomingTimer = 2500;
+        bossIncomingDidSting = false;
+        setTimeout(() => spawnBossPackForLevel(lvl), 2500);
+    }
+}
+
+function spawnAsteroid(randomPos = true) {
+    const d = difficulty();
+    const radius = Math.random() * (45 - 18) + 18;
+    let x, y;
+    if (randomPos) {
+        const edge = Math.floor(Math.random() * 4);
+        if (edge === 0) { x = Math.random() * width; y = -50; }
+        else if (edge === 1) { x = width + 50; y = Math.random() * height; }
+        else if (edge === 2) { x = Math.random() * width; y = height + 50; }
+        else { x = -50; y = Math.random() * height; }
+    }
+    asteroids.push({ x, y, radius, vx: (Math.random() - 0.5) * d.asteroidSpeedMax, vy: (Math.random() - 0.5) * d.asteroidSpeedMax });
+}
+
+function awardScore(pts) {
+    score += pts; scoreEl.textContent = score;
+    if (score > bestScore) {
+        bestScore = score; bestEl.textContent = bestScore;
+        localStorage.setItem('asteroidBest', bestScore);
+    }
+}
+
+function spawnPickup(kind) {
+    pickups.push({
+        x: Math.random() * (width - 100) + 50, y: Math.random() * (height - 100) + 50,
+        r: 15, life: 8000, bob: 0, vx: (Math.random() - 0.5), vy: (Math.random() - 0.5),
+        kind: kind, label: kind.toUpperCase(), icon: kind === "life" ? "heart" : "fire",
+        mode: kind !== "life" ? kind : null
+    });
+}
+function startGracePeriod() { ship.invuln = 2000; }
   </script>
 </body>
 </html>
