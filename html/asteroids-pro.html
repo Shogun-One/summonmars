@@ -1670,6 +1670,64 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
     let paused = false;
     let gameOver = false;
 
+    // =========================
+    // Pause / Resume (FREEZE everything + pause music)
+    // =========================
+    let __pauseMutedMusic = false;
+
+    function setPaused(on){
+      paused = !!on;
+
+      // Pause/resume music without changing the "musicOn" state (UI stays ON)
+      try{
+        if(paused){
+          if(musicOn && music && !music.paused){
+            __pauseMutedMusic = true;
+            music.pause();
+            pulseActive = false;
+            document.documentElement.style.setProperty('--bassKick','0');
+          }else{
+            __pauseMutedMusic = false;
+          }
+        }else{
+          if(__pauseMutedMusic && musicOn){
+            __pauseMutedMusic = false;
+            // resume analyzer + audio context if needed
+            try{ setupAudioAnalyzer(); }catch{}
+            try{ if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume(); }catch{}
+            music.play().catch(()=>{});
+            pulseActive = true;
+          }
+        }
+      }catch{}
+    }
+
+    function togglePause(){
+      if(gameOver) return;
+      setPaused(!paused);
+      // swap pause icon
+      try{
+        const icon = pauseBtn?.querySelector('.icon');
+        if(icon) icon.textContent = paused ? '▶' : 'II';
+      }catch{}
+    }
+
+    // Pause button
+    if(pauseBtn){
+      pauseBtn.addEventListener('click', (e)=>{
+        e.preventDefault();
+        togglePause();
+      });
+    }
+
+    // Keyboard pause (P or Escape)
+    window.addEventListener('keydown', (e)=>{
+      if(e.repeat) return;
+      if(e.code === 'KeyP' || e.key === 'p' || e.key === 'P' || e.key === 'Escape'){
+        togglePause();
+      }
+    });
+
     let preStartTimer = 0;
     const PRESTART_MS = 2200;
 
@@ -2436,8 +2494,9 @@ document.addEventListener('visibilitychange', () => { if(document.hidden) resetJ
     // =========================
     function update(dt){
       if(window.__securityFreeze) return;
+      if(paused) return;
 
-      updateSky(dt);
+      if(!paused) updateSky(dt);
       updateBosses(dt);
 
 
