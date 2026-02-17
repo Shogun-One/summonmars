@@ -30,21 +30,26 @@
 /* ==============================
 🎯 LOCATION DIALS (move stuff)
 ============================== */
-/* Individual button nudges */
---deck-pause-x: 0px;   --deck-pause-y: -15px;
---deck-heat-x:  0px;   --deck-heat-y:  -15px;
---deck-reset-x: 0px;   --deck-reset-y: -15px;
---deck-music-x: 0px;   --deck-music-y: -15px;
+
+/* One dial to move the whole CONTROL DECK (all 4 buttons + touchpad together) */
+--deck-all-x: 0px;
+--deck-all-y: -15px;
+
+/* Optional per-control micro nudges (leave at 0 unless you need to fine-tune) */
+--deck-pause-x: 0px;   --deck-pause-y: 0px;
+--deck-heat-x:  0px;   --deck-heat-y:  0px;
+--deck-reset-x: 0px;   --deck-reset-y: 0px;
+--deck-music-x: 0px;   --deck-music-y: 0px;
 
 /* Shared diagonal shift for BOTH bottom buttons (separation + down/out)
-   Reset uses  +X,+Y
-   Music mirrors X: -X,+Y */
+   Left-bottom uses  +X,+Y
+   Right-bottom mirrors X: -X,+Y */
 --deck-bottom-shift-x: 18px;
 --deck-bottom-shift-y: 18px;
 
-/* Touchpad nudge */
+/* Touchpad micro nudge (rarely needed once deck-all is set) */
 --touchpad-x: 0px;
---touchpad-y: -15px;
+--touchpad-y: 0px;
 
 /* Whole game window (shadowbox) nudge */
 --shadowbox-x: 0px;
@@ -1173,108 +1178,92 @@ body.touchpad-off .control-deck .mobile-touchpad{ display:none !important; }
 .touch-arrow{
   color:#ff2a2a !important;
   text-shadow:
-    0 0 8px rgba(255,42,42,.85),
-    0 0 18px rgba(255,42,42,.55),
-    0 0 28px rgba(255,42,42,.35);
+    0 0 8px rgba(255,/* === MOBILE STAMP + DECK LAYOUT TUNING (clean + single source of truth) === */
+
+/* Make stamp images fill the bubble nicely WITHOUT getting chopped */
+.bubble-btn .ring.flip .face.stamp .stamp-img{
+  width:100%;
+  height:100%;
+  object-fit: contain;       /* contain = no cropping */
+  object-position: center;
+  transform: scale(1.02) translateZ(1px);
+  opacity:0.98;
 }
 
-/* MOBILE ONLY: Remove Thrust instruction line */
-@media (pointer:coarse), (max-width:760px){
-  .controls{ display:none !important; }
+/* Move the whole control deck using the MASTER DIAL */
+.control-deck{
+  transform: translate(var(--deck-all-x), var(--deck-all-y));
 }
 
-
-/* === MOBILE STAMP LAYOUT TUNING (Asteroids-Pro) === */
-
-/* Hint styling: neon pink (not plain white) */
+/* Keep hint text neon pink (not white) */
 .control-deck .neon-hover-hint{
   color: rgba(255,138,192,0.98);
   text-shadow: 0 0 10px rgba(255,59,130,.35);
 }
 
-/* Hint arrows stay centered */
+/* Make sure hint arrows stay centered */
 .control-deck .neon-hover-hint::after{
   left: 50%;
   transform: translateX(-50%);
 }
 
-/* Point hints at the actual bubbles in the deck */
-.control-deck #hint-left{ left: 16%; transform: translateX(-50%); }
-.control-deck #hint-right{ left: 84%; transform: translateX(-50%); }
-
-/* Top stamps: fill the bubble (no tiny/lowered look) */
-.control-deck #pauseBtn .stamp-img,
-.control-deck #heatBtn .stamp-img{
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
-  transform: scale(1.18) translateZ(1px);
-  opacity: 0.98;
-}
-
-/* Mobile-only layout: bigger top bubbles + bottom bubbles nudged diagonally */
+/* Mobile: size + layout rules */
 @media (max-width:520px){
+
+  /* Deck grid stays the same (top row / bottom row), we’re only swapping BIG vs SMALL */
   .control-deck{
-    grid-template-columns: 120px 1fr 120px;
-    grid-template-rows: 120px 70px;
+    grid-template-columns: var(--deck-top-btn-size) 1fr var(--deck-top-btn-size);
+    grid-template-rows: var(--deck-top-btn-size) var(--deck-bottom-btn-size);
     grid-template-areas:
       "pause touch heat"
       "reset touch music";
     gap:10px;
+    margin-top:2px; /* tuck the deck closer to the game window */
   }
 
-  /* 2x size on the TOP buttons */
-  .control-deck #reset-btn,
-.control-deck #musicBtn{
-  width: var(--deck-top-btn-size);
-  height: var(--deck-top-btn-size);
-}
-
-  /* Bottom buttons stay smaller, but slide diagonally into your marked spots */
+  /* ✅ REVERSE SIZES (per your request)
+     Top row becomes SMALL, bottom row becomes BIG */
   .control-deck #pauseBtn,
   .control-deck #heatBtn{
-  width: var(--deck-bottom-btn-size);
-  height: var(--deck-bottom-btn-size);
-}
-
-  .control-deck #reset-btn{ transform: translate(var(--deck-bottom-shift-x), var(--deck-bottom-shift-y)) translate(var(--deck-reset-x), var(--deck-reset-y)); }  /* SE */
-  .control-deck #musicBtn{ transform: translate(calc(-1 * var(--deck-bottom-shift-x)), var(--deck-bottom-shift-y)) translate(var(--deck-music-x), var(--deck-music-y)); }  /* down + inward */
-
-  /* Touchpad slightly smaller so footer + security banner can breathe */
-  .control-deck .touchpad-plate{
-    width: var(--touchpad-size);
-    height: var(--touchpad-size);
-    border-radius:22px;
-  }
-
-  /* Re-aim hint bubbles for the larger top buttons */
-  .control-deck .neon-hover-hint{ top:-66px; }
-  .control-deck #hint-left{ left: 18%; }
-  .control-deck #hint-right{ left: 82%; }
-}
-
-
-
-@media (max-width:520px){
-
-  .control-deck #pauseBtn,
-  .control-deck #heatBtn{
-    width: var(--deck-top-btn-size);
-    height: var(--deck-top-btn-size);
-  }
-
-  .control-deck #reset-btn,
-  .control-deck #musicBtn{
     width: var(--deck-bottom-btn-size);
     height: var(--deck-bottom-btn-size);
   }
 
+  .control-deck #reset-btn,
+  .control-deck #musicBtn{
+    width: var(--deck-top-btn-size);
+    height: var(--deck-top-btn-size);
+  }
+
+  /* Bottom row (now the BIG buttons) can still be nudged diagonally */
   .control-deck #reset-btn{
-    transform: translate(var(--deck-bottom-shift-x), var(--deck-bottom-shift-y));
+    transform:
+      translate(var(--deck-bottom-shift-x), var(--deck-bottom-shift-y))
+      translate(var(--deck-reset-x), var(--deck-reset-y));
   }
 
   .control-deck #musicBtn{
+    transform:
+      translate(calc(-1 * var(--deck-bottom-shift-x)), var(--deck-bottom-shift-y))
+      translate(var(--deck-music-x), var(--deck-music-y));
+  }
+
+  /* Touchpad sizing + micro nudge */
+  .control-deck .touchpad-plate{
+    width: var(--touchpad-size);
+    height: var(--touchpad-size);
+    border-radius:22px;
+    transform: translate(var(--touchpad-x), var(--touchpad-y));
+  }
+
+  /* Re-aim hint bubbles above the deck */
+  .control-deck .neon-hover-hint{ top:-66px; }
+  .control-deck #hint-left{ left: 18%; transform: translateX(-50%); }
+  .control-deck #hint-right{ left: 82%; transform: translateX(-50%); }
+}
+
+
+deck #musicBtn{
     transform: translate(calc(-1 * var(--deck-bottom-shift-x)), var(--deck-bottom-shift-y));
   }
 
