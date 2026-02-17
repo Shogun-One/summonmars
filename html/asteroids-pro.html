@@ -982,6 +982,120 @@ body.touchpad-off .mobile-touchpad{ display:none !important; }
   .game-shell .bubble-btn{ top:52%; }
 }
 
+
+/* =========================
+   MASTER CONTROL DOCK (Asteroids template)
+   ========================= */
+:root{
+  --dock-btn: 74px;
+  --dock-pad: 190px;
+  --dock-gap: 10px;
+  --dock-offset-y: 0px; /* master dial: move whole dock up/down */
+}
+
+/* Dock sits UNDER the game window (not attached to canvas) */
+.control-dock{
+  width: 100%;
+  max-width: 480px;
+  margin-top: 16px;
+  display: grid;
+  place-items: center;
+  position: relative;
+  transform: translateY(var(--dock-offset-y));
+}
+
+/* 3x3 grid: buttons around the pad (N, W, E, S) */
+.dock-grid{
+  display: grid;
+  grid-template-columns: var(--dock-btn) var(--dock-pad) var(--dock-btn);
+  grid-template-rows: var(--dock-btn) var(--dock-pad) var(--dock-btn);
+  gap: var(--dock-gap);
+  place-items: center;
+}
+
+/* Place each control */
+.control-dock #pauseBtn{ grid-column: 2; grid-row: 1; }
+.control-dock #reset-btn{ grid-column: 1; grid-row: 2; }
+.control-dock .dock-touchpad{ grid-column: 2; grid-row: 2; }
+.control-dock #musicBtn{ grid-column: 3; grid-row: 2; }
+.control-dock #heatBtn{ grid-column: 2; grid-row: 3; }
+
+.control-dock .dock-touchpad,
+.control-dock .mobile-touchpad{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  inset: auto;
+  transform: none;
+  width: 100%;
+}
+
+/* Bubble buttons become NORMAL in the dock (not fixed / not absolute) */
+.control-dock .bubble-btn{
+  position: relative !important;
+  left: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  top: auto !important;
+  transform: none !important;
+  width: var(--dock-btn);
+  height: var(--dock-btn);
+  z-index: 5;
+}
+
+/* Touchpad size */
+.control-dock .touchpad-plate{
+  width: var(--dock-pad);
+  height: var(--dock-pad);
+}
+
+/* Hints: float above the dock; we still use the same IDs */
+.control-dock .neon-hover-hint{
+  position: absolute;
+  bottom: calc(var(--dock-btn) + var(--dock-pad) + (var(--dock-gap) * 2) + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+}
+.control-dock #hint-left{ left: 34%; }
+.control-dock #hint-right{ left: 66%; }
+
+/* Mobile scaling */
+@media (max-width:520px){
+  :root{
+    --dock-btn: 58px;
+    --dock-pad: 150px;
+    --dock-gap: 8px;
+  }
+  .control-dock{ margin-top: 14px; }
+  .control-dock .touch-arrow{ width: 46px; height: 46px; font-size: 20px; }
+}
+
+/* Very short screens: tighten spacing */
+@media (max-height:740px){
+  .control-dock{ margin-top: 10px; }
+}
+
+/* Keep the touchpad hidden when user toggles it OFF */
+body.touchpad-off .control-dock .dock-touchpad{ display:none !important; }
+body.touchpad-off .control-dock .dock-grid{
+  grid-template-columns: var(--dock-btn) var(--dock-btn) var(--dock-btn);
+  grid-template-rows: var(--dock-btn) var(--dock-btn);
+}
+body.touchpad-off .control-dock #pauseBtn{ grid-column: 2; grid-row: 1; }
+body.touchpad-off .control-dock #reset-btn{ grid-column: 1; grid-row: 2; }
+body.touchpad-off .control-dock #musicBtn{ grid-column: 2; grid-row: 2; }
+body.touchpad-off .control-dock #heatBtn{ grid-column: 3; grid-row: 2; }
+
+/* Neutralize old in-canvas positioning rules from the earlier port */
+.game-shell .bubble-btn,
+.game-shell .mobile-touchpad,
+.game-shell #hint-left,
+.game-shell #hint-right{
+  display:none !important;
+}
+
 </style>
 </head>
 
@@ -1030,63 +1144,71 @@ body.touchpad-off .mobile-touchpad{ display:none !important; }
 
     <div class="game-shell">
       <canvas id="game" width="480" height="640"></canvas>
-      
-      <!-- TMNT-style bottom controls (4 bubbles + touchpad) -->
-      <button id="pauseBtn" class="bubble-btn pizza-btn" type="button"
-        aria-label="Pause" title="Pause">
-        <span class="ring flip" aria-hidden="true">
-          <span class="face stamp">
-            <img class="stamp-img" data-asset="images/tmnt/splashleft.png" alt="">
-          </span>
-          <span class="face woofer"></span>
-        </span>
-      </button>
+    </div>
 
-      <button id="reset-btn" class="bubble-btn restart-btn" type="button"
-        aria-label="Restart / Difficulty" title="Restart / Difficulty">
-        <span class="ring flip" aria-hidden="true">
-          <span class="face stamp">
-            <img class="stamp-img" data-asset="images/tmnt/restart-stamp-tmnt.png" alt="">
-          </span>
-          <span class="face woofer"></span>
-        </span>
-      </button>
+    <!-- Master Control Dock (under the game window) -->
+    <div class="control-dock" aria-label="Controls">
+      <div class="dock-grid">
 
-      <button id="musicBtn" class="bubble-btn music-btn" type="button"
-        aria-label="Sound On/Off" title="Sound On/Off">
-        <span class="ring flip" aria-hidden="true">
-          <span class="face stamp">
-            <img class="stamp-img" data-asset="images/tmnt/sound-stamp-tmnt.png" alt="">
+        <button id="pauseBtn" class="bubble-btn pizza-btn dock-btn" type="button"
+          aria-label="Pause" title="Pause">
+          <span class="ring flip" aria-hidden="true">
+            <span class="face stamp">
+              <img class="stamp-img" data-asset="images/tmnt/splashleft.png" alt="">
+            </span>
+            <span class="face woofer"></span>
           </span>
-          <span class="face woofer"></span>
-          <span class="dot-indicator" aria-hidden="true"></span>
-        </span>
-      </button>
+        </button>
 
-      <button id="heatBtn" class="bubble-btn heat-btn" type="button"
-        aria-label="Touchpad On/Off" title="Touchpad On/Off">
-        <span class="ring flip" aria-hidden="true">
-          <span class="face stamp">
-            <img class="stamp-img" data-asset="images/tmnt/splashright.png" alt="">
+        <button id="reset-btn" class="bubble-btn restart-btn dock-btn" type="button"
+          aria-label="Restart / Difficulty" title="Restart / Difficulty">
+          <span class="ring flip" aria-hidden="true">
+            <span class="face stamp">
+              <img class="stamp-img" data-asset="images/tmnt/restart-stamp-tmnt.png" alt="">
+            </span>
+            <span class="face woofer"></span>
           </span>
-          <span class="face woofer"></span>
-        </span>
-      </button>
+        </button>
+
+        <div class="dock-touchpad" aria-hidden="false">
+          <div class="mobile-touchpad">
+            <div id="joystick" class="touchpad-plate" role="application" aria-label="Touchpad">
+              <div class="touch-arrow touch-up" data-dir="up">▲</div>
+              <div class="touch-arrow touch-left" data-dir="left">◀</div>
+              <div class="touch-arrow touch-right" data-dir="right">▶</div>
+              <div class="touch-arrow touch-down" data-dir="down">▼</div>
+            </div>
+          </div>
+        </div>
+
+        <button id="musicBtn" class="bubble-btn music-btn dock-btn" type="button"
+          aria-label="Sound On/Off" title="Sound On/Off">
+          <span class="ring flip" aria-hidden="true">
+            <span class="face stamp">
+              <img class="stamp-img" data-asset="images/tmnt/sound-stamp-tmnt.png" alt="">
+            </span>
+            <span class="face woofer"></span>
+            <span class="dot-indicator" aria-hidden="true"></span>
+          </span>
+        </button>
+
+        <button id="heatBtn" class="bubble-btn heat-btn dock-btn" type="button"
+          aria-label="Touchpad On/Off" title="Touchpad On/Off">
+          <span class="ring flip" aria-hidden="true">
+            <span class="face stamp">
+              <img class="stamp-img" data-asset="images/tmnt/splashright.png" alt="">
+            </span>
+            <span class="face woofer"></span>
+          </span>
+        </button>
+
+      </div>
 
       <!-- Tap hints -->
       <div id="hint-left" class="neon-hover-hint">Tap: Pause</div>
       <div id="hint-right" class="neon-hover-hint">Hold: Fullscreen</div>
+    </div>
 
-      <!-- Touchpad (replaces joystick) -->
-      <div class="mobile-touchpad" aria-hidden="false">
-        <div id="joystick" class="touchpad-plate" role="application" aria-label="Touchpad">
-          <div class="touch-arrow touch-up" data-dir="up">▲</div>
-          <div class="touch-arrow touch-left" data-dir="left">◀</div>
-          <div class="touch-arrow touch-right" data-dir="right">▶</div>
-          <div class="touch-arrow touch-down" data-dir="down">▼</div>
-        </div>
-      </div>      </div>
-    
   </div>
 
   <footer>
