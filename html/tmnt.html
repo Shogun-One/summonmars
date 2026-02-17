@@ -964,6 +964,11 @@ body.music-on .stamp-woofer{
 /* ===== MOBILE (everything in one place) ===== */
 @media (max-width:560px){
 
+   /* ✅ ONLY affects the OUTSIDE splash stamps */
+  :root{
+    --stampSize: 110px;
+  }
+  
   body{
     justify-content:flex-start;
     padding: 10px 10px 90px;
@@ -984,7 +989,13 @@ body.music-on .stamp-woofer{
   .title-sub{ font-size:1.1rem; }
   .subtitle{ font-size:.9rem; }
 
-  .bubble-btn{ bottom:12px; width:52px; height:52px; }
+/* ONLY resize restart + sound on mobile */
+.difficulty-btn,
+.music-btn{
+  bottom:12px;
+  width:68px;
+  height:68px;
+}
   .difficulty-btn{ left:14px; }
   .music-btn{ right:14px; }
   .bubble-btn .label{ bottom:60px; }
