@@ -1096,7 +1096,7 @@ body.touchpad-off .mobile-touchpad{ display:none !important; }
   right:auto !important;
   bottom:auto !important;
   top:auto !important;
-  transform:none !important;
+  transform:none;
   width:74px;
   height:74px;
   z-index:6;
@@ -1108,7 +1108,7 @@ body.touchpad-off .mobile-touchpad{ display:none !important; }
   position:relative !important;
   left:auto !important;
   bottom:auto !important;
-  transform:none !important;
+  transform:none;
   width:100%;
   display:flex;
   align-items:center;
@@ -1237,24 +1237,39 @@ body.touchpad-off .control-deck .mobile-touchpad{ display:none !important; }
     gap:10px;
   }
 
-  /* 2x size on the TOP buttons */
-  .control-deck #reset-btn,
-.control-deck #musicBtn{
-  width: var(--deck-top-btn-size);
-  height: var(--deck-top-btn-size);
-}
-
-  /* Bottom buttons stay smaller, but slide diagonally into your marked spots */
+  /* TOP buttons (big): PAUSE + HEAT */
   .control-deck #pauseBtn,
   .control-deck #heatBtn{
-  width: var(--deck-bottom-btn-size);
-  height: var(--deck-bottom-btn-size);
-}
+    width: var(--deck-top-btn-size);
+    height: var(--deck-top-btn-size);
+  }
+  .control-deck #pauseBtn{ transform: translate(var(--deck-pause-x), var(--deck-pause-y)); }
+  .control-deck #heatBtn{  transform: translate(var(--deck-heat-x),  var(--deck-heat-y)); }
 
-  .control-deck #reset-btn{ transform: translate(var(--deck-bottom-shift-x), var(--deck-bottom-shift-y)) translate(var(--deck-reset-x), var(--deck-reset-y)); }  /* SE */
-  .control-deck #musicBtn{ transform: translate(calc(-1 * var(--deck-bottom-shift-x)), var(--deck-bottom-shift-y)) translate(var(--deck-music-x), var(--deck-music-y)); }  /* down + inward */
+  /* BOTTOM buttons (small): RESET + MUSIC */
+  .control-deck #reset-btn,
+  .control-deck #musicBtn{
+    width: var(--deck-bottom-btn-size);
+    height: var(--deck-bottom-btn-size);
+  }
 
-  /* Touchpad slightly smaller so footer + security banner can breathe */
+  /* Slide bottom buttons diagonally, then apply per-button nudges */
+  .control-deck #reset-btn{
+    transform:
+      translate(var(--deck-bottom-shift-x), var(--deck-bottom-shift-y))
+      translate(var(--deck-reset-x), var(--deck-reset-y));
+  }
+  .control-deck #musicBtn{
+    transform:
+      translate(calc(-1 * var(--deck-bottom-shift-x)), var(--deck-bottom-shift-y))
+      translate(var(--deck-music-x), var(--deck-music-y));
+  }
+
+  /* Touchpad sizing + nudges */
+  .control-deck .mobile-touchpad{
+    margin-top:0;
+    transform: translate(var(--touchpad-x), var(--touchpad-y));
+  }
   .control-deck .touchpad-plate{
     width: var(--touchpad-size);
     height: var(--touchpad-size);
@@ -1266,37 +1281,6 @@ body.touchpad-off .control-deck .mobile-touchpad{ display:none !important; }
   .control-deck #hint-left{ left: 18%; }
   .control-deck #hint-right{ left: 82%; }
 }
-
-
-
-@media (max-width:520px){
-
-  .control-deck #pauseBtn,
-  .control-deck #heatBtn{
-    width: var(--deck-top-btn-size);
-    height: var(--deck-top-btn-size);
-  }
-
-  .control-deck #reset-btn,
-  .control-deck #musicBtn{
-    width: var(--deck-bottom-btn-size);
-    height: var(--deck-bottom-btn-size);
-  }
-
-  .control-deck #reset-btn{
-    transform: translate(var(--deck-bottom-shift-x), var(--deck-bottom-shift-y));
-  }
-
-  .control-deck #musicBtn{
-    transform: translate(calc(-1 * var(--deck-bottom-shift-x)), var(--deck-bottom-shift-y));
-  }
-
-  .control-deck .touchpad-plate{
-    width: var(--touchpad-size);
-    height: var(--touchpad-size);
-  }
-}
-
 </style>
 </head>
 
