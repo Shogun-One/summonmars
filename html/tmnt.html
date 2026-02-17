@@ -378,6 +378,8 @@
   --uiShakeX: 0px;
   --uiShakeY: 0px;
   --bassKick: 0;
+
+  --btn-stamp-scale: 1.10; /* 1.00 = current size. Try 1.08–1.18 */
 }
 
 /* shake + pump only the speaker cone (ring), not the whole bubble */
@@ -1134,7 +1136,7 @@ to { transform: translateY(-5px); } }
   inset:0;
   pointer-events:none;          /* do NOT block button clicks */
   border-radius:999px;
-  overflow:visible;
+  overflow:hidden;
   perspective:700px;
   z-index:2;                    /* above ring */
 }
@@ -1156,7 +1158,8 @@ to { transform: translateY(-5px); } }
   object-fit: contain;
   opacity: .92;
   filter: drop-shadow(0 0 14px rgba(60,255,156,.22));
-  transform: rotateY(0deg);
+  transform: rotateY(0deg) scale(var(--btn-stamp-scale));
+  transform-origin: center;
 }
 
 /* back face: speaker woofer */
@@ -1213,7 +1216,7 @@ to { transform: translateY(-5px); } }
 /* music ON: flip BOTH stamps to woofer */
 body.music-on .btn-stamp-img{
   opacity: 0;
-  transform: rotateY(-180deg);
+  transform: rotateY(-180deg) scale(var(--btn-stamp-scale));
 }
 
 body.music-on .btn-stamp-woofer{
