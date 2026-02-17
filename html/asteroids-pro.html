@@ -27,6 +27,12 @@
 --deck-bottom-btn-size: 60px;   /* RESET + MUSIC (bottom) */
 --touchpad-size: 150px;         /* touchpad plate */
 
+
+
+/* Stamp fill tuning (big buttons) */
+--stamp-top-scale: 1.22;        /* scale for big button stamps */
+--stamp-top-y: -8px;            /* move stamp up (negative = up) */
+--stamp-top-object-y: 40%;      /* object-position Y (smaller = higher) */
 /* ==============================
 🎯 LOCATION DIALS (move stuff)
 ============================== */
@@ -524,6 +530,7 @@
 .bubble-btn .ring.flip .face.stamp .stamp-img{
   width:100%;
   height:100%;
+  display:block;
   object-fit:cover;
   object-position:center;
   transform: scale(1.18) translateZ(1px);
@@ -1207,9 +1214,15 @@ body.touchpad-off .control-deck .mobile-touchpad{ display:none !important; }
 .control-deck #heatBtn .stamp-img{
   width: 100%;
   height: 100%;
+  display:block;
+
+  /* Fill the circle + correct "pushed down" artwork */
   object-fit: cover;
-  object-position: center;
-  transform: scale(1.18) translateZ(1px);
+  object-position: 50% var(--stamp-top-object-y);
+
+  /* translateY first, then scale (keeps it centered while nudging up) */
+  transform: translateY(var(--stamp-top-y)) scale(var(--stamp-top-scale)) translateZ(1px);
+
   opacity: 0.98;
 }
 
