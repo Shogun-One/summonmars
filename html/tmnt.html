@@ -1323,11 +1323,11 @@ body.music-on .btn-stamp-woofer{
 
       <!-- Stealth hold hints (tap shows these) -->
 <div id="hint-left" class="neon-hover-hint" aria-hidden="true">
-  Tap: Restart • Hold 1.5s: Difficulty
+  Tap: Restart | Hold 1 sec: Difficulty
 </div>
 
 <div id="hint-right" class="neon-hover-hint" aria-hidden="true">
-  Tap: Music • Hold 1.5s: Fullscreen
+  Tap: Sound | Hold 1 sec: Fullscreen
 </div>
 
   <div class="mobile-touchpad">
@@ -2646,8 +2646,9 @@ if (!app.__gameOver) {
       // --- TAP & HOLD LOGIC (Stealth Hold Hints) ---
 // Locked, mobile-safe, no ghost clicks, //
 
-    // === MASTER HOLD DURATION HINTS (ms) ===
-const HOLD_DURATION = 1500; // 1.5 seconds
+    // === MASTER // === HOLD + HINT DURATIONS (ms) ===
+const HOLD_DURATION = 1000; // 1.0 second hold threshold
+const HINT_DURATION = 2000; // hint stays visible for 2 seconds
 
 function setupBubbleButton(btnId, hintId, tapAction, holdAction, holdMs = HOLD_DURATION) {
   const btn  = document.getElementById(btnId);
@@ -2704,7 +2705,7 @@ function setupBubbleButton(btnId, hintId, tapAction, holdAction, holdMs = HOLD_D
     hint.__t = setTimeout(() => {
       hint.style.display = "none";
       hint.setAttribute("aria-hidden", "true");
-    }, HOLD_DURATION);
+    }, HINT_DURATION);
   };
 
   const cancelHoldIfMoved = (e) => {
@@ -2758,7 +2759,7 @@ function setupBubbleButton(btnId, hintId, tapAction, holdAction, holdMs = HOLD_D
   btn.addEventListener("pointerleave", clear, { passive: true });
 }
 
-// Left Button: Tap = Restart, Hold (1500ms) = Difficulty
+// Left Button: Tap = Restart, Hold (1000ms) = Difficulty
 setupBubbleButton(
   "difficultyBtn",
   "hint-left",
@@ -2770,7 +2771,7 @@ setupBubbleButton(
   HOLD_DURATION
 );
 
-// Right Button: Tap = Music, Hold (1500ms) = Fullscreen
+// Right Button: Tap = Music, Hold (1000ms) = Fullscreen
 setupBubbleButton(
   "musicBtn",
   "hint-right",
