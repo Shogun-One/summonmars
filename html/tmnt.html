@@ -42,17 +42,26 @@
 --stamp-right-x: 0px;  /* + pushes RIGHT, - pushes LEFT */
 --stamp-right-y: 0px;  /* + pushes DOWN, - pushes UP */
 
-/* !! MOBILE ONLY!! fine tuning (applies under 560px wide) */
---m-diff-x: 50px; /* + pushes RIGHT, - pushes LEFT */
---m-diff-y: -20px; /* + pushes UP (because it's bottom-based), - pushes DOWN */
---m-music-x: 50px; /* + pushes LEFT (because it's right-based), - pushes RIGHT */
---m-music-y: -20px; /* + pushes UP, - pushes DOWN */
-    
---m-stamp-left-x: -50px; /* + pushes RIGHT, - pushes LEFT */
---m-stamp-left-y: 50px; /* + pushes DOWN, - pushes UP */
---m-stamp-right-x: 50px; /* + pushes RIGHT, - pushes LEFT */
---m-stamp-right-y: 50px; /* + pushes DOWN, - pushes UP */
+  /* =========================================================
+       /* =========================================================
+     GLOBAL GAME/UI DIALS (desktop defaults)
+     ========================================================= */
+  --stack-shift: -20px;      /* nudges the whole stack up/down */
+  --dpad-lift: 10px;         /* negative = UP, positive = DOWN */
+  --stamp-lift: 2px;         /* positive = DOWN, negative = UP */
+
+  /* Music pulse outputs (set by JS) */
+  --uiShakeX: 0px;
+  --uiShakeY: 0px;
+  --bassKick: 0;
+
+  /* INSIDE bubble stamps (the small stamp art inside the speaker rim) */
+  --btn-stamp-scale: 1.10;   /* 1.00 = exact fit. Try 1.08–1.18 */
+
+MOBILE MASTER DIALS live in the @media (max-width:560px) :root override below
+     ========================================================= */
 }
+
 
 
   *{ box-sizing:border-box; }
@@ -345,21 +354,7 @@
   .difficulty-btn .dot{
     width:10px;height:10px;border-radius:999px;
     background:rgba(157,255,191,.95);
-    box-shadow:0 0 10px rgba(60,255,156,.55);
-  }
-
-    /* Restart gets its own size + placement */
-.restart-btn{
-  width:28px;
-  height:28px;
-  top:5px;
-  bottom:auto;
-  z-index:1;
-
-  display: none;
- }
-  /* Music bubble (bottom-right) */
-  .music-btn{ right: calc(14px + var(--music-x)); bottom: calc(14px + var(--music-y)); }
+    box-shadow:0 0 10px rgbax + var(--music-y)); }
   .music-btn .dot{
     width:8px;height:8px;border-radius:999px;
     background:rgba(157,255,191,.95);
@@ -995,6 +990,24 @@ body.music-on .stamp-woofer{
    /* ✅ ONLY affects the OUTSIDE splash stamps */
   :root{
     --stampSize: 110px;
+
+    /* =========================================================
+       MOBILE MASTER DIALS 🎛️
+       (Only affects screens <= 560px wide)
+       Tip: small values like 4px, 8px, -6px.
+       ========================================================= */
+
+    /* Small corner bubbles (Restart/Difficulty + Sound) */
+    --m-diff-x: 50px;    /* + pushes RIGHT, - pushes LEFT */
+    --m-diff-y: -20px;   /* + pushes UP (bottom-based), - pushes DOWN */
+    --m-music-x: 50px;   /* + pushes LEFT (right-based), - pushes RIGHT */
+    --m-music-y: -20px;  /* + pushes UP (bottom-based), - pushes DOWN */
+
+    /* Big stamp circles (tile-locked stamps) */
+    --m-stamp-left-x: -50px;   /* + pushes RIGHT, - pushes LEFT */
+    --m-stamp-left-y: 50px;    /* + pushes DOWN, - pushes UP */
+    --m-stamp-right-x: 50px;   /* + pushes RIGHT, - pushes LEFT */
+    --m-stamp-right-y: 50px;   /* + pushes DOWN, - pushes UP */
   }
   
   
@@ -1057,20 +1070,21 @@ body{
 }
 
 .neon-hover-hint{
-  position: fixed;              /* positioned by JS over the tapped bubble */
-  left: 0;
-  top: 0;
+  position:absolute;            /* positioned by JS inside .screen-area */
+  left:0;
+  top:0;
 
   color:#ff2a2a;
   font-family:'Rajdhani', sans-serif;
-  font-weight:700;
+  font-weight:800;
   font-size:.85rem;
   text-transform:uppercase;
+  white-space:nowrap;
 
   background:rgba(0,0,0,.85);
   padding:5px 10px;
   border:1px solid #ff2a2a;
-  border-radius:4px;
+  border-radius:6px;
 
   z-index:10001;
   pointer-events:none;
@@ -1105,7 +1119,6 @@ body{
   from{ transform: translateY(0); }
   to  { transform: translateY(-5px); }
 }
-to { transform: translateY(-5px); } }
 
 /* -- FIRST TRY FOR REPAIR (Grk) */
 /* Force character buttons to receive clicks no matter what */
@@ -2682,6 +2695,10 @@ function setupBubbleButton(btnId, hintId, tapAction, holdAction, holdMs = HOLD_D
     const placeHint = () => {
       const br = btn.getBoundingClientRect();
 
+      // Anchor hints to the game screen-area (prevents desktop offset when wrappers are transformed)
+      const parent = btn.closest('.screen-area') || document.body;
+      const pr = parent.getBoundingClientRect();
+
       // make it measurable
       hint.style.display = "block";
       hint.style.visibility = "hidden";
@@ -2689,16 +2706,18 @@ function setupBubbleButton(btnId, hintId, tapAction, holdAction, holdMs = HOLD_D
       const hr = hint.getBoundingClientRect();
       const pad = 8;
 
-      let x = br.left + (br.width / 2) - (hr.width / 2);
-      let y = br.top - hr.height - 14; // 14px above button
+      // position relative to parent
+      let x = (br.left - pr.left) + (br.width / 2) - (hr.width / 2);
+      let y = (br.top  - pr.top)  - hr.height - 14; // 14px above button
 
-      x = Math.max(pad, Math.min(window.innerWidth - hr.width - pad, x));
-      y = Math.max(pad, y);
+      const maxX = (parent === document.body ? window.innerWidth : parent.clientWidth) - hr.width - pad;
+      const maxY = (parent === document.body ? window.innerHeight : parent.clientHeight) - hr.height - pad;
+
+      x = Math.max(pad, Math.min(maxX, x));
+      y = Math.max(pad, Math.min(maxY, y));
 
       hint.style.left = x + "px";
       hint.style.top  = y + "px";
-      hint.style.right = "auto";
-      hint.style.bottom = "auto";
 
       hint.style.visibility = "visible";
     };
