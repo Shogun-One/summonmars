@@ -12,83 +12,45 @@
 
   <style>
     :root{
-  :root{
-/* ============================================================
-🎛 MASTER DIALS (SAFE + SIMPLE)
+  /* === MASTER CONTROL DIALS === */
+/*  AXIS RULE (px only):
+      +X = RIGHT   | -X = LEFT
+      +Y = DOWN    | -Y = UP
 
-```
- AXIS RULE:
- +X = move RIGHT     | -X = move LEFT
- +Y = move DOWN      | -Y = move UP
-
- QUICK MAP:
-   [ PAUSE ]   [ TOUCHPAD ]   [ HEAT ]
-   [ RESET ]                [ MUSIC ]
-
- BEST PRACTICE:
- - Start with small moves: 6px to 12px
- - Big moves: 18px to 28px
- ============================================================ */
-```
+    Tip: start with ±6px / ±10px. Big moves: ±15px / ±18px.
+*/
 
 /* =========================
 📏 SIZE DIALS (how big)
 ========================= */
-
-/* Top BIG buttons: Pause + Heat */
---deck-top-btn-size: 120px;
-
-/* Bottom buttons: Reset + Music */
---deck-bottom-btn-size: 60px;
-
-/* Touchpad size */
---touchpad-size: 150px;
+--deck-top-btn-size: 120px;     /* PAUSE + HEAT (top) */
+--deck-bottom-btn-size: 60px;   /* RESET + MUSIC (bottom) */
+--touchpad-size: 150px;         /* touchpad plate */
 
 /* ==============================
 🎯 LOCATION DIALS (move stuff)
 ============================== */
-
-/* Move individual buttons */
+/* Individual button nudges */
 --deck-pause-x: 0px;   --deck-pause-y: -15px;
 --deck-heat-x:  0px;   --deck-heat-y:  -15px;
-
 --deck-reset-x: 0px;   --deck-reset-y: -15px;
 --deck-music-x: 0px;   --deck-music-y: -15px;
 
-/* Shared diagonal shift for BOTH bottom buttons
-- Reset uses +X,+Y
-- Music mirrors X: -X,+Y */
+/* Shared diagonal shift for BOTH bottom buttons (separation + down/out)
+   Reset uses  +X,+Y
+   Music mirrors X: -X,+Y */
 --deck-bottom-shift-x: 18px;
 --deck-bottom-shift-y: 18px;
 
-/* Move touchpad */
+/* Touchpad nudge */
 --touchpad-x: 0px;
---touchpad-y: -45px;
+--touchpad-y: -15px;
 
-/* Move the entire game window (shadowbox/game-shell wrapper) */
+/* Whole game window (shadowbox) nudge */
 --shadowbox-x: 0px;
 --shadowbox-y: 0px;
 
-/* =========================
-✅ PRESET SWITCHES
-(Copy ONE preset’s values)
-========================= */
-
-/* PRESET: TIGHT (compact + closer buttons)
---deck-bottom-shift-x: 12px;
---deck-bottom-shift-y: 12px;
---touchpad-y: -6px;
-*/
-
-/* PRESET: ROOMY (more breathing room)
---deck-bottom-shift-x: 22px;
---deck-bottom-shift-y: 22px;
---touchpad-y: 0px;
-*/
-
-/* PRESET: LIFT GAME (raise whole stack slightly)
---shadowbox-y: -10px;
-*/
+/* (end dials) */
 
 /* ============================================================
 🎨 THEME / GAME VARS (leave these alone unless styling)
@@ -101,9 +63,8 @@
 --danger:#ff2a2a;
 --purple:#8a2be2;
 
-/* Audio-reactive speaker bump value (JS updates this) */
 --bassKick:0;
-}
+    }
 
     *{ box-sizing:border-box; }
 
@@ -263,6 +224,7 @@
       display:flex;
       justify-content:center;
       margin-top:.4rem;
+      transform: translate(var(--shadowbox-x), var(--shadowbox-y));
     }
 
     canvas#game{
@@ -564,10 +526,9 @@
   height:100%;
   object-fit:cover;
   object-position:center;
-  transform:scale(1.2) translateZ(1px);
+  transform: scale(1.18) translateZ(1px);
   opacity:0.95;
   filter: drop-shadow(0 0 14px rgba(255,59,130,.18));
-  transform: translateZ(1px);
   user-select:none;
   pointer-events:none;
 }
@@ -954,7 +915,7 @@ body.music-on .bubble-btn .ring.flip .face.woofer{
     }
   
 /* ===== TMNT-style Bubbles (anchored to the GAME WINDOW, not the screen) ===== */
-.game-shell{ position:relative; transform: translate(var(--shadowbox-x), var(--shadowbox-y)); }
+.game-shell{ position:relative; }
 
 /* ===== TAP HINTS (ported from TMNT) ===== */
 .game-shell .neon-hover-hint{
@@ -1116,12 +1077,10 @@ body.touchpad-off .mobile-touchpad{ display:none !important; }
 }
 
 /* Put the four bubbles around the touchpad */
-.control-deck #pauseBtn{
-  transform: translate(var(--deck-pause-x), var(--deck-pause-y)); grid-area:pause; }
+.control-deck #pauseBtn{ grid-area:pause; }
 .control-deck #reset-btn{ grid-area:reset; }
 .control-deck #musicBtn{ grid-area:music; }
-.control-deck #heatBtn{
-  transform: translate(var(--deck-heat-x), var(--deck-heat-y)); grid-area:heat; }
+.control-deck #heatBtn{ grid-area:heat; }
 
 /* Override the global fixed/absolute bubble rules just for the deck */
 .control-deck .bubble-btn{
@@ -1151,7 +1110,6 @@ body.touchpad-off .mobile-touchpad{ display:none !important; }
 }
 
 .control-deck .touchpad-plate{
-  transform: translate(var(--touchpad-x), var(--touchpad-y));
   width:180px;
   height:180px;
   border-radius:28px;
@@ -1174,8 +1132,7 @@ body.touchpad-off .mobile-touchpad{ display:none !important; }
     gap:10px;
   }
   .control-deck .bubble-btn{ width:60px; height:60px; }
-  .control-deck .touchpad-plate{
-  transform: translate(var(--touchpad-x), var(--touchpad-y)); width:156px; height:156px; border-radius:24px; }
+  .control-deck .touchpad-plate{ width:156px; height:156px; border-radius:24px; }
   .control-deck .neon-hover-hint{ top:-54px; font-size:0.74rem; }
 }
 
@@ -1269,9 +1226,8 @@ body.touchpad-off .control-deck .mobile-touchpad{ display:none !important; }
   /* 2x size on the TOP buttons */
   .control-deck #pauseBtn,
   .control-deck #heatBtn{
-  transform: translate(var(--deck-heat-x), var(--deck-heat-y));
-    width:120px;
-    height:120px;
+    width: var(--deck-top-btn-size);
+    height: var(--deck-top-btn-size);
   }
 
   /* Bottom buttons stay smaller, but slide diagonally into your marked spots */
@@ -1280,14 +1236,13 @@ body.touchpad-off .control-deck .mobile-touchpad{ display:none !important; }
     width:60px;
     height:60px;
   }
-  .control-deck #reset-btn{ transform: translate(18px, 18px); }  /* SE */
-  .control-deck #musicBtn{ transform: translate(-18px, 18px); }  /* down + inward */
+  .control-deck #reset-btn{ transform: translate(var(--deck-bottom-shift-x), var(--deck-bottom-shift-y)) translate(var(--deck-reset-x), var(--deck-reset-y)); }  /* SE */
+  .control-deck #musicBtn{ transform: translate(calc(-1 * var(--deck-bottom-shift-x)), var(--deck-bottom-shift-y)) translate(var(--deck-music-x), var(--deck-music-y)); }  /* down + inward */
 
   /* Touchpad slightly smaller so footer + security banner can breathe */
   .control-deck .touchpad-plate{
-  transform: translate(var(--touchpad-x), var(--touchpad-y));
-    width:150px;
-    height:150px;
+    width: var(--touchpad-size);
+    height: var(--touchpad-size);
     border-radius:22px;
   }
 
@@ -1303,7 +1258,6 @@ body.touchpad-off .control-deck .mobile-touchpad{ display:none !important; }
 
   .control-deck #pauseBtn,
   .control-deck #heatBtn{
-  transform: translate(var(--deck-heat-x), var(--deck-heat-y));
     width: var(--deck-top-btn-size);
     height: var(--deck-top-btn-size);
   }
@@ -1315,15 +1269,14 @@ body.touchpad-off .control-deck .mobile-touchpad{ display:none !important; }
   }
 
   .control-deck #reset-btn{
-    transform: translate(var(--deck-bottom-shift-x), var(--deck-bottom-shift-y)) translate(var(--deck-reset-x), var(--deck-reset-y));
+    transform: translate(var(--deck-bottom-shift-x), var(--deck-bottom-shift-y));
   }
 
   .control-deck #musicBtn{
-    transform: translate(calc(-1 * var(--deck-bottom-shift-x)), var(--deck-bottom-shift-y)) translate(var(--deck-music-x), var(--deck-music-y));
+    transform: translate(calc(-1 * var(--deck-bottom-shift-x)), var(--deck-bottom-shift-y));
   }
 
   .control-deck .touchpad-plate{
-  transform: translate(var(--touchpad-x), var(--touchpad-y));
     width: var(--touchpad-size);
     height: var(--touchpad-size);
   }
