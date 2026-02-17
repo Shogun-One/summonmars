@@ -12,150 +12,98 @@
 
   <style>
     :root{
-  /* =======================================================
-   🎛 MASTER CONTROL DIALS – SIZE + POSITION CONTROLS
-   =======================================================
+  :root{
+/* ============================================================
+🎛 MASTER DIALS (SAFE + SIMPLE)
 
-   HOW TO USE:
-   - Positive X moves RIGHT
-   - Negative X moves LEFT
-   - Positive Y moves DOWN
-   - Negative Y moves UP
-   - Values are in px
-   - Safe adjustment range: ±40px before things look weird
+```
+ AXIS RULE:
+ +X = move RIGHT     | -X = move LEFT
+ +Y = move DOWN      | -Y = move UP
 
-   ======================================================= */
+ QUICK MAP:
+   [ PAUSE ]   [ TOUCHPAD ]   [ HEAT ]
+   [ RESET ]                [ MUSIC ]
 
+ BEST PRACTICE:
+ - Start with small moves: 6px to 12px
+ - Big moves: 18px to 28px
+ ============================================================ */
+```
 
 /* =========================
-   📏 SIZE CONTROLS
-   ========================= */
-/* ============================================================
-   🎛 MASTER DIALS (SIZE + LOCATION) – WHAT MOVES WHAT
-   ------------------------------------------------------------
-   RULES:
-   - +X = RIGHT     -X = LEFT
-   - +Y = DOWN      -Y = UP
-   - px units only
-   - Start with small changes (±6px, ±10px)
+📏 SIZE DIALS (how big)
+========================= */
 
-   VISUAL MAP (mobile + desktop control deck):
-       [ PAUSE ]     (TOUCHPAD)     [ HEAT ]
-       [ RESET ]                   [ MUSIC ]
-
-   ============================================================ */
-
-/* -------------------------
-   📏 SIZE DIALS (how big)
-   ------------------------- */
-
-/* Top BIG buttons: PAUSE + HEAT */
+/* Top BIG buttons: Pause + Heat */
 --deck-top-btn-size: 120px;
 
-/* Bottom buttons: RESET + MUSIC */
+/* Bottom buttons: Reset + Music */
 --deck-bottom-btn-size: 60px;
-
-/* Touchpad overall size */
---touchpad-size: 150px;
-
-
-/* ------------------------------------------
-   🎯 LOCATION DIALS (move stuff around)
-   ------------------------------------------ */
-
-/* Move PAUSE button (top-left) */
---deck-pause-x: 0px;
---deck-pause-y: 0px;
-
-/* Move HEAT button (top-right) */
---deck-heat-x: 0px;
---deck-heat-y: 0px;
-
-/* Move RESET button (bottom-left)
-   NOTE: reset ALSO inherits the shared bottom shift dials below */
---deck-reset-x: 0px;
---deck-reset-y: 0px;
-
-/* Move MUSIC button (bottom-right)
-   NOTE: music ALSO inherits the shared bottom shift dials below */
---deck-music-x: 0px;
---deck-music-y: 0px;
-
-/* Shared diagonal shift for BOTH bottom buttons
-   - increases separation + moves them “down/out”
-   - reset goes +X,+Y
-   - music goes -X,+Y (mirrored) */
---deck-bottom-shift-x: 18px;
---deck-bottom-shift-y: 18px;
-
-/* Move TOUCHPAD (center) */
---touchpad-x: 0px;
---touchpad-y: 0px;
-
-/* Move the entire game “shadowbox” (canvas + its wrapper)
-   Use this to lift the whole game area up/down if needed */
---shadowbox-x: 0px;
---shadowbox-y: 0px;
-/* Top two BIG buttons (Pause + Heat) */
---deck-top-btn-size: 120px;
-
-/* Bottom two smaller buttons (Reset + Music) */
---deck-bottom-btn-size: 60px;
-
-/* Default diagonal shift for bottom buttons */
---deck-bottom-shift-x: 18px;   /* Right */
---deck-bottom-shift-y: 18px;   /* Down */
 
 /* Touchpad size */
 --touchpad-size: 150px;
 
+/* ==============================
+🎯 LOCATION DIALS (move stuff)
+============================== */
 
-/* =========================
-   🎯 INDIVIDUAL LOCATION CONTROLS
-   ========================= */
+/* Move individual buttons */
+--deck-pause-x: 0px;   --deck-pause-y: 0px;
+--deck-heat-x:  0px;   --deck-heat-y:  0px;
 
-/* Pause button (top-left) */
---deck-pause-x: 0px;
---deck-pause-y: 0px;
+--deck-reset-x: 0px;   --deck-reset-y: 0px;
+--deck-music-x: 0px;   --deck-music-y: 0px;
 
-/* Reset button (bottom-left) */
---deck-reset-x: 0px;
---deck-reset-y: 0px;
+/* Shared diagonal shift for BOTH bottom buttons
+- Reset uses +X,+Y
+- Music mirrors X: -X,+Y */
+--deck-bottom-shift-x: 18px;
+--deck-bottom-shift-y: 18px;
 
-/* Music button (bottom-right) */
---deck-music-x: 0px;
---deck-music-y: 0px;
-
-/* Heat button (top-right) */
---deck-heat-x: 0px;
---deck-heat-y: 0px;
-
-/* Touchpad (center) */
+/* Move touchpad */
 --touchpad-x: 0px;
 --touchpad-y: 0px;
 
-/* Entire game window (shadowbox shift) */
+/* Move the entire game window (shadowbox/game-shell wrapper) */
 --shadowbox-x: 0px;
 --shadowbox-y: 0px;
 
+/* =========================
+✅ PRESET SWITCHES
+(Copy ONE preset’s values)
+========================= */
 
-  --deck-top-btn-size: 120px;
-  --deck-bottom-btn-size: 60px;
-  --deck-bottom-shift-x: 18px;
-  --deck-bottom-shift-y: 18px;
-  --touchpad-size: 150px;
+/* PRESET: TIGHT (compact + closer buttons)
+--deck-bottom-shift-x: 12px;
+--deck-bottom-shift-y: 12px;
+--touchpad-y: -6px;
+*/
 
+/* PRESET: ROOMY (more breathing room)
+--deck-bottom-shift-x: 22px;
+--deck-bottom-shift-y: 22px;
+--touchpad-y: 0px;
+*/
 
-      --bg1:#05030b;
-      --bg2:#140b2a;
-      --accent:#ff3b82;
-      --accent-soft:#ff8ac0;
-      --hud:#e4e4ff;
-      --danger:#ff2a2a;
-      --purple:#8a2be2;
-    
-      --bassKick:0;
-    }
+/* PRESET: LIFT GAME (raise whole stack slightly)
+--shadowbox-y: -10px;
+*/
+
+/* ============================================================
+🎨 THEME / GAME VARS (leave these alone unless styling)
+============================================================ */
+--bg1:#05030b;
+--bg2:#140b2a;
+--accent:#ff3b82;
+--accent-soft:#ff8ac0;
+--hud:#e4e4ff;
+--danger:#ff2a2a;
+--purple:#8a2be2;
+
+/* Audio-reactive speaker bump value (JS updates this) */
+--bassKick:0;
+}
 
     *{ box-sizing:border-box; }
 
