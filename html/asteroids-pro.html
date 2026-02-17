@@ -1107,9 +1107,8 @@ body.touchpad-off .control-deck .mobile-touchpad{ display:none !important; }
 
   <div class="wrapper">
     <h1>ASTEROID DRIFT</h1>
-    <div class="subtitle">Neon field. Final bosses. Asteroids with loud opinions.</div>
-
-    <div class="controls">
+    <!-- subtitle moved into in-game start overlay -->
+<div class="controls">
       \ Thrust: Bottom Joystick, [↑][↓][←][→], or WASD /
     </div>
 
@@ -1841,6 +1840,8 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
 
     let preStartTimer = 0;
     const PRESTART_MS = 2200;
+    // pre-start overlay style: initial boot vs. post-death respawn
+    let preStartIsInitial = true;
 
     let levelUpTimer = 0;
     let bossIncomingTimer = 0;
@@ -2185,7 +2186,8 @@ function updateBosses(dt){
         running = true;
         levelUpTimer = 900;
       } else {
-        startGracePeriod();
+        preStartIsInitial = true;
+      startGracePeriod();
       }
     }
 
@@ -2569,6 +2571,7 @@ document.addEventListener('visibilitychange', () => { if(document.hidden) resetJ
           ship.exploding = 0;
 
           enemyBullets = [];
+          preStartIsInitial = false;
           startGracePeriod();
         }, 650);
       } else {
@@ -3392,17 +3395,33 @@ if (flashTimer > 0) {
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
 
-      ctx.fillStyle = 'rgba(255,231,255,0.96)';
-      ctx.font = '900 26px Orbitron, system-ui';
-      ctx.fillText("GET READY", width/2, height/2 - 34);
+      if(preStartIsInitial){
+        // Initial boot: bring the vibe INSIDE the game window
+        ctx.fillStyle = 'rgba(228,228,255,0.82)';
+        ctx.font = '700 14px Share Tech Mono, ui-monospace, Menlo, monospace';
+        ctx.fillText("Neon field. Final bosses. Asteroids with loud opinions.", width/2, height/2 - 74);
 
-      ctx.fillStyle = 'rgba(255,138,192,0.92)';
-      ctx.font = '900 40px Orbitron, system-ui';
-      ctx.fillText(String(secs), width/2, height/2 + 10);
+        ctx.fillStyle = 'rgba(255,42,42,0.96)'; // neon red
+        ctx.font = '900 28px Orbitron, system-ui';
+        ctx.fillText("GET READY!", width/2, height/2 - 34);
 
-      ctx.fillStyle = 'rgba(228,228,255,0.75)';
-      ctx.font = '12px system-ui';
-      ctx.fillText("Difficulty: " + dName + " (tap left bubble to change)", width/2, height/2 + 52);
+        ctx.fillStyle = 'rgba(255,138,192,0.92)';
+        ctx.font = '900 40px Orbitron, system-ui';
+        ctx.fillText(String(secs), width/2, height/2 + 10);
+
+        ctx.fillStyle = 'rgba(228,228,255,0.75)';
+        ctx.font = '12px system-ui';
+        ctx.fillText("Difficulty: " + dName + " (hold Restart for Difficulty)", width/2, height/2 + 54);
+      }else{
+        // Post-death respawn: keep it simple
+        ctx.fillStyle = 'rgba(255,231,255,0.96)';
+        ctx.font = '900 26px Orbitron, system-ui';
+        ctx.fillText("GET READY!", width/2, height/2 - 34);
+
+        ctx.fillStyle = 'rgba(255,138,192,0.92)';
+        ctx.font = '900 40px Orbitron, system-ui';
+        ctx.fillText(String(secs), width/2, height/2 + 10);
+      }
 
       ctx.restore();
     }
