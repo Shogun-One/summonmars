@@ -42,15 +42,16 @@
 --stamp-right-x: 0px;  /* + pushes RIGHT, - pushes LEFT */
 --stamp-right-y: 0px;  /* + pushes DOWN, - pushes UP */
 
-/* Mobile-only fine tuning (applies under 560px wide) */
---m-diff-x: 0px;
---m-diff-y: 0px;
---m-music-x: 0px;
---m-music-y: 0px;
---m-stamp-left-x: 0px;
---m-stamp-left-y: 0px;
---m-stamp-right-x: 0px;
---m-stamp-right-y: 0px;
+/* !! MOBILE ONLY!! fine tuning (applies under 560px wide) */
+--m-diff-x: 30px; /* + pushes RIGHT, - pushes LEFT */
+--m-diff-y: -30px; /* + pushes UP (because it's bottom-based), - pushes DOWN */
+--m-music-x: 30px; /* + pushes LEFT (because it's right-based), - pushes RIGHT */
+--m-music-y: -30px; /* + pushes UP, - pushes DOWN */
+    
+--m-stamp-left-x: -60px; /* + pushes RIGHT, - pushes LEFT */
+--m-stamp-left-y: 60px; /* + pushes DOWN, - pushes UP */
+--m-stamp-right-x: -60px; /* + pushes RIGHT, - pushes LEFT */
+--m-stamp-right-y: 60px; /* + pushes DOWN, - pushes UP */
 }
 
 
