@@ -660,12 +660,12 @@ body.music-on .stamp-woofer{
   /* ===== Stamp ↔ Subwoofer Toggle (stamp-sized woofers) ===== */
 
 :root{
-  --tileW: 101px;
-  --tileH: 83px;
   --stampSize: 110px;
+  --stampInset: 18px;     /* distance from shadowbox edge */
+  --stampBottom: 18px;    /* distance from bottom of shadowbox */
 }
 
-/* stamp slot anchor (tile locked + 1.5 tiles down) */
+/* stamp slot anchor: bottom corners of the SHADOWBOX area */
 .stamp-slot.splash{
   position:absolute;
   width: var(--stampSize);
@@ -673,25 +673,30 @@ body.music-on .stamp-woofer{
   pointer-events:none;
   z-index:4;
 
-  top: calc(390px + (1.5 * var(--tileH)) + var(--stamp-lift));
-  transform: translate(-50%, -50%);
+  /* ✅ lock to bottom of the shadowbox area (screen-area) */
+  top: auto;
+  bottom: var(--stampBottom);
+
+  /* ✅ no more tile-center math */
+  transform: translate3d(0,0,0);
+
+  /* keep the nice flip depth */
+  perspective: 700px;
 }
 
-/* tile centers */
-.stamp-slot.splash-right{ left:30%; }
-.stamp-slot.splash-left{ left:70%; }
-
-/* stamp image */
-.stamp-img{
-  position:absolute;
-  inset:0;
-  width:100%;
-  height:100%;
-  object-fit:contain;
-  opacity:.9;
-  transition: opacity 140ms ease;
-  filter: drop-shadow(0 0 14px rgba(60,255,156,.25));
+/* ✅ true corners */
+.stamp-slot.splash-left{
+  left: var(--stampInset);
+  right: auto;
 }
+
+.stamp-slot.splash-right{
+  right: var(--stampInset);
+  left: auto;
+}
+
+/* (keep your existing .stamp-img / .stamp-woofer styles below as-is) */
+
 
 /* ===== OUTSIDE (stamp) woofers: same logic, scaled up ===== */
 .stamp-woofer{
