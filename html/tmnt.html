@@ -1064,6 +1064,108 @@ body.music-on .stamp-woofer{
   z-index: 9999999 !important; /* higher than everything else */
 }
     
+
+/* ===== HARD OFF: bubble button labels (kept in DOM for a11y, but invisible) ===== */
+.bubble-btn .label{ display:none !important; }
+
+/* ===== Button-Top Stamps (sit directly over Restart & Music bubbles) ===== */
+.btn-stamp-wrap{
+  position: fixed;
+  left: 0; top: 0;              /* JS will set exact position */
+  width: 80px; height: 80px;     /* fallback */
+  pointer-events: none;          /* do NOT block button clicks */
+  z-index: 10002;                /* above bubbles (10000), below overlays */
+  border-radius: 999px;
+  overflow: visible;
+  perspective: 700px;
+}
+
+.btn-stamp-img,
+.btn-stamp-woofer{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  border-radius:999px;
+  backface-visibility:hidden;
+  transform-style:preserve-3d;
+  transition: transform 320ms ease, opacity 220ms ease;
+}
+
+/* front face: stamp image */
+.btn-stamp-img{
+  object-fit: contain;
+  opacity: .92;
+  filter: drop-shadow(0 0 14px rgba(60,255,156,.22));
+  transform: rotateY(0deg);
+}
+
+/* back face: speaker woofer */
+.btn-stamp-woofer{
+  opacity: 0;
+  transform: rotateY(180deg) scale(1);
+  border:1px solid rgba(228,228,255,.22);
+  background:
+    radial-gradient(circle at 35% 30%, rgba(255,255,255,.18), rgba(0,0,0,.55) 55%, rgba(0,0,0,.92) 100%);
+  box-shadow:
+    inset 0 0 0 2px rgba(0,0,0,.35),
+    inset 0 0 0 12px rgba(0,0,0,.16),
+    inset 0 0 22px rgba(0,0,0,.55),
+    0 0 22px rgba(60,255,156,.18);
+}
+
+.btn-stamp-woofer::before{
+  content:"";
+  position:absolute;
+  inset: 8px;
+  border-radius:999px;
+  background:
+    radial-gradient(circle at 35% 30%,
+      rgba(255,255,255,.14),
+      rgba(0,0,0,.35) 45%,
+      rgba(0,0,0,.88) 100%);
+  box-shadow:
+    inset 0 0 0 2px rgba(255,255,255,.06),
+    inset 0 0 12px rgba(0,0,0,.55);
+
+  transform: scale(calc(1 + (var(--bassKick) * 0.35)));
+  transition: transform 60ms linear;
+}
+
+.btn-stamp-woofer::after{
+  content:"";
+  position:absolute;
+  inset: 28px;
+  border-radius:999px;
+  background:
+    radial-gradient(circle at 35% 30%,
+      rgba(255,255,255,.22),
+      rgba(0,0,0,.55) 60%,
+      rgba(0,0,0,.92) 100%),
+    repeating-radial-gradient(circle,
+      rgba(255,255,255,.05) 0 1px,
+      rgba(0,0,0,0) 1px 5px);
+  box-shadow:
+    inset 0 0 0 1px rgba(157,255,191,.10);
+
+  transform: scale(calc(1 + (var(--bassKick) * 0.18)));
+}
+
+/* music ON: flip to woofer */
+body.music-on .btn-stamp-img{
+  opacity: 0;
+  transform: rotateY(-180deg);
+}
+
+body.music-on .btn-stamp-woofer{
+  opacity: 1;
+  transform: rotateY(0deg) scale(1);
+}
+
+@media (max-width:560px){
+  .btn-stamp-wrap{ width:52px; height:52px; }
+}
+
 </style>
 
 </head>
@@ -1147,16 +1249,27 @@ body.music-on .stamp-woofer{
       <!-- Difficulty bubble (bottom-left) -->
         <button id="difficultyBtn" class="bubble-btn difficulty-btn" type="button"
         aria-label="Restart" title="Restart">
-        <span class="label">Restart</span>
         <span class="ring"><span class="dot"></span></span>
        </button>
 
         <!-- Music bubble (bottom-right) -->
         <button id="musicBtn" class="bubble-btn music-btn" type="button"
         aria-label="Music On/Off" title="Music On/Off">
-        <span class="label" id="musicLabel">Music Off</span>
         <span class="ring"><span class="dot"></span></span>
       </button>
+
+      <!-- Button-top stamps (over the two bubbles) -->
+      <div id="restartStampWrap" class="btn-stamp-wrap" aria-hidden="true">
+        <img src="/images/tmnt/restart-stamp.png" class="btn-stamp-img" alt="">
+        <div class="btn-stamp-woofer" aria-hidden="true"></div>
+      </div>
+
+      <div id="musicStampWrap" class="btn-stamp-wrap" aria-hidden="true">
+        <img src="/images/tmnt/music-stamp.png" class="btn-stamp-img" alt="">
+        <div class="btn-stamp-woofer" aria-hidden="true"></div>
+      </div>
+
+
 
       <!-- Stealth hold hints (tap shows these) -->
 <div id="hint-left" class="neon-hover-hint" aria-hidden="true">
@@ -1623,7 +1736,36 @@ bassFilter.connect(bassAnalyser);
     const diffLabelEl = document.getElementById('diffLabel');
     const difficultyBtn = document.getElementById('difficultyBtn');
 
-    // Difficulty tiers (same naming as Asteroids)
+    
+
+// =========================
+// Button-top stamp positioning (locks stamps directly over the fixed bubbles)
+// =========================
+const restartStampWrap = document.getElementById('restartStampWrap');
+const musicStampWrap   = document.getElementById('musicStampWrap');
+
+function __syncStampToBtn(wrap, btn){
+  if(!wrap || !btn) return;
+  const r = btn.getBoundingClientRect();
+
+  // Match the bubble's exact on-screen box
+  wrap.style.left   = r.left + 'px';
+  wrap.style.top    = r.top  + 'px';
+  wrap.style.width  = r.width + 'px';
+  wrap.style.height = r.height + 'px';
+}
+
+function syncButtonStamps(){
+  __syncStampToBtn(restartStampWrap, difficultyBtn);
+  __syncStampToBtn(musicStampWrap, musicBtn);
+}
+
+window.addEventListener('resize', () => requestAnimationFrame(syncButtonStamps));
+window.addEventListener('orientationchange', () => requestAnimationFrame(syncButtonStamps));
+// run once after layout settles
+requestAnimationFrame(() => setTimeout(syncButtonStamps, 0));
+
+// Difficulty tiers (same naming as Asteroids)
     const DIFFS = [
       { name: "Sewer",    speedMul: 0.85, extraEnemiesCap: 0, spawnMul: 0.85 },
       { name: "Dojo",     speedMul: 1.00, extraEnemiesCap: 0, spawnMul: 1.00 },
