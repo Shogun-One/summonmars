@@ -669,14 +669,6 @@ body.music-on .stamp-woofer{
     drop-shadow(0 0 28px rgba(60,255,156,.18));
 }
 
-  /* ===== Stamp ↔ Subwoofer Toggle (stamp-sized woofers) ===== */
-
-:root{
-  --tileW: 101px;
-  --tileH: 83px;
-  --stampSize: 150px;
-}
-
 /* stamp slot anchor (tile locked + 1.5 tiles down) */
 .stamp-slot.splash{
   position:absolute;
@@ -1134,7 +1126,6 @@ body{
 .bubble-btn .label{ display:none !important; }
 
 /* ===== Button-Top Stamps (sit directly over Restart & Sound bubbles) ===== */
-.bubble-btn{ position:absolute; } /* ensure bubbles anchor to the screen-area */
 .bubble-btn .ring{ position:relative; z-index:1; }
 
 .btn-stamp-inner{
