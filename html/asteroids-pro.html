@@ -888,46 +888,85 @@ body.music-on .bubble-btn .ring.flip .face.woofer{
   }
 }
 
-/* ===== BOTTOM SPLIT BUBBLES – HALF IN / HALF OUT ===== */
+/* ===== TMNT-style bottom control row (4 bubbles) ===== */
 .game-shell .bubble-btn{
   position:absolute;
   bottom:0;
   z-index:6;
   width:74px;
   height:74px;
-  transform: translateY(50%); /* pushes half outside */
+  transform: translate(-50%, 50%); /* half outside the game window */
 }
 
-/* Left half center */
-.game-shell #reset-btn{
-  left:25%;
-  transform: translate(-50%, 50%);
+/* positions across the bottom */
+.game-shell #pauseBtn{ left:12%; }
+.game-shell #reset-btn{ left:37%; }
+.game-shell #musicBtn{ left:63%; }
+.game-shell #heatBtn{ left:88%; }
+
+/* hints anchor above the two middle bubbles */
+.game-shell #hint-left{ left:37%; transform: translateX(-50%); }
+.game-shell #hint-right{ left:63%; transform: translateX(-50%); }
+
+/* ===== Touchpad (ported from TMNT, replaces joystick) ===== */
+.mobile-touchpad{
+  position:absolute;
+  left:50%;
+  bottom: 86px; /* sits above the bubble row */
+  transform: translateX(-50%);
+  width:100%;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:7;
+  pointer-events:auto;
+  touch-action:none;
 }
 
-/* Right half center */
-.game-shell #musicBtn{
-  left:75%;
-  transform: translate(-50%, 50%);
+.touchpad-plate{
+  width:190px;
+  height:190px;
+  border-radius:28px;
+  background:rgba(0,0,0,.22);
+  box-shadow: 0 0 22px rgba(0,0,0,.55);
+  position:relative;
+  border:1px solid rgba(255,138,192,.22);
 }
 
-/* Label sits beside the button (so it doesn't float off-screen) */
-.game-shell #reset-btn .label{
-  left: calc(100% + 10px);
-  top: 50%;
-  transform: translateY(-50%);
-  bottom: auto;
-}
-.game-shell #musicBtn .label{
-  right: calc(100% + 10px);
-  left: auto;
-  top: 50%;
-  transform: translateY(-50%);
-  bottom: auto;
+.touch-arrow{
+  position:absolute;
+  width:56px;
+  height:56px;
+  display:grid;
+  place-items:center;
+  font-family:'Share Tech Mono', ui-monospace, Menlo, monospace;
+  font-weight:900;
+  font-size:22px;
+  color:rgba(255,231,255,0.92);
+  background:rgba(0,0,0,.18);
+  border-radius:14px;
+  border:1px solid rgba(255,138,192,.18);
+  user-select:none;
+  -webkit-tap-highlight-color: transparent;
 }
 
-/* keep sizes sane */
-.game-shell .bubble-btn{ width:74px; height:74px; }
-.game-shell .bubble-btn .label{ font-size:.72rem; }
+.touch-arrow:active{
+  background:rgba(255,59,130,.12);
+  box-shadow: 0 0 16px rgba(255,59,130,.18);
+}
+
+.touch-up{ top:10px; left:50%; transform:translateX(-50%); }
+.touch-down{ bottom:10px; left:50%; transform:translateX(-50%); }
+.touch-left{ left:10px; top:50%; transform:translateY(-50%); }
+.touch-right{ right:10px; top:50%; transform:translateY(-50%); }
+
+/* show the touchpad on touch devices (or narrow screens) */
+@media (pointer:coarse), (max-width: 760px){
+  .mobile-touchpad{ display:flex; }
+}
+
+/* heat bubble toggles touchpad visibility */
+body.touchpad-off .mobile-touchpad{ display:none !important; }
 
 /* Pink mini controls INSIDE the game window (bottom corners) */
 .game-shell .mini-bubble{
@@ -991,42 +1030,62 @@ body.music-on .bubble-btn .ring.flip .face.woofer{
 
     <div class="game-shell">
       <canvas id="game" width="480" height="640"></canvas>
-      <button id="reset-btn" class="bubble-btn restart-btn" type="button"
-        aria-label="Restart" title="Restart">
-<span class="ring flip" aria-hidden="true">
-  <span class="face stamp">
-    <img class="stamp-img" data-asset="images/asteroids/reset-stamp.png" alt="">
-  </span>
-  <span class="face woofer"></span>
+      
+      <!-- TMNT-style bottom controls (4 bubbles + touchpad) -->
+      <button id="pauseBtn" class="bubble-btn pizza-btn" type="button"
+        aria-label="Pause" title="Pause">
+        <span class="ring flip" aria-hidden="true">
+          <span class="face stamp">
+            <img class="stamp-img" data-asset="images/tmnt/splashleft.png" alt="">
+          </span>
+          <span class="face woofer"></span>
+        </span>
+      </button>
 
-</span>
+      <button id="reset-btn" class="bubble-btn restart-btn" type="button"
+        aria-label="Restart / Difficulty" title="Restart / Difficulty">
+        <span class="ring flip" aria-hidden="true">
+          <span class="face stamp">
+            <img class="stamp-img" data-asset="images/tmnt/restart-stamp-tmnt.png" alt="">
+          </span>
+          <span class="face woofer"></span>
+        </span>
       </button>
 
       <button id="musicBtn" class="bubble-btn music-btn" type="button"
-        aria-label="Music On/Off" title="Music On/Off">
-<span class="ring flip" aria-hidden="true">
-  <span class="face stamp">
-    <img class="stamp-img" data-asset="images/asteroids/sound-stamp.png" alt="">
-  </span>
-  <span class="face woofer"></span>
-  <span class="dot-indicator" aria-hidden="true"></span>
-</span>
+        aria-label="Sound On/Off" title="Sound On/Off">
+        <span class="ring flip" aria-hidden="true">
+          <span class="face stamp">
+            <img class="stamp-img" data-asset="images/tmnt/sound-stamp-tmnt.png" alt="">
+          </span>
+          <span class="face woofer"></span>
+          <span class="dot-indicator" aria-hidden="true"></span>
+        </span>
       </button>
 
-      <!-- Tap hints (ported from TMNT) -->
-      <div id="hint-left" class="neon-hover-hint">Hold for Difficulty</div>
-      <div id="hint-right" class="neon-hover-hint">Hold for Fullscreen</div>
+      <button id="heatBtn" class="bubble-btn heat-btn" type="button"
+        aria-label="Touchpad On/Off" title="Touchpad On/Off">
+        <span class="ring flip" aria-hidden="true">
+          <span class="face stamp">
+            <img class="stamp-img" data-asset="images/tmnt/splashright.png" alt="">
+          </span>
+          <span class="face woofer"></span>
+        </span>
+      </button>
 
-      <div class="center-controls">
-        <button id="pauseBtn" class="mini-bubble mini-pause" type="button" aria-label="Pause">
-          <span class="label">Pause</span>
-          <span class="ring"><span class="icon">II</span></span>
-        </button>
+      <!-- Tap hints -->
+      <div id="hint-left" class="neon-hover-hint">Tap: Pause</div>
+      <div id="hint-right" class="neon-hover-hint">Hold: Fullscreen</div>
 
-      <div id="joystick" class="mini-bubble mini-joystick" role="application" aria-label="Joystick">
-          <div class="stick"></div>
+      <!-- Touchpad (replaces joystick) -->
+      <div class="mobile-touchpad" aria-hidden="false">
+        <div id="joystick" class="touchpad-plate" role="application" aria-label="Touchpad">
+          <div class="touch-arrow touch-up" data-dir="up">▲</div>
+          <div class="touch-arrow touch-left" data-dir="left">◀</div>
+          <div class="touch-arrow touch-right" data-dir="right">▶</div>
+          <div class="touch-arrow touch-down" data-dir="down">▼</div>
         </div>
-      </div>
+      </div>      </div>
     
   </div>
 
@@ -1405,6 +1464,7 @@ document.querySelectorAll('img[data-asset]').forEach((img) => {
     
     setMusicUI(false);
 
+
 // =====================
 // Audio Visual: Bass "Kick" -> CSS --bassKick (ported from TMNT)
 // =====================
@@ -1507,6 +1567,19 @@ function showHint(el, text, ms = 1500){
   const t = setTimeout(() => el.classList.remove('show'), ms);
   if(isLeft) hintTimerL = t; else hintTimerR = t;
 }
+
+
+// Touchpad toggle (Heat stamp bubble)
+const heatBtn = document.getElementById('heatBtn');
+try{
+  // default: touchpad ON
+  document.body.classList.remove('touchpad-off');
+  heatBtn?.addEventListener('click', (e) => {
+    e.preventDefault();
+    const off = document.body.classList.toggle('touchpad-off');
+    showHint(hintLeft, off ? 'Touchpad: OFF' : 'Touchpad: ON');
+  });
+}catch{}
 
 
     
@@ -2089,10 +2162,39 @@ function updateBosses(dt){
     // Pause button + P key
     function setPaused(p){
       paused = p;
-      pauseBtn.classList.toggle('on', paused);
-      pauseBtn.querySelector('.label').textContent = paused ? 'Paused' : 'Pause';
+
+      // UI state (no text label on the TMNT-style bubble)
+      try{
+        if(pauseBtn){
+          pauseBtn.classList.toggle('on', paused);
+          pauseBtn.setAttribute('aria-pressed', paused ? 'true' : 'false');
+        }
+      }catch{}
+
+      // pause/resume game loop
       if(paused) running = false;
       else if(preStartTimer <= 0 && !gameOver) running = true;
+
+      // pause/resume music + bass pulse when pausing the game
+      try{
+        if(setPaused._wasPlaying === undefined) setPaused._wasPlaying = false;
+
+        if(paused){
+          setPaused._wasPlaying = (musicOn && music && !music.paused);
+          if(setPaused._wasPlaying){ music.pause(); }
+          // stop visual pulse while paused
+          pulseActive = false;
+          document.documentElement.style.setProperty('--bassKick','0');
+        }else{
+          if(setPaused._wasPlaying){
+            music.play().catch(()=>{});
+            pulseActive = true;
+          }else{
+            // keep pulse accurate if music is on but browser blocked autoplay
+            pulseActive = musicOn && music && !music.paused;
+          }
+        }
+      }catch{}
     }
 
     pauseBtn.addEventListener('pointerdown', (e) => {
@@ -2248,12 +2350,7 @@ joystickEl?.addEventListener('pointerup', (e) => {
 
   const dt = performance.now() - joyTapStartT;
   const moved = Math.hypot(e.clientX - joyTapStartX, e.clientY - joyTapStartY);
-
-  // Quick tap (and not a drag) = pause toggle
-  if(dt < 220 && moved < 10 && !joyDidMove && !gameOver){
-    setPaused(!paused);
-  }
-
+  // Touchpad only: no tap-to-pause (pause is the pizza bubble)
   resetJoy();
 }, { passive:false });
 
