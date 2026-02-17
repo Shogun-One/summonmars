@@ -1137,6 +1137,77 @@ body.touchpad-off .control-deck .mobile-touchpad{ display:none !important; }
   .controls{ display:none !important; }
 }
 
+
+/* === MOBILE STAMP LAYOUT TUNING (Asteroids-Pro) === */
+
+/* Hint styling: neon pink (not plain white) */
+.control-deck .neon-hover-hint{
+  color: rgba(255,138,192,0.98);
+  text-shadow: 0 0 10px rgba(255,59,130,.35);
+}
+
+/* Hint arrows stay centered */
+.control-deck .neon-hover-hint::after{
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* Point hints at the actual bubbles in the deck */
+.control-deck #hint-left{ left: 16%; transform: translateX(-50%); }
+.control-deck #hint-right{ left: 84%; transform: translateX(-50%); }
+
+/* Top stamps: fill the bubble (no tiny/lowered look) */
+.control-deck #pauseBtn .stamp-img,
+.control-deck #heatBtn .stamp-img{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  transform: scale(1.18) translateZ(1px);
+  opacity: 0.98;
+}
+
+/* Mobile-only layout: bigger top bubbles + bottom bubbles nudged diagonally */
+@media (max-width:520px){
+  .control-deck{
+    grid-template-columns: 120px 1fr 120px;
+    grid-template-rows: 120px 70px;
+    grid-template-areas:
+      "pause touch heat"
+      "reset touch music";
+    gap:10px;
+  }
+
+  /* 2x size on the TOP buttons */
+  .control-deck #pauseBtn,
+  .control-deck #heatBtn{
+    width:120px;
+    height:120px;
+  }
+
+  /* Bottom buttons stay smaller, but slide diagonally into your marked spots */
+  .control-deck #reset-btn,
+  .control-deck #musicBtn{
+    width:60px;
+    height:60px;
+  }
+  .control-deck #reset-btn{ transform: translate(18px, 18px); }  /* SE */
+  .control-deck #musicBtn{ transform: translate(-18px, 18px); }  /* down + inward */
+
+  /* Touchpad slightly smaller so footer + security banner can breathe */
+  .control-deck .touchpad-plate{
+    width:150px;
+    height:150px;
+    border-radius:22px;
+  }
+
+  /* Re-aim hint bubbles for the larger top buttons */
+  .control-deck .neon-hover-hint{ top:-66px; }
+  .control-deck #hint-left{ left: 18%; }
+  .control-deck #hint-right{ left: 82%; }
+}
+
+
 </style>
 </head>
 
