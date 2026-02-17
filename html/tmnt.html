@@ -1319,11 +1319,11 @@ body.music-on .btn-stamp-woofer{
 
       <!-- Stealth hold hints (tap shows these) -->
 <div id="hint-left" class="neon-hover-hint" aria-hidden="true">
-  Tap: Restart • Hold 0.5s: Difficulty
+  Tap: Restart • Hold 1.1s: Difficulty
 </div>
 
 <div id="hint-right" class="neon-hover-hint" aria-hidden="true">
-  Tap: Music • Hold 0.5: Fullscreen
+  Tap: Music • Hold 1.1: Fullscreen
 </div>
 
   <div class="mobile-touchpad">
@@ -2640,51 +2640,91 @@ if (!app.__gameOver) {
 })();
 
       // --- TAP & HOLD LOGIC (Stealth Hold Hints) ---
-function setupBubbleButton(btnId, hintId, tapAction, holdAction, holdMs = 500) {
+// Locked, mobile-safe, no ghost clicks, hold = 1100ms
+
+function setupBubbleButton(btnId, hintId, tapAction, holdAction, holdMs = 1100) {
   const btn  = document.getElementById(btnId);
   const hint = document.getElementById(hintId);
   if (!btn) return;
 
+  // Hard lock: prevent any native click from doing extra stuff
+  btn.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+  }, { passive: false });
+
   let timer = null;
   let holdFired = false;
+  let startX = 0, startY = 0;
+
+  const clear = () => {
+    if (timer) clearTimeout(timer);
+    timer = null;
+  };
 
   const showHint = () => {
+    if (!hint) return;
     hint.style.display = "block";
+    hint.setAttribute("aria-hidden", "false");
     clearTimeout(hint.__t);
-    hint.__t = setTimeout(() => { hint.style.display = "none"; }, 1500);
+    hint.__t = setTimeout(() => {
+      hint.style.display = "none";
+      hint.setAttribute("aria-hidden", "true");
+    }, 1100);
+  };
+
+  const cancelHoldIfMoved = (e) => {
+    const dx = Math.abs((e.clientX || 0) - startX);
+    const dy = Math.abs((e.clientY || 0) - startY);
+    // small movement tolerance to avoid accidental holds while swiping
+    if (dx > 10 || dy > 10) clear();
   };
 
   btn.addEventListener("pointerdown", (e) => {
     e.preventDefault();
-    holdFired = false;
+    e.stopPropagation();
 
-    // keep this interaction contained
+    holdFired = false;
+    startX = e.clientX || 0;
+    startY = e.clientY || 0;
+
+    // capture so we reliably get pointerup
     btn.setPointerCapture?.(e.pointerId);
 
-    clearTimeout(timer);
+    clear();
     timer = setTimeout(() => {
       holdFired = true;
-      holdAction?.();
-      // Optional: uncomment if you ALSO want the hint after holding:
+      try { holdAction?.(); } catch {}
+      // (optional) if you want hint on hold too, uncomment:
       // showHint();
     }, holdMs);
   }, { passive: false });
 
+  btn.addEventListener("pointermove", (e) => {
+    if (!timer) return;
+    cancelHoldIfMoved(e);
+  }, { passive: true });
+
   btn.addEventListener("pointerup", (e) => {
     e.preventDefault();
-    clearTimeout(timer);
+    e.stopPropagation();
 
+    clear();
+
+    // tap = action + show hint
     if (!holdFired) {
-      tapAction?.();   // normal behavior first
-      showHint();      // then reveal the “secret hold” hint
+      try { tapAction?.(); } catch {}
+      showHint();
     }
   }, { passive: false });
 
-  btn.addEventListener("pointercancel", () => clearTimeout(timer));
-  btn.addEventListener("pointerleave", () => clearTimeout(timer));
+  // anything that breaks the gesture cancels the hold
+  btn.addEventListener("pointercancel", clear, { passive: true });
+  btn.addEventListener("lostpointercapture", clear, { passive: true });
+  btn.addEventListener("pointerleave", clear, { passive: true });
 }
 
-// Left Button: Tap = Restart, Hold = Difficulty (stealth)
+// Left Button: Tap = Restart, Hold (1100ms) = Difficulty
 setupBubbleButton(
   "difficultyBtn",
   "hint-left",
@@ -2692,17 +2732,18 @@ setupBubbleButton(
   () => {
     diffIndex = (diffIndex + 1) % DIFFS.length;
     applyDifficultyUI();
-  }
+  },
+  1100
 );
 
-// Right Button: Tap = Music, Hold = Fullscreen (same pattern)
+// Right Button: Tap = Music, Hold (1100ms) = Fullscreen
 setupBubbleButton(
   "musicBtn",
   "hint-right",
   () => { toggleMusic(); },
-  () => { toggleFullscreen(); }
+  () => { toggleFullscreen(); },
+  1100
 );
-
     
   </script>
   
