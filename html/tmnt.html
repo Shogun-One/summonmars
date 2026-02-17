@@ -24,8 +24,35 @@
   /* NEW: DPAD geometry so logo can lock above it */
   --dpad-bottom: 88px;
   --dpad-size: 190px;
-  --logo-gap: 14px; /* space between dpad and logo */
+  --logo-gap: 14px; /* space between dpad and logo *//* =========================================================
+   MASTER DIALS (layout tuning)
+   Tip: use small values like 4px, 8px, -6px.
+   Desktop is "default"; Mobile overrides are in the @media block.
+   ========================================================= */
+
+/* Small corner bubbles (Restart/Difficulty + Sound) */
+--diff-x: 0px;   /* + pushes RIGHT, - pushes LEFT */
+--diff-y: 0px;   /* + pushes UP (because it's bottom-based), - pushes DOWN */
+--music-x: 0px;  /* + pushes LEFT (because it's right-based), - pushes RIGHT */
+--music-y: 0px;  /* + pushes UP, - pushes DOWN */
+
+/* Big stamp circles (tile-locked stamps) */
+--stamp-left-x: 0px;   /* + pushes RIGHT, - pushes LEFT */
+--stamp-left-y: 0px;   /* + pushes DOWN, - pushes UP */
+--stamp-right-x: 0px;  /* + pushes RIGHT, - pushes LEFT */
+--stamp-right-y: 0px;  /* + pushes DOWN, - pushes UP */
+
+/* Mobile-only fine tuning (applies under 560px wide) */
+--m-diff-x: 0px;
+--m-diff-y: 0px;
+--m-music-x: 0px;
+--m-music-y: 0px;
+--m-stamp-left-x: 0px;
+--m-stamp-left-y: 0px;
+--m-stamp-right-x: 0px;
+--m-stamp-right-y: 0px;
 }
+
 
   *{ box-sizing:border-box; }
 
@@ -312,9 +339,8 @@
     opacity:.95;
     pointer-events:none;
   }
-
   /* Difficulty bubble (bottom-left) */
-  .difficulty-btn{ left:14px; }
+  .difficulty-btn{ left: calc(14px + var(--diff-x)); bottom: calc(14px + var(--diff-y)); }
   .difficulty-btn .dot{
     width:10px;height:10px;border-radius:999px;
     background:rgba(157,255,191,.95);
@@ -331,13 +357,8 @@
 
   display: none;
  }
-
-
-
-
   /* Music bubble (bottom-right) */
-  .music-btn{ right:14px; }
-
+  .music-btn{ right: calc(14px + var(--music-x)); bottom: calc(14px + var(--music-y)); }
   .music-btn .dot{
     width:8px;height:8px;border-radius:999px;
     background:rgba(157,255,191,.95);
@@ -674,13 +695,17 @@ body.music-on .stamp-woofer{
   z-index:4;
 
   top: calc(390px + (1.5 * var(--tileH)) + var(--stamp-lift));
-  transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%) translate3d(var(--stampOffX, 0px), var(--stampOffY, 0px), 0);
 }
 
 /* tile centers */
 .stamp-slot.splash-right{ left:30%; }
 .stamp-slot.splash-left{ left:70%; }
 
+
+/* per-stamp offset hooks (used by MASTER DIALS) */
+.stamp-slot.splash-left{ --stampOffX: var(--stamp-left-x); --stampOffY: var(--stamp-left-y); }
+.stamp-slot.splash-right{ --stampOffX: var(--stamp-right-x); --stampOffY: var(--stamp-right-y); }
 /* stamp image */
 .stamp-img{
   position:absolute;
@@ -763,7 +788,7 @@ body.music-on .stamp-woofer{
 /* give the stamp slot 3D depth + keep your tile-lock translate */
 .stamp-slot.splash{
   perspective: 700px;
-  transform: translate(-50%, -50%) translate3d(var(--uiShakeX), var(--uiShakeY), 0);
+  transform: translate(-50%, -50%) translate3d(var(--stampOffX, 0px), var(--stampOffY, 0px), 0) translate3d(var(--uiShakeX), var(--uiShakeY), 0);
 }
 
 /* both faces flip smoothly */
@@ -969,7 +994,11 @@ body.music-on .stamp-woofer{
     --stampSize: 110px;
   }
   
-  body{
+  
+  /* MASTER DIALS (mobile): big stamp offsets */
+  .stamp-slot.splash-left{ --stampOffX: var(--m-stamp-left-x); --stampOffY: var(--m-stamp-left-y); }
+  .stamp-slot.splash-right{ --stampOffX: var(--m-stamp-right-x); --stampOffY: var(--m-stamp-right-y); }
+body{
     justify-content:flex-start;
     padding: 10px 10px 90px;
   }
@@ -992,13 +1021,13 @@ body.music-on .stamp-woofer{
 /* ONLY resize restart + sound on mobile */
 .difficulty-btn,
 .music-btn{
-  bottom:12px;
   width:78px;
   height:78px;
 }
-  .difficulty-btn{ left:34px; }
-  .music-btn{ right:34px; }
-  .bubble-btn .label{ bottom:60px; }
+  /* MASTER DIALS (mobile): small bubble offsets */
+  .difficulty-btn{ left: calc(34px + var(--m-diff-x)); bottom: calc(-78px + var(--m-diff-y)); }
+  .music-btn{ right: calc(34px + var(--m-music-x)); bottom: calc(-78px + var(--m-music-y)); }
+.bubble-btn .label{ bottom:60px; }
 
   .security-banner{ bottom:10px; font-size:.7rem; }
 
@@ -1013,20 +1042,14 @@ body.music-on .stamp-woofer{
   .stamp-slot.splash{
     top: auto !important;
     bottom: -6px !important;
-    transform: translate3d(var(--uiShakeX), var(--uiShakeY), 0) !important;
-  }
+    transform: translate3d(var(--stampOffX, 0px), var(--stampOffY, 0px), 0) translate3d(var(--uiShakeX), var(--uiShakeY), 0) !important;
+}
   .stamp-slot.splash-left{
     left: 34px !important;
   }
   .stamp-slot.splash-right{
     left: auto !important;
     right: 34px !important;
-  }
-
-  /* Move the small bubbles down into the old stamp zone */
-  .difficulty-btn,
-  .music-btn{
-    bottom: -78px !important; /* tune if you want more/less drop */
   }
 }
 
