@@ -961,18 +961,6 @@ body.music-on .stamp-woofer{
   --pressActiveX:6px;
 }
 
-/* Pull ONLY difficulty + music OUT of game-shell */
-.difficulty-btn,
-.music-btn{
-  position: fixed !important;
-  bottom: 22px !important;
-  z-index: 10000;
-}
-
-.difficulty-btn{ left: 14px !important; }
-.music-btn{ right: 14px !important; }
-
-
 /* ===== MOBILE (everything in one place) ===== */
 @media (max-width:560px){
 
@@ -1068,16 +1056,18 @@ body.music-on .stamp-woofer{
 /* ===== HARD OFF: bubble button labels (kept in DOM for a11y, but invisible) ===== */
 .bubble-btn .label{ display:none !important; }
 
-/* ===== Button-Top Stamps (sit directly over Restart & Music bubbles) ===== */
-.btn-stamp-wrap{
-  position: fixed;
-  left: 0; top: 0;              /* JS will set exact position */
-  width: 80px; height: 80px;     /* fallback */
-  pointer-events: none;          /* do NOT block button clicks */
-  z-index: 10002;                /* above bubbles (10000), below overlays */
-  border-radius: 999px;
-  overflow: visible;
-  perspective: 700px;
+/* ===== Button-Top Stamps (sit directly over Restart & Sound bubbles) ===== */
+.bubble-btn{ position:absolute; } /* ensure bubbles anchor to the screen-area */
+.bubble-btn .ring{ position:relative; z-index:1; }
+
+.btn-stamp-inner{
+  position:absolute;
+  inset:0;
+  pointer-events:none;          /* do NOT block button clicks */
+  border-radius:999px;
+  overflow:visible;
+  perspective:700px;
+  z-index:2;                    /* above ring */
 }
 
 .btn-stamp-img,
@@ -1151,7 +1141,7 @@ body.music-on .stamp-woofer{
   transform: scale(calc(1 + (var(--bassKick) * 0.18)));
 }
 
-/* music ON: flip to woofer */
+/* music ON: flip BOTH stamps to woofer */
 body.music-on .btn-stamp-img{
   opacity: 0;
   transform: rotateY(-180deg);
@@ -1160,10 +1150,6 @@ body.music-on .btn-stamp-img{
 body.music-on .btn-stamp-woofer{
   opacity: 1;
   transform: rotateY(0deg) scale(1);
-}
-
-@media (max-width:560px){
-  .btn-stamp-wrap{ width:52px; height:52px; }
 }
 
 </style>
@@ -1248,21 +1234,24 @@ body.music-on .btn-stamp-woofer{
 
       <!-- Difficulty bubble (bottom-left) -->
         <button id="difficultyBtn" class="bubble-btn difficulty-btn" type="button"
-  aria-label="Restart" title="Restart">
+  aria-label="Restart / Difficulty" title="Restart / Difficulty">
   <span class="ring"><span class="dot"></span></span>
 
-  <!-- stamp overlay -->
-  <img class="btn-stamp-overlay" src="/images/tmnt/restart-stamp-tmnt.png" alt="">
+  <span class="btn-stamp-inner" aria-hidden="true">
+    <img class="btn-stamp-img" src="/images/tmnt/restart-stamp.png" alt="">
+    <span class="btn-stamp-woofer" aria-hidden="true"></span>
+  </span>
 </button>
 
 
         <button id="musicBtn" class="bubble-btn music-btn" type="button"
-  aria-label="Music On/Off" title="Music On/Off">
+  aria-label="Sound On/Off" title="Sound On/Off">
   <span class="ring"><span class="dot"></span></span>
 
-  <!-- stamp overlay -->
-  <img class="btn-stamp-overlay" src="/images/tmnt/sound-stamp-tmnt.png" alt="">
-</button>
+  <span class="btn-stamp-inner" aria-hidden="true">
+    <img class="btn-stamp-img" src="/images/tmnt/music-stamp.png" alt="">
+    <span class="btn-stamp-woofer" aria-hidden="true"></span>
+  </span>
 </button>
 
       <!-- Stealth hold hints (tap shows these) -->
@@ -1732,32 +1721,6 @@ bassFilter.connect(bassAnalyser);
 
     
 
-// =========================
-// Button-top stamp positioning (locks stamps directly over the fixed bubbles)
-// =========================
-const restartStampWrap = document.getElementById('restartStampWrap');
-const musicStampWrap   = document.getElementById('musicStampWrap');
-
-function __syncStampToBtn(wrap, btn){
-  if(!wrap || !btn) return;
-  const r = btn.getBoundingClientRect();
-
-  // Match the bubble's exact on-screen box
-  wrap.style.left   = r.left + 'px';
-  wrap.style.top    = r.top  + 'px';
-  wrap.style.width  = r.width + 'px';
-  wrap.style.height = r.height + 'px';
-}
-
-function syncButtonStamps(){
-  __syncStampToBtn(restartStampWrap, difficultyBtn);
-  __syncStampToBtn(musicStampWrap, musicBtn);
-}
-
-window.addEventListener('resize', () => requestAnimationFrame(syncButtonStamps));
-window.addEventListener('orientationchange', () => requestAnimationFrame(syncButtonStamps));
-// run once after layout settles
-requestAnimationFrame(() => setTimeout(syncButtonStamps, 0));
 
 // Difficulty tiers (same naming as Asteroids)
     const DIFFS = [
