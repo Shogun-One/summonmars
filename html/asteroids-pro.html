@@ -13,6 +13,25 @@
   <style>
     :root{
   /* === MASTER CONTROL DIALS === */
+  /* === MASTER LOCATION DIALS (movement only) === */
+  --deck-pause-x: 0px;
+  --deck-pause-y: 0px;
+
+  --deck-reset-x: 0px;
+  --deck-reset-y: 0px;
+
+  --deck-music-x: 0px;
+  --deck-music-y: 0px;
+
+  --deck-heat-x: 0px;
+  --deck-heat-y: 0px;
+
+  --touchpad-x: 0px;
+  --touchpad-y: 0px;
+
+  --shadowbox-x: 0px;
+  --shadowbox-y: 0px;
+
   --deck-top-btn-size: 120px;
   --deck-bottom-btn-size: 60px;
   --deck-bottom-shift-x: 18px;
@@ -880,7 +899,7 @@ body.music-on .bubble-btn .ring.flip .face.woofer{
     }
   
 /* ===== TMNT-style Bubbles (anchored to the GAME WINDOW, not the screen) ===== */
-.game-shell{ position:relative; }
+.game-shell{ position:relative; transform: translate(var(--shadowbox-x), var(--shadowbox-y)); }
 
 /* ===== TAP HINTS (ported from TMNT) ===== */
 .game-shell .neon-hover-hint{
@@ -1042,10 +1061,12 @@ body.touchpad-off .mobile-touchpad{ display:none !important; }
 }
 
 /* Put the four bubbles around the touchpad */
-.control-deck #pauseBtn{ grid-area:pause; }
+.control-deck #pauseBtn{
+  transform: translate(var(--deck-pause-x), var(--deck-pause-y)); grid-area:pause; }
 .control-deck #reset-btn{ grid-area:reset; }
 .control-deck #musicBtn{ grid-area:music; }
-.control-deck #heatBtn{ grid-area:heat; }
+.control-deck #heatBtn{
+  transform: translate(var(--deck-heat-x), var(--deck-heat-y)); grid-area:heat; }
 
 /* Override the global fixed/absolute bubble rules just for the deck */
 .control-deck .bubble-btn{
@@ -1075,6 +1096,7 @@ body.touchpad-off .mobile-touchpad{ display:none !important; }
 }
 
 .control-deck .touchpad-plate{
+  transform: translate(var(--touchpad-x), var(--touchpad-y));
   width:180px;
   height:180px;
   border-radius:28px;
@@ -1097,7 +1119,8 @@ body.touchpad-off .mobile-touchpad{ display:none !important; }
     gap:10px;
   }
   .control-deck .bubble-btn{ width:60px; height:60px; }
-  .control-deck .touchpad-plate{ width:156px; height:156px; border-radius:24px; }
+  .control-deck .touchpad-plate{
+  transform: translate(var(--touchpad-x), var(--touchpad-y)); width:156px; height:156px; border-radius:24px; }
   .control-deck .neon-hover-hint{ top:-54px; font-size:0.74rem; }
 }
 
@@ -1191,6 +1214,7 @@ body.touchpad-off .control-deck .mobile-touchpad{ display:none !important; }
   /* 2x size on the TOP buttons */
   .control-deck #pauseBtn,
   .control-deck #heatBtn{
+  transform: translate(var(--deck-heat-x), var(--deck-heat-y));
     width:120px;
     height:120px;
   }
@@ -1206,6 +1230,7 @@ body.touchpad-off .control-deck .mobile-touchpad{ display:none !important; }
 
   /* Touchpad slightly smaller so footer + security banner can breathe */
   .control-deck .touchpad-plate{
+  transform: translate(var(--touchpad-x), var(--touchpad-y));
     width:150px;
     height:150px;
     border-radius:22px;
@@ -1223,6 +1248,7 @@ body.touchpad-off .control-deck .mobile-touchpad{ display:none !important; }
 
   .control-deck #pauseBtn,
   .control-deck #heatBtn{
+  transform: translate(var(--deck-heat-x), var(--deck-heat-y));
     width: var(--deck-top-btn-size);
     height: var(--deck-top-btn-size);
   }
@@ -1234,14 +1260,15 @@ body.touchpad-off .control-deck .mobile-touchpad{ display:none !important; }
   }
 
   .control-deck #reset-btn{
-    transform: translate(var(--deck-bottom-shift-x), var(--deck-bottom-shift-y));
+    transform: translate(var(--deck-bottom-shift-x), var(--deck-bottom-shift-y)) translate(var(--deck-reset-x), var(--deck-reset-y));
   }
 
   .control-deck #musicBtn{
-    transform: translate(calc(-1 * var(--deck-bottom-shift-x)), var(--deck-bottom-shift-y));
+    transform: translate(calc(-1 * var(--deck-bottom-shift-x)), var(--deck-bottom-shift-y)) translate(var(--deck-music-x), var(--deck-music-y));
   }
 
   .control-deck .touchpad-plate{
+  transform: translate(var(--touchpad-x), var(--touchpad-y));
     width: var(--touchpad-size);
     height: var(--touchpad-size);
   }
