@@ -42,16 +42,15 @@
 --stamp-right-x: 0px;  /* + pushes RIGHT, - pushes LEFT */
 --stamp-right-y: 0px;  /* + pushes DOWN, - pushes UP */
 
-/* !! MOBILE ONLY!! fine tuning (applies under 560px wide) */
---m-diff-x: 50px; /* + pushes RIGHT, - pushes LEFT */
---m-diff-y: -20px; /* + pushes UP (because it's bottom-based), - pushes DOWN */
---m-music-x: 50px; /* + pushes LEFT (because it's right-based), - pushes RIGHT */
---m-music-y: -20px; /* + pushes UP, - pushes DOWN */
-    
---m-stamp-left-x: -50px; /* + pushes RIGHT, - pushes LEFT */
---m-stamp-left-y: 50px; /* + pushes DOWN, - pushes UP */
---m-stamp-right-x: 50px; /* + pushes RIGHT, - pushes LEFT */
---m-stamp-right-y: 50px; /* + pushes DOWN, - pushes UP */
+/* Mobile-only fine tuning (applies under 560px wide) */
+--m-diff-x: 0px;
+--m-diff-y: 0px;
+--m-music-x: 0px;
+--m-music-y: 0px;
+--m-stamp-left-x: 0px;
+--m-stamp-left-y: 0px;
+--m-stamp-right-x: 0px;
+--m-stamp-right-y: 0px;
 }
 
 
@@ -1030,6 +1029,11 @@ body{
   .music-btn{ right: calc(34px + var(--m-music-x)); bottom: calc(-78px + var(--m-music-y)); }
 .bubble-btn .label{ bottom:60px; }
 
+  /* MASTER DIALS (mobile): hint popups follow the swapped buttons */
+  #hint-left{ left: calc(34px + var(--m-diff-x)); bottom: calc(-78px + var(--m-diff-y) + 92px); }
+  #hint-right{ right: calc(34px + var(--m-music-x)); bottom: calc(-78px + var(--m-music-y) + 92px); }
+
+
   .security-banner{ bottom:10px; font-size:.7rem; }
 
   h1{ line-height:1.1; }
@@ -1054,24 +1058,23 @@ body{
   }
 }
 
-.neon-hover-hint {
-    position: fixed;
-    bottom: 85px;
-    color: #ff2a2a;
-    font-family: 'Rajdhani', sans-serif;
-    font-weight: 700;
-    font-size: 0.85rem;
-    text-transform: uppercase;
-    background: rgba(0, 0, 0, 0.85);
-    padding: 5px 10px;
-    border: 1px solid #ff2a2a;
-    border-radius: 4px;
-    z-index: 10001;
-    pointer-events: none;
-    display: none;
-    text-shadow: 0 0 8px #ff2a2a;
-    box-shadow: 0 0 10px rgba(255, 42, 42, 0.5);
-    animation: hintFloat 0.5s infinite alternate;
+.neon-hover-hint{
+  position:absolute;          /* anchor inside .screen-area so it follows the moved buttons */
+  color:#ff2a2a;
+  font-family:'Rajdhani', sans-serif;
+  font-weight:700;
+  font-size:.85rem;
+  text-transform:uppercase;
+  background:rgba(0,0,0,.85);
+  padding:5px 10px;
+  border:1px solid #ff2a2a;
+  border-radius:4px;
+  z-index:10001;
+  pointer-events:none;
+  display:none;
+  text-shadow:0 0 8px #ff2a2a;
+  box-shadow:0 0 10px rgba(255,42,42,.5);
+  animation: hintFloat .5s infinite alternate;
 }
 
     /* little pointer arrow */
@@ -1092,8 +1095,8 @@ body{
   right:22px;
 }
 
-#hint-left { left: 14px; }
-#hint-right { right: 14px; }
+#hint-left{ left: calc(14px + var(--diff-x)); bottom: calc(14px + var(--diff-y) + 92px); }
+#hint-right{ right: calc(14px + var(--music-x)); bottom: calc(14px + var(--music-y) + 92px); }
 @keyframes hintFloat { from { transform: translateY(0); } to { transform: translateY(-5px); } }
 
 /* -- FIRST TRY FOR REPAIR (Grk) */
