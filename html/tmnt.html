@@ -2637,7 +2637,10 @@ if (!app.__gameOver) {
 })();
 
       // --- TAP & HOLD LOGIC (Stealth Hold Hints) ---
-// Locked, mobile-safe, no ghost clicks, hold = 1100ms
+// Locked, mobile-safe, no ghost clicks, //
+
+    // === MASTER HOLD DURATION HINTS (ms) ===
+const HOLD_DURATION = 1500; // 1.5 seconds
 
 function setupBubbleButton(btnId, hintId, tapAction, holdAction, holdMs = 1100) {
   const btn  = document.getElementById(btnId);
@@ -2667,7 +2670,7 @@ function setupBubbleButton(btnId, hintId, tapAction, holdAction, holdMs = 1100) 
     hint.__t = setTimeout(() => {
       hint.style.display = "none";
       hint.setAttribute("aria-hidden", "true");
-    }, 1100);
+    }, HOLD_DURATION);
   };
 
   const cancelHoldIfMoved = (e) => {
@@ -2730,7 +2733,7 @@ setupBubbleButton(
     diffIndex = (diffIndex + 1) % DIFFS.length;
     applyDifficultyUI();
   },
-  1100
+  HOLD_DURATION
 );
 
 // Right Button: Tap = Music, Hold (1100ms) = Fullscreen
