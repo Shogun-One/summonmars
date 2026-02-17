@@ -1570,7 +1570,7 @@ let fsHoldFired = false;
     function setMusicUI(on){
   musicBtn.classList.toggle('on', on);
   musicBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
-  musicLabel.textContent = on ? 'Music On' : 'Music Off';
+  if (musicLabel) musicLabel.textContent = on ? 'Music On' : 'Music Off';
   document.body.classList.toggle('music-on', on);
 }
     setMusicUI(false);
@@ -2065,6 +2065,14 @@ this.x = app.GAME_CONFIG.TILE_WIDTH * t;
         pizza: new app.Pizza(),
         heart: new app.Heart()
       };
+
+      // Apply character pick if it happened before init
+      try{
+        if (window.__tmntSelectedSprite && app.ACTORS && app.ACTORS.player) {
+          app.ACTORS.player.sprite = window.__tmntSelectedSprite;
+        }
+      }catch(e){}
+
 
       var doc = global.document;
       var win = global.window;
@@ -2564,37 +2572,52 @@ if (!app.__gameOver) {
     }, { passive: false });
 })();
 
-    // Character select hookup
-    (function () {
-      var overlay = document.getElementById("character-select-overlay");
-      var buttons = overlay.querySelectorAll(".char-btn");
+    // Character select hookup (robust: works even if clicked before game init)
+(function () {
+  var overlay = document.getElementById("character-select-overlay");
+  if (!overlay) return;
 
-      function startWithCharacter(sprite) {
-        if (window.app && app.ACTORS && app.ACTORS.player) {
-          // set sprite BEFORE restart
-          app.ACTORS.player.sprite = sprite;
+  var buttons = overlay.querySelectorAll(".char-btn");
 
-          // restart but preserve sprite
-          if (app.__restartKeepBest) {
-            app.__restartKeepBest();
-            app.ACTORS.player.sprite = sprite; // re-apply after restart
-          }
-            overlay.style.display = "none";
-  // overlay.style.display = "none";  ← keep commented
-        }
-       // overlay.style.display = "none";
-      }
+  function hideOverlay(){
+    overlay.style.display = "none";
+    overlay.setAttribute("aria-hidden","true");
+  }
 
-      buttons.forEach(function (btn) {
-        btn.addEventListener("click", function () {
-          startWithCharacter(this.getAttribute("data-sprite"));
-        });
-      });
+  function setSelectedSprite(sprite){
+    window.__tmntSelectedSprite = sprite;
+    if (window.app && app.ACTORS && app.ACTORS.player){
+      app.ACTORS.player.sprite = sprite;
+    }
+  }
 
-      document.addEventListener("keyup", function (e) {
-        if (e.key === "n" || e.key === "N") overlay.style.display = "flex";
-      });
-    })();
+  function startWithCharacter(sprite) {
+    setSelectedSprite(sprite);
+    hideOverlay();
+
+    // If the game already exposes a restart helper, use it so the run is clean.
+    if (window.app && typeof app.__restartKeepBest === "function") {
+      try{
+        app.__restartKeepBest();
+        if (app.ACTORS && app.ACTORS.player) app.ACTORS.player.sprite = sprite;
+      }catch(e){}
+    }
+  }
+
+  buttons.forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      startWithCharacter(this.getAttribute("data-sprite"));
+    });
+  });
+
+  // ESC can re-open picker if you ever need it (optional + safe)
+  document.addEventListener("keyup", function (e) {
+    if (e.key === "Escape") {
+      overlay.style.display = "";
+      overlay.setAttribute("aria-hidden","false");
+    }
+  });
+})();
 
       // --- TAP & HOLD LOGIC (Stealth Hold Hints) ---
 function setupBubbleButton(btnId, hintId, tapAction, holdAction, holdMs = 500) {
