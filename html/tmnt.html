@@ -1155,8 +1155,8 @@ to { transform: translateY(-5px); } }
 
 /* front face: stamp image */
 .btn-stamp-img{
-  object-fit: contain;
-  opacity: .92;
+  object-fit: cover;   /* ← THIS is the key */
+  opacity: .95;
   filter: drop-shadow(0 0 14px rgba(60,255,156,.22));
   transform: rotateY(0deg) scale(var(--btn-stamp-scale));
   transform-origin: center;
