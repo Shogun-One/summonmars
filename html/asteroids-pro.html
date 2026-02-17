@@ -1882,21 +1882,10 @@ function showHint(el, text, ms = 1500){
   if(isLeft) hintTimerL = t; else hintTimerR = t;
 }
 
+// Touchpad toggle removed intentionally
+// Touchpad will remain ON at all times
+document.body.classList.remove('touchpad-off');
 
-// Touchpad toggle (Heat stamp bubble)
-const heatBtn = document.getElementById('heatBtn');
-try{
-  // default: touchpad ON
-  document.body.classList.remove('touchpad-off');
-  heatBtn?.addEventListener('click', (e) => {
-    e.preventDefault();
-    const off = document.body.classList.toggle('touchpad-off');
-    showHint(hintLeft, off ? 'Touchpad: OFF' : 'Touchpad: ON');
-  });
-}catch{}
-
-
-    
     // Tap Music = toggle music. Hold 0.5s = fullscreen.
     musicBtn.addEventListener('pointerdown', (e) => {
       fsHoldFired = false;
