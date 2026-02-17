@@ -1003,6 +1003,31 @@ body.music-on .stamp-woofer{
   .security-banner{ bottom:10px; font-size:.7rem; }
 
   h1{ line-height:1.1; }
+
+  /* =========================================================
+     MOBILE ONLY: Swap BIG stamps and SMALL corner buttons
+     - BIG stamp circles move UP to the corner button row
+     - Small Restart/Difficulty + Sound buttons move DOWN
+     (Functionality stays the same; this is layout-only.)
+  ========================================================= */
+  .stamp-slot.splash{
+    top: auto !important;
+    bottom: 12px !important;
+    transform: translate3d(var(--uiShakeX), var(--uiShakeY), 0) !important;
+  }
+  .stamp-slot.splash-left{
+    left: 14px !important;
+  }
+  .stamp-slot.splash-right{
+    left: auto !important;
+    right: 14px !important;
+  }
+
+  /* Move the small bubbles down into the old stamp zone */
+  .difficulty-btn,
+  .music-btn{
+    bottom: -78px !important; /* tune if you want more/less drop */
+  }
 }
 
 .neon-hover-hint {
