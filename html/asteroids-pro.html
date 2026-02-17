@@ -119,32 +119,60 @@
       gap:.45rem;
     }
 
-    .hud{
-      display:flex;
-      justify-content:space-between;
+        .hud{
       width:100%;
       max-width:480px;
       font-size:.85rem;
       opacity:.92;
       margin-top:.15rem;
-      gap:.6rem;
-      flex-wrap:wrap;
+
+      display:grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      grid-template-areas:
+        "score best level lives hits"
+        "toNext toNext bossKills diff diff";
+      gap:.45rem;
+      align-items:stretch;
     }
 
     .hud .pill{
       background:rgba(0,0,0,.22);
       border:1px solid rgba(255,138,192,.18);
       border-radius:999px;
-      padding:.28rem .6rem;
+      padding:.28rem .55rem;
       backdrop-filter: blur(6px);
       -webkit-backdrop-filter: blur(6px);
+      text-align:center;
+      white-space:nowrap;
     }
+
+    .hud .pill.score{ grid-area:score; }
+    .hud .pill.best{ grid-area:best; }
+    .hud .pill.level{ grid-area:level; }
+    .hud .pill.lives{ grid-area:lives; }
+    .hud .pill.hits{ grid-area:hits; }
+    .hud .pill.toNext{ grid-area:toNext; }
+    .hud .pill.bossKills{ grid-area:bossKills; }
+    .hud .pill.diff{ grid-area:diff; }
 
     .hud span{
       color:rgba(255,231,255,0.98);
       font-weight:800;
       font-family:'Share Tech Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
       text-shadow:0 0 10px rgba(255,138,192,.22);
+    }
+
+    @media (max-width:520px){
+      .hud{
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        grid-template-areas:
+          "score best level"
+          "lives hits toNext"
+          "bossKills diff diff";
+        gap:.4rem;
+        font-size:.8rem;
+      }
+      .hud .pill{ padding:.24rem .5rem; }
     }
 
     .game-shell{
@@ -1113,15 +1141,15 @@ body.touchpad-off .control-deck .mobile-touchpad{ display:none !important; }
     </div>
 
     <div class="hud">
-      <div class="pill">Score: <span id="score">0</span></div>
-      <div class="pill">Best: <span id="best">0</span></div>
-      <div class="pill">Level: <span id="level">1</span></div>
-      <div class="pill">Lives: <span id="lives">5</span></div>
-      <div class="pill">Hits: <span id="hits">0</span>/<span id="hitsMax">5</span></div>
-      <div class="pill">To Next: <span id="toNext">0</span>/<span id="toNextMax">10</span></div>
+      <div class="pill score">Score: <span id="score">0</span></div>
+      <div class="pill best">Best: <span id="best">0</span></div>
+      <div class="pill level">Level: <span id="level">1</span></div>
+      <div class="pill lives">Lives: <span id="lives">5</span></div>
+      <div class="pill hits">Hits: <span id="hits">0</span>/<span id="hitsMax">5</span></div>
+      <div class="pill toNext">To Next: <span id="toNext">0</span>/<span id="toNextMax">10</span></div>
 
-      <div class="pill">Boss Kills: <span id="bossKills">0</span></div>
-      <div class="pill">Diff: <span id="diffLabel">Easy Peasy</span></div>
+      <div class="pill bossKills">Boss Kills: <span id="bossKills">0</span></div>
+      <div class="pill diff">Diff: <span id="diffLabel">Easy Peasy</span></div>
     </div>
 
         <div class="game-shell">
