@@ -786,7 +786,7 @@ body.music-on .bubble-btn .ring.flip .face.woofer{
       max-width: 480px;
       height: auto;
       aspect-ratio: 3 / 4;
-      max-height: calc(100dvh - 260px);
+      max-height: calc(100dvh - 360px);
       -webkit-tap-highlight-color: transparent;
     }
 
@@ -830,14 +830,14 @@ body.music-on .bubble-btn .ring.flip .face.woofer{
       .visit-counter{ display:none; }
 
       canvas#game{
-        max-height: calc(100dvh - 210px);
+        max-height: calc(100dvh - 300px);
       }
     }
 
     @media (max-height:620px){
       .controls{ display:none; }
       canvas#game{
-        max-height: calc(100dvh - 160px);
+        max-height: calc(100dvh - 240px);
       }
     }
   
@@ -982,6 +982,103 @@ body.touchpad-off .mobile-touchpad{ display:none !important; }
   .game-shell .bubble-btn{ top:52%; }
 }
 
+
+/* ===== ASTEROIDS: Control Deck (below game window, like TMNT) ===== */
+.control-deck{
+  width:100%;
+  max-width:480px;
+  margin:14px auto 0;
+  position:relative;
+
+  display:grid;
+  grid-template-columns: 74px 1fr 74px;
+  grid-template-rows: 74px 74px;
+  grid-template-areas:
+    "pause touch heat"
+    "reset touch music";
+  gap:12px;
+  align-items:center;
+  justify-items:center;
+
+  pointer-events:auto;
+}
+
+/* Put the four bubbles around the touchpad */
+.control-deck #pauseBtn{ grid-area:pause; }
+.control-deck #reset-btn{ grid-area:reset; }
+.control-deck #musicBtn{ grid-area:music; }
+.control-deck #heatBtn{ grid-area:heat; }
+
+/* Override the global fixed/absolute bubble rules just for the deck */
+.control-deck .bubble-btn{
+  position:relative !important;
+  left:auto !important;
+  right:auto !important;
+  bottom:auto !important;
+  top:auto !important;
+  transform:none !important;
+  width:74px;
+  height:74px;
+  z-index:6;
+}
+
+/* Touchpad lives in the center cell */
+.control-deck .mobile-touchpad{
+  grid-area:touch;
+  position:relative !important;
+  left:auto !important;
+  bottom:auto !important;
+  transform:none !important;
+  width:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:7;
+}
+
+.control-deck .touchpad-plate{
+  width:180px;
+  height:180px;
+  border-radius:28px;
+}
+
+/* Hints float above the deck */
+.control-deck .neon-hover-hint{
+  position:absolute;
+  top:-58px;
+  bottom:auto;
+  z-index:50;
+}
+.control-deck #hint-left{ left:20%; transform:translateX(-50%); }
+.control-deck #hint-right{ left:80%; transform:translateX(-50%); }
+
+@media (max-width:520px){
+  .control-deck{
+    grid-template-columns: 60px 1fr 60px;
+    grid-template-rows: 60px 60px;
+    gap:10px;
+  }
+  .control-deck .bubble-btn{ width:60px; height:60px; }
+  .control-deck .touchpad-plate{ width:156px; height:156px; border-radius:24px; }
+  .control-deck .neon-hover-hint{ top:-54px; font-size:0.74rem; }
+}
+
+/* If touchpad is toggled off, keep the 4 bubbles centered nicely */
+body.touchpad-off .control-deck{
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 74px 74px;
+  grid-template-areas:
+    "pause heat"
+    "reset music";
+}
+body.touchpad-off .control-deck .mobile-touchpad{ display:none !important; }
+
+@media (max-width:520px){
+  body.touchpad-off .control-deck{
+    grid-template-rows: 60px 60px;
+  }
+}
+
 </style>
 </head>
 
@@ -1028,64 +1125,64 @@ body.touchpad-off .mobile-touchpad{ display:none !important; }
       <div class="pill">Diff: <span id="diffLabel">Easy Peasy</span></div>
     </div>
 
-    <div class="game-shell">
+        <div class="game-shell">
       <canvas id="game" width="480" height="640"></canvas>
-      
-      <!-- TMNT-style bottom controls (4 bubbles + touchpad) -->
-      <button id="pauseBtn" class="bubble-btn pizza-btn" type="button"
-        aria-label="Pause" title="Pause">
-        <span class="ring flip" aria-hidden="true">
-          <span class="face stamp">
-            <img class="stamp-img" data-asset="images/tmnt/splashleft.png" alt="">
-          </span>
-          <span class="face woofer"></span>
-        </span>
-      </button>
+    </div>
 
-      <button id="reset-btn" class="bubble-btn restart-btn" type="button"
-        aria-label="Restart / Difficulty" title="Restart / Difficulty">
-        <span class="ring flip" aria-hidden="true">
-          <span class="face stamp">
-            <img class="stamp-img" data-asset="images/tmnt/restart-stamp-tmnt.png" alt="">
-          </span>
-          <span class="face woofer"></span>
-        </span>
-      </button>
-
-      <button id="musicBtn" class="bubble-btn music-btn" type="button"
-        aria-label="Sound On/Off" title="Sound On/Off">
-        <span class="ring flip" aria-hidden="true">
-          <span class="face stamp">
-            <img class="stamp-img" data-asset="images/tmnt/sound-stamp-tmnt.png" alt="">
-          </span>
-          <span class="face woofer"></span>
-          <span class="dot-indicator" aria-hidden="true"></span>
-        </span>
-      </button>
-
-      <button id="heatBtn" class="bubble-btn heat-btn" type="button"
-        aria-label="Touchpad On/Off" title="Touchpad On/Off">
-        <span class="ring flip" aria-hidden="true">
-          <span class="face stamp">
-            <img class="stamp-img" data-asset="images/tmnt/splashright.png" alt="">
-          </span>
-          <span class="face woofer"></span>
-        </span>
-      </button>
-
-      <!-- Tap hints -->
+    <div class="control-deck" aria-label="Controls">
       <div id="hint-left" class="neon-hover-hint">Tap: Pause</div>
       <div id="hint-right" class="neon-hover-hint">Hold: Fullscreen</div>
 
-      <!-- Touchpad (replaces joystick) -->
+      <button id="pauseBtn" class="bubble-btn pizza-btn" type="button"
+              aria-label="Pause" title="Pause">
+              <span class="ring flip" aria-hidden="true">
+                <span class="face stamp">
+                  <img class="stamp-img" data-asset="images/tmnt/splashleft.png" alt="">
+                </span>
+                <span class="face woofer"></span>
+              </span>
+            </button>
+
+      <button id="reset-btn" class="bubble-btn restart-btn" type="button"
+              aria-label="Restart / Difficulty" title="Restart / Difficulty">
+              <span class="ring flip" aria-hidden="true">
+                <span class="face stamp">
+                  <img class="stamp-img" data-asset="images/tmnt/restart-stamp-tmnt.png" alt="">
+                </span>
+                <span class="face woofer"></span>
+              </span>
+            </button>
+
       <div class="mobile-touchpad" aria-hidden="false">
-        <div id="joystick" class="touchpad-plate" role="application" aria-label="Touchpad">
-          <div class="touch-arrow touch-up" data-dir="up">▲</div>
-          <div class="touch-arrow touch-left" data-dir="left">◀</div>
-          <div class="touch-arrow touch-right" data-dir="right">▶</div>
-          <div class="touch-arrow touch-down" data-dir="down">▼</div>
-        </div>
-      </div>      </div>
+              <div id="joystick" class="touchpad-plate" role="application" aria-label="Touchpad">
+                <div class="touch-arrow touch-up" data-dir="up">▲</div>
+                <div class="touch-arrow touch-left" data-dir="left">◀</div>
+                <div class="touch-arrow touch-right" data-dir="right">▶</div>
+                <div class="touch-arrow touch-down" data-dir="down">▼</div>
+              </div>
+            </div>
+
+      <button id="musicBtn" class="bubble-btn music-btn" type="button"
+              aria-label="Sound On/Off" title="Sound On/Off">
+              <span class="ring flip" aria-hidden="true">
+                <span class="face stamp">
+                  <img class="stamp-img" data-asset="images/tmnt/sound-stamp-tmnt.png" alt="">
+                </span>
+                <span class="face woofer"></span>
+                <span class="dot-indicator" aria-hidden="true"></span>
+              </span>
+            </button>
+
+      <button id="heatBtn" class="bubble-btn heat-btn" type="button"
+              aria-label="Touchpad On/Off" title="Touchpad On/Off">
+              <span class="ring flip" aria-hidden="true">
+                <span class="face stamp">
+                  <img class="stamp-img" data-asset="images/tmnt/splashright.png" alt="">
+                </span>
+                <span class="face woofer"></span>
+              </span>
+            </button>
+    </div>
     
   </div>
 
