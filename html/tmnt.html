@@ -1079,22 +1079,24 @@ body{
   animation: hintFloat .5s infinite alternate;
 }
 
-/* little pointer arrow */
+/* default arrow (used for LEFT button) */
 .neon-hover-hint::after{
   content:"";
   position:absolute;
-  bottom:-10px;
-  left:22px;
+  bottom:-10px;              /* sits below hint box */
+  left:50%;                  /* center it */
+  transform:translateX(-50%);
   border-width:10px 10px 0 10px;
   border-style:solid;
   border-color:#ff2a2a transparent transparent transparent;
   filter: drop-shadow(0 0 6px rgba(255,42,42,.55));
 }
 
-/* right hint arrow aligns on the right side */
+/* RIGHT hint arrow override (optional fine tweak) */
 #hint-right::after{
-  left:auto;
-  right:22px;
+  left:50%;
+  right:auto;
+  transform:translateX(-50%);
 }
 
 @keyframes hintFloat{
