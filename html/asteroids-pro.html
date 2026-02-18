@@ -240,12 +240,7 @@
       background:
         radial-gradient(circle at top, #1a1638, #05020a),
         repeating-radial-gradient(circle at center, rgba(255,255,255,0.05), rgba(255,255,255,0.05) 1px, transparent 1px, transparent 3px);
-      body.music-on canvas#game{
-  box-shadow:
-    0 0 25px rgba(0,0,0,.8),
-    0 0 calc(20px + (var(--bassKick,0) * 50px)) rgba(255,59,130,.35),
-    0 0 calc(16px + (var(--bassKick,0) * 40px)) rgba(138,43,226,.25);
-}
+      
 
       touch-action:none;
       max-width:100vw;
@@ -254,6 +249,14 @@
       position:relative;
       z-index:2;
     }
+
+    /* ✅ put it OUTSIDE the canvas block */
+body.music-on canvas#game{
+  box-shadow:
+    0 0 25px rgba(0,0,0,.8),
+    0 0 calc(20px + (var(--bassKick,0) * 50px)) rgba(255,59,130,.35),
+    0 0 calc(16px + (var(--bassKick,0) * 40px)) rgba(138,43,226,.25);
+}
 
     /* round, transparent Music On/Off button */
     .music-btn{
@@ -1835,7 +1838,7 @@ function setupAudioAnalyzer(){
     bassAnalyser.connect(zeroGain);
 }catch(err){
         pulseActive = false;
-        document.documentElement.style.setProperty('--bassKick','0');
+        document.documentElement.style.setProperty('--bassKick', Math.min(1, kick * 2.8));
 console.warn('Audio analyzer init failed:', err);
     audioCtx = null; analyser = null; sourceNode = null; bassAnalyser = null; bassFilter = null;
   }
