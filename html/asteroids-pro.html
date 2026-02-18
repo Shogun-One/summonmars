@@ -1092,8 +1092,8 @@ body.touchpad-off .mobile-touchpad{ display:none !important; }
   grid-template-columns: 74px 1fr 74px;
   grid-template-rows: 74px 74px;
   grid-template-areas:
-  "reset touch music"
-  "pause touch heat";
+  "pause touch heat"
+  "reset touch music";
   gap:12px;
   align-items:center;
   justify-items:center;
@@ -1101,8 +1101,33 @@ body.touchpad-off .mobile-touchpad{ display:none !important; }
   pointer-events:auto;
 }
 
-/* Desktop-only: raise the FOUR bubbles by 12px (touchpad stays put) */
+/* Desktop-only: reverse rows + make top bubbles 2x bottom + raise bubbles */
 @media (min-width:521px){
+  /* Reverse top/bottom layout per side */
+  .control-deck{
+    --deck-top-btn-size: calc(var(--deck-bottom-btn-size) * 2);
+    grid-template-columns: var(--deck-top-btn-size) 1fr var(--deck-top-btn-size);
+    grid-template-rows: var(--deck-top-btn-size) var(--deck-bottom-btn-size);
+    grid-template-areas:
+      "pause touch heat"
+      "reset touch music";
+  }
+
+  /* Top buttons (Boss + 1ups) are the BIG ones */
+  .control-deck #pauseBtn,
+  .control-deck #heatBtn{
+    width: var(--deck-top-btn-size);
+    height: var(--deck-top-btn-size);
+  }
+
+  /* Bottom buttons (Restart + Sound) stay smaller */
+  .control-deck #reset-btn,
+  .control-deck #musicBtn{
+    width: var(--deck-bottom-btn-size);
+    height: var(--deck-bottom-btn-size);
+  }
+
+  /* Keep the four bubbles lifted up a touch (touchpad stays put) */
   .control-deck .bubble-btn{
     transform: translateY(-12px);
   }
