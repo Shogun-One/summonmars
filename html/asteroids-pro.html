@@ -1246,8 +1246,17 @@ body.touchpad-off .control-deck .mobile-touchpad{ display:none !important; }
     width: var(--deck-top-btn-size);
     height: var(--deck-top-btn-size);
   }
-  .control-deck #pauseBtn{ transform: translate(var(--deck-pause-x), var(--deck-pause-y)); }
-  .control-deck #heatBtn{  transform: translate(var(--deck-heat-x),  var(--deck-heat-y)); }
+  .control-deck #pauseBtn{
+  transform:
+    translate(var(--deck-pause-x), var(--deck-pause-y))
+    translate(-10px, -10px);
+}
+
+  .control-deck #heatBtn{
+  transform:
+    translate(var(--deck-heat-x), var(--deck-heat-y))
+    translate(10px, -10px);
+}
 
   /* BOTTOM buttons (small): RESET + MUSIC */
   .control-deck #reset-btn,
@@ -1258,17 +1267,18 @@ body.touchpad-off .control-deck .mobile-touchpad{ display:none !important; }
 
   /* Slide bottom buttons diagonally, then apply per-button nudges */
   .control-deck #reset-btn{
-    transform:
-      translate(var(--deck-bottom-shift-x), var(--deck-bottom-shift-y))
-      translate(var(--deck-reset-x), var(--deck-reset-y))
-      translate(-6px, -6px); /* outward nudge */
-  }
+  transform:
+    translate(var(--deck-bottom-shift-x), var(--deck-bottom-shift-y))
+    translate(var(--deck-reset-x), var(--deck-reset-y))
+    translate(-10px, 10px);
+}
+
   .control-deck #musicBtn{
-    transform:
-      translate(calc(-1 * var(--deck-bottom-shift-x)), var(--deck-bottom-shift-y))
-      translate(var(--deck-music-x), var(--deck-music-y))
-      translate(6px, -6px); /* outward nudge */
-  }
+  transform:
+    translate(calc(-1 * var(--deck-bottom-shift-x)), var(--deck-bottom-shift-y))
+    translate(var(--deck-music-x), var(--deck-music-y))
+    translate(10px, 10px);
+}
 
   /* Touchpad sizing + nudges */
   .control-deck .mobile-touchpad{
