@@ -1057,7 +1057,7 @@ body{
 }
 
 .neon-hover-hint{
-  position: fixed;              /* positioned by JS over the tapped bubble */
+  position: absolute;              /* positioned by JS over the tapped bubble */              /* positioned by JS over the tapped bubble */
   left: 0;
   top: 0;
 
@@ -2663,25 +2663,49 @@ const HINT_DURATION = 2000; // hint stays visible for 2 seconds
 const START_HINT_DURATION = 1500; // visible time before fading
 const START_HINT_FADE_MS  = 320;  // fade-out time
 
+function hideAllHints(exceptId){
+  const ids = ["hint-left","hint-right","hint-sound-start"];
+  ids.forEach(id => {
+    if(exceptId && id === exceptId) return;
+    const el = document.getElementById(id);
+    if(!el) return;
+    el.style.display = "none";
+    el.style.opacity = "1";
+    el.setAttribute("aria-hidden","true");
+  });
+}
+
 function showStartSoundHint(){
+  // Only show if music is currently OFF
+  if (typeof musicOn !== "undefined" && musicOn) return;
+
   const btn  = document.getElementById("musicBtn");
   const hint = document.getElementById("hint-sound-start");
   if(!btn || !hint) return;
 
+  hideAllHints("hint-sound-start");
+
+  // Ensure hint is NOT inside transformed containers (prevents weird drift)
+  if (hint.parentElement !== document.body) document.body.appendChild(hint);
+
   const place = () => {
     const br = btn.getBoundingClientRect();
+
+    // make it measurable
     hint.style.display = "block";
     hint.style.visibility = "hidden";
     hint.style.opacity = "1";
-    hint.style.position = "fixed";
+
+    // absolute + scroll offsets = consistent across desktop/mobile
+    hint.style.position = "absolute";
 
     const hr = hint.getBoundingClientRect();
     const pad = 8;
 
-    let x = br.left + (br.width / 2) - (hr.width / 2);
-    let y = br.top - hr.height - 14;
+    let x = br.left + (br.width / 2) - (hr.width / 2) + window.scrollX;
+    let y = br.top - hr.height - 14 + window.scrollY;
 
-    x = Math.max(pad, Math.min(window.innerWidth - hr.width - pad, x));
+    x = Math.max(pad, Math.min((window.innerWidth + window.scrollX) - hr.width - pad, x));
     y = Math.max(pad, y);
 
     hint.style.left = x + "px";
@@ -2732,24 +2756,30 @@ function setupBubbleButton(btnId, hintId, tapAction, holdAction, holdMs = HOLD_D
   const showHint = () => {
     if (!hint) return;
 
-    // Position hint over the *inside* bubble button (works on desktop + mobile)
+    // Only one hint at a time (prevents double-pop)
+    hideAllHints(hintId);
+
+    // Position hint over the *inside* bubble button (desktop + mobile)
     const placeHint = () => {
       const br = btn.getBoundingClientRect();
 
-      // ensure consistent positioning (prevents desktop drift if CSS gets quirky)
-      hint.style.position = "fixed";
+      // Keep hints out of transformed containers (prevents drift)
+      if (hint.parentElement !== document.body) document.body.appendChild(hint);
 
       // make it measurable
       hint.style.display = "block";
       hint.style.visibility = "hidden";
 
+      // absolute + scroll offsets = consistent everywhere
+      hint.style.position = "absolute";
+
       const hr = hint.getBoundingClientRect();
       const pad = 8;
 
-      let x = br.left + (br.width / 2) - (hr.width / 2);
-      let y = br.top - hr.height - 14; // 14px above button
+      let x = br.left + (br.width / 2) - (hr.width / 2) + window.scrollX;
+      let y = br.top - hr.height - 14 + window.scrollY; // 14px above button
 
-      x = Math.max(pad, Math.min(window.innerWidth - hr.width - pad, x));
+      x = Math.max(pad, Math.min((window.innerWidth + window.scrollX) - hr.width - pad, x));
       y = Math.max(pad, y);
 
       hint.style.left = x + "px";
@@ -2837,15 +2867,25 @@ setupBubbleButton(
 setupBubbleButton(
   "musicBtn",
   "hint-right",
-  () => { toggleMusic(); },
+  () => { toggleMusic(); // Show the “Tap here for Sound!” hint once AFTER the FIRST character selection (fresh load/refresh)
+let __startSoundHintShown = false;
+function scheduleStartSoundHintAfterCharacterPick(){
+  if(__startSoundHintShown) return;
+  __startSoundHintShown = true;
+
+  // Small delay so the character overlay can disappear and layout settles
+  setTimeout(() => { showStartSoundHint(); }, 250);
+}
+
+document.querySelectorAll('.char-btn').forEach((b) => {
+  b.addEventListener('click', scheduleStartSoundHintAfterCharacterPick, { once: true });
+});
+
+},
   () => { toggleFullscreen(); },
   HOLD_DURATION
 );
 
-// Show the “Tap here for Sound!” hint once on fresh load/refresh
-window.addEventListener("load", () => {
-  setTimeout(() => { showStartSoundHint(); }, 650);
-}, { once: true });
 
     
   </script>
