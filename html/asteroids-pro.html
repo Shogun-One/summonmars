@@ -1127,9 +1127,19 @@ body.touchpad-off .mobile-touchpad{ display:none !important; }
     height: var(--deck-bottom-btn-size);
   }
 
-  /* Keep the four bubbles lifted up a touch (touchpad stays put) */
-  .control-deck .bubble-btn{
-    transform: translateY(-12px);
+  /* Desktop-only nudges (per request)
+     - Top (big) buttons: up 17px
+     - Bottom (small) buttons: up 17px + move inward 35px */
+  .control-deck #pauseBtn,
+  .control-deck #heatBtn{
+    transform: translateY(-17px);
+  }
+
+  .control-deck #reset-btn{
+    transform: translate(35px, -17px);
+  }
+  .control-deck #musicBtn{
+    transform: translate(-35px, -17px);
   }
 }
 
