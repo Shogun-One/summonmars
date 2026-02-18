@@ -2855,7 +2855,7 @@ function setupBubbleButton(btnId, hintId, tapAction, holdAction, holdMs = HOLD_D
 setupBubbleButton(
   "difficultyBtn",
   "hint-left",
-  () => { if (window.app && app.__restartKeepBest) app.__restartKeepBest(); showStartSoundHint(); },
+  () => { if (window.app && app.__restartKeepBest) app.__restartKeepBest(); setTimeout(showStartSoundHint, 200); },
   () => {
     diffIndex = (diffIndex + 1) % DIFFS.length;
     applyDifficultyUI();
@@ -2867,8 +2867,17 @@ setupBubbleButton(
 setupBubbleButton(
   "musicBtn",
   "hint-right",
-  () => { toggleMusic(); // Show the “Tap here for Sound!” hint once AFTER the FIRST character selection (fresh load/refresh)
+  () => { toggleMusic(); },
+  () => { toggleFullscreen(); },
+  HOLD_DURATION
+);
+
+/* ===== Start-of-game Sound Hint (shows AFTER character selection) =====
+   - Shows once per page load/refresh
+   - Only shows if music is currently OFF
+*/
 let __startSoundHintShown = false;
+
 function scheduleStartSoundHintAfterCharacterPick(){
   if(__startSoundHintShown) return;
   __startSoundHintShown = true;
@@ -2877,14 +2886,20 @@ function scheduleStartSoundHintAfterCharacterPick(){
   setTimeout(() => { showStartSoundHint(); }, 250);
 }
 
+// Trigger after FIRST character pick on fresh load
 document.querySelectorAll('.char-btn').forEach((b) => {
   b.addEventListener('click', scheduleStartSoundHintAfterCharacterPick, { once: true });
 });
 
-},
-  () => { toggleFullscreen(); },
-  HOLD_DURATION
-);
+// Safety fallback: if character overlay is already gone for any reason, still show once
+setTimeout(() => {
+  try{
+    const overlay = document.getElementById('character-select-overlay');
+    const overlayVisible = overlay && overlay.offsetParent !== null && getComputedStyle(overlay).display !== 'none';
+    if(!overlayVisible) scheduleStartSoundHintAfterCharacterPick();
+  }catch{}
+}, 800);
+
 
 
     
