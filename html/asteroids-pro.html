@@ -30,9 +30,9 @@
 
 
 /* Stamp fill tuning (big buttons) */
---stamp-top-scale: 1.34;        /* scale for big button stamps */
---stamp-top-y: -14px;            /* move stamp up (negative = up) */
---stamp-top-object-y: 22%;      /* object-position Y (smaller = higher) */
+--stamp-top-scale: 1.40;        /* scale for big button stamps */
+--stamp-top-y: -26px;            /* move stamp up (negative = up) */
+--stamp-top-object-y: 18%;      /* object-position Y (smaller = higher) */
 /* ==============================
 🎯 LOCATION DIALS (move stuff)
 ============================== */
@@ -1100,6 +1100,14 @@ body.touchpad-off .mobile-touchpad{ display:none !important; }
 
   pointer-events:auto;
 }
+
+/* Desktop-only: raise the FOUR bubbles by 12px (touchpad stays put) */
+@media (min-width:521px){
+  .control-deck .bubble-btn{
+    transform: translateY(-12px);
+  }
+}
+
 
 /* Put the four bubbles around the touchpad */
 .control-deck #pauseBtn{ grid-area:pause; }
