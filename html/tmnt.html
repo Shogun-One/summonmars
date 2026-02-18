@@ -1075,6 +1075,8 @@ body{
   z-index:10001;
   pointer-events:none;
   display:none;
+  opacity:1;
+  transition: opacity 280ms ease;
 
   text-shadow:0 0 8px #ff2a2a;
   box-shadow:0 0 10px rgba(255,42,42,.5);
@@ -1105,7 +1107,7 @@ body{
   from{ transform: translateY(0); }
   to  { transform: translateY(-5px); }
 }
-to { transform: translateY(-5px); } }
+
 
 /* -- FIRST TRY FOR REPAIR (Grk) */
 /* Force character buttons to receive clicks no matter what */
@@ -1334,6 +1336,8 @@ body.music-on .btn-stamp-woofer{
 <div id="hint-right" class="neon-hover-hint" aria-hidden="true">
   ( Hold 1 sec: Fullscreen | Tap: Sound )
 </div>
+<div id="hint-sound-start" class="neon-hover-hint" aria-hidden="true">Tap here for Sound!</div>
+
 
   <div class="mobile-touchpad">
   <div class="touchpad-plate">
@@ -2655,6 +2659,56 @@ if (!app.__gameOver) {
 const HOLD_DURATION = 1000; // 1.0 second hold threshold
 const HINT_DURATION = 2000; // hint stays visible for 2 seconds
 
+// Start-of-game “Tap here for Sound!” hint
+const START_HINT_DURATION = 1500; // visible time before fading
+const START_HINT_FADE_MS  = 320;  // fade-out time
+
+function showStartSoundHint(){
+  const btn  = document.getElementById("musicBtn");
+  const hint = document.getElementById("hint-sound-start");
+  if(!btn || !hint) return;
+
+  const place = () => {
+    const br = btn.getBoundingClientRect();
+    hint.style.display = "block";
+    hint.style.visibility = "hidden";
+    hint.style.opacity = "1";
+    hint.style.position = "fixed";
+
+    const hr = hint.getBoundingClientRect();
+    const pad = 8;
+
+    let x = br.left + (br.width / 2) - (hr.width / 2);
+    let y = br.top - hr.height - 14;
+
+    x = Math.max(pad, Math.min(window.innerWidth - hr.width - pad, x));
+    y = Math.max(pad, y);
+
+    hint.style.left = x + "px";
+    hint.style.top  = y + "px";
+    hint.style.right = "auto";
+    hint.style.bottom = "auto";
+
+    hint.style.visibility = "visible";
+  };
+
+  place();
+  hint.setAttribute("aria-hidden", "false");
+
+  clearTimeout(hint.__fadeT);
+  clearTimeout(hint.__hideT);
+
+  hint.__fadeT = setTimeout(() => {
+    hint.style.opacity = "0";
+  }, START_HINT_DURATION);
+
+  hint.__hideT = setTimeout(() => {
+    hint.style.display = "none";
+    hint.style.opacity = "1";
+    hint.setAttribute("aria-hidden", "true");
+  }, START_HINT_DURATION + START_HINT_FADE_MS);
+}
+
 function setupBubbleButton(btnId, hintId, tapAction, holdAction, holdMs = HOLD_DURATION) {
   const btn  = document.getElementById(btnId);
   const hint = document.getElementById(hintId);
@@ -2681,6 +2735,9 @@ function setupBubbleButton(btnId, hintId, tapAction, holdAction, holdMs = HOLD_D
     // Position hint over the *inside* bubble button (works on desktop + mobile)
     const placeHint = () => {
       const br = btn.getBoundingClientRect();
+
+      // ensure consistent positioning (prevents desktop drift if CSS gets quirky)
+      hint.style.position = "fixed";
 
       // make it measurable
       hint.style.display = "block";
@@ -2768,7 +2825,7 @@ function setupBubbleButton(btnId, hintId, tapAction, holdAction, holdMs = HOLD_D
 setupBubbleButton(
   "difficultyBtn",
   "hint-left",
-  () => { if (window.app && app.__restartKeepBest) app.__restartKeepBest(); },
+  () => { if (window.app && app.__restartKeepBest) app.__restartKeepBest(); showStartSoundHint(); },
   () => {
     diffIndex = (diffIndex + 1) % DIFFS.length;
     applyDifficultyUI();
@@ -2784,6 +2841,12 @@ setupBubbleButton(
   () => { toggleFullscreen(); },
   HOLD_DURATION
 );
+
+// Show the “Tap here for Sound!” hint once on fresh load/refresh
+window.addEventListener("load", () => {
+  setTimeout(() => { showStartSoundHint(); }, 650);
+}, { once: true });
+
     
   </script>
   
