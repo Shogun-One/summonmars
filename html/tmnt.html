@@ -2258,6 +2258,7 @@ canvas.addEventListener("pointerdown", (e) => {
           if (now >= app.__countdownUntil){
             app.__running = true;
             showStartOverlay(false);
+            maybeShowStartSoundHint();
           } else {
             return;
           }
@@ -2627,6 +2628,7 @@ if (!app.__gameOver) {
   function startWithCharacter(sprite) {
     setSelectedSprite(sprite);
     hideOverlay();
+    armStartSoundHint();
 
     // If the game already exposes a restart helper, use it so the run is clean.
     if (window.app && typeof app.__restartKeepBest === "function") {
@@ -2662,6 +2664,21 @@ const HINT_DURATION = 2000; // hint stays visible for 2 seconds
 // Start-of-game “Tap here for Sound!” hint
 const START_HINT_DURATION = 1500; // visible time before fading
 const START_HINT_FADE_MS  = 320;  // fade-out time
+
+
+// --- Start-of-run Sound hint arming (shows AFTER countdown ends) ---
+let __startSoundHintArmed = false; // armed after character pick or restart
+function armStartSoundHint(){
+  __startSoundHintArmed = true;
+}
+function maybeShowStartSoundHint(){
+  if(!__startSoundHintArmed) return;
+  __startSoundHintArmed = false;
+  // only if music is OFF
+  if (typeof musicOn !== "undefined" && musicOn) return;
+  // tiny delay so overlay removal + layout settle
+  setTimeout(() => { showStartSoundHint(); }, 120);
+}
 
 function hideAllHints(exceptId){
   const ids = ["hint-left","hint-right","hint-sound-start"];
@@ -2855,7 +2872,7 @@ function setupBubbleButton(btnId, hintId, tapAction, holdAction, holdMs = HOLD_D
 setupBubbleButton(
   "difficultyBtn",
   "hint-left",
-  () => { if (window.app && app.__restartKeepBest) app.__restartKeepBest(); setTimeout(showStartSoundHint, 200); },
+  () => { armStartSoundHint(); if (window.app && app.__restartKeepBest) app.__restartKeepBest(); },
   () => {
     diffIndex = (diffIndex + 1) % DIFFS.length;
     applyDifficultyUI();
@@ -2871,35 +2888,6 @@ setupBubbleButton(
   () => { toggleFullscreen(); },
   HOLD_DURATION
 );
-
-/* ===== Start-of-game Sound Hint (shows AFTER character selection) =====
-   - Shows once per page load/refresh
-   - Only shows if music is currently OFF
-*/
-let __startSoundHintShown = false;
-
-function scheduleStartSoundHintAfterCharacterPick(){
-  if(__startSoundHintShown) return;
-  __startSoundHintShown = true;
-
-  // Small delay so the character overlay can disappear and layout settles
-  setTimeout(() => { showStartSoundHint(); }, 250);
-}
-
-// Trigger after FIRST character pick on fresh load
-document.querySelectorAll('.char-btn').forEach((b) => {
-  b.addEventListener('click', scheduleStartSoundHintAfterCharacterPick, { once: true });
-});
-
-// Safety fallback: if character overlay is already gone for any reason, still show once
-setTimeout(() => {
-  try{
-    const overlay = document.getElementById('character-select-overlay');
-    const overlayVisible = overlay && overlay.offsetParent !== null && getComputedStyle(overlay).display !== 'none';
-    if(!overlayVisible) scheduleStartSoundHintAfterCharacterPick();
-  }catch{}
-}, 800);
-
 
 
     
