@@ -1259,11 +1259,24 @@ body.touchpad-off .control-deck .mobile-touchpad{ display:none !important; }
 
 /* === MOBILE STAMP LAYOUT TUNING (Asteroids-Pro) === */
 
-/* Hint styling: neon pink (not plain white) */
+/* Hint styling: NEON RED (desktop + mobile) */
 .control-deck .neon-hover-hint{
-  color: rgba(255,138,192,0.98);
-  text-shadow: 0 0 10px rgba(255,59,130,.35);
+  color: rgba(255,42,42,0.98);
+  text-shadow:
+    0 0 10px rgba(255,42,42,.55),
+    0 0 18px rgba(255,42,42,.35),
+    0 0 28px rgba(255,42,42,.22);
 }
+
+/* Deck hint positioning (JS-anchored) */
+.control-deck{ position:relative; }
+.control-deck .neon-hover-hint{
+  position:absolute;
+  left:0;
+  top:0;
+  transform: translateX(-50%);
+}
+.control-deck .neon-hover-hint.hint-start{ max-width: 240px; }
 
 /* Hint arrows stay centered */
 .control-deck .neon-hover-hint::after{
@@ -1409,8 +1422,9 @@ body.touchpad-off .control-deck .mobile-touchpad{ display:none !important; }
     </div>
 
     <div class="control-deck" aria-label="Controls">
-      <div id="hint-left" class="neon-hover-hint">Tap: Pause</div>
-      <div id="hint-right" class="neon-hover-hint">Hold: Fullscreen</div>
+      <div id="hint-left" class="neon-hover-hint">Tap: Restart | Hold: Difficulty</div>
+      <div id="hint-right" class="neon-hover-hint">Tap: Sound | Hold: Fullscreen</div>
+      <div id="hint-sound-start" class="neon-hover-hint hint-start">Tap Here for Sound</div>
 
       <button id="pauseBtn" class="bubble-btn pizza-btn" type="button"
               aria-label="Pause" title="Pause">
@@ -1932,6 +1946,7 @@ function updateAudioViz(){
 // =========================
 const hintLeft  = document.getElementById('hint-left');
 const hintRight = document.getElementById('hint-right');
+const hintStart = document.getElementById('hint-sound-start');
 let hintTimerL = null, hintTimerR = null;
 
 function showHint(el, text, ms = 1500){
@@ -1940,13 +1955,61 @@ function showHint(el, text, ms = 1500){
   el.classList.add('show');
   const isLeft = el.id === 'hint-left';
   clearTimeout(isLeft ? hintTimerL : hintTimerR);
-  const t = setTimeout(() => el.classList.remove('show'), ms);
+  const t = setTimeout(() => {
+    el.classList.remove('show');
+  }, ms);
   if(isLeft) hintTimerL = t; else hintTimerR = t;
 }
+
+function placeHintOverButton(hintEl, btnEl, yGap = 10){
+  if(!hintEl || !btnEl) return;
+  const deck = btnEl.closest('.control-deck');
+  if(!deck) return;
+  const deckRect = deck.getBoundingClientRect();
+  const btnRect  = btnEl.getBoundingClientRect();
+
+  const hintRect = hintEl.getBoundingClientRect();
+
+  const cx = (btnRect.left + btnRect.right) / 2;
+  const top = btnRect.top - deckRect.top - hintRect.height - yGap;
+
+  hintEl.style.left = (cx - deckRect.left) + 'px';
+  hintEl.style.top  = Math.max(6, top) + 'px';
+}
+
+function positionDeckHints(){
+  // anchor left hint to RESET, right + start hint to SOUND
+  try{
+    placeHintOverButton(hintLeft, resetBtn, 10);
+    placeHintOverButton(hintRight, musicBtn, 10);
+    placeHintOverButton(hintStart, musicBtn, 10);
+  }catch{}
+}
+
+function showDeckHints(ms = 1500){
+  // Always show BOTH hints together (reset + sound), regardless of which was pressed
+  showHint(hintLeft,  'Tap: Restart | Hold: Difficulty', ms);
+  showHint(hintRight, 'Tap: Sound | Hold: Fullscreen',  ms);
+  positionDeckHints();
+}
+
+window.addEventListener('resize', () => {
+  // keep anchors accurate after rotations/resizes
+  positionDeckHints();
+});
 
 // Touchpad toggle removed intentionally
 // Touchpad will remain ON at all times
 document.body.classList.remove('touchpad-off');
+
+// Startup hint: point to SOUND button
+setTimeout(() => {
+  try{
+    showHint(hintStart, 'Tap Here for Sound', 4500);
+    positionDeckHints();
+  }catch{}
+}, 700);
+
 
     // Tap Music = toggle music. Hold 0.5s = fullscreen.
     musicBtn.addEventListener('pointerdown', (e) => {
@@ -1966,7 +2029,8 @@ document.body.classList.remove('touchpad-off');
   e.preventDefault();
   if (fsHoldFired) { fsHoldFired = false; return; }
   toggleMusic();
-  showHint(hintRight, 'Hold for Fullscreen');
+  showDeckHints(1800);
+  try{ if(hintStart) hintStart.classList.remove('show'); }catch{}
 });
 
 async function toggleMusic(){
@@ -2524,10 +2588,10 @@ function updateBosses(dt){
     resetBtn.addEventListener('click', (e) => {
   if(diffHoldFired){ e.preventDefault(); diffHoldFired = false; return; }
   resetRun(true);
-  showHint(hintLeft, 'Hold for Difficulty');
+  showDeckHints(1800);
 });
 
-    // Pause button + P key
+// Pause button + P key
     function setPaused(p){
       paused = p;
 
