@@ -1718,37 +1718,5 @@
 </script> 
 
 </div>    
-  <!-- Summon Chatbot -->
-<style>
-  #chat-toggle {
-    position:fixed; bottom:24px; right:24px;
-    width:60px; height:60px; border-radius:50%;
-    background:#00E5A0; border:none; cursor:pointer;
-    z-index:99999; font-size:26px;
-    box-shadow:0 4px 24px rgba(0,229,160,0.5);
-    transition:transform .2s;
-  }
-  #chat-toggle:hover{transform:scale(1.08)}
-  #chat-frame {
-    display:none; position:fixed;
-    bottom:96px; right:24px;
-    width:380px; height:580px;
-    border:none; border-radius:16px;
-    z-index:99999; box-shadow:0 8px 40px rgba(0,0,0,0.6);
-  }
-  #chat-frame.open{display:block}
-  @media(max-width:480px){
-    #chat-frame{width:100vw;height:100vh;bottom:0;right:0;border-radius:0}
-  }
-</style>
-<button id="chat-toggle" onclick="toggleChat()">💬</button>
-<iframe id="chat-frame" src="https://680d-174-109-176-38.ngrok-free.app" allow="microphone"></iframe>
-<script>
-  function toggleChat(){
-    const f=document.getElementById('chat-frame');
-    f.classList.toggle('open');
-    document.getElementById('chat-toggle').textContent=f.classList.contains('open')?'✕':'💬';
-  }
-</script>
 </body>
 </html>
