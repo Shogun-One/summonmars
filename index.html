@@ -636,6 +636,120 @@
       animation: pulseBeat 0.9s ease-in-out infinite;
     }
 
+
+    /* FEATURED LIVE ENERGY SECTION – two-song spotlight above main music */
+    .featured-energy-section {
+      position: relative;
+      padding-top: 1.8rem;
+      border-top: none;
+    }
+
+    .featured-energy-shell {
+      position: relative;
+      margin: 2rem auto 0;
+      padding: clamp(1rem, 3vw, 1.6rem);
+      border-radius: 26px;
+      background:
+        linear-gradient(180deg, rgba(0,0,0,0.62), rgba(0,0,0,0.88)),
+        radial-gradient(circle at 15% 0%, rgba(119,255,239,0.18), transparent 35%),
+        radial-gradient(circle at 85% 100%, rgba(255,102,255,0.16), transparent 40%);
+      overflow: hidden;
+      box-shadow:
+        0 0 28px rgba(119, 255, 239, 0.18),
+        0 0 64px rgba(255, 102, 255, 0.12),
+        0 20px 60px rgba(0, 0, 0, 0.9);
+    }
+
+    .featured-energy-shell::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      padding: 2px;
+      border-radius: inherit;
+      background: linear-gradient(
+        120deg,
+        var(--aurora-1),
+        var(--aurora-3),
+        var(--accent),
+        var(--aurora-4),
+        var(--aurora-1)
+      );
+      background-size: 300% 300%;
+      animation: liveBorderFlow 4s linear infinite;
+      -webkit-mask:
+        linear-gradient(#000 0 0) content-box,
+        linear-gradient(#000 0 0);
+      -webkit-mask-composite: xor;
+              mask-composite: exclude;
+      pointer-events: none;
+    }
+
+    .featured-energy-shell::after {
+      content: "";
+      position: absolute;
+      inset: -35%;
+      background:
+        conic-gradient(
+          from 0deg,
+          transparent,
+          rgba(119,255,239,0.12),
+          transparent,
+          rgba(255,102,255,0.12),
+          transparent
+        );
+      animation: energySweep 10s linear infinite;
+      pointer-events: none;
+      opacity: 0.65;
+    }
+
+    @keyframes liveBorderFlow {
+      0% { background-position: 0% 50%; }
+      100% { background-position: 300% 50%; }
+    }
+
+    @keyframes energySweep {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .featured-energy-grid {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1.5rem;
+      justify-items: center;
+    }
+
+    .featured-energy-grid .embed-wrapper {
+      max-width: 360px;
+      border-color: rgba(255, 253, 154, 0.28);
+      box-shadow:
+        0 0 18px rgba(255, 253, 154, 0.14),
+        0 0 38px rgba(0, 195, 255, 0.16),
+        0 14px 40px rgba(0, 0, 0, 0.85);
+    }
+
+    .featured-energy-grid .embed-wrapper:nth-child(1) {
+      transform-origin: 100% 50%;
+      transform: rotateX(5deg) rotateY(-6deg);
+    }
+
+    .featured-energy-grid .embed-wrapper:nth-child(2) {
+      transform-origin: 0% 50%;
+      transform: rotateX(5deg) rotateY(6deg);
+    }
+
+    .featured-kicker {
+      margin-top: 0.55rem;
+      color: var(--text-sub);
+      font-size: 0.85rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      opacity: 0.9;
+    }
+
+
     /* --- RESPONSIVE LAYOUT FOUNDATION --- */
 :root{
   --maxw: 1100px;
@@ -976,6 +1090,19 @@
         margin: 0 auto; /* Ensure centering */
       }
 
+
+      .featured-energy-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .featured-energy-grid .embed-wrapper,
+      .featured-energy-grid .embed-wrapper:nth-child(1),
+      .featured-energy-grid .embed-wrapper:nth-child(2) {
+        transform: none;
+        transform-origin: center;
+        margin: 0 auto;
+      }
+
       /* MOBILE FIX: CENTER GIFS */
       .gif-grid {
         gap: 1.25rem;
@@ -1175,6 +1302,61 @@
   </div>
 
   <main>
+
+
+    <section id="featured-music" class="featured-energy-section">
+      <h2>Featured Signals</h2>
+      <p>
+        Two live transmissions riding the top rail before the main archive.
+      </p>
+      <div class="featured-kicker">New signal chamber active</div>
+
+      <div class="featured-energy-shell">
+        <div class="featured-energy-grid">
+
+          <div class="embed-wrapper" data-audio-id="track-rhythm-mechanics">
+            <div class="embed-inner">
+              <div class="track-cover">
+                <img src="images/main/cover-rhythm-mechanics.png" alt="Rhythm Mechanics cover art">
+              </div>
+              <div class="track-meta">
+                <div class="track-title">Rhythm Mechanics</div>
+                <div class="track-row">
+                  <button class="track-play" type="button" aria-label="Play Rhythm Mechanics">▶</button>
+                  <div class="track-links">
+                    <a href="https://open.spotify.com/track/0G5WuOtqYrrwiJY9vGV2Pz" target="_blank" rel="noopener">SPOTIFY</a>
+                    <a href="https://music.apple.com/us/artist/summon-mars/1770939240" target="_blank" rel="noopener">APPLE</a>
+                    <a href="https://www.youtube.com/@SummonMarsOfficial" target="_blank" rel="noopener">YT</a>
+                  </div>
+                </div>
+                <audio id="track-rhythm-mechanics" src="./mp3/rhythm-mechanics-song.mp3" preload="none"></audio>
+              </div>
+            </div>
+          </div>
+
+          <div class="embed-wrapper" data-audio-id="track-featured-two">
+            <div class="embed-inner">
+              <div class="track-cover">
+                <img src="images/main/cover-featured-two.png" alt="Second featured song cover art">
+              </div>
+              <div class="track-meta">
+                <div class="track-title">Second Featured Song</div>
+                <div class="track-row">
+                  <button class="track-play" type="button" aria-label="Play Second Featured Song">▶</button>
+                  <div class="track-links">
+                    <a href="https://open.spotify.com/artist/5GohNtXpBBkQyOfYpweSnO" target="_blank" rel="noopener">SPOTIFY</a>
+                    <a href="https://music.apple.com/us/artist/summon-mars/1770939240" target="_blank" rel="noopener">APPLE</a>
+                    <a href="https://www.youtube.com/@SummonMarsOfficial" target="_blank" rel="noopener">YT</a>
+                  </div>
+                </div>
+                <audio id="track-featured-two" src="./mp3/featured-two-song.mp3" preload="none"></audio>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
 
     <section id="music">
       <h2>Music</h2>
