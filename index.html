@@ -716,18 +716,53 @@
       position: relative;
       z-index: 1;
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 1.5rem;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: clamp(0.45rem, 1.4vw, 1rem);
       justify-items: center;
+      align-items: stretch;
     }
 
     .featured-energy-grid .embed-wrapper {
-      max-width: 360px;
+      max-width: 245px;
+      min-width: 0;
       border-color: rgba(255, 253, 154, 0.28);
       box-shadow:
         0 0 18px rgba(255, 253, 154, 0.14),
         0 0 38px rgba(0, 195, 255, 0.16),
         0 14px 40px rgba(0, 0, 0, 0.85);
+    }
+
+    .featured-energy-grid .track-meta {
+      padding: 0.62rem 0.65rem 0.72rem;
+    }
+
+    .featured-energy-grid .track-title {
+      font-size: clamp(0.62rem, 1.6vw, 0.82rem);
+      letter-spacing: 0.11em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .featured-energy-grid .track-row {
+      gap: 0.35rem;
+    }
+
+    .featured-energy-grid .track-play {
+      width: clamp(30px, 6vw, 36px);
+      height: clamp(30px, 6vw, 36px);
+      font-size: 0.95rem;
+    }
+
+    .featured-energy-grid .track-links {
+      gap: 0.22rem;
+      font-size: clamp(0.42rem, 1.5vw, 0.58rem);
+      letter-spacing: 0.08em;
+      flex-wrap: wrap;
+    }
+
+    .featured-energy-grid .track-links a {
+      padding: 0.18rem 0.32rem;
     }
 
     .featured-energy-grid .embed-wrapper:nth-child(1) {
@@ -736,6 +771,11 @@
     }
 
     .featured-energy-grid .embed-wrapper:nth-child(2) {
+      transform-origin: 50% 50%;
+      transform: rotateX(4deg);
+    }
+
+    .featured-energy-grid .embed-wrapper:nth-child(3) {
       transform-origin: 0% 50%;
       transform: rotateX(5deg) rotateY(6deg);
     }
@@ -1092,12 +1132,18 @@
 
 
       .featured-energy-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 0.42rem;
+      }
+
+      .featured-energy-shell {
+        padding: 0.65rem;
       }
 
       .featured-energy-grid .embed-wrapper,
       .featured-energy-grid .embed-wrapper:nth-child(1),
-      .featured-energy-grid .embed-wrapper:nth-child(2) {
+      .featured-energy-grid .embed-wrapper:nth-child(2),
+      .featured-energy-grid .embed-wrapper:nth-child(3) {
         transform: none;
         transform-origin: center;
         margin: 0 auto;
@@ -1795,11 +1841,34 @@
       const buttons = document.querySelectorAll('.track-play');
       const audios  = document.querySelectorAll('audio[id^="track-"]');
 
+      const AUDIO_PREVIEW_SECONDS = 23;
+
       const pauseAll = () => {
         audios.forEach(a => a.pause());
         cards.forEach(c => c.classList.remove('playing'));
         buttons.forEach(b => b.textContent = '▶');
       };
+
+      const stopPreview = (audio) => {
+        const card = document.querySelector(`[data-audio-id="${audio.id}"]`);
+        const btn = card ? card.querySelector('.track-play') : null;
+        audio.pause();
+        audio.currentTime = 0;
+        if (card) card.classList.remove('playing');
+        if (btn) btn.textContent = '▶';
+      };
+
+      audios.forEach(audio => {
+        audio.addEventListener('timeupdate', () => {
+          if (audio.currentTime >= AUDIO_PREVIEW_SECONDS) {
+            stopPreview(audio);
+          }
+        });
+
+        audio.addEventListener('ended', () => {
+          stopPreview(audio);
+        });
+      });
 
       buttons.forEach(btn => {
         btn.addEventListener('click', (e) => {
@@ -1815,6 +1884,7 @@
             btn.textContent = '▶';
           } else {
             pauseAll();
+            audio.currentTime = 0;
             audio.play();
             card.classList.add('playing');
             btn.textContent = '⏸';
