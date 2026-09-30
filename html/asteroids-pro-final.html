@@ -2164,16 +2164,43 @@ document.querySelectorAll('img[data-asset]').forEach((img) => {
     let width = canvas.width;
     let height = canvas.height;
 
+    function fullscreenElement(){
+      return document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement;
+    }
+
+    async function enterFullscreen(){
+      if(fullscreenElement()) return true;
+      const el = document.documentElement;
+      const request = el.requestFullscreen || el.webkitRequestFullscreen || el.msRequestFullscreen;
+      if(!request) return false;
+      try{
+        await request.call(el);
+        return Boolean(fullscreenElement());
+      }catch{
+        return false;
+      }
+    }
+
     function toggleFullscreen(){
       const doc = document;
-      const el  = document.documentElement;
-      const isFS = doc.fullscreenElement || doc.webkitFullscreenElement || doc.msFullscreenElement;
-      if(!isFS){
-        (el.requestFullscreen || el.webkitRequestFullscreen || el.msRequestFullscreen).call(el);
+      if(!fullscreenElement()){
+        enterFullscreen();
       }else{
         (doc.exitFullscreen || doc.webkitExitFullscreen || doc.msExitFullscreen).call(doc);
       }
     }
+
+    // Browsers reject true fullscreen on an unattended page load. Attempt it
+    // immediately, then retry on the first qualifying user gesture. Once the
+    // game has entered fullscreen, an intentional exit is respected.
+    let autoFullscreenPending = true;
+    async function requestLaunchFullscreen(){
+      if(!autoFullscreenPending) return;
+      if(await enterFullscreen()) autoFullscreenPending = false;
+    }
+    window.addEventListener('load', requestLaunchFullscreen, { once:true });
+    document.addEventListener('pointerdown', requestLaunchFullscreen, { capture:true });
+    document.addEventListener('keydown', requestLaunchFullscreen, { capture:true });
 
 // Music
     const musicBtn = document.getElementById('musicBtn');
