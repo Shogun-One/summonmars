@@ -1815,10 +1815,10 @@ html.preview-locked,html.preview-locked body{overflow:hidden!important}.preview-
             </button>
 
       <button id="reset-btn" class="bubble-btn restart-btn" type="button"
-              aria-label="Reset Game" title="Reset Game">
+              aria-label="Launch Missile" title="Collect a MISSILE ×3 pickup">
               <span class="ring flip" aria-hidden="true">
                 <span class="face stamp">
-                  <img class="stamp-img" data-asset="images/asteroids/reset-stamp.png" alt="">
+                  <img class="stamp-img" data-asset="images/asteroids/missile-stamp.png" alt="">
                 </span>
                 <span class="face woofer"></span>
               </span>
@@ -2505,7 +2505,6 @@ async function setSoundMode(nextMode, announce = true){
       }
     }
     // Difficulty selector
-    // Keep difficulty presets, but drive it via HOLD on the Restart bubble (0.5s)
     const DIFF_PRESETS = [
       { name:"Easy Peasy",         mult:.72, movement:.86, enemyFire:.82, bulletSpeed:.88, armor:0, bossAggro:.76, progress:.90, extraBossShots:0 },
       { name:"Gimme more ammo",    mult:.95, movement:.98, enemyFire:.96, bulletSpeed:.97, armor:0, bossAggro:.94, progress:1.05, extraBossShots:0 },
@@ -2536,12 +2535,10 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
       if(restart) softRestart();
     }
 
-    // Clickable stamps follow their visible labels. Physical gamepad fire
-    // remains mapped independently to A / Cross.
+    // The bottom-left stamp is missile-only. Reset now lives in the pause menu.
     resetBtn.addEventListener('click', (e) => {
       e.preventDefault();
-      softRestart();
-      showGameAlert('NEW GAME', 'sound-on');
+      launchMissile();
     });
 
     weaponStatusOverlayEl.addEventListener('click', (e) => {
@@ -3481,7 +3478,7 @@ function updateBosses(dt){
     function pauseMenuNavigate(direction){
       if(!paused || direction === 0) return;
       if(pauseMenuView === 'root'){
-        pauseMenuSelection = (pauseMenuSelection + (direction > 0 ? 1 : -1) + 6) % 6;
+        pauseMenuSelection = (pauseMenuSelection + (direction > 0 ? 1 : -1) + 7) % 7;
       }else if(pauseMenuView === 'directions'){
         pauseDirectionSelection = (pauseDirectionSelection + (direction > 0 ? 1 : -1) + 2) % 2;
       }else if(pauseMenuView === 'controllerTypes'){
@@ -3493,13 +3490,16 @@ function updateBosses(dt){
       if(!paused) return;
       if(pauseMenuView === 'root'){
         if(pauseMenuSelection === 0){ pauseMenuView = 'directions'; pauseDirectionSelection = 0; }
-        else if(pauseMenuSelection === 1) pauseMenuView = 'controllerTypes';
+        else if(pauseMenuSelection === 1) setPaused(false);
         else if(pauseMenuSelection === 2){
+          softRestart();
+          showGameAlert('NEW GAME', 'sound-on');
+        }else if(pauseMenuSelection === 3) pauseMenuView = 'controllerTypes';
+        else if(pauseMenuSelection === 4){
           toggleFullscreen();
           showGameAlert(document.fullscreenElement ? 'EXITING FULLSCREEN' : 'FULLSCREEN', 'sound-on');
-        }else if(pauseMenuSelection === 3) cycleSoundMode();
-        else if(pauseMenuSelection === 4) cycleDifficulty(false);
-        else setPaused(false);
+        }else if(pauseMenuSelection === 5) cycleSoundMode();
+        else cycleDifficulty(false);
       }else if(pauseMenuView === 'controllerTypes'){
         if(pauseControllerIndex === 3) pauseMenuView = 'root';
         else pauseMenuView = 'controllerDetail';
@@ -3532,15 +3532,24 @@ function updateBosses(dt){
     function rootMenuRects(){
       if(width < 600){
         const x=45,w=width-90,h=55,gap=7,top=66;
-        return Array.from({length:6},(_,i)=>({x,y:top+i*(h+gap),w,h}));
+        const splitGap=8,splitW=(w-splitGap)/2,splitY=top+h+gap;
+        return [
+          {x,y:top,w,h},
+          {x,y:splitY,w:splitW,h}, {x:x+splitW+splitGap,y:splitY,w:splitW,h},
+          {x,y:top+2*(h+gap),w,h}, {x,y:top+3*(h+gap),w,h},
+          {x,y:top+4*(h+gap),w,h}, {x,y:top+5*(h+gap),w,h}
+        ];
       }
-      const margin=50,gapX=18,gapY=14,top=height<620?72:92;
+      const margin=50,gapX=18,gapY=12,top=height<620?66:82;
       const w=(width-margin*2-gapX)/2;
-      const h=Math.min(100,Math.max(76,(height-top-48-gapY*2)/3));
-      return Array.from({length:6},(_,i)=>({
-        x:margin+(i%2)*(w+gapX),
-        y:top+Math.floor(i/2)*(h+gapY),w,h
-      }));
+      const h=Math.min(100,Math.max(76,(height-top-44-gapY*2)/3));
+      const splitGap=10,splitW=(w-splitGap)/2,rightX=margin+w+gapX;
+      return [
+        {x:margin,y:top,w,h},
+        {x:rightX,y:top,w:splitW,h}, {x:rightX+splitW+splitGap,y:top,w:splitW,h},
+        {x:margin,y:top+h+gapY,w,h}, {x:rightX,y:top+h+gapY,w,h},
+        {x:margin,y:top+2*(h+gapY),w,h}, {x:rightX,y:top+2*(h+gapY),w,h}
+      ];
     }
 
     function handlePausePointer(clientX,clientY){
@@ -4132,6 +4141,9 @@ document.addEventListener('visibilitychange', () => { if(document.hidden){ cance
       pauseBtn.classList.toggle('on', missileAmmo > 0);
       pauseBtn.setAttribute('aria-label', `Launch Missile, ${missileAmmo} remaining`);
       pauseBtn.title = missileAmmo > 0 ? `Launch Missile (${missileAmmo})` : 'Collect a MISSILE ×3 pickup';
+      resetBtn.classList.toggle('on', missileAmmo > 0);
+      resetBtn.setAttribute('aria-label', missileAmmo > 0 ? `Launch Missile, ${missileAmmo} remaining` : 'Missile launcher empty');
+      resetBtn.title = missileAmmo > 0 ? `Launch Missile (${missileAmmo})` : 'Collect a MISSILE ×3 pickup';
       missileReserveCountEl.textContent = String(missileAmmo);
       missileReserveEl.classList.toggle('active', missileAmmo > 0);
       missileReserveEl.setAttribute('aria-hidden', missileAmmo > 0 ? 'false' : 'true');
@@ -5825,7 +5837,7 @@ if (flashTimer > 0) {
 
         ctx.fillStyle = 'rgba(228,228,255,0.75)';
         ctx.font = '12px system-ui';
-        ctx.fillText("Difficulty: " + dName + " (hold Restart for Difficulty)", width/2, height/2 + 54);
+        ctx.fillText("Difficulty: " + dName + " (change in Pause Menu)", width/2, height/2 + 54);
       }else{
         // Post-death respawn: keep it simple
         ctx.fillStyle = 'rgba(255,231,255,0.96)';
@@ -5992,11 +6004,12 @@ if (flashTimer > 0) {
         const soundLabel = soundMode === 'full' ? 'MUSIC + EFFECTS' : soundMode === 'effects' ? 'EFFECTS ONLY' : 'SOUND OFF';
         const entries=[
           ['DIRECTIONS','All gameplay and menu controls'],
+          ['RESUME','Return to the action'],
+          ['RESET','Start a new game'],
           ['CONTROLLER TYPE','Xbox • PlayStation • Keyboard'],
           ['FULLSCREEN','Use the whole display'],
           [`SOUND: ${soundLabel}`,'Select to change audio mode'],
-          [`DIFFICULTY: ${DIFF_PRESETS[diffIndex].name.toUpperCase()}`,'Select to change difficulty'],
-          ['RESUME GAME','Return to the action']
+          [`DIFFICULTY: ${DIFF_PRESETS[diffIndex].name.toUpperCase()}`,'Select to change difficulty']
         ];
         rootMenuRects().forEach((rect,i)=>card(rect.x,rect.y,rect.w,rect.h,pauseMenuSelection===i,...entries[i]));
       }else if(pauseMenuView==='directions'){
@@ -6008,7 +6021,7 @@ if (flashTimer > 0) {
           ['SOUND','Pause Menu sound box • M • Y / Triangle'],
           ['PAUSE / MENU','Hold joystick 0.65 sec • Tap menu boxes • P / Start'],
           ['TOUCH / FULLSCREEN','Touch controls hide with gamepad • Fullscreen box'],
-          ['RESET / DIFFICULTY','Reset stamp • R • Pause Menu difficulty box']
+          ['RESET / DIFFICULTY','Pause Menu boxes • R for reset']
         ]:[
           ['STEER / THRUST','Drag virtual joystick • Arrow Keys • WASD • Either Stick • D-Pad'],
           ['FIRE / SELECT','Touch joystick • Space / Enter • A / Cross'],
@@ -6017,7 +6030,7 @@ if (flashTimer > 0) {
           ['SOUND','Pause Menu sound box • M • Y / Triangle'],
           ['PAUSE / MENU','Hold joystick 0.65 sec • Tap menu boxes • P / Start'],
           ['TOUCH / FULLSCREEN','Touch controls auto-hide with gamepad • Fullscreen box'],
-          ['RESET / DIFFICULTY','Reset stamp • R • Pause Menu difficulty box']
+          ['RESET / DIFFICULTY','Pause Menu boxes • R for reset']
         ];
         ctx.textAlign='left';
         if(compact){
@@ -6036,7 +6049,7 @@ if (flashTimer > 0) {
             ['SOUND','Pause Menu box • M • Y/Triangle'],
             ['PAUSE / MENU','Hold joystick • Tap boxes • P/Start'],
             ['TOUCH / FULLSCREEN','Auto-hides with controller • Fullscreen box'],
-            ['RESET / DIFFICULTY','Reset • R • Pause Menu box']
+            ['RESET / DIFFICULTY','Pause Menu boxes • R for reset']
           ];
           const margin=Math.max(55,width*.07),columnWidth=(width-margin*2)/2,startY=82,lineH=62;
           shortLines.forEach(([label,value],i)=>{
