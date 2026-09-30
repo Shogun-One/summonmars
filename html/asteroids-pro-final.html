@@ -2833,6 +2833,17 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
       'pilot-indian-f':5,'pilot-indian-m':6,'pilot-black-f':7,'pilot-black-m':8,
       'pilot-asian-f':9,'pilot-asian-m':10
     };
+    const detailedShipSources={
+      'ship-emerald':'images/asteroids/ship-emerald.png',
+      'ship-cobalt':'images/asteroids/ship-cobalt.png',
+      'ship-manta':'images/asteroids/ship-manta.png',
+      'ship-dogbus':'images/asteroids/ship-dogbus.png',
+      'ship-phoenix':'images/asteroids/ship-phoenix.png'
+    };
+    const detailedShipImgs={};
+    for(const [id,src] of Object.entries(detailedShipSources)){
+      const img=new Image();img.decoding='async';img.src=A(src);detailedShipImgs[id]=img;
+    }
     function pilotPortraitSource(pilotId=equippedStore.pilot){
       const useAtlas2=Number.isInteger(inventoryAtlas2Cell[pilotId]);
       const index=useAtlas2?inventoryAtlas2Cell[pilotId]:inventoryAtlasCell[pilotId];
@@ -5395,18 +5406,13 @@ if (flashTimer > 0) {
         ctx.shadowBlur = 0;
       }
 
-      const detailedShipIndex=inventoryAtlas2Cell[equippedStore.ship];
-      if(inventoryAtlas2Ready && Number.isInteger(detailedShipIndex) && detailedShipIndex<=4){
-        const sw=inventoryAtlas2Img.naturalWidth/4,sh=inventoryAtlas2Img.naturalHeight/3;
-        const sx=(detailedShipIndex%4)*sw,sy=Math.floor(detailedShipIndex/4)*sh;
+      const detailedShipImg=detailedShipImgs[equippedStore.ship];
+      if(detailedShipImg?.complete && detailedShipImg.naturalWidth>0){
         const spriteSize=ship.radius*(equippedStore.ship==='ship-dogbus'?3.75:3.45);
         ctx.save();
         ctx.rotate(SHIP_SPRITE_FORWARD_OFFSET);
-        // Screen blending drops the atlas' near-black space backdrop into the
-        // arena while retaining the bright hull silhouette and engine glow.
-        ctx.globalCompositeOperation='screen';
         ctx.globalAlpha=.98;
-        ctx.drawImage(inventoryAtlas2Img,sx,sy,sw,sh,-spriteSize/2,-spriteSize/2,spriteSize,spriteSize);
+        ctx.drawImage(detailedShipImg,-spriteSize/2,-spriteSize/2,spriteSize,spriteSize);
         ctx.restore();
       } else if (shipImgReady && shipImg.naturalWidth > 0) {
         const spriteH = ship.radius * 2.75;
