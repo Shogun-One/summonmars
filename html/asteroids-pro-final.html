@@ -1493,6 +1493,13 @@ body.touchpad-off .control-deck .mobile-touchpad{ display:none !important; }
   }
 }
 
+@media (max-width:420px){
+  h1{
+    max-width:calc(100% - 48px);
+    font-size:1.25rem;
+  }
+}
+
 .controller-config-btn{
   position:fixed;
   top:calc(10px + env(safe-area-inset-top));
@@ -1567,7 +1574,7 @@ body.touchpad-off .control-deck .mobile-touchpad{ display:none !important; }
 /* Phone-first playfield sizing. Do not shrink the entire game just to keep
    the physical control deck inside one short browser viewport; use the full
    safe width and let the deck follow naturally below it. */
-@media (max-width:679px){
+@media (max-width:900px){
   body{
     overflow-x:hidden;
     overflow-y:auto;
@@ -1575,7 +1582,7 @@ body.touchpad-off .control-deck .mobile-touchpad{ display:none !important; }
   }
   .wrapper{
     /* One outer console frame governs HUD, arena, and deck together. */
-    --mobile-console-width:min(480px, calc(100vw - 12px), calc((100dvh - 120px) * .75));
+    --mobile-console-width:min(480px, calc(100vw - 12px), max(300px, calc((100dvh - 260px) * .75)));
     --mobile-deck-height:clamp(158px, 52vw, 200px);
     --mobile-big-control:clamp(76px, 25vw, 96px);
     --mobile-small-control:clamp(46px, 16vw, 60px);
@@ -1603,7 +1610,8 @@ body.touchpad-off .control-deck .mobile-touchpad{ display:none !important; }
     max-width:480px;
     z-index:12;
     min-height:var(--mobile-deck-height);
-    margin-top:calc(-1 * var(--mobile-deck-height));
+    /* Speakers straddle the arena edge instead of covering the lower playfield. */
+    margin-top:calc(var(--mobile-big-control) * -.5);
     grid-template-columns:minmax(0,1fr) minmax(116px,42%) minmax(0,1fr);
     grid-template-rows:var(--mobile-big-control) var(--mobile-small-control);
     gap:clamp(6px,2vw,10px);
@@ -1639,6 +1647,11 @@ body.touchpad-off .control-deck .mobile-touchpad{ display:none !important; }
   body.controller-connected .control-deck .mobile-touchpad{
     display:none !important;
   }
+  body.controller-connected .control-deck .mobile-fire-btn{
+    /* Center the two live weapon controls between the speaker columns. */
+    left:calc(50% + 6px) !important;
+    bottom:8px !important;
+  }
   .touchpad-plate.pause-hold{
     border-color:rgba(125,255,188,.95);
     box-shadow:0 0 18px rgba(125,255,188,.75), inset 0 0 24px rgba(125,255,188,.16);
@@ -1658,26 +1671,6 @@ body.touchpad-off .control-deck .mobile-touchpad{ display:none !important; }
   }
 }
 
-/* Unfolded phones/tablets are wide but still touch-first. Keep the same
-   on-screen Fire affordance until a physical controller is available. */
-@media (pointer:coarse), (min-width:680px) and (max-width:900px){
-  .control-deck .mobile-fire-btn{
-    display:grid;
-    position:absolute !important;
-    z-index:18;
-    left:calc(50% - 158px) !important;
-    right:auto !important;
-    top:auto !important;
-    bottom:2px !important;
-    width:60px;
-    height:60px;
-    transform:none !important;
-  }
-  body.controller-connected .control-deck .mobile-touchpad{
-    display:none !important;
-  }
-}
-
 /* The reserve counter is a live gameplay control, but pause menus need the
    whole arena. Keep it out of every paused layout, including unfolded phones. */
 body.game-paused .control-deck .missile-reserve{
@@ -1687,7 +1680,7 @@ body.game-paused .control-deck .missile-reserve{
 
 /* Wide screens get a genuinely larger playfield, not a stretched portrait
    canvas. Height remains reserved for the HUD and physical control deck. */
-@media (min-width:680px){
+@media (min-width:901px){
   .wrapper{
     width:min(1800px, 100%);
     padding-left:16px;
@@ -2061,7 +2054,7 @@ document.querySelectorAll('img[data-asset]').forEach((img) => {
     // Game
     // =========================
     const canvas = document.getElementById('game');
-    let wideArena = window.matchMedia('(min-width:680px)').matches;
+    let wideArena = window.matchMedia('(min-width:901px)').matches;
     if(wideArena){
       const initialArenaHeight = Math.min(680, Math.max(300, window.innerHeight - 345));
       const initialArenaWidth = Math.min(window.innerWidth - 32, initialArenaHeight * 3, 1800);
@@ -2323,11 +2316,17 @@ function positionMissileReserve(){
     // A connected controller hides the touchpad, whose zero-sized rectangle
     // used to throw this counter to the page's top-left corner. In that state,
     // anchor it beside the still-visible Fire stamp instead.
-    const anchorRect = padRect.width > 0 && padRect.height > 0 ? padRect : fireRect;
-    const anchorLeft = anchorRect.left - deckRect.left;
-    const anchorTop = anchorRect.top - deckRect.top;
-    missileReserveEl.style.left = `${Math.max(4, anchorLeft - size - 10)}px`;
-    missileReserveEl.style.top = `${Math.max(4, anchorTop + (anchorRect.height - size) / 2)}px`;
+    if(document.body.classList.contains('controller-connected')){
+      // With no touchpad, keep Missile + Fire as a centered pair in the gap
+      // between the left and right speaker stacks.
+      missileReserveEl.style.left = `${Math.max(4, (deckRect.width - (size + 8 + fireRect.width)) / 2)}px`;
+      missileReserveEl.style.top = `${Math.max(4, deckRect.height - size - 8)}px`;
+    }else{
+      const anchorLeft = padRect.left - deckRect.left;
+      const anchorTop = padRect.top - deckRect.top;
+      missileReserveEl.style.left = `${Math.max(4, anchorLeft - size - 10)}px`;
+      missileReserveEl.style.top = `${Math.max(4, anchorTop + (padRect.height - size) / 2)}px`;
+    }
   }catch{}
 }
 
@@ -2649,7 +2648,7 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
     let lastMissileReserveAmmo = 0;
 
     function resizeGameArenaForViewport(){
-      const shouldBeWide = window.matchMedia('(min-width:680px)').matches;
+      const shouldBeWide = window.matchMedia('(min-width:901px)').matches;
       const displayRect = canvas.getBoundingClientRect();
       const targetHeight = shouldBeWide ? 500 : 640;
       const displayRatio = displayRect.height > 0 ? displayRect.width / displayRect.height : 1.92;
@@ -3799,6 +3798,7 @@ function updateBosses(dt){
         : 'No controller connected';
       document.body.classList.toggle('controller-connected', gamepadState.connected);
       if(!gamepadState.connected) document.body.classList.remove('touchpad-off');
+      requestAnimationFrame(positionMissileReserve);
     }
 
     populateGamepadConfig(gamepadConfig);
