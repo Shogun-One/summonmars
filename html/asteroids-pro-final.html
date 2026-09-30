@@ -1659,6 +1659,27 @@ body.touchpad-off .control-deck .mobile-touchpad{ display:none !important; }
   }
 }
 
+/* Unfolded phones/tablets are wide but still touch-first. Keep the same
+   on-screen Fire affordance until a physical controller is available. */
+@media (pointer:coarse), (min-width:680px) and (max-width:900px){
+  body:not(.controller-connected) .control-deck .mobile-fire-btn{
+    display:grid;
+    position:absolute !important;
+    z-index:18;
+    left:calc(50% - 158px) !important;
+    right:auto !important;
+    top:auto !important;
+    bottom:2px !important;
+    width:60px;
+    height:60px;
+    transform:none !important;
+  }
+  body.controller-connected .control-deck .mobile-touchpad,
+  body.controller-connected .control-deck .mobile-fire-btn{
+    display:none !important;
+  }
+}
+
 /* Wide screens get a genuinely larger playfield, not a stretched portrait
    canvas. Height remains reserved for the HUD and physical control deck. */
 @media (min-width:680px){
@@ -3443,6 +3464,7 @@ function updateBosses(dt){
 // Pause button + P key
     let pauseMenuView = 'root';
     let pauseMenuSelection = 0;
+    let pauseDirectionSelection = 0;
     let pauseControllerIndex = 0;
     let pauseMenuNavLatch = false;
 
@@ -3450,6 +3472,8 @@ function updateBosses(dt){
       if(!paused || direction === 0) return;
       if(pauseMenuView === 'root'){
         pauseMenuSelection = (pauseMenuSelection + (direction > 0 ? 1 : -1) + 3) % 3;
+      }else if(pauseMenuView === 'directions'){
+        pauseDirectionSelection = (pauseDirectionSelection + (direction > 0 ? 1 : -1) + 2) % 2;
       }else if(pauseMenuView === 'controllerTypes'){
         pauseControllerIndex = (pauseControllerIndex + (direction > 0 ? 1 : -1) + 3) % 3;
       }
@@ -3458,7 +3482,7 @@ function updateBosses(dt){
     function pauseMenuSelect(){
       if(!paused) return;
       if(pauseMenuView === 'root'){
-        if(pauseMenuSelection === 0) pauseMenuView = 'directions';
+        if(pauseMenuSelection === 0){ pauseMenuView = 'directions'; pauseDirectionSelection = 0; }
         else if(pauseMenuSelection === 1) pauseMenuView = 'controllerTypes';
         else{
           toggleFullscreen();
@@ -3466,11 +3490,30 @@ function updateBosses(dt){
         }
       }else if(pauseMenuView === 'controllerTypes'){
         pauseMenuView = 'controllerDetail';
+      }else if(pauseMenuView === 'directions'){
+        if(pauseDirectionSelection === 0) setPaused(false);
+        else pauseMenuView = 'root';
       }else if(pauseMenuView === 'controllerDetail'){
         pauseMenuView = 'controllerTypes';
       }else{
         pauseMenuView = 'root';
       }
+    }
+
+    function directionActionRects(){
+      if(width<600) return [
+        {x:90,y:430,w:width-180,h:44},
+        {x:90,y:484,w:width-180,h:44}
+      ];
+      const w=Math.min(340,width*.38),x=(width-w)/2;
+      if(height<620) return [
+        {x,y:350,w,h:42},
+        {x,y:402,w,h:42}
+      ];
+      return [
+        {x,y:height-142,w,h:42},
+        {x,y:height-90,w,h:42}
+      ];
     }
 
     function handlePausePointer(clientX,clientY){
@@ -3493,6 +3536,12 @@ function updateBosses(dt){
           else if(y>=top+170&&y<=top+270) pauseMenuSelection=2;
           else return;
         }
+        pauseMenuSelect();
+      }else if(pauseMenuView==='directions'){
+        const buttons=directionActionRects();
+        const index=buttons.findIndex(rect=>x>=rect.x&&x<=rect.x+rect.w&&y>=rect.y&&y<=rect.y+rect.h);
+        if(index<0) return;
+        pauseDirectionSelection=index;
         pauseMenuSelect();
       }else if(pauseMenuView==='controllerTypes'){
         if(compact){
@@ -5875,7 +5924,7 @@ if (flashTimer > 0) {
     function drawPaused(){
       if(!paused || gameOver) return;
       ctx.save();
-      ctx.fillStyle='rgba(0,0,0,.72)';ctx.fillRect(0,0,width,height);
+      ctx.fillStyle='rgba(0,0,0,.88)';ctx.fillRect(0,0,width,height);
       ctx.textAlign='center';ctx.textBaseline='middle';
       const compact=width<600;
       const titleSize=compact?30:30;
@@ -5895,6 +5944,16 @@ if (flashTimer > 0) {
         ctx.fillStyle='rgba(228,228,255,.76)';ctx.font=`${compact?16:12}px system-ui`;
         ctx.fillText(description,x+w/2,y+h*.68);
       };
+      const actionCard=(rect,selected,title)=>{
+        ctx.fillStyle=selected?'rgba(45,18,55,.98)':'rgba(15,9,24,.94)';
+        ctx.strokeStyle=selected?'#7dffbc':'rgba(255,94,130,.55)';
+        ctx.lineWidth=selected?3:1.5;
+        ctx.shadowColor=selected?'rgba(80,255,165,.65)':'transparent';ctx.shadowBlur=selected?12:0;
+        roundRect(ctx,rect.x,rect.y,rect.w,rect.h,12,true,true);ctx.shadowBlur=0;
+        ctx.fillStyle=selected?'#7dffbc':'#fff0fa';
+        ctx.font=`900 ${compact?16:15}px Orbitron`;
+        ctx.fillText(title,rect.x+rect.w/2,rect.y+rect.h/2+1);
+      };
 
       if(pauseMenuView==='root'){
         if(compact){
@@ -5907,8 +5966,6 @@ if (flashTimer > 0) {
           card(50+w+gap,y,w,h,pauseMenuSelection===1,'CONTROLLER TYPE','View mapped buttons and keys');
           card(width/2-210,y+175,420,90,pauseMenuSelection===2,'FULLSCREEN','Enter or exit browser fullscreen');
         }
-        ctx.fillStyle='rgba(228,228,255,.78)';ctx.font=`${compact?16:12}px system-ui`;
-        ctx.fillText('Tap a box  •  Hold touchpad to resume',width/2,compact?445:height*.77);
       }else if(pauseMenuView==='directions'){
         const lines=compact?[
           ['STEER / THRUST','Touchpad • Arrows / WASD • Stick / D-Pad'],
@@ -5930,13 +5987,42 @@ if (flashTimer > 0) {
           ['RESET / DIFFICULTY','Reset stamp • R • Back / Share • Hold Reset for difficulty']
         ];
         ctx.textAlign='left';
-        const left=compact?22:Math.max(70,width*.16),startY=compact?82:100,lineH=compact?55:48;
-        lines.forEach(([label,value],i)=>{
-          const y=startY+i*lineH;
-          ctx.fillStyle='#ff8ac0';ctx.font=`800 ${compact?18:14}px Share Tech Mono`;ctx.fillText(label,left,y);
-          ctx.fillStyle='rgba(228,228,255,.9)';ctx.font=`${compact?16:13}px Share Tech Mono`;ctx.fillText(value,left,y+(compact?21:19));
-        });
+        if(compact){
+          const left=20,startY=70,lineH=43;
+          lines.forEach(([label,value],i)=>{
+            const y=startY+i*lineH;
+            ctx.fillStyle='#ff8ac0';ctx.font='800 16px Share Tech Mono';ctx.fillText(label,left,y);
+            ctx.fillStyle='rgba(228,228,255,.9)';ctx.font='14px Share Tech Mono';ctx.fillText(value,left,y+17);
+          });
+        }else if(height<620){
+          const shortLines=[
+            ['STEER / THRUST','Touchpad • Arrows/WASD • Stick/D-Pad'],
+            ['FIRE / SELECT','Fire stamp • Space/Enter • A/Cross'],
+            ['MISSILES','Missile icon • Left Alt • X/Square'],
+            ['CHANGE WEAPON','B/Circle'],
+            ['SOUND','Sound stamp • M • Y/Triangle'],
+            ['PAUSE / MENU','Hold touchpad • Tap boxes • P/Start'],
+            ['TOUCH / FULLSCREEN','Auto-hides with controller • Fullscreen box'],
+            ['RESET / DIFFICULTY','Reset • R • Back/Share • Hold Reset']
+          ];
+          const margin=Math.max(55,width*.07),columnWidth=(width-margin*2)/2,startY=82,lineH=62;
+          shortLines.forEach(([label,value],i)=>{
+            const col=i<4?0:1,row=i%4,x=margin+col*columnWidth,y=startY+row*lineH;
+            ctx.fillStyle='#ff8ac0';ctx.font='800 14px Share Tech Mono';ctx.fillText(label,x,y);
+            ctx.fillStyle='rgba(228,228,255,.9)';ctx.font='13px Share Tech Mono';ctx.fillText(value,x,y+18);
+          });
+        }else{
+          const left=Math.max(70,width*.16),startY=88,lineH=43;
+          lines.forEach(([label,value],i)=>{
+            const y=startY+i*lineH;
+            ctx.fillStyle='#ff8ac0';ctx.font='800 14px Share Tech Mono';ctx.fillText(label,left,y);
+            ctx.fillStyle='rgba(228,228,255,.9)';ctx.font='13px Share Tech Mono';ctx.fillText(value,left,y+17);
+          });
+        }
         ctx.textAlign='center';
+        const actions=directionActionRects();
+        actionCard(actions[0],pauseDirectionSelection===0,'PAUSE / RESUME');
+        actionCard(actions[1],pauseDirectionSelection===1,'GO BACK');
       }else if(pauseMenuView==='controllerTypes'){
         const names=['XBOX','PLAYSTATION','KEYBOARD'];
         if(compact){names.forEach((name,i)=>card(45,88+i*82,width-90,66,pauseControllerIndex===i,name,'Fire to view mapping'));}
@@ -5958,16 +6044,12 @@ if (flashTimer > 0) {
         maps.forEach((line,i)=>{const col=i%cols,row=Math.floor(i/cols);const x=cols===1?width/2:width*(col? .67:.33);ctx.fillText(line,x,(compact?300:300)+row*(compact?34:28));});
       }
 
-      if(pauseMenuView!=='root'){
-        ctx.fillStyle='rgba(125,255,188,.9)';ctx.font=`800 ${compact?15:12}px Orbitron`;
-        ctx.fillText(pauseMenuView==='controllerTypes'?'Tap a box • Steer + Fire to open':'Tap screen or Fire to go back',width/2,height-72);
+      if(pauseMenuView==='root'){
+        ctx.fillStyle='rgba(255,65,65,.92)';ctx.font=`800 ${compact?13:10}px Share Tech Mono`;
+        ctx.fillText('[ PROTECTED FROM BAD VIBES ]',width/2,height-30);
+        ctx.fillStyle='rgba(228,228,255,.68)';ctx.font=`${compact?12:10}px system-ui`;
+        ctx.fillText('© 2026 Summon Mars ™. All rights reserved.',width/2,height-14);
       }
-      ctx.fillStyle='rgba(255,138,192,.92)';ctx.font=`700 ${compact?14:11}px Orbitron`;
-      ctx.fillText('Hold touchpad • P • Start / Options to resume',width/2,height-50);
-      ctx.fillStyle='rgba(255,65,65,.92)';ctx.font=`800 ${compact?13:10}px Share Tech Mono`;
-      ctx.fillText('[ PROTECTED FROM BAD VIBES ]',width/2,height-30);
-      ctx.fillStyle='rgba(228,228,255,.68)';ctx.font=`${compact?12:10}px system-ui`;
-      ctx.fillText('© 2026 Summon Mars ™. All rights reserved.',width/2,height-14);
       ctx.restore();
     }
 
