@@ -2235,17 +2235,14 @@ document.querySelectorAll('img[data-asset]').forEach((img) => {
       }
     }
 
-    async function closeGameWindow(){
-      try{
-        if(fullscreenElement()){
-          const exit=document.exitFullscreen||document.webkitExitFullscreen||document.msExitFullscreen;
-          if(exit) await exit.call(document);
-        }
-      }catch{}
+    function closeGameWindow(){
+      // User-opened browser tabs cannot normally be closed by page scripts.
+      // Keep fullscreen and the current aspect ratio intact while attempting
+      // the close; if blocked, give the instruction on the first press.
       window.close();
       setTimeout(()=>{
-        if(!window.closed) showGameAlert('CLOSE THIS BROWSER TAB TO EXIT','sound-off');
-      },180);
+        if(!window.closed) showGameAlert('CLOSE THIS BROWSER TAB TO EXIT GAME','sound-off');
+      },120);
     }
 
     // Browsers reject true fullscreen on an unattended page load. Attempt it
@@ -3987,14 +3984,17 @@ function updateBosses(dt){
       }
       const margin=50,gapX=18,gapY=12,top=height<620?66:82;
       const w=(width-margin*2-gapX)/2;
-      const h=Math.min(100,Math.max(76,(height-top-44-gapY*2)/3));
+      const exitH=Math.min(36,Math.max(30,height*.07));
+      const h=Math.min(100,Math.max(52,(height-top-gapY*2-exitH-18)/3));
       const splitGap=10,splitW=(w-splitGap)/2,rightX=margin+w+gapX;
+      const gridBottom=top+3*h+gapY*2;
+      const exitY=Math.min(height-exitH-8,gridBottom+10);
       return [
         {x:margin,y:top,w:splitW,h}, {x:margin+splitW+splitGap,y:top,w:splitW,h},
         {x:rightX,y:top,w,h},
         {x:margin,y:top+h+gapY,w,h}, {x:rightX,y:top+h+gapY,w,h},
         {x:margin,y:top+2*(h+gapY),w,h}, {x:rightX,y:top+2*(h+gapY),w,h},
-        {x:width/2-120,y:height-88,w:240,h:34}
+        {x:width/2-120,y:exitY,w:240,h:exitH}
       ];
     }
 
@@ -6554,7 +6554,7 @@ if (flashTimer > 0) {
           ['CONTROLLER TYPE','Xbox • PlayStation • Keyboard'],
           [`SOUND: ${soundLabel}`,'Select to change audio mode'],
           [`DIFFICULTY: ${DIFF_PRESETS[diffIndex].name.toUpperCase()}`,'Select to change difficulty'],
-          ['CLOSE GAME','']
+          ['EXIT GAME','']
         ];
         rootMenuRects().forEach((rect,i)=>card(rect.x,rect.y,rect.w,rect.h,pauseMenuSelection===i,...entries[i]));
       }else if(pauseMenuView==='inventory'){
