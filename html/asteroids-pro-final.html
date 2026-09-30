@@ -2727,16 +2727,16 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
 
     const STORE_ITEMS = [
       {id:'ship-starter',type:'ship',name:'PULSEWING',price:0,color:'#45eaff'},
-      {id:'ship-crimson',type:'ship',name:'CRIMSON VIPER',price:4500,color:'#ff496f'},
-      {id:'ship-solar',type:'ship',name:'SOLAR WARDEN',price:7000,color:'#ffbd45'},
-      {id:'ship-void',type:'ship',name:'VOID PHANTOM',price:10000,color:'#ae70ff'},
+      {id:'ship-crimson',type:'ship',name:'CRIMSON VIPER',price:5,color:'#ff496f'},
+      {id:'ship-solar',type:'ship',name:'SOLAR WARDEN',price:5,color:'#ffbd45'},
+      {id:'ship-void',type:'ship',name:'VOID PHANTOM',price:5,color:'#ae70ff'},
       {id:'pilot-shadow',type:'pilot',name:'UNKNOWN PILOT',price:0,color:'#7d718d'},
-      {id:'pilot-nova',type:'pilot',name:'NOVA',price:2500,color:'#ff77c8'},
-      {id:'pilot-ace',type:'pilot',name:'ACE REX',price:3200,color:'#5dffbf'},
+      {id:'pilot-nova',type:'pilot',name:'NOVA',price:5,color:'#ff77c8'},
+      {id:'pilot-ace',type:'pilot',name:'ACE REX',price:5,color:'#5dffbf'},
       {id:'scene-deep',type:'scene',name:'DEEP SPACE',price:0,color:'#171329'},
-      {id:'scene-nebula',type:'scene',name:'NEBULA RUN',price:4000,color:'#a33bba'},
-      {id:'scene-solar',type:'scene',name:'SOLAR STORM',price:6500,color:'#df5c28'},
-      {id:'missile-21',type:'upgrade',name:'MISSILE BAY 21',price:8500,color:'#ff784e'}
+      {id:'scene-nebula',type:'scene',name:'NEBULA RUN',price:5,color:'#a33bba'},
+      {id:'scene-solar',type:'scene',name:'SOLAR STORM',price:5,color:'#df5c28'},
+      {id:'missile-21',type:'upgrade',name:'MISSILE BAY 21',price:5,color:'#ff784e'}
     ];
     let storeCredits = Math.max(0, Number(localStorage.getItem('asteroidStoreCredits') || 0));
     let ownedStoreItems;
@@ -6273,7 +6273,7 @@ if (flashTimer > 0) {
       ctx.fillStyle='rgba(0,0,0,.88)';ctx.fillRect(0,0,width,height);
       ctx.textAlign='center';ctx.textBaseline='middle';
       const compact=width<600;
-      const titleSize=compact?30:30;
+      const titleSize=pauseMenuView==='inventory'?(compact?18:26):30;
 
       ctx.fillStyle='rgba(255,231,255,.98)';
       ctx.font=`900 ${titleSize}px Orbitron, system-ui`;
@@ -6325,19 +6325,21 @@ if (flashTimer > 0) {
           const owned=ownedStoreItems.has(item.id);
           const equipped=item.type!=='upgrade'&&equippedStore[item.type]===item.id;
           const status=equipped?'EQUIPPED':owned?'OWNED':`${item.price.toLocaleString()} PTS`;
-          card(rects[i].x,rects[i].y,rects[i].w,rects[i].h,inventorySelection===i,item.name,status);
+          card(rects[i].x,rects[i].y,rects[i].w,rects[i].h,inventorySelection===i,'','');
           const r=rects[i],atlasIndex=inventoryAtlasCell[item.id];
+          const thumb=Math.max(38,Math.min(r.h-6,r.w*.42));
+          const artX=r.x+4,artY=r.y+(r.h-thumb)/2;
           if(inventoryAtlasReady && Number.isInteger(atlasIndex)){
             const sw=inventoryAtlasImg.naturalWidth/4,sh=inventoryAtlasImg.naturalHeight/3;
             const sx=(atlasIndex%4)*sw,sy=Math.floor(atlasIndex/4)*sh;
-            ctx.save();roundRect(ctx,r.x+2,r.y+2,r.w-4,r.h-4,12,false,false);ctx.clip();
-            ctx.globalAlpha=.48;ctx.drawImage(inventoryAtlasImg,sx,sy,sw,sh,r.x+2,r.y+2,r.w-4,r.h-4);
-            ctx.globalAlpha=1;ctx.fillStyle='rgba(3,2,10,.30)';ctx.fillRect(r.x+2,r.y+2,r.w-4,r.h-4);ctx.restore();
-            const titleSize=compact?(item.name.length>17?11:13):(item.name.length>18?12:14);
+            ctx.save();roundRect(ctx,artX,artY,thumb,thumb,9,false,false);ctx.clip();
+            ctx.drawImage(inventoryAtlasImg,sx,sy,sw,sh,artX,artY,thumb,thumb);ctx.restore();
+            const textX=artX+thumb+(r.x+r.w-artX-thumb)/2;
+            const titleSize=compact?(item.name.length>15?9:11):(item.name.length>18?11:13);
             ctx.fillStyle=inventorySelection===i?'#7dffbc':'#fff';ctx.font=`900 ${titleSize}px Orbitron`;
-            ctx.fillText(item.name,r.x+r.w/2,r.y+r.h*.38);
+            ctx.fillText(item.name,textX,r.y+r.h*.39);
             ctx.fillStyle=equipped?'#7dffbc':'rgba(255,255,255,.9)';ctx.font=`800 ${compact?12:11}px Share Tech Mono`;
-            ctx.fillText(status,r.x+r.w/2,r.y+r.h*.72);
+            ctx.fillText(status,textX,r.y+r.h*.70);
           }
         });
         const back=rects[STORE_ITEMS.length];
