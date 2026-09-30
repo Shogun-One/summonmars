@@ -719,16 +719,6 @@ body.music-on .bubble-btn .ring.flip{
   will-change:transform;
 }
 
-/* The mobile Fire control must remain identifiable even while speakers bump. */
-body.music-on #mobileFireBtn .ring.flip .face.stamp{
-  opacity:.98;
-  transform:rotateY(0deg);
-}
-body.music-on #mobileFireBtn .ring.flip .face.woofer{
-  opacity:0;
-  transform:rotateY(180deg);
-}
-
 /* small status dot on the Music bubble (still useful) */
 .bubble-btn .ring.flip .dot-indicator{
   position:absolute;
@@ -1101,7 +1091,7 @@ body.music-on .hud .pill{
 .game-shell #hint-left{ left:37%; transform: translateX(-50%); }
 .game-shell #hint-right{ left:63%; transform: translateX(-50%); }
 
-/* ===== Touchpad (ported from TMNT, replaces joystick) ===== */
+/* ===== Virtual joystick ===== */
 .mobile-touchpad{
   position:absolute;
   left:50%;
@@ -1119,39 +1109,27 @@ body.music-on .hud .pill{
 .touchpad-plate{
   width:190px;
   height:190px;
-  border-radius:28px;
-  background:rgba(0,0,0,.22);
-  box-shadow: 0 0 22px rgba(0,0,0,.55);
+  border-radius:50%;
+  background:radial-gradient(circle at 50% 45%,rgba(255,70,145,.12),rgba(0,0,0,.42) 62%,rgba(0,0,0,.72));
+  box-shadow:0 0 22px rgba(0,0,0,.65),inset 0 0 30px rgba(255,80,165,.1);
   position:relative;
-  border:1px solid rgba(255,138,192,.22);
+  border:2px solid rgba(255,138,192,.38);
 }
 
-.touch-arrow{
+.joystick-knob{
   position:absolute;
-  width:56px;
-  height:56px;
-  display:grid;
-  place-items:center;
-  font-family:'Share Tech Mono', ui-monospace, Menlo, monospace;
-  font-weight:900;
-  font-size:22px;
-  color:#ff2a2a; text-shadow:0 0 8px rgba(255,42,42,.85), 0 0 18px rgba(255,42,42,.55);
-  background:rgba(0,0,0,.18);
-  border-radius:14px;
-  border:1px solid rgba(255,138,192,.18);
+  left:50%;
+  top:50%;
+  width:42%;
+  height:42%;
+  border-radius:50%;
+  transform:translate(-50%,-50%);
+  background:radial-gradient(circle at 38% 32%,#ffb2d8 0 7%,#a83370 18%,#37102c 48%,#09050d 75%);
+  border:2px solid rgba(255,174,220,.7);
+  box-shadow:0 6px 16px rgba(0,0,0,.7),0 0 20px rgba(255,42,130,.5),inset 0 0 15px rgba(255,255,255,.15);
   user-select:none;
-  -webkit-tap-highlight-color: transparent;
+  pointer-events:none;
 }
-
-.touch-arrow:active{
-  background:rgba(255,59,130,.12);
-  box-shadow: 0 0 16px rgba(255,59,130,.18);
-}
-
-.touch-up{ top:10px; left:50%; transform:translateX(-50%); }
-.touch-down{ bottom:10px; left:50%; transform:translateX(-50%); }
-.touch-left{ left:10px; top:50%; transform:translateY(-50%); }
-.touch-right{ right:10px; top:50%; transform:translateY(-50%); }
 
 /* show the touchpad on touch devices (or narrow screens) */
 @media (pointer:coarse), (max-width: 760px){
@@ -1249,7 +1227,8 @@ body.touchpad-off .mobile-touchpad{ display:none !important; }
 .control-deck #reset-btn{ grid-area:reset; }
 .control-deck #musicBtn{ grid-area:music; }
 .control-deck #heatBtn{ grid-area:heat; }
-.control-deck .mobile-fire-btn{ display:none; }
+.control-deck #pauseBtn{ justify-self:start; }
+.control-deck #heatBtn{ justify-self:end; }
 
 /* Override the global fixed/absolute bubble rules just for the deck */
 .control-deck .bubble-btn{
@@ -1632,25 +1611,8 @@ body.touchpad-off .control-deck .mobile-touchpad{ display:none !important; }
     width:var(--mobile-touchpad);
     height:var(--mobile-touchpad);
   }
-  .control-deck .mobile-fire-btn{
-    display:grid;
-    position:absolute !important;
-    z-index:18;
-    left:calc(50% - var(--mobile-touchpad) / 2 - var(--mobile-small-control) / 2 + 12px) !important;
-    right:auto !important;
-    top:auto !important;
-    bottom:calc(var(--mobile-small-control) + 8px) !important;
-    width:var(--mobile-small-control);
-    height:var(--mobile-small-control);
-    transform:none !important;
-  }
   body.controller-connected .control-deck .mobile-touchpad{
     display:none !important;
-  }
-  body.controller-connected .control-deck .mobile-fire-btn{
-    /* Center the two live weapon controls between the speaker columns. */
-    left:calc(50% + 6px) !important;
-    bottom:8px !important;
   }
   .touchpad-plate.pause-hold{
     border-color:rgba(125,255,188,.95);
@@ -1676,6 +1638,17 @@ body.touchpad-off .control-deck .mobile-touchpad{ display:none !important; }
 body.game-paused .control-deck .missile-reserve{
   opacity:0;
   pointer-events:none;
+}
+
+/* Circular joystick only: never reintroduce the legacy square touch plate. */
+.control-deck .mobile-touchpad{
+  background:transparent !important;
+  border:0 !important;
+  box-shadow:none !important;
+}
+.control-deck .touchpad-plate,
+body.game-paused .control-deck .touchpad-plate{
+  border-radius:50% !important;
 }
 
 /* Wide screens get a genuinely larger playfield, not a stretched portrait
@@ -1773,7 +1746,7 @@ html.preview-locked,html.preview-locked body{overflow:hidden!important}.preview-
     <h1>ASTEROID DRIFT</h1>
     <!-- subtitle moved into in-game start overlay -->
 <div class="controls">
-      Directions: Thrust: Bottom Touchpad | [↑][↓][←][→] | WASD Keys | Gamepad Joystick or Directional Pad
+      Directions: Steer + Fire: Virtual Joystick | [↑][↓][←][→] | WASD Keys | Gamepad Joystick or Directional Pad
     </div>
 
     <div class="hud">
@@ -1798,15 +1771,6 @@ html.preview-locked,html.preview-locked body{overflow:hidden!important}.preview-
         <span>
           <span class="missile-reserve-icon" aria-hidden="true">🚀</span>
           <span class="missile-reserve-count">×<span id="missileReserveCount">0</span></span>
-        </span>
-      </button>
-      <button id="mobileFireBtn" class="bubble-btn mobile-fire-btn" type="button"
-              aria-label="Fire" title="Hold to Fire">
-        <span class="ring flip" aria-hidden="true">
-          <span class="face stamp">
-            <img class="stamp-img" data-asset="images/asteroids/firepower-up.png" alt="">
-          </span>
-          <span class="face woofer"></span>
         </span>
       </button>
       <div id="hint-left" class="neon-hover-hint">Hold: Fire | Top Left: Missiles</div>
@@ -1835,11 +1799,8 @@ html.preview-locked,html.preview-locked body{overflow:hidden!important}.preview-
             </button>
 
       <div class="mobile-touchpad" aria-hidden="false">
-              <div id="joystick" class="touchpad-plate" role="application" aria-label="Touchpad">
-                <div class="touch-arrow touch-up" data-dir="up">▲</div>
-                <div class="touch-arrow touch-left" data-dir="left">◀</div>
-                <div class="touch-arrow touch-right" data-dir="right">▶</div>
-                <div class="touch-arrow touch-down" data-dir="down">▼</div>
+              <div id="joystick" class="touchpad-plate" role="application" aria-label="Virtual joystick: drag to steer and hold to fire">
+                <div class="joystick-knob stick" aria-hidden="true"></div>
               </div>
             </div>
 
@@ -2086,7 +2047,6 @@ document.querySelectorAll('img[data-asset]').forEach((img) => {
     const missileAmmoEl = document.getElementById('missileAmmo');
     const missileReserveEl = document.getElementById('missileReserve');
     const missileReserveCountEl = document.getElementById('missileReserveCount');
-    const mobileFireBtn = document.getElementById('mobileFireBtn');
     const gameAlertEl = document.getElementById('gameAlert');
     const joystickEl = document.getElementById('joystick');
     const stickEl = joystickEl ? joystickEl.querySelector('.stick') : null;
@@ -2311,20 +2271,19 @@ function positionMissileReserve(){
     if(!deck) return;
     const deckRect = deck.getBoundingClientRect();
     const padRect = joystickEl.getBoundingClientRect();
-    const fireRect = mobileFireBtn.getBoundingClientRect();
     const size = 64;
-    // A connected controller hides the touchpad, whose zero-sized rectangle
-    // used to throw this counter to the page's top-left corner. In that state,
-    // anchor it beside the still-visible Fire stamp instead.
+    // A connected controller hides the virtual joystick, so give the missile
+    // reserve an independent centered anchor in that state.
     if(document.body.classList.contains('controller-connected')){
-      // With no touchpad, keep Missile + Fire as a centered pair in the gap
-      // between the left and right speaker stacks.
-      missileReserveEl.style.left = `${Math.max(4, (deckRect.width - (size + 8 + fireRect.width)) / 2)}px`;
+      // Keep the missile control centered between the speaker stacks.
+      missileReserveEl.style.left = `${Math.max(4, (deckRect.width - size) / 2)}px`;
       missileReserveEl.style.top = `${Math.max(4, deckRect.height - size - 8)}px`;
     }else{
       const anchorLeft = padRect.left - deckRect.left;
       const anchorTop = padRect.top - deckRect.top;
-      missileReserveEl.style.left = `${Math.max(4, anchorLeft - size - 10)}px`;
+      // On touch layouts it rides on the joystick's upper-right edge, clear
+      // of both speaker stacks and easy to reach with the other thumb.
+      missileReserveEl.style.left = `${Math.min(deckRect.width - size - 4, anchorLeft + padRect.width - size + 8)}px`;
       missileReserveEl.style.top = `${Math.max(4, anchorTop + (padRect.height - size) / 2)}px`;
     }
   }catch{}
@@ -2555,19 +2514,6 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
     // Mouse users can click or hold inside the playfield to fire.
     let mouseFireHeld = false;
     let mobileFireHeld = false;
-    mobileFireBtn.addEventListener('pointerdown', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      mobileFireBtn.setPointerCapture?.(e.pointerId);
-      if(gameOver){ confirmGameOverChoice(); return; }
-      if(paused){ pauseMenuSelect(); return; }
-      mobileFireHeld = true;
-      shoot();
-      shootCooldown = shootDelay;
-    });
-    ['pointerup','pointercancel','lostpointercapture'].forEach(type => {
-      mobileFireBtn.addEventListener(type, () => { mobileFireHeld = false; });
-    });
     canvas.addEventListener('pointerdown', (e) => {
       if(paused && !gameOver){
         e.preventDefault();
@@ -3482,11 +3428,11 @@ function updateBosses(dt){
     function pauseMenuNavigate(direction){
       if(!paused || direction === 0) return;
       if(pauseMenuView === 'root'){
-        pauseMenuSelection = (pauseMenuSelection + (direction > 0 ? 1 : -1) + 3) % 3;
+        pauseMenuSelection = (pauseMenuSelection + (direction > 0 ? 1 : -1) + 4) % 4;
       }else if(pauseMenuView === 'directions'){
         pauseDirectionSelection = (pauseDirectionSelection + (direction > 0 ? 1 : -1) + 2) % 2;
       }else if(pauseMenuView === 'controllerTypes'){
-        pauseControllerIndex = (pauseControllerIndex + (direction > 0 ? 1 : -1) + 3) % 3;
+        pauseControllerIndex = (pauseControllerIndex + (direction > 0 ? 1 : -1) + 4) % 4;
       }
     }
 
@@ -3495,12 +3441,13 @@ function updateBosses(dt){
       if(pauseMenuView === 'root'){
         if(pauseMenuSelection === 0){ pauseMenuView = 'directions'; pauseDirectionSelection = 0; }
         else if(pauseMenuSelection === 1) pauseMenuView = 'controllerTypes';
-        else{
+        else if(pauseMenuSelection === 2){
           toggleFullscreen();
           showGameAlert(document.fullscreenElement ? 'EXITING FULLSCREEN' : 'FULLSCREEN', 'sound-on');
-        }
+        }else setPaused(false);
       }else if(pauseMenuView === 'controllerTypes'){
-        pauseMenuView = 'controllerDetail';
+        if(pauseControllerIndex === 3) pauseMenuView = 'root';
+        else pauseMenuView = 'controllerDetail';
       }else if(pauseMenuView === 'directions'){
         if(pauseDirectionSelection === 0) setPaused(false);
         else pauseMenuView = 'root';
@@ -3536,15 +3483,17 @@ function updateBosses(dt){
 
       if(pauseMenuView==='root'){
         if(compact){
-          if(y>=82&&y<=205) pauseMenuSelection=0;
-          else if(y>=205&&y<=330) pauseMenuSelection=1;
-          else if(y>=330&&y<=435) pauseMenuSelection=2;
+          if(y>=80&&y<=175) pauseMenuSelection=0;
+          else if(y>=185&&y<=280) pauseMenuSelection=1;
+          else if(y>=290&&y<=360) pauseMenuSelection=2;
+          else if(y>=370&&y<=424) pauseMenuSelection=3;
           else return;
         }else{
-          const gap=22,w=(width-100-gap)/2,top=height*.28;
-          if(y>=top&&y<=top+150&&x>=50&&x<=50+w) pauseMenuSelection=0;
-          else if(y>=top&&y<=top+150&&x>=50+w+gap&&x<=width-50) pauseMenuSelection=1;
-          else if(y>=top+170&&y<=top+270) pauseMenuSelection=2;
+          const gap=22,w=(width-100-gap)/2,top=height*.20;
+          if(y>=top&&y<=top+125&&x>=50&&x<=50+w) pauseMenuSelection=0;
+          else if(y>=top&&y<=top+125&&x>=50+w+gap&&x<=width-50) pauseMenuSelection=1;
+          else if(y>=top+145&&y<=top+215) pauseMenuSelection=2;
+          else if(y>=top+225&&y<=top+285) pauseMenuSelection=3;
           else return;
         }
         pauseMenuSelect();
@@ -3556,13 +3505,17 @@ function updateBosses(dt){
         pauseMenuSelect();
       }else if(pauseMenuView==='controllerTypes'){
         if(compact){
-          const index=Math.floor((y-88)/82);
-          if(index<0||index>2) return;
-          pauseControllerIndex=index;
+          if(y>=88&&y<=318) pauseControllerIndex=Math.floor((y-88)/82);
+          else if(y>=340&&y<=400) pauseControllerIndex=3;
+          else return;
         }else{
-          const gap=18,w=(width-100-gap*2)/3,index=Math.floor((x-50)/(w+gap));
-          if(index<0||index>2) return;
-          pauseControllerIndex=index;
+          const gap=18,w=(width-100-gap*2)/3,top=height*.30;
+          if(y>=top&&y<=top+125){
+            const index=Math.floor((x-50)/(w+gap));
+            if(index<0||index>2) return;
+            pauseControllerIndex=index;
+          }else if(y>=top+145&&y<=top+205) pauseControllerIndex=3;
+          else return;
         }
         pauseMenuSelect();
       }else{
@@ -3958,7 +3911,7 @@ function clamp(v, min, max){ return Math.max(min, Math.min(max, v)); } // (yours
 
 function setStickVisual(nx, ny){
   if(!stickEl) return;
-  const max = 12; // stick travel in px
+  const max = Math.max(18, joystickEl.getBoundingClientRect().width * .27);
   stickEl.style.transform = `translate(calc(-50% + ${nx*max}px), calc(-50% + ${ny*max}px))`;
 }
 
@@ -4046,6 +3999,11 @@ joystickEl?.addEventListener('pointerdown', (e) => {
 
   joystickEl.setPointerCapture(e.pointerId);
   joyActive = true;
+  if(!paused && !gameOver){
+    mobileFireHeld = true;
+    shoot();
+    shootCooldown = shootDelay;
+  }
 
   joyTapStartT = performance.now();
   joyTapStartX = e.clientX;
@@ -4058,6 +4016,7 @@ joystickEl?.addEventListener('pointerdown', (e) => {
     joyPauseTimer=0;
     joystickEl.classList.remove('pause-hold');
     if(!joyDidMove && !gameOver){
+      mobileFireHeld = false;
       resetJoy();
       setPaused(!paused);
       try{ navigator.vibrate?.(25); }catch{}
@@ -4086,6 +4045,7 @@ joystickEl?.addEventListener('pointerup', (e) => {
   e.stopPropagation();
 
   cancelJoyPauseHold();
+  mobileFireHeld = false;
   resetJoy();
 }, { passive:false });
 
@@ -4093,12 +4053,13 @@ joystickEl?.addEventListener('pointercancel', (e) => {
   e.preventDefault();
   e.stopPropagation();
   cancelJoyPauseHold();
+  mobileFireHeld = false;
   resetJoy();
 }, { passive:false });
 
-joystickEl?.addEventListener('lostpointercapture', () => { cancelJoyPauseHold(); resetJoy(); });
-window.addEventListener('blur', () => { cancelJoyPauseHold(); resetJoy(); });
-document.addEventListener('visibilitychange', () => { if(document.hidden){ cancelJoyPauseHold(); resetJoy(); }
+joystickEl?.addEventListener('lostpointercapture', () => { cancelJoyPauseHold(); mobileFireHeld=false; resetJoy(); });
+window.addEventListener('blur', () => { cancelJoyPauseHold(); mobileFireHeld=false; resetJoy(); });
+document.addEventListener('visibilitychange', () => { if(document.hidden){ cancelJoyPauseHold(); mobileFireHeld=false; resetJoy(); }
 });
 
 
@@ -5969,32 +5930,34 @@ if (flashTimer > 0) {
 
       if(pauseMenuView==='root'){
         if(compact){
-          card(35,92,width-70,105,pauseMenuSelection===0,'DIRECTIONS','All gameplay and menu controls');
-          card(35,215,width-70,105,pauseMenuSelection===1,'CONTROLLER TYPE','Xbox • PlayStation • Keyboard');
-          card(90,338,width-180,80,pauseMenuSelection===2,'FULLSCREEN','Use the whole phone display');
+          card(35,80,width-70,95,pauseMenuSelection===0,'DIRECTIONS','All gameplay and menu controls');
+          card(35,185,width-70,95,pauseMenuSelection===1,'CONTROLLER TYPE','Xbox • PlayStation • Keyboard');
+          card(90,290,width-180,70,pauseMenuSelection===2,'FULLSCREEN','Use the whole phone display');
+          card(90,370,width-180,54,pauseMenuSelection===3,'RESUME GAME','Return to the action');
         }else{
-          const gap=22,w=(width-100-gap)/2,y=height*.28,h=150;
+          const gap=22,w=(width-100-gap)/2,y=height*.20,h=125;
           card(50,y,w,h,pauseMenuSelection===0,'DIRECTIONS','View every gameplay control');
           card(50+w+gap,y,w,h,pauseMenuSelection===1,'CONTROLLER TYPE','View mapped buttons and keys');
-          card(width/2-210,y+175,420,90,pauseMenuSelection===2,'FULLSCREEN','Enter or exit browser fullscreen');
+          card(width/2-210,y+145,420,70,pauseMenuSelection===2,'FULLSCREEN','Enter or exit browser fullscreen');
+          card(width/2-170,y+225,340,60,pauseMenuSelection===3,'RESUME GAME','Return to the action');
         }
       }else if(pauseMenuView==='directions'){
         const lines=compact?[
-          ['STEER / THRUST','Touchpad • Arrows / WASD • Stick / D-Pad'],
-          ['FIRE / SELECT','Hold Fire stamp • Space / Enter • A / Cross'],
+          ['STEER / THRUST','Drag virtual joystick • Arrows / WASD • Stick / D-Pad'],
+          ['FIRE / SELECT','Touch joystick • Space / Enter • A / Cross'],
           ['MISSILES','Missile icon • Left Alt • X / Square'],
           ['CHANGE WEAPON','B / Circle'],
           ['SOUND','Sound stamp • M • Y / Triangle'],
-          ['PAUSE / MENU','Hold touchpad 0.65 sec • Tap menu boxes • P / Start'],
+          ['PAUSE / MENU','Hold joystick 0.65 sec • Tap menu boxes • P / Start'],
           ['TOUCH / FULLSCREEN','Touch controls hide with gamepad • Fullscreen box'],
           ['RESET','Reset stamp • R • Back / Share']
         ]:[
-          ['STEER / THRUST','Touchpad • Arrow Keys • WASD • Either Stick • D-Pad'],
-          ['FIRE / SELECT','Hold Fire stamp • Space / Enter • A / Cross'],
+          ['STEER / THRUST','Drag virtual joystick • Arrow Keys • WASD • Either Stick • D-Pad'],
+          ['FIRE / SELECT','Touch joystick • Space / Enter • A / Cross'],
           ['MISSILES','Missile icon • Left Alt • X / Square'],
           ['CHANGE WEAPON','B / Circle'],
           ['SOUND','Sound stamp • M • Y / Triangle'],
-          ['PAUSE / MENU','Hold touchpad 0.65 sec • Tap menu boxes • P / Start'],
+          ['PAUSE / MENU','Hold joystick 0.65 sec • Tap menu boxes • P / Start'],
           ['TOUCH / FULLSCREEN','Touch controls auto-hide with gamepad • Fullscreen box'],
           ['RESET / DIFFICULTY','Reset stamp • R • Back / Share • Hold Reset for difficulty']
         ];
@@ -6008,12 +5971,12 @@ if (flashTimer > 0) {
           });
         }else if(height<620){
           const shortLines=[
-            ['STEER / THRUST','Touchpad • Arrows/WASD • Stick/D-Pad'],
-            ['FIRE / SELECT','Fire stamp • Space/Enter • A/Cross'],
+            ['STEER / THRUST','Virtual joystick • Arrows/WASD • Stick/D-Pad'],
+            ['FIRE / SELECT','Touch joystick • Space/Enter • A/Cross'],
             ['MISSILES','Missile icon • Left Alt • X/Square'],
             ['CHANGE WEAPON','B/Circle'],
             ['SOUND','Sound stamp • M • Y/Triangle'],
-            ['PAUSE / MENU','Hold touchpad • Tap boxes • P/Start'],
+            ['PAUSE / MENU','Hold joystick • Tap boxes • P/Start'],
             ['TOUCH / FULLSCREEN','Auto-hides with controller • Fullscreen box'],
             ['RESET / DIFFICULTY','Reset • R • Back/Share • Hold Reset']
           ];
@@ -6037,10 +6000,14 @@ if (flashTimer > 0) {
         actionCard(actions[1],pauseDirectionSelection===1,'GO BACK');
       }else if(pauseMenuView==='controllerTypes'){
         const names=['XBOX','PLAYSTATION','KEYBOARD'];
-        if(compact){names.forEach((name,i)=>card(45,88+i*82,width-90,66,pauseControllerIndex===i,name,'Fire to view mapping'));}
+        if(compact){
+          names.forEach((name,i)=>card(45,88+i*82,width-90,66,pauseControllerIndex===i,name,'Select to view mapping'));
+          card(90,340,width-180,60,pauseControllerIndex===3,'GO BACK','Return to Pause Menu');
+        }
         else{
           const gap=18,w=(width-100-gap*2)/3,y=height*.30;
-          names.forEach((name,i)=>card(50+i*(w+gap),y,w,125,pauseControllerIndex===i,name,'Fire to view mapping'));
+          names.forEach((name,i)=>card(50+i*(w+gap),y,w,125,pauseControllerIndex===i,name,'Select to view mapping'));
+          card(width/2-170,y+145,340,60,pauseControllerIndex===3,'GO BACK','Return to Pause Menu');
         }
       }else{
         drawControllerDiagram(pauseControllerIndex,width/2,compact?180:190,compact?.9:1);
