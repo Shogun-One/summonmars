@@ -3609,11 +3609,11 @@ function updateBosses(dt){
         else if(pauseMenuSelection === 1){
           softRestart();
           showGameAlert('NEW GAME', 'sound-on');
-        }else if(pauseMenuSelection === 2){ pauseMenuView = 'directions'; pauseDirectionSelection = 0; }
-        else if(pauseMenuSelection === 3){
+        }else if(pauseMenuSelection === 2){
           toggleFullscreen();
           showGameAlert(document.fullscreenElement ? 'EXITING FULLSCREEN' : 'FULLSCREEN', 'sound-on');
-        }else if(pauseMenuSelection === 4) pauseMenuView = 'controllerTypes';
+        }else if(pauseMenuSelection === 3){ pauseMenuView = 'directions'; pauseDirectionSelection = 0; }
+        else if(pauseMenuSelection === 4) pauseMenuView = 'controllerTypes';
         else if(pauseMenuSelection === 5) cycleSoundMode();
         else cycleDifficulty(false);
       }else if(pauseMenuView === 'controllerTypes'){
@@ -6142,8 +6142,8 @@ if (flashTimer > 0) {
         const entries=[
           ['RESUME','Return to the action'],
           ['RESET','Start a new game'],
-          ['DIRECTIONS','All gameplay and menu controls'],
           ['FULLSCREEN','Use the whole display'],
+          ['DIRECTIONS','All gameplay and menu controls'],
           ['CONTROLLER TYPE','Xbox • PlayStation • Keyboard'],
           [`SOUND: ${soundLabel}`,'Select to change audio mode'],
           [`DIFFICULTY: ${DIFF_PRESETS[diffIndex].name.toUpperCase()}`,'Select to change difficulty']
