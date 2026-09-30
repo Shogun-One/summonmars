@@ -2231,13 +2231,39 @@ document.querySelectorAll('img[data-asset]').forEach((img) => {
     // immediately, then retry on the first qualifying user gesture. Once the
     // game has entered fullscreen, an intentional exit is respected.
     let autoFullscreenPending = true;
-    async function requestLaunchFullscreen(){
+    function syncViewportAfterFullscreen(){
+      // Mobile browsers report two or three intermediate viewport sizes while
+      // the keyboard closes and fullscreen settles. Refresh at each stable
+      // point so the arena never keeps the password screen's shorter height.
+      const refresh=()=>{
+        window.scrollTo(0,0);
+        resizeBG();
+        resizeGameArenaForViewport();
+      };
+      requestAnimationFrame(()=>requestAnimationFrame(refresh));
+      setTimeout(refresh,90);
+      setTimeout(refresh,260);
+      setTimeout(refresh,520);
+    }
+    async function requestLaunchFullscreen(event){
       if(!autoFullscreenPending) return;
-      if(await enterFullscreen()) autoFullscreenPending = false;
+      // Password focus/typing opens the mobile keyboard. Do not enter
+      // fullscreen from those gestures; the gate explicitly requests it on
+      // submit after blurring the field.
+      if(event?.target?.closest?.('#previewGate')) return;
+      if(await enterFullscreen()){
+        autoFullscreenPending = false;
+        syncViewportAfterFullscreen();
+      }
     }
     window.addEventListener('load', requestLaunchFullscreen, { once:true });
     document.addEventListener('pointerdown', requestLaunchFullscreen, { capture:true });
     document.addEventListener('keydown', requestLaunchFullscreen, { capture:true });
+    document.addEventListener('asteroid-unlock-submit',()=>requestLaunchFullscreen());
+    document.addEventListener('asteroid-gate-unlocked',syncViewportAfterFullscreen);
+    document.addEventListener('fullscreenchange',syncViewportAfterFullscreen);
+    document.addEventListener('webkitfullscreenchange',syncViewportAfterFullscreen);
+    window.visualViewport?.addEventListener('resize',syncViewportAfterFullscreen);
 
 // Music
     const musicBtn = document.getElementById('musicBtn');
@@ -6788,6 +6814,6 @@ if (flashTimer > 0) {
     requestAnimationFrame(loop);
   </script>
 
-  <script>(()=>{const gate=document.getElementById('previewGate'),form=document.getElementById('previewGateForm'),input=document.getElementById('previewPassword'),error=document.getElementById('previewGateError'),expectedHash='c44f169631b7c8b2aff9b3b8b427d6cb888ab57fb9ae5894a232642d98021bc7',sessionKey='asteroid-drift-final-unlocked-10h',unlockLifetimeMs=10*60*60*1000;function unlock(){gate.hidden=true;document.documentElement.classList.remove('preview-locked')}async function sha256(value){const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(value));return Array.from(new Uint8Array(digest),byte=>byte.toString(16).padStart(2,'0')).join('')}document.documentElement.classList.add('preview-locked');const unlockExpiresAt=Number(sessionStorage.getItem(sessionKey));if(Number.isFinite(unlockExpiresAt)&&Date.now()<unlockExpiresAt){unlock();return}sessionStorage.removeItem(sessionKey);form.addEventListener('submit',async event=>{event.preventDefault();error.textContent='';try{if(await sha256(input.value)===expectedHash){sessionStorage.setItem(sessionKey,String(Date.now()+unlockLifetimeMs));input.value='';unlock()}else{error.textContent='Incorrect password. Please try again.';input.select()}}catch{error.textContent='Unable to verify the password in this browser.'}})})();</script>
+  <script>(()=>{const gate=document.getElementById('previewGate'),form=document.getElementById('previewGateForm'),input=document.getElementById('previewPassword'),error=document.getElementById('previewGateError'),expectedHash='c44f169631b7c8b2aff9b3b8b427d6cb888ab57fb9ae5894a232642d98021bc7',sessionKey='asteroid-drift-final-unlocked-10h',unlockLifetimeMs=10*60*60*1000;function unlock(){input.blur();gate.hidden=true;document.documentElement.classList.remove('preview-locked');document.dispatchEvent(new Event('asteroid-gate-unlocked'))}async function sha256(value){const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(value));return Array.from(new Uint8Array(digest),byte=>byte.toString(16).padStart(2,'0')).join('')}document.documentElement.classList.add('preview-locked');const unlockExpiresAt=Number(sessionStorage.getItem(sessionKey));if(Number.isFinite(unlockExpiresAt)&&Date.now()<unlockExpiresAt){unlock();return}sessionStorage.removeItem(sessionKey);form.addEventListener('submit',async event=>{event.preventDefault();error.textContent='';input.blur();document.dispatchEvent(new Event('asteroid-unlock-submit'));try{if(await sha256(input.value)===expectedHash){sessionStorage.setItem(sessionKey,String(Date.now()+unlockLifetimeMs));input.value='';unlock()}else{error.textContent='Incorrect password. Please try again.';input.focus();input.select()}}catch{error.textContent='Unable to verify the password in this browser.'}})})();</script>
 </body>
 </html>
