@@ -3536,6 +3536,13 @@ function updateBosses(dt){
       awaitingLaunchInput = true;
       preStartTimer = 0;
       running = false;
+      // A reset can be selected while the pause menu has suspended music.
+      // Re-arm gesture playback so the first steering/fire input resumes the
+      // soundtrack instead of leaving the run in effects-only audio.
+      defaultSoundStarted = false;
+      setPaused._wasPlaying = false;
+      pulseActive = false;
+      document.documentElement.style.setProperty('--bassKick','0');
     }
 
     function softRestart(){
@@ -6134,8 +6141,8 @@ if (flashTimer > 0) {
         const lines=compact?[
           ['STEER / THRUST','Drag virtual joystick • Arrows / WASD • Stick / D-Pad'],
           ['FIRE / SELECT','Touch joystick • Space / Enter • A / Cross'],
-          ['MISSILES','Top-left stamp • Left Alt • X / Square'],
-          ['CHANGE WEAPON','Tap bottom-right stamp • B / Circle'],
+          ['MISSILES','Small bottom-left stamp • Left Alt • X / Square'],
+          ['CHANGE WEAPON','Smaller bottom-right stamp • B / Circle'],
           ['SOUND','Pause Menu sound box • M • Y / Triangle'],
           ['PAUSE / MENU','Tap PAUSE stamp • Tap menu boxes • P / Start'],
           ['TOUCH / FULLSCREEN','Touch controls hide with gamepad • Fullscreen box'],
@@ -6143,8 +6150,8 @@ if (flashTimer > 0) {
         ]:[
           ['STEER / THRUST','Drag virtual joystick • Arrow Keys • WASD • Either Stick • D-Pad'],
           ['FIRE / SELECT','Touch joystick • Space / Enter • A / Cross'],
-          ['MISSILES','Top-left stamp • Left Alt • X / Square'],
-          ['CHANGE WEAPON','Tap bottom-right stamp • B / Circle'],
+          ['MISSILES','Small bottom-left stamp • Left Alt • X / Square'],
+          ['CHANGE WEAPON','Smaller bottom-right stamp • B / Circle'],
           ['SOUND','Pause Menu sound box • M • Y / Triangle'],
           ['PAUSE / MENU','Tap PAUSE stamp • Tap menu boxes • P / Start'],
           ['TOUCH / FULLSCREEN','Touch controls auto-hide with gamepad • Fullscreen box'],
@@ -6162,8 +6169,8 @@ if (flashTimer > 0) {
           const shortLines=[
             ['STEER / THRUST','Virtual joystick • Arrows/WASD • Stick/D-Pad'],
             ['FIRE / SELECT','Touch joystick • Space/Enter • A/Cross'],
-            ['MISSILES','Top-left stamp • Left Alt • X/Square'],
-            ['CHANGE WEAPON','Bottom-right stamp • B/Circle'],
+            ['MISSILES','Small bottom-left stamp • Left Alt • X/Square'],
+            ['CHANGE WEAPON','Smaller bottom-right stamp • B/Circle'],
             ['SOUND','Pause Menu box • M • Y/Triangle'],
             ['PAUSE / MENU','PAUSE stamp • Tap boxes • P/Start'],
             ['TOUCH / FULLSCREEN','Auto-hides with controller • Fullscreen box'],
@@ -6219,9 +6226,9 @@ if (flashTimer > 0) {
         ]:[
           'Space / Enter: Fire / Select','Left Alt: Missiles','B: Change Weapon','Arrow Keys / WASD: Steer','P: Pause / Resume','M: Cycle Sound • R: Reset Game'
         ];
-        ctx.fillStyle='rgba(228,228,255,.9)';ctx.font=`${compact?16:12}px Share Tech Mono`;
+        ctx.fillStyle='rgba(228,228,255,.9)';ctx.font=`${compact?14:12}px Share Tech Mono`;
         const cols=compact?1:2;
-        maps.forEach((line,i)=>{const col=i%cols,row=Math.floor(i/cols);const x=cols===1?width/2:width*(col? .67:.33);ctx.fillText(line,x,(compact?300:300)+row*(compact?34:28));});
+        maps.forEach((line,i)=>{const col=i%cols,row=Math.floor(i/cols);const x=cols===1?width/2:width*(col? .67:.33);ctx.fillText(line,x,(compact?270:300)+row*(compact?30:28));});
       }
 
       if(pauseMenuView==='root'){
