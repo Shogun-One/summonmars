@@ -6170,10 +6170,22 @@ if (flashTimer > 0) {
             ['RESET / DIFFICULTY','Pause Menu boxes • R for reset']
           ];
           const margin=Math.max(55,width*.07),columnWidth=(width-margin*2)/2,startY=82,lineH=62;
+          const drawWrappedValue=(text,x,y,maxWidth)=>{
+            const words=text.split(' '),rows=[];
+            let row='';
+            for(const word of words){
+              const candidate=row?`${row} ${word}`:word;
+              if(row && ctx.measureText(candidate).width>maxWidth){ rows.push(row); row=word; }
+              else row=candidate;
+            }
+            if(row) rows.push(row);
+            rows.slice(0,2).forEach((part,index)=>ctx.fillText(part,x,y+index*15));
+          };
           shortLines.forEach(([label,value],i)=>{
             const col=i<4?0:1,row=i%4,x=margin+col*columnWidth,y=startY+row*lineH;
             ctx.fillStyle='#ff8ac0';ctx.font='800 14px Share Tech Mono';ctx.fillText(label,x,y);
-            ctx.fillStyle='rgba(228,228,255,.9)';ctx.font='13px Share Tech Mono';ctx.fillText(value,x,y+18);
+            ctx.fillStyle='rgba(228,228,255,.9)';ctx.font='13px Share Tech Mono';
+            drawWrappedValue(value,x,y+18,columnWidth-34);
           });
         }else{
           const left=Math.max(70,width*.16),startY=88,lineH=43;
