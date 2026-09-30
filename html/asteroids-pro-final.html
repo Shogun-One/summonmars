@@ -76,6 +76,20 @@
 
     *{ box-sizing:border-box; }
 
+    /* The play surface is an application, not selectable page content. This
+       prevents iOS/Firefox long-press copy/paste callouts from stealing a
+       second finger while the first finger is steering. The password gate is
+       outside .wrapper and remains a normal editable form. */
+    .wrapper,.wrapper *{
+      -webkit-user-select:none !important;
+      user-select:none !important;
+      -webkit-touch-callout:none !important;
+      -webkit-tap-highlight-color:transparent;
+    }
+    .bubble-btn,.mobile-pause-stamp,.weapon-status-overlay,.touchpad-plate{
+      touch-action:none !important;
+    }
+
     html{
       width:100%;
       height:100%;
@@ -1709,6 +1723,18 @@ body.touchpad-off .control-deck .mobile-touchpad{ display:none !important; }
   }
 }
 
+/* Narrow phones (including iPhone Firefox) must fit the launch prompt,
+   arena, and control deck inside the actually visible viewport. Wider fold
+   screens keep the larger arena rules above. */
+@media (max-width:520px) and (pointer:coarse){
+  body{ overflow:hidden; }
+  .wrapper{
+    --mobile-console-width:min(480px, calc(100vw - 8px), calc((var(--visual-height, 100dvh) - 310px) * .75));
+    width:max(286px,var(--mobile-console-width));
+  }
+  canvas#game{ width:100%; }
+}
+
 /* The reserve counter is a live gameplay control, but pause menus need the
    whole arena. Keep it out of every paused layout, including unfolded phones. */
 body.game-paused .control-deck .missile-reserve{
@@ -2236,6 +2262,8 @@ document.querySelectorAll('img[data-asset]').forEach((img) => {
       // the keyboard closes and fullscreen settles. Refresh at each stable
       // point so the arena never keeps the password screen's shorter height.
       const refresh=()=>{
+        const visibleHeight = Math.round(window.visualViewport?.height || window.innerHeight);
+        document.documentElement.style.setProperty('--visual-height', `${visibleHeight}px`);
         window.scrollTo(0,0);
         resizeBG();
         resizeGameArenaForViewport();
@@ -2257,6 +2285,7 @@ document.querySelectorAll('img[data-asset]').forEach((img) => {
       }
     }
     window.addEventListener('load', requestLaunchFullscreen, { once:true });
+    window.addEventListener('load', syncViewportAfterFullscreen, { once:true });
     document.addEventListener('pointerdown', requestLaunchFullscreen, { capture:true });
     document.addEventListener('keydown', requestLaunchFullscreen, { capture:true });
     document.addEventListener('asteroid-unlock-submit',()=>requestLaunchFullscreen());
@@ -2711,11 +2740,16 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
       if(restart) softRestart();
     }
 
-    // The bottom-left stamp is missile-only. Reset now lives in the pause menu.
-    resetBtn.addEventListener('click', (e) => {
+    // The bottom-left stamp is missile-only. Use pointerdown so a second finger
+    // can launch a missile without cancelling the joystick's captured pointer.
+    function handleMissilePointer(e){
+      if(e.pointerType === 'mouse' && e.button !== 0) return;
       e.preventDefault();
+      e.stopPropagation();
       launchMissile();
-    });
+      try{ navigator.vibrate?.(18); }catch{}
+    }
+    resetBtn.addEventListener('pointerdown', handleMissilePointer, { passive:false });
 
     weaponStatusOverlayEl.addEventListener('click', (e) => {
       e.preventDefault();
@@ -2864,7 +2898,7 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
       'ship-emerald':'images/asteroids/ship-emerald.png',
       'ship-cobalt':'images/asteroids/ship-cobalt.png',
       'ship-manta':'images/asteroids/ship-manta.png',
-      'ship-dogbus':'images/asteroids/ship-dogbus-white.png',
+      'ship-dogbus':'images/asteroids/ship-dogbus-topview.png',
       'ship-phoenix':'images/asteroids/ship-phoenix.png'
     };
     const detailedShipImgs={};
@@ -4056,11 +4090,7 @@ function updateBosses(dt){
       }catch{}
     }
 
-    pauseBtn.addEventListener('pointerdown', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      launchMissile();
-    });
+    pauseBtn.addEventListener('pointerdown', handleMissilePointer, { passive:false });
 
     document.addEventListener('keydown', (e) => {
       // Game shortcuts must never intercept typing in password/login fields
@@ -4382,6 +4412,7 @@ function updateBosses(dt){
 // Joystick controls
 // =========================
 let joyActive = false;
+let joyPointerId = null;
 let joyVec = { x: 0, y: 0 };
 const DEADZONE = 0.08;
 let joyDidMove = false;
@@ -4461,6 +4492,7 @@ function joyFromEvent(ev){
 }
 
 function resetJoy(){
+  joyPointerId = null;
   joyActive = false;
   joyVec.x = 0;
   joyVec.y = 0;
@@ -4478,6 +4510,11 @@ if(joystickEl){
 joystickEl?.addEventListener('pointerdown', (e) => {
   e.preventDefault();
   e.stopPropagation();
+
+  // Keep ownership of the steering pointer. Other fingers remain free for
+  // missiles and menu controls instead of stealing or ending the joystick.
+  if(joyPointerId !== null) return;
+  joyPointerId = e.pointerId;
 
   // move joystick base to where the finger/mouse clicked
   if(JOY_MOVABLE) setJoyBasePos(e.clientX, e.clientY);
@@ -4497,7 +4534,7 @@ joystickEl?.addEventListener('pointerdown', (e) => {
 }, { passive:false });
 
 joystickEl?.addEventListener('pointermove', (e) => {
-  if(!joyActive) return;
+  if(!joyActive || e.pointerId !== joyPointerId) return;
   e.preventDefault();
   e.stopPropagation();
 
@@ -4508,6 +4545,7 @@ joystickEl?.addEventListener('pointermove', (e) => {
 }, { passive:false });
 
 joystickEl?.addEventListener('pointerup', (e) => {
+  if(e.pointerId !== joyPointerId) return;
   e.preventDefault();
   e.stopPropagation();
 
@@ -4516,13 +4554,18 @@ joystickEl?.addEventListener('pointerup', (e) => {
 }, { passive:false });
 
 joystickEl?.addEventListener('pointercancel', (e) => {
+  if(e.pointerId !== joyPointerId) return;
   e.preventDefault();
   e.stopPropagation();
   mobileFireHeld = false;
   resetJoy();
 }, { passive:false });
 
-joystickEl?.addEventListener('lostpointercapture', () => { mobileFireHeld=false; resetJoy(); });
+joystickEl?.addEventListener('lostpointercapture', (e) => {
+  if(e.pointerId !== joyPointerId) return;
+  mobileFireHeld=false;
+  resetJoy();
+});
 window.addEventListener('blur', () => { mobileFireHeld=false; resetJoy(); });
 document.addEventListener('visibilitychange', () => { if(document.hidden){ mobileFireHeld=false; resetJoy(); }
 });
