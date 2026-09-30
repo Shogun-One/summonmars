@@ -6070,8 +6070,15 @@ if (flashTimer > 0) {
         const positions=[[72,-25],[92,-5],[72,15],[52,-5]];
         ctx.font='900 12px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';
         positions.forEach(([x,y],i)=>{ctx.beginPath();ctx.arc(x,y,12,0,Math.PI*2);ctx.stroke();ctx.fillStyle='#fff0fa';ctx.fillText(labels[i],x,y);});
-        ctx.fillStyle='rgba(255,138,192,.9)';ctx.font='800 9px Share Tech Mono';
-        ctx.fillText(type===0?'START':'OPTIONS',0,-10);
+        // Use the same two center-button names in both diagrams so the
+        // mapping stays clear across Xbox and PlayStation-style pads.
+        ctx.strokeStyle='rgba(255,138,192,.72)';
+        ctx.fillStyle='rgba(18,12,28,.92)';
+        roundRect(ctx,-31,-19,27,17,6,true,true);
+        roundRect(ctx,4,-19,27,17,6,true,true);
+        ctx.fillStyle='rgba(255,138,192,.95)';ctx.font='800 6px Share Tech Mono';
+        ctx.fillText('SELECT',-17.5,-10);
+        ctx.fillText('START',17.5,-10);
       }
       ctx.restore();
     }
@@ -6194,9 +6201,9 @@ if (flashTimer > 0) {
       }else{
         drawControllerDiagram(pauseControllerIndex,width/2,compact?180:190,compact?.9:1);
         const maps=pauseControllerIndex===0?[
-          'A: Fire / Select','B: Change Weapon','X: Missiles','Y: Sound','Start: Pause • Hold Fullscreen','Back: Reset','Sticks / D-Pad: Steer'
+          'A: Fire / Select','B: Change Weapon','X: Missiles','Y: Sound','Start: Pause • Hold Fullscreen','Select: Reset','Sticks / D-Pad: Steer'
         ]:pauseControllerIndex===1?[
-          'Cross: Fire / Select','Circle: Change Weapon','Square: Missiles','Triangle: Sound','Options: Pause • Hold Fullscreen','Share: Reset','Sticks / D-Pad: Steer'
+          'Cross: Fire / Select','Circle: Change Weapon','Square: Missiles','Triangle: Sound','Start: Pause • Hold Fullscreen','Select: Reset','Sticks / D-Pad: Steer'
         ]:[
           'Space / Enter: Fire / Select','Left Alt: Missiles','B: Change Weapon','Arrow Keys / WASD: Steer','P: Pause / Resume','M: Cycle Sound • R: Reset Game'
         ];
