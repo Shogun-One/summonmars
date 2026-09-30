@@ -1553,6 +1553,34 @@ body.touchpad-off .control-deck .mobile-touchpad{ display:none !important; }
   }
 }
 
+/* Phone-first playfield sizing. Do not shrink the entire game just to keep
+   the physical control deck inside one short browser viewport; use the full
+   safe width and let the deck follow naturally below it. */
+@media (max-width:679px){
+  body{
+    overflow-x:hidden;
+    overflow-y:auto;
+    align-items:flex-start;
+  }
+  .wrapper{
+    width:100%;
+    max-height:none;
+    padding-left:max(6px, env(safe-area-inset-left));
+    padding-right:max(6px, env(safe-area-inset-right));
+  }
+  .game-shell{
+    width:100%;
+    max-width:480px;
+  }
+  canvas#game{
+    width:100%;
+    max-width:480px;
+    height:auto;
+    max-height:none;
+    aspect-ratio:3 / 4;
+  }
+}
+
 /* Wide screens get a genuinely larger playfield, not a stretched portrait
    canvas. Height remains reserved for the HUD and physical control deck. */
 @media (min-width:680px){
@@ -1583,64 +1611,26 @@ footer{
 }
 
 /* Private-testing gate for the final-preview page. */
-html.preview-locked,
-html.preview-locked body{
-  overflow:hidden !important;
-}
+html.preview-locked, html.preview-locked body{ overflow:hidden !important; }
 .preview-gate{
-  position:fixed;
-  inset:0;
-  z-index:2147483647;
-  display:grid;
-  place-items:center;
-  padding:24px;
-  color:#ffeaff;
-  background:
-    radial-gradient(circle at 50% 35%, rgba(123,32,115,.3), transparent 34%),
-    linear-gradient(145deg, #080711 0%, #171126 55%, #09070f 100%);
-  font-family:"Share Tech Mono", monospace;
+  position:fixed; inset:0; z-index:2147483647; display:grid; place-items:center;
+  padding:24px; color:#ffeaff;
+  background:radial-gradient(circle at 50% 35%, rgba(123,32,115,.3), transparent 34%),linear-gradient(145deg,#080711 0%,#171126 55%,#09070f 100%);
+  font-family:"Share Tech Mono",monospace;
 }
 .preview-gate[hidden]{ display:none; }
 .preview-gate__panel{
-  width:min(440px, 100%);
-  padding:clamp(24px, 6vw, 42px);
-  border:1px solid rgba(255,84,190,.48);
-  border-radius:22px;
-  background:rgba(8,7,17,.88);
-  box-shadow:0 0 42px rgba(255,51,180,.2), inset 0 0 28px rgba(255,255,255,.025);
-  text-align:center;
+  width:min(440px,100%); padding:clamp(24px,6vw,42px); text-align:center;
+  border:1px solid rgba(255,84,190,.48); border-radius:22px; background:rgba(8,7,17,.88);
+  box-shadow:0 0 42px rgba(255,51,180,.2),inset 0 0 28px rgba(255,255,255,.025);
 }
-.preview-gate__panel h1{
-  margin:0 0 10px;
-  color:#f58bd6;
-  font:800 clamp(22px, 6vw, 32px)/1.15 "Orbitron", sans-serif;
-  letter-spacing:.12em;
-}
+.preview-gate__panel h1{ margin:0 0 10px; color:#f58bd6; font:800 clamp(22px,6vw,32px)/1.15 "Orbitron",sans-serif; letter-spacing:.12em; }
 .preview-gate__panel p{ margin:0 0 22px; color:#cbbfd5; }
 .preview-gate__panel label{ display:block; margin-bottom:8px; text-align:left; }
-.preview-gate__panel input,
-.preview-gate__panel button{
-  box-sizing:border-box;
-  width:100%;
-  min-height:48px;
-  border-radius:12px;
-  font:700 16px "Share Tech Mono", monospace;
-}
-.preview-gate__panel input{
-  padding:10px 14px;
-  border:1px solid #744064;
-  color:#fff;
-  background:#100d19;
-  outline:none;
-}
+.preview-gate__panel input,.preview-gate__panel button{ box-sizing:border-box; width:100%; min-height:48px; border-radius:12px; font:700 16px "Share Tech Mono",monospace; }
+.preview-gate__panel input{ padding:10px 14px; border:1px solid #744064; color:#fff; background:#100d19; outline:none; }
 .preview-gate__panel input:focus{ border-color:#ff63c6; box-shadow:0 0 0 3px rgba(255,99,198,.14); }
-.preview-gate__panel button{
-  margin-top:12px;
-  border:1px solid #ff55bd;
-  color:#120913;
-  background:linear-gradient(135deg, #ff76ce, #bb6cff);
-  cursor:pointer;
-}
+.preview-gate__panel button{ margin-top:12px; border:1px solid #ff55bd; color:#120913; background:linear-gradient(135deg,#ff76ce,#bb6cff); cursor:pointer; }
 .preview-gate__error{ min-height:1.4em; margin:12px 0 0 !important; color:#ff626f !important; }
 </style>
 </head>
@@ -1651,8 +1641,7 @@ html.preview-locked body{
       <h1 id="previewGateTitle">ASTEROID DRIFT</h1>
       <p>Private playtest build</p>
       <label for="previewPassword">Enter playtest password</label>
-      <input id="previewPassword" name="password" type="password" autocomplete="current-password"
-             autocapitalize="none" spellcheck="false" required autofocus>
+      <input id="previewPassword" name="password" type="password" autocomplete="current-password" autocapitalize="none" spellcheck="false" required autofocus>
       <button type="submit">UNLOCK GAME</button>
       <p id="previewGateError" class="preview-gate__error" role="alert" aria-live="polite"></p>
     </form>
@@ -5736,21 +5725,21 @@ if (flashTimer > 0) {
       ctx.fillStyle='rgba(0,0,0,.72)';ctx.fillRect(0,0,width,height);
       ctx.textAlign='center';ctx.textBaseline='middle';
       const compact=width<600;
-      const titleSize=compact?22:30;
+      const titleSize=compact?30:30;
 
       ctx.fillStyle='rgba(255,231,255,.98)';
       ctx.font=`900 ${titleSize}px Orbitron, system-ui`;
       const titles={root:'PAUSE MENU',directions:'DIRECTIONS',controllerTypes:'CONTROLLER TYPE',controllerDetail:['XBOX CONTROLS','PLAYSTATION CONTROLS','KEYBOARD CONTROLS'][pauseControllerIndex]};
-      ctx.fillText(titles[pauseMenuView],width/2,compact?48:55);
+      ctx.fillText(titles[pauseMenuView],width/2,compact?45:55);
 
       const card=(x,y,w,h,selected,title,description)=>{
         ctx.fillStyle=selected?'rgba(45,18,55,.96)':'rgba(15,9,24,.90)';
         ctx.strokeStyle=selected?'#7dffbc':'rgba(255,94,130,.48)';
         ctx.lineWidth=selected?3:1.5;ctx.shadowColor=selected?'rgba(80,255,165,.65)':'transparent';ctx.shadowBlur=selected?14:0;
         roundRect(ctx,x,y,w,h,14,true,true);ctx.shadowBlur=0;
-        ctx.fillStyle=selected?'#7dffbc':'#fff0fa';ctx.font=`900 ${compact?13:17}px Orbitron`;
+        ctx.fillStyle=selected?'#7dffbc':'#fff0fa';ctx.font=`900 ${compact?20:17}px Orbitron`;
         ctx.fillText(title,x+w/2,y+h*.38);
-        ctx.fillStyle='rgba(228,228,255,.76)';ctx.font=`${compact?10:12}px system-ui`;
+        ctx.fillStyle='rgba(228,228,255,.76)';ctx.font=`${compact?16:12}px system-ui`;
         ctx.fillText(description,x+w/2,y+h*.68);
       };
 
@@ -5763,22 +5752,35 @@ if (flashTimer > 0) {
           card(50,y,w,h,pauseMenuSelection===0,'DIRECTIONS','View every gameplay control');
           card(50+w+gap,y,w,h,pauseMenuSelection===1,'CONTROLLER TYPE','View mapped buttons and keys');
         }
-        ctx.fillStyle='rgba(228,228,255,.78)';ctx.font=`${compact?10:12}px system-ui`;
+        ctx.fillStyle='rgba(228,228,255,.78)';ctx.font=`${compact?16:12}px system-ui`;
         ctx.fillText('Steer to choose  •  Fire to select',width/2,compact?345:height*.68);
       }else if(pauseMenuView==='directions'){
-        const lines=[
-          'STEER / THRUST — Touchpad • Arrow Keys • WASD • Either Stick • D-Pad',
-          'FIRE / SELECT — Fire stamp • Space / Enter • A / Cross',
-          'MISSILES — Missile icon • Left Alt • X / Square',
-          'CHANGE WEAPON — B / Circle',
-          'SOUND — Sound stamp • Y / Triangle',
-          'PAUSE / RESUME — P • Start / Options',
-          'FULLSCREEN — Hold Start / Options',
-          'RESET — Reset control • Back / Share   |   DIFFICULTY — Hold Reset'
+        const lines=compact?[
+          ['STEER / THRUST','Touchpad • Arrows / WASD • Stick / D-Pad'],
+          ['FIRE / SELECT','Fire stamp • Space / Enter • A / Cross'],
+          ['MISSILES','Missile icon • Left Alt • X / Square'],
+          ['CHANGE WEAPON','B / Circle'],
+          ['SOUND','Sound stamp • Y / Triangle'],
+          ['PAUSE / RESUME','P • Start / Options'],
+          ['FULLSCREEN','Hold Start / Options'],
+          ['RESET / DIFFICULTY','Reset • Back / Share • Hold Reset for difficulty']
+        ]:[
+          ['STEER / THRUST','Touchpad • Arrow Keys • WASD • Either Stick • D-Pad'],
+          ['FIRE / SELECT','Fire stamp • Space / Enter • A / Cross'],
+          ['MISSILES','Missile icon • Left Alt • X / Square'],
+          ['CHANGE WEAPON','B / Circle'],
+          ['SOUND','Sound stamp • Y / Triangle'],
+          ['PAUSE / RESUME','P • Start / Options'],
+          ['FULLSCREEN','Hold Start / Options'],
+          ['RESET / DIFFICULTY','Reset control • Back / Share • Hold Reset for difficulty']
         ];
-        ctx.textAlign='left';ctx.font=`${compact?10:13}px Share Tech Mono`;ctx.fillStyle='rgba(228,228,255,.88)';
-        const left=compact?24:Math.max(70,width*.16),startY=compact?90:105,lineH=compact?31:35;
-        lines.forEach((line,i)=>ctx.fillText(line,left,startY+i*lineH));
+        ctx.textAlign='left';
+        const left=compact?22:Math.max(70,width*.16),startY=compact?82:100,lineH=compact?55:48;
+        lines.forEach(([label,value],i)=>{
+          const y=startY+i*lineH;
+          ctx.fillStyle='#ff8ac0';ctx.font=`800 ${compact?18:14}px Share Tech Mono`;ctx.fillText(label,left,y);
+          ctx.fillStyle='rgba(228,228,255,.9)';ctx.font=`${compact?16:13}px Share Tech Mono`;ctx.fillText(value,left,y+(compact?21:19));
+        });
         ctx.textAlign='center';
       }else if(pauseMenuView==='controllerTypes'){
         const names=['XBOX','PLAYSTATION','KEYBOARD'];
@@ -5788,7 +5790,7 @@ if (flashTimer > 0) {
           names.forEach((name,i)=>card(50+i*(w+gap),y,w,125,pauseControllerIndex===i,name,'Fire to view mapping'));
         }
       }else{
-        drawControllerDiagram(pauseControllerIndex,width/2,compact?170:190,compact?.72:1);
+        drawControllerDiagram(pauseControllerIndex,width/2,compact?180:190,compact?.9:1);
         const maps=pauseControllerIndex===0?[
           'A: Fire / Select','B: Change Weapon','X: Missiles','Y: Sound','Start: Pause • Hold Fullscreen','Back: Reset','Sticks / D-Pad: Steer'
         ]:pauseControllerIndex===1?[
@@ -5796,20 +5798,20 @@ if (flashTimer > 0) {
         ]:[
           'Space / Enter: Fire / Select','Left Alt: Missiles','B: Change Weapon','Arrow Keys / WASD: Steer','P: Pause / Resume','Reset and Sound: Use screen stamps'
         ];
-        ctx.fillStyle='rgba(228,228,255,.9)';ctx.font=`${compact?10:12}px Share Tech Mono`;
+        ctx.fillStyle='rgba(228,228,255,.9)';ctx.font=`${compact?16:12}px Share Tech Mono`;
         const cols=compact?1:2;
-        maps.forEach((line,i)=>{const col=i%cols,row=Math.floor(i/cols);const x=cols===1?width/2:width*(col? .67:.33);ctx.fillText(line,x,(compact?275:300)+row*(compact?24:28));});
+        maps.forEach((line,i)=>{const col=i%cols,row=Math.floor(i/cols);const x=cols===1?width/2:width*(col? .67:.33);ctx.fillText(line,x,(compact?300:300)+row*(compact?34:28));});
       }
 
       if(pauseMenuView!=='root'){
-        ctx.fillStyle='rgba(125,255,188,.9)';ctx.font=`800 ${compact?10:12}px Orbitron`;
+        ctx.fillStyle='rgba(125,255,188,.9)';ctx.font=`800 ${compact?15:12}px Orbitron`;
         ctx.fillText(pauseMenuView==='controllerTypes'?'Steer to choose  •  Fire to open':'Fire to go back',width/2,height-72);
       }
-      ctx.fillStyle='rgba(255,138,192,.92)';ctx.font=`700 ${compact?9:11}px Orbitron`;
+      ctx.fillStyle='rgba(255,138,192,.92)';ctx.font=`700 ${compact?14:11}px Orbitron`;
       ctx.fillText('Press Pause / P again to resume game',width/2,height-50);
-      ctx.fillStyle='rgba(255,65,65,.92)';ctx.font=`800 ${compact?8:10}px Share Tech Mono`;
+      ctx.fillStyle='rgba(255,65,65,.92)';ctx.font=`800 ${compact?13:10}px Share Tech Mono`;
       ctx.fillText('[ PROTECTED FROM BAD VIBES ]',width/2,height-30);
-      ctx.fillStyle='rgba(228,228,255,.68)';ctx.font=`${compact?8:10}px system-ui`;
+      ctx.fillStyle='rgba(228,228,255,.68)';ctx.font=`${compact?12:10}px system-ui`;
       ctx.fillText('© 2026 Summon Mars ™. All rights reserved.',width/2,height-14);
       ctx.restore();
     }
@@ -5970,48 +5972,29 @@ if (flashTimer > 0) {
 
   <script>
     (() => {
-      const gate = document.getElementById('previewGate');
-      const form = document.getElementById('previewGateForm');
-      const input = document.getElementById('previewPassword');
-      const error = document.getElementById('previewGateError');
-      const expectedHash = 'c44f169631b7c8b2aff9b3b8b427d6cb888ab57fb9ae5894a232642d98021bc7';
-      const sessionKey = 'asteroid-drift-final-unlocked';
-      const unlockLifetimeMs = 3 * 60 * 60 * 1000;
-
-      function unlock(){
-        gate.hidden = true;
-        document.documentElement.classList.remove('preview-locked');
-      }
-
+      const gate=document.getElementById('previewGate');
+      const form=document.getElementById('previewGateForm');
+      const input=document.getElementById('previewPassword');
+      const error=document.getElementById('previewGateError');
+      const expectedHash='c44f169631b7c8b2aff9b3b8b427d6cb888ab57fb9ae5894a232642d98021bc7';
+      const sessionKey='asteroid-drift-final-unlocked';
+      const unlockLifetimeMs=3*60*60*1000;
+      function unlock(){ gate.hidden=true; document.documentElement.classList.remove('preview-locked'); }
       async function sha256(value){
-        const bytes = new TextEncoder().encode(value);
-        const digest = await crypto.subtle.digest('SHA-256', bytes);
-        return Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, '0')).join('');
+        const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(value));
+        return Array.from(new Uint8Array(digest),byte=>byte.toString(16).padStart(2,'0')).join('');
       }
-
       document.documentElement.classList.add('preview-locked');
-      const unlockExpiresAt = Number(sessionStorage.getItem(sessionKey));
-      if(Number.isFinite(unlockExpiresAt) && Date.now() < unlockExpiresAt){
-        unlock();
-        return;
-      }
+      const unlockExpiresAt=Number(sessionStorage.getItem(sessionKey));
+      if(Number.isFinite(unlockExpiresAt)&&Date.now()<unlockExpiresAt){ unlock(); return; }
       sessionStorage.removeItem(sessionKey);
-
-      form.addEventListener('submit', async (event) => {
-        event.preventDefault();
-        error.textContent = '';
+      form.addEventListener('submit',async event=>{
+        event.preventDefault(); error.textContent='';
         try{
-          if(await sha256(input.value) === expectedHash){
-            sessionStorage.setItem(sessionKey, String(Date.now() + unlockLifetimeMs));
-            input.value = '';
-            unlock();
-          }else{
-            error.textContent = 'Incorrect password. Please try again.';
-            input.select();
-          }
-        }catch{
-          error.textContent = 'Unable to verify the password in this browser.';
-        }
+          if(await sha256(input.value)===expectedHash){
+            sessionStorage.setItem(sessionKey,String(Date.now()+unlockLifetimeMs)); input.value=''; unlock();
+          }else{ error.textContent='Incorrect password. Please try again.'; input.select(); }
+        }catch{ error.textContent='Unable to verify the password in this browser.'; }
       });
     })();
   </script>
