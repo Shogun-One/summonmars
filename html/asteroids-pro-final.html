@@ -719,6 +719,16 @@ body.music-on .bubble-btn .ring.flip{
   will-change:transform;
 }
 
+/* The mobile Fire control must remain identifiable even while speakers bump. */
+body.music-on #mobileFireBtn .ring.flip .face.stamp{
+  opacity:.98;
+  transform:rotateY(0deg);
+}
+body.music-on #mobileFireBtn .ring.flip .face.woofer{
+  opacity:0;
+  transform:rotateY(180deg);
+}
+
 /* small status dot on the Music bubble (still useful) */
 .bubble-btn .ring.flip .dot-indicator{
   position:absolute;
@@ -1239,6 +1249,7 @@ body.touchpad-off .mobile-touchpad{ display:none !important; }
 .control-deck #reset-btn{ grid-area:reset; }
 .control-deck #musicBtn{ grid-area:music; }
 .control-deck #heatBtn{ grid-area:heat; }
+.control-deck .mobile-fire-btn{ display:none; }
 
 /* Override the global fixed/absolute bubble rules just for the deck */
 .control-deck .bubble-btn{
@@ -1613,6 +1624,22 @@ body.touchpad-off .control-deck .mobile-touchpad{ display:none !important; }
     width:var(--mobile-touchpad);
     height:var(--mobile-touchpad);
   }
+  body:not(.controller-connected) .control-deck .mobile-fire-btn{
+    display:grid;
+    position:absolute !important;
+    z-index:18;
+    left:calc(50% - var(--mobile-touchpad) / 2 - var(--mobile-small-control) / 2 + 12px) !important;
+    right:auto !important;
+    top:auto !important;
+    bottom:calc(var(--mobile-small-control) + 8px) !important;
+    width:var(--mobile-small-control);
+    height:var(--mobile-small-control);
+    transform:none !important;
+  }
+  body.controller-connected .control-deck .mobile-touchpad,
+  body.controller-connected .control-deck .mobile-fire-btn{
+    display:none !important;
+  }
   .touchpad-plate.pause-hold{
     border-color:rgba(125,255,188,.95);
     box-shadow:0 0 18px rgba(125,255,188,.75), inset 0 0 24px rgba(125,255,188,.16);
@@ -1660,13 +1687,7 @@ body.touchpad-off .control-deck .mobile-touchpad{ display:none !important; }
 footer{
   display:none !important;
 }
-
-/* Private-testing gate for the final-preview page. */
-html.preview-locked, html.preview-locked body{ overflow:hidden !important; }
-.preview-gate{position:fixed;inset:0;z-index:2147483647;display:grid;place-items:center;padding:24px;color:#ffeaff;background:radial-gradient(circle at 50% 35%,rgba(123,32,115,.3),transparent 34%),linear-gradient(145deg,#080711 0%,#171126 55%,#09070f 100%);font-family:"Share Tech Mono",monospace;}
-.preview-gate[hidden]{display:none}.preview-gate__panel{width:min(440px,100%);padding:clamp(24px,6vw,42px);text-align:center;border:1px solid rgba(255,84,190,.48);border-radius:22px;background:rgba(8,7,17,.88);box-shadow:0 0 42px rgba(255,51,180,.2),inset 0 0 28px rgba(255,255,255,.025)}
-.preview-gate__panel h1{margin:0 0 10px;color:#f58bd6;font:800 clamp(22px,6vw,32px)/1.15 "Orbitron",sans-serif;letter-spacing:.12em}.preview-gate__panel p{margin:0 0 22px;color:#cbbfd5}.preview-gate__panel label{display:block;margin-bottom:8px;text-align:left}
-.preview-gate__panel input,.preview-gate__panel button{box-sizing:border-box;width:100%;min-height:48px;border-radius:12px;font:700 16px "Share Tech Mono",monospace}.preview-gate__panel input{padding:10px 14px;border:1px solid #744064;color:#fff;background:#100d19;outline:none}.preview-gate__panel input:focus{border-color:#ff63c6;box-shadow:0 0 0 3px rgba(255,99,198,.14)}.preview-gate__panel button{margin-top:12px;border:1px solid #ff55bd;color:#120913;background:linear-gradient(135deg,#ff76ce,#bb6cff);cursor:pointer}.preview-gate__error{min-height:1.4em;margin:12px 0 0!important;color:#ff626f!important}
+html.preview-locked,html.preview-locked body{overflow:hidden!important}.preview-gate{position:fixed;inset:0;z-index:2147483647;display:grid;place-items:center;padding:24px;color:#ffeaff;background:radial-gradient(circle at 50% 35%,rgba(123,32,115,.3),transparent 34%),linear-gradient(145deg,#080711 0%,#171126 55%,#09070f 100%);font-family:"Share Tech Mono",monospace}.preview-gate[hidden]{display:none}.preview-gate__panel{width:min(440px,100%);padding:clamp(24px,6vw,42px);text-align:center;border:1px solid rgba(255,84,190,.48);border-radius:22px;background:rgba(8,7,17,.88);box-shadow:0 0 42px rgba(255,51,180,.2),inset 0 0 28px rgba(255,255,255,.025)}.preview-gate__panel h1{margin:0 0 10px;color:#f58bd6;font:800 clamp(22px,6vw,32px)/1.15 "Orbitron",sans-serif;letter-spacing:.12em}.preview-gate__panel p{margin:0 0 22px;color:#cbbfd5}.preview-gate__panel label{display:block;margin-bottom:8px;text-align:left}.preview-gate__panel input,.preview-gate__panel button{box-sizing:border-box;width:100%;min-height:48px;border-radius:12px;font:700 16px "Share Tech Mono",monospace}.preview-gate__panel input{padding:10px 14px;border:1px solid #744064;color:#fff;background:#100d19;outline:none}.preview-gate__panel button{margin-top:12px;border:1px solid #ff55bd;color:#120913;background:linear-gradient(135deg,#ff76ce,#bb6cff);cursor:pointer}.preview-gate__error{min-height:1.4em;margin:12px 0 0!important;color:#ff626f!important}
 </style>
 </head>
 
@@ -1758,6 +1779,15 @@ html.preview-locked, html.preview-locked body{ overflow:hidden !important; }
         <span>
           <span class="missile-reserve-icon" aria-hidden="true">🚀</span>
           <span class="missile-reserve-count">×<span id="missileReserveCount">0</span></span>
+        </span>
+      </button>
+      <button id="mobileFireBtn" class="bubble-btn mobile-fire-btn" type="button"
+              aria-label="Fire" title="Hold to Fire">
+        <span class="ring flip" aria-hidden="true">
+          <span class="face stamp">
+            <img class="stamp-img" data-asset="images/asteroids/firepower-up.png" alt="">
+          </span>
+          <span class="face woofer"></span>
         </span>
       </button>
       <div id="hint-left" class="neon-hover-hint">Hold: Fire | Top Left: Missiles</div>
@@ -2037,6 +2067,7 @@ document.querySelectorAll('img[data-asset]').forEach((img) => {
     const missileAmmoEl = document.getElementById('missileAmmo');
     const missileReserveEl = document.getElementById('missileReserve');
     const missileReserveCountEl = document.getElementById('missileReserveCount');
+    const mobileFireBtn = document.getElementById('mobileFireBtn');
     const gameAlertEl = document.getElementById('gameAlert');
     const joystickEl = document.getElementById('joystick');
     const stickEl = joystickEl ? joystickEl.querySelector('.stick') : null;
@@ -2491,6 +2522,20 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
 
     // Mouse users can click or hold inside the playfield to fire.
     let mouseFireHeld = false;
+    let mobileFireHeld = false;
+    mobileFireBtn.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      mobileFireBtn.setPointerCapture?.(e.pointerId);
+      if(gameOver){ confirmGameOverChoice(); return; }
+      if(paused){ pauseMenuSelect(); return; }
+      mobileFireHeld = true;
+      shoot();
+      shootCooldown = shootDelay;
+    });
+    ['pointerup','pointercancel','lostpointercapture'].forEach(type => {
+      mobileFireBtn.addEventListener(type, () => { mobileFireHeld = false; });
+    });
     canvas.addEventListener('pointerdown', (e) => {
       if(paused && !gameOver){
         e.preventDefault();
@@ -3691,6 +3736,8 @@ function updateBosses(dt){
       controllerStatus.textContent = gamepadState.connected
         ? `Connected: ${gamepadState.id || 'Game controller'}`
         : 'No controller connected';
+      document.body.classList.toggle('controller-connected', gamepadState.connected);
+      if(!gamepadState.connected) document.body.classList.remove('touchpad-off');
     }
 
     populateGamepadConfig(gamepadConfig);
@@ -4442,6 +4489,7 @@ document.addEventListener('visibilitychange', () => { if(document.hidden){ cance
       shootCooldown -= dt;
       const regularFireHeld =
         mouseFireHeld ||
+        mobileFireHeld ||
         keysDown[' '] ||
         keysDown['Space'] ||
         keysDown['Spacebar'] ||
@@ -5864,21 +5912,21 @@ if (flashTimer > 0) {
       }else if(pauseMenuView==='directions'){
         const lines=compact?[
           ['STEER / THRUST','Touchpad • Arrows / WASD • Stick / D-Pad'],
-          ['FIRE / SELECT','Fire stamp • Space / Enter • A / Cross'],
+          ['FIRE / SELECT','Hold Fire stamp • Space / Enter • A / Cross'],
           ['MISSILES','Missile icon • Left Alt • X / Square'],
           ['CHANGE WEAPON','B / Circle'],
           ['SOUND','Sound stamp • M • Y / Triangle'],
-          ['PAUSE / RESUME','Hold touchpad 0.65 sec • P • Start / Options'],
-          ['MENU / FULLSCREEN','Tap menu boxes • Fullscreen box • Hold Start'],
+          ['PAUSE / MENU','Hold touchpad 0.65 sec • Tap menu boxes • P / Start'],
+          ['TOUCH / FULLSCREEN','Touch controls hide with gamepad • Fullscreen box'],
           ['RESET','Reset stamp • R • Back / Share']
         ]:[
           ['STEER / THRUST','Touchpad • Arrow Keys • WASD • Either Stick • D-Pad'],
-          ['FIRE / SELECT','Fire stamp • Space / Enter • A / Cross'],
+          ['FIRE / SELECT','Hold Fire stamp • Space / Enter • A / Cross'],
           ['MISSILES','Missile icon • Left Alt • X / Square'],
           ['CHANGE WEAPON','B / Circle'],
           ['SOUND','Sound stamp • M • Y / Triangle'],
-          ['PAUSE / RESUME','Hold touchpad 0.65 sec • P • Start / Options'],
-          ['MENU / FULLSCREEN','Tap menu boxes • Fullscreen box • Hold Start / Options'],
+          ['PAUSE / MENU','Hold touchpad 0.65 sec • Tap menu boxes • P / Start'],
+          ['TOUCH / FULLSCREEN','Touch controls auto-hide with gamepad • Fullscreen box'],
           ['RESET / DIFFICULTY','Reset stamp • R • Back / Share • Hold Reset for difficulty']
         ];
         ctx.textAlign='left';
@@ -6077,8 +6125,6 @@ if (flashTimer > 0) {
     requestAnimationFrame(loop);
   </script>
 
-  <script>
-    (()=>{const gate=document.getElementById('previewGate'),form=document.getElementById('previewGateForm'),input=document.getElementById('previewPassword'),error=document.getElementById('previewGateError'),expectedHash='c44f169631b7c8b2aff9b3b8b427d6cb888ab57fb9ae5894a232642d98021bc7',sessionKey='asteroid-drift-final-unlocked',unlockLifetimeMs=3*60*60*1000;function unlock(){gate.hidden=true;document.documentElement.classList.remove('preview-locked')}async function sha256(value){const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(value));return Array.from(new Uint8Array(digest),byte=>byte.toString(16).padStart(2,'0')).join('')}document.documentElement.classList.add('preview-locked');const unlockExpiresAt=Number(sessionStorage.getItem(sessionKey));if(Number.isFinite(unlockExpiresAt)&&Date.now()<unlockExpiresAt){unlock();return}sessionStorage.removeItem(sessionKey);form.addEventListener('submit',async event=>{event.preventDefault();error.textContent='';try{if(await sha256(input.value)===expectedHash){sessionStorage.setItem(sessionKey,String(Date.now()+unlockLifetimeMs));input.value='';unlock()}else{error.textContent='Incorrect password. Please try again.';input.select()}}catch{error.textContent='Unable to verify the password in this browser.'}})})();
-  </script>
+  <script>(()=>{const gate=document.getElementById('previewGate'),form=document.getElementById('previewGateForm'),input=document.getElementById('previewPassword'),error=document.getElementById('previewGateError'),expectedHash='c44f169631b7c8b2aff9b3b8b427d6cb888ab57fb9ae5894a232642d98021bc7',sessionKey='asteroid-drift-final-unlocked',unlockLifetimeMs=3*60*60*1000;function unlock(){gate.hidden=true;document.documentElement.classList.remove('preview-locked')}async function sha256(value){const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(value));return Array.from(new Uint8Array(digest),byte=>byte.toString(16).padStart(2,'0')).join('')}document.documentElement.classList.add('preview-locked');const unlockExpiresAt=Number(sessionStorage.getItem(sessionKey));if(Number.isFinite(unlockExpiresAt)&&Date.now()<unlockExpiresAt){unlock();return}sessionStorage.removeItem(sessionKey);form.addEventListener('submit',async event=>{event.preventDefault();error.textContent='';try{if(await sha256(input.value)===expectedHash){sessionStorage.setItem(sessionKey,String(Date.now()+unlockLifetimeMs));input.value='';unlock()}else{error.textContent='Incorrect password. Please try again.';input.select()}}catch{error.textContent='Unable to verify the password in this browser.'}})})();</script>
 </body>
 </html>
