@@ -1563,11 +1563,18 @@ body.touchpad-off .control-deck .mobile-touchpad{ display:none !important; }
     align-items:flex-start;
   }
   .wrapper{
-    width:100%;
+    /* One outer console frame governs HUD, arena, and deck together. */
+    --mobile-console-width:min(480px, calc(100vw - 12px), calc((100dvh - 120px) * .75));
+    --mobile-deck-height:clamp(158px, 52vw, 200px);
+    --mobile-big-control:clamp(76px, 25vw, 96px);
+    --mobile-small-control:clamp(46px, 16vw, 60px);
+    --mobile-touchpad:clamp(116px, 40vw, 150px);
+    width:var(--mobile-console-width);
     max-height:none;
-    padding-left:max(6px, env(safe-area-inset-left));
-    padding-right:max(6px, env(safe-area-inset-right));
+    padding-left:0;
+    padding-right:0;
   }
+  .hud,
   .game-shell{
     width:100%;
     max-width:480px;
@@ -1578,6 +1585,50 @@ body.touchpad-off .control-deck .mobile-touchpad{ display:none !important; }
     height:auto;
     max-height:none;
     aspect-ratio:3 / 4;
+  }
+  /* Keep the physical deck visible without shrinking the game world. */
+  .control-deck{
+    width:100%;
+    max-width:480px;
+    z-index:12;
+    min-height:var(--mobile-deck-height);
+    margin-top:calc(-1 * var(--mobile-deck-height));
+    grid-template-columns:minmax(0,1fr) minmax(116px,42%) minmax(0,1fr);
+    grid-template-rows:var(--mobile-big-control) var(--mobile-small-control);
+    gap:clamp(6px,2vw,10px);
+  }
+  .control-deck #pauseBtn,
+  .control-deck #heatBtn{
+    width:var(--mobile-big-control);
+    height:var(--mobile-big-control);
+    transform:none !important;
+  }
+  .control-deck #reset-btn,
+  .control-deck #musicBtn{
+    width:var(--mobile-small-control);
+    height:var(--mobile-small-control);
+    transform:none !important;
+  }
+  .control-deck .touchpad-plate{
+    width:var(--mobile-touchpad);
+    height:var(--mobile-touchpad);
+  }
+  .touchpad-plate.pause-hold{
+    border-color:rgba(125,255,188,.95);
+    box-shadow:0 0 18px rgba(125,255,188,.75), inset 0 0 24px rgba(125,255,188,.16);
+  }
+  body.game-paused .control-deck .bubble-btn,
+  body.game-paused .control-deck .missile-reserve{
+    opacity:0;
+    pointer-events:none;
+  }
+  body.game-paused .control-deck .mobile-touchpad{
+    transform:translateY(78px) !important;
+  }
+  body.game-paused .control-deck .touchpad-plate{
+    width:90px;
+    height:90px;
+    border-radius:20px;
   }
 }
 
@@ -1612,40 +1663,15 @@ footer{
 
 /* Private-testing gate for the final-preview page. */
 html.preview-locked, html.preview-locked body{ overflow:hidden !important; }
-.preview-gate{
-  position:fixed; inset:0; z-index:2147483647; display:grid; place-items:center;
-  padding:24px; color:#ffeaff;
-  background:radial-gradient(circle at 50% 35%, rgba(123,32,115,.3), transparent 34%),linear-gradient(145deg,#080711 0%,#171126 55%,#09070f 100%);
-  font-family:"Share Tech Mono",monospace;
-}
-.preview-gate[hidden]{ display:none; }
-.preview-gate__panel{
-  width:min(440px,100%); padding:clamp(24px,6vw,42px); text-align:center;
-  border:1px solid rgba(255,84,190,.48); border-radius:22px; background:rgba(8,7,17,.88);
-  box-shadow:0 0 42px rgba(255,51,180,.2),inset 0 0 28px rgba(255,255,255,.025);
-}
-.preview-gate__panel h1{ margin:0 0 10px; color:#f58bd6; font:800 clamp(22px,6vw,32px)/1.15 "Orbitron",sans-serif; letter-spacing:.12em; }
-.preview-gate__panel p{ margin:0 0 22px; color:#cbbfd5; }
-.preview-gate__panel label{ display:block; margin-bottom:8px; text-align:left; }
-.preview-gate__panel input,.preview-gate__panel button{ box-sizing:border-box; width:100%; min-height:48px; border-radius:12px; font:700 16px "Share Tech Mono",monospace; }
-.preview-gate__panel input{ padding:10px 14px; border:1px solid #744064; color:#fff; background:#100d19; outline:none; }
-.preview-gate__panel input:focus{ border-color:#ff63c6; box-shadow:0 0 0 3px rgba(255,99,198,.14); }
-.preview-gate__panel button{ margin-top:12px; border:1px solid #ff55bd; color:#120913; background:linear-gradient(135deg,#ff76ce,#bb6cff); cursor:pointer; }
-.preview-gate__error{ min-height:1.4em; margin:12px 0 0 !important; color:#ff626f !important; }
+.preview-gate{position:fixed;inset:0;z-index:2147483647;display:grid;place-items:center;padding:24px;color:#ffeaff;background:radial-gradient(circle at 50% 35%,rgba(123,32,115,.3),transparent 34%),linear-gradient(145deg,#080711 0%,#171126 55%,#09070f 100%);font-family:"Share Tech Mono",monospace;}
+.preview-gate[hidden]{display:none}.preview-gate__panel{width:min(440px,100%);padding:clamp(24px,6vw,42px);text-align:center;border:1px solid rgba(255,84,190,.48);border-radius:22px;background:rgba(8,7,17,.88);box-shadow:0 0 42px rgba(255,51,180,.2),inset 0 0 28px rgba(255,255,255,.025)}
+.preview-gate__panel h1{margin:0 0 10px;color:#f58bd6;font:800 clamp(22px,6vw,32px)/1.15 "Orbitron",sans-serif;letter-spacing:.12em}.preview-gate__panel p{margin:0 0 22px;color:#cbbfd5}.preview-gate__panel label{display:block;margin-bottom:8px;text-align:left}
+.preview-gate__panel input,.preview-gate__panel button{box-sizing:border-box;width:100%;min-height:48px;border-radius:12px;font:700 16px "Share Tech Mono",monospace}.preview-gate__panel input{padding:10px 14px;border:1px solid #744064;color:#fff;background:#100d19;outline:none}.preview-gate__panel input:focus{border-color:#ff63c6;box-shadow:0 0 0 3px rgba(255,99,198,.14)}.preview-gate__panel button{margin-top:12px;border:1px solid #ff55bd;color:#120913;background:linear-gradient(135deg,#ff76ce,#bb6cff);cursor:pointer}.preview-gate__error{min-height:1.4em;margin:12px 0 0!important;color:#ff626f!important}
 </style>
 </head>
 
 <body>
-  <section id="previewGate" class="preview-gate" aria-labelledby="previewGateTitle">
-    <form id="previewGateForm" class="preview-gate__panel">
-      <h1 id="previewGateTitle">ASTEROID DRIFT</h1>
-      <p>Private playtest build</p>
-      <label for="previewPassword">Enter playtest password</label>
-      <input id="previewPassword" name="password" type="password" autocomplete="current-password" autocapitalize="none" spellcheck="false" required autofocus>
-      <button type="submit">UNLOCK GAME</button>
-      <p id="previewGateError" class="preview-gate__error" role="alert" aria-live="polite"></p>
-    </form>
-  </section>
+  <section id="previewGate" class="preview-gate" aria-labelledby="previewGateTitle"><form id="previewGateForm" class="preview-gate__panel"><h1 id="previewGateTitle">ASTEROID DRIFT</h1><p>Private playtest build</p><label for="previewPassword">Enter playtest password</label><input id="previewPassword" name="password" type="password" autocomplete="current-password" autocapitalize="none" spellcheck="false" required autofocus><button type="submit">UNLOCK GAME</button><p id="previewGateError" class="preview-gate__error" role="alert" aria-live="polite"></p></form></section>
   <canvas id="bgfx" aria-hidden="true"></canvas>
   <div id="impactFx" aria-hidden="true"></div>
 
@@ -2466,7 +2492,12 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
     // Mouse users can click or hold inside the playfield to fire.
     let mouseFireHeld = false;
     canvas.addEventListener('pointerdown', (e) => {
-      if(e.pointerType !== 'mouse' || gameOver || paused) return;
+      if(paused && !gameOver){
+        e.preventDefault();
+        handlePausePointer(e.clientX,e.clientY);
+        return;
+      }
+      if(e.pointerType !== 'mouse' || gameOver) return;
       e.preventDefault();
       mouseFireHeld = true;
       shoot();
@@ -3373,7 +3404,7 @@ function updateBosses(dt){
     function pauseMenuNavigate(direction){
       if(!paused || direction === 0) return;
       if(pauseMenuView === 'root'){
-        pauseMenuSelection = (pauseMenuSelection + (direction > 0 ? 1 : -1) + 2) % 2;
+        pauseMenuSelection = (pauseMenuSelection + (direction > 0 ? 1 : -1) + 3) % 3;
       }else if(pauseMenuView === 'controllerTypes'){
         pauseControllerIndex = (pauseControllerIndex + (direction > 0 ? 1 : -1) + 3) % 3;
       }
@@ -3382,13 +3413,55 @@ function updateBosses(dt){
     function pauseMenuSelect(){
       if(!paused) return;
       if(pauseMenuView === 'root'){
-        pauseMenuView = pauseMenuSelection === 0 ? 'directions' : 'controllerTypes';
+        if(pauseMenuSelection === 0) pauseMenuView = 'directions';
+        else if(pauseMenuSelection === 1) pauseMenuView = 'controllerTypes';
+        else{
+          toggleFullscreen();
+          showGameAlert(document.fullscreenElement ? 'EXITING FULLSCREEN' : 'FULLSCREEN', 'sound-on');
+        }
       }else if(pauseMenuView === 'controllerTypes'){
         pauseMenuView = 'controllerDetail';
       }else if(pauseMenuView === 'controllerDetail'){
         pauseMenuView = 'controllerTypes';
       }else{
         pauseMenuView = 'root';
+      }
+    }
+
+    function handlePausePointer(clientX,clientY){
+      if(!paused || gameOver) return;
+      const rect=canvas.getBoundingClientRect();
+      const x=(clientX-rect.left)*(width/rect.width);
+      const y=(clientY-rect.top)*(height/rect.height);
+      const compact=width<600;
+
+      if(pauseMenuView==='root'){
+        if(compact){
+          if(y>=82&&y<=205) pauseMenuSelection=0;
+          else if(y>=205&&y<=330) pauseMenuSelection=1;
+          else if(y>=330&&y<=435) pauseMenuSelection=2;
+          else return;
+        }else{
+          const gap=22,w=(width-100-gap)/2,top=height*.28;
+          if(y>=top&&y<=top+150&&x>=50&&x<=50+w) pauseMenuSelection=0;
+          else if(y>=top&&y<=top+150&&x>=50+w+gap&&x<=width-50) pauseMenuSelection=1;
+          else if(y>=top+170&&y<=top+270) pauseMenuSelection=2;
+          else return;
+        }
+        pauseMenuSelect();
+      }else if(pauseMenuView==='controllerTypes'){
+        if(compact){
+          const index=Math.floor((y-88)/82);
+          if(index<0||index>2) return;
+          pauseControllerIndex=index;
+        }else{
+          const gap=18,w=(width-100-gap*2)/3,index=Math.floor((x-50)/(w+gap));
+          if(index<0||index>2) return;
+          pauseControllerIndex=index;
+        }
+        pauseMenuSelect();
+      }else{
+        pauseMenuSelect();
       }
     }
 
@@ -3754,11 +3827,18 @@ let joyActive = false;
 let joyVec = { x: 0, y: 0 };
 const DEADZONE = 0.08;
 
-// tap-to-pause detection
+// Deliberate stationary hold pauses/resumes without stealing steering taps.
 let joyTapStartT = 0;
 let joyTapStartX = 0;
 let joyTapStartY = 0;
 let joyDidMove = false;
+let joyPauseTimer = 0;
+const JOY_PAUSE_HOLD_MS = 650;
+
+function cancelJoyPauseHold(){
+  if(joyPauseTimer){ clearTimeout(joyPauseTimer); joyPauseTimer=0; }
+  joystickEl?.classList.remove('pause-hold');
+}
 
 // movable base position
 let joyBaseX = 0;
@@ -3864,6 +3944,18 @@ joystickEl?.addEventListener('pointerdown', (e) => {
   joyTapStartY = e.clientY;
   joyDidMove = false;
 
+  cancelJoyPauseHold();
+  joystickEl.classList.add('pause-hold');
+  joyPauseTimer=setTimeout(()=>{
+    joyPauseTimer=0;
+    joystickEl.classList.remove('pause-hold');
+    if(!joyDidMove && !gameOver){
+      resetJoy();
+      setPaused(!paused);
+      try{ navigator.vibrate?.(25); }catch{}
+    }
+  },JOY_PAUSE_HOLD_MS);
+
   joyFromEvent(e);
 }, { passive:false });
 
@@ -3873,7 +3965,10 @@ joystickEl?.addEventListener('pointermove', (e) => {
   e.stopPropagation();
 
   const moved = Math.hypot(e.clientX - joyTapStartX, e.clientY - joyTapStartY);
-  if(moved > 10) joyDidMove = true;
+  if(moved > 10){
+    joyDidMove = true;
+    cancelJoyPauseHold();
+  }
 
   joyFromEvent(e);
 }, { passive:false });
@@ -3882,21 +3977,20 @@ joystickEl?.addEventListener('pointerup', (e) => {
   e.preventDefault();
   e.stopPropagation();
 
-  const dt = performance.now() - joyTapStartT;
-  const moved = Math.hypot(e.clientX - joyTapStartX, e.clientY - joyTapStartY);
-  // Touchpad only: no tap-to-pause (pause is the pizza bubble)
+  cancelJoyPauseHold();
   resetJoy();
 }, { passive:false });
 
 joystickEl?.addEventListener('pointercancel', (e) => {
   e.preventDefault();
   e.stopPropagation();
+  cancelJoyPauseHold();
   resetJoy();
 }, { passive:false });
 
-joystickEl?.addEventListener('lostpointercapture', resetJoy);
-window.addEventListener('blur', resetJoy);
-document.addEventListener('visibilitychange', () => { if(document.hidden) resetJoy(); 
+joystickEl?.addEventListener('lostpointercapture', () => { cancelJoyPauseHold(); resetJoy(); });
+window.addEventListener('blur', () => { cancelJoyPauseHold(); resetJoy(); });
+document.addEventListener('visibilitychange', () => { if(document.hidden){ cancelJoyPauseHold(); resetJoy(); }
 });
 
 
@@ -5758,13 +5852,15 @@ if (flashTimer > 0) {
         if(compact){
           card(35,92,width-70,105,pauseMenuSelection===0,'DIRECTIONS','All gameplay and menu controls');
           card(35,215,width-70,105,pauseMenuSelection===1,'CONTROLLER TYPE','Xbox • PlayStation • Keyboard');
+          card(90,338,width-180,80,pauseMenuSelection===2,'FULLSCREEN','Use the whole phone display');
         }else{
           const gap=22,w=(width-100-gap)/2,y=height*.28,h=150;
           card(50,y,w,h,pauseMenuSelection===0,'DIRECTIONS','View every gameplay control');
           card(50+w+gap,y,w,h,pauseMenuSelection===1,'CONTROLLER TYPE','View mapped buttons and keys');
+          card(width/2-210,y+175,420,90,pauseMenuSelection===2,'FULLSCREEN','Enter or exit browser fullscreen');
         }
         ctx.fillStyle='rgba(228,228,255,.78)';ctx.font=`${compact?16:12}px system-ui`;
-        ctx.fillText('Steer to choose  •  Fire to select',width/2,compact?345:height*.68);
+        ctx.fillText('Tap a box  •  Hold touchpad to resume',width/2,compact?445:height*.77);
       }else if(pauseMenuView==='directions'){
         const lines=compact?[
           ['STEER / THRUST','Touchpad • Arrows / WASD • Stick / D-Pad'],
@@ -5772,17 +5868,17 @@ if (flashTimer > 0) {
           ['MISSILES','Missile icon • Left Alt • X / Square'],
           ['CHANGE WEAPON','B / Circle'],
           ['SOUND','Sound stamp • M • Y / Triangle'],
-          ['PAUSE / RESUME','P • Start / Options'],
-          ['FULLSCREEN','Hold Start / Options'],
-          ['RESET / DIFFICULTY','Reset stamp • R • Back / Share • Hold Reset for difficulty']
+          ['PAUSE / RESUME','Hold touchpad 0.65 sec • P • Start / Options'],
+          ['MENU / FULLSCREEN','Tap menu boxes • Fullscreen box • Hold Start'],
+          ['RESET','Reset stamp • R • Back / Share']
         ]:[
           ['STEER / THRUST','Touchpad • Arrow Keys • WASD • Either Stick • D-Pad'],
           ['FIRE / SELECT','Fire stamp • Space / Enter • A / Cross'],
           ['MISSILES','Missile icon • Left Alt • X / Square'],
           ['CHANGE WEAPON','B / Circle'],
           ['SOUND','Sound stamp • M • Y / Triangle'],
-          ['PAUSE / RESUME','P • Start / Options'],
-          ['FULLSCREEN','Hold Start / Options'],
+          ['PAUSE / RESUME','Hold touchpad 0.65 sec • P • Start / Options'],
+          ['MENU / FULLSCREEN','Tap menu boxes • Fullscreen box • Hold Start / Options'],
           ['RESET / DIFFICULTY','Reset stamp • R • Back / Share • Hold Reset for difficulty']
         ];
         ctx.textAlign='left';
@@ -5816,10 +5912,10 @@ if (flashTimer > 0) {
 
       if(pauseMenuView!=='root'){
         ctx.fillStyle='rgba(125,255,188,.9)';ctx.font=`800 ${compact?15:12}px Orbitron`;
-        ctx.fillText(pauseMenuView==='controllerTypes'?'Steer to choose  •  Fire to open':'Fire to go back',width/2,height-72);
+        ctx.fillText(pauseMenuView==='controllerTypes'?'Tap a box • Steer + Fire to open':'Tap screen or Fire to go back',width/2,height-72);
       }
       ctx.fillStyle='rgba(255,138,192,.92)';ctx.font=`700 ${compact?14:11}px Orbitron`;
-      ctx.fillText('Press Pause / P again to resume game',width/2,height-50);
+      ctx.fillText('Hold touchpad • P • Start / Options to resume',width/2,height-50);
       ctx.fillStyle='rgba(255,65,65,.92)';ctx.font=`800 ${compact?13:10}px Share Tech Mono`;
       ctx.fillText('[ PROTECTED FROM BAD VIBES ]',width/2,height-30);
       ctx.fillStyle='rgba(228,228,255,.68)';ctx.font=`${compact?12:10}px system-ui`;
@@ -5982,32 +6078,7 @@ if (flashTimer > 0) {
   </script>
 
   <script>
-    (() => {
-      const gate=document.getElementById('previewGate');
-      const form=document.getElementById('previewGateForm');
-      const input=document.getElementById('previewPassword');
-      const error=document.getElementById('previewGateError');
-      const expectedHash='c44f169631b7c8b2aff9b3b8b427d6cb888ab57fb9ae5894a232642d98021bc7';
-      const sessionKey='asteroid-drift-final-unlocked';
-      const unlockLifetimeMs=3*60*60*1000;
-      function unlock(){ gate.hidden=true; document.documentElement.classList.remove('preview-locked'); }
-      async function sha256(value){
-        const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(value));
-        return Array.from(new Uint8Array(digest),byte=>byte.toString(16).padStart(2,'0')).join('');
-      }
-      document.documentElement.classList.add('preview-locked');
-      const unlockExpiresAt=Number(sessionStorage.getItem(sessionKey));
-      if(Number.isFinite(unlockExpiresAt)&&Date.now()<unlockExpiresAt){ unlock(); return; }
-      sessionStorage.removeItem(sessionKey);
-      form.addEventListener('submit',async event=>{
-        event.preventDefault(); error.textContent='';
-        try{
-          if(await sha256(input.value)===expectedHash){
-            sessionStorage.setItem(sessionKey,String(Date.now()+unlockLifetimeMs)); input.value=''; unlock();
-          }else{ error.textContent='Incorrect password. Please try again.'; input.select(); }
-        }catch{ error.textContent='Unable to verify the password in this browser.'; }
-      });
-    })();
+    (()=>{const gate=document.getElementById('previewGate'),form=document.getElementById('previewGateForm'),input=document.getElementById('previewPassword'),error=document.getElementById('previewGateError'),expectedHash='c44f169631b7c8b2aff9b3b8b427d6cb888ab57fb9ae5894a232642d98021bc7',sessionKey='asteroid-drift-final-unlocked',unlockLifetimeMs=3*60*60*1000;function unlock(){gate.hidden=true;document.documentElement.classList.remove('preview-locked')}async function sha256(value){const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(value));return Array.from(new Uint8Array(digest),byte=>byte.toString(16).padStart(2,'0')).join('')}document.documentElement.classList.add('preview-locked');const unlockExpiresAt=Number(sessionStorage.getItem(sessionKey));if(Number.isFinite(unlockExpiresAt)&&Date.now()<unlockExpiresAt){unlock();return}sessionStorage.removeItem(sessionKey);form.addEventListener('submit',async event=>{event.preventDefault();error.textContent='';try{if(await sha256(input.value)===expectedHash){sessionStorage.setItem(sessionKey,String(Date.now()+unlockLifetimeMs));input.value='';unlock()}else{error.textContent='Incorrect password. Please try again.';input.select()}}catch{error.textContent='Unable to verify the password in this browser.'}})})();
   </script>
 </body>
 </html>
