@@ -2860,6 +2860,7 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
       'pilot-asian-f':9,'pilot-asian-m':10
     };
     const detailedShipSources={
+      'ship-void':'images/asteroids/ship-void-phantom.png',
       'ship-emerald':'images/asteroids/ship-emerald.png',
       'ship-cobalt':'images/asteroids/ship-cobalt.png',
       'ship-manta':'images/asteroids/ship-manta.png',
@@ -5435,10 +5436,11 @@ if (flashTimer > 0) {
       const detailedShipImg=detailedShipImgs[equippedStore.ship];
       if(detailedShipImg?.complete && detailedShipImg.naturalWidth>0){
         const spriteSize=ship.radius*(equippedStore.ship==='ship-dogbus'?3.75:3.45);
+        const spriteW=spriteSize*(detailedShipImg.naturalWidth/detailedShipImg.naturalHeight);
         ctx.save();
         ctx.rotate(SHIP_SPRITE_FORWARD_OFFSET);
         ctx.globalAlpha=.98;
-        ctx.drawImage(detailedShipImg,-spriteSize/2,-spriteSize/2,spriteSize,spriteSize);
+        ctx.drawImage(detailedShipImg,-spriteW/2,-spriteSize/2,spriteW,spriteSize);
         ctx.restore();
       } else if (shipImgReady && shipImg.naturalWidth > 0) {
         const spriteH = ship.radius * 2.75;
@@ -6498,13 +6500,29 @@ if (flashTimer > 0) {
           const status=equipped?'EQUIPPED':owned?'OWNED':`${item.price.toLocaleString()} PTS`;
           card(rects[i].x,rects[i].y,rects[i].w,rects[i].h,inventorySelection===i,'','');
           const r=rects[i];
+          const transparentShipImg=item.type==='ship'?(detailedShipImgs[item.id]||shipImg):null;
           const useAtlas2=Number.isInteger(inventoryAtlas2Cell[item.id]);
           const atlasIndex=useAtlas2?inventoryAtlas2Cell[item.id]:inventoryAtlasCell[item.id];
           const atlasImg=useAtlas2?inventoryAtlas2Img:inventoryAtlasImg;
           const atlasReady=useAtlas2?inventoryAtlas2Ready:inventoryAtlasReady;
           const thumb=Math.max(38,Math.min(r.h-6,r.w*.42));
           const artX=r.x+4,artY=r.y+(r.h-thumb)/2;
-          if(atlasReady && Number.isInteger(atlasIndex)){
+          if(transparentShipImg?.complete && transparentShipImg.naturalWidth>0){
+            const maxArtW=thumb,maxArtH=thumb;
+            const scale=Math.min(maxArtW/transparentShipImg.naturalWidth,maxArtH/transparentShipImg.naturalHeight);
+            const drawW=transparentShipImg.naturalWidth*scale,drawH=transparentShipImg.naturalHeight*scale;
+            ctx.save();
+            if(item.id==='ship-crimson') ctx.filter='hue-rotate(105deg) saturate(1.35)';
+            else if(item.id==='ship-solar') ctx.filter='hue-rotate(160deg) saturate(1.45) brightness(1.08)';
+            ctx.drawImage(transparentShipImg,artX+(thumb-drawW)/2,artY+(thumb-drawH)/2,drawW,drawH);
+            ctx.restore();
+            const textX=artX+thumb+(r.x+r.w-artX-thumb)/2;
+            const titleSize=compact?(item.name.length>15?9:11):(item.name.length>18?11:13);
+            ctx.fillStyle=inventorySelection===i?'#7dffbc':'#fff';ctx.font=`900 ${titleSize}px Orbitron`;
+            ctx.fillText(item.name,textX,r.y+r.h*.39);
+            ctx.fillStyle=equipped?'#7dffbc':'rgba(255,255,255,.9)';ctx.font=`800 ${compact?12:11}px Share Tech Mono`;
+            ctx.fillText(status,textX,r.y+r.h*.70);
+          }else if(atlasReady && Number.isInteger(atlasIndex)){
             const sw=atlasImg.naturalWidth/4,sh=atlasImg.naturalHeight/3;
             const sx=(atlasIndex%4)*sw,sy=Math.floor(atlasIndex/4)*sh;
             ctx.save();roundRect(ctx,artX,artY,thumb,thumb,9,false,false);ctx.clip();
