@@ -224,6 +224,19 @@
       font-family:'Share Tech Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
       text-shadow:0 0 10px rgba(255,138,192,.22);
     }
+    .hud-pilot-portrait{
+      display:inline-block;
+      width:25px;
+      height:25px;
+      margin:-6px 4px -6px -4px;
+      vertical-align:middle;
+      border:1px solid rgba(255,138,192,.72);
+      border-radius:50%;
+      background-color:#171020;
+      background-repeat:no-repeat;
+      background-size:400% 300%;
+      box-shadow:0 0 8px rgba(255,92,190,.38);
+    }
     .hud .ship-health-bar{
       display:inline-block;
       width:54px;
@@ -1790,8 +1803,8 @@ body.game-paused .control-deck .touchpad-plate{
 footer{
   display:none !important;
 }
-html.preview-locked,html.preview-locked body{overflow:hidden!important}.preview-gate{position:fixed;inset:0;z-index:2147483647;display:grid;place-items:center;padding:24px;color:#ffeaff;background:radial-gradient(circle at 50% 35%,rgba(123,32,115,.3),transparent 34%),linear-gradient(145deg,#080711 0%,#171126 55%,#09070f 100%);font-family:"Share Tech Mono",monospace}.preview-gate[hidden]{display:none}.preview-gate__panel{width:min(440px,100%);padding:clamp(24px,6vw,42px);text-align:center;border:1px solid rgba(255,84,190,.48);border-radius:22px;background:rgba(8,7,17,.88);box-shadow:0 0 42px rgba(255,51,180,.2),inset 0 0 28px rgba(255,255,255,.025)}.preview-gate__panel h1{margin:0 0 10px;color:#f58bd6;font:800 clamp(22px,6vw,32px)/1.15 "Orbitron",sans-serif;letter-spacing:.12em}.preview-gate__panel p{margin:0 0 22px;color:#cbbfd5}.preview-gate__panel label{display:block;margin-bottom:8px;text-align:left}.preview-gate__panel input,.preview-gate__panel button{box-sizing:border-box;width:100%;min-height:48px;border-radius:12px;font:700 16px "Share Tech Mono",monospace}.preview-gate__panel input{padding:10px 14px;border:1px solid #744064;color:#fff;background:#100d19;outline:none}.preview-gate__panel button{margin-top:12px;border:1px solid #ff55bd;color:#120913;background:linear-gradient(135deg,#ff76ce,#bb6cff);cursor:pointer}.preview-gate__error{min-height:1.4em;margin:12px 0 0!important;color:#ff626f!important}
-  </style>
+</style>
+<style>html.preview-locked,html.preview-locked body{overflow:hidden!important}.preview-gate{position:fixed;inset:0;z-index:2147483647;display:grid;place-items:center;padding:24px;color:#ffeaff;background:radial-gradient(circle at 50% 35%,rgba(123,32,115,.3),transparent 34%),linear-gradient(145deg,#080711 0%,#171126 55%,#09070f 100%);font-family:"Share Tech Mono",monospace}.preview-gate[hidden]{display:none}.preview-gate__panel{width:min(440px,100%);padding:clamp(24px,6vw,42px);text-align:center;border:1px solid rgba(255,84,190,.48);border-radius:22px;background:rgba(8,7,17,.88);box-shadow:0 0 42px rgba(255,51,180,.2),inset 0 0 28px rgba(255,255,255,.025)}.preview-gate__panel h1{margin:0 0 10px;color:#f58bd6;font:800 clamp(22px,6vw,32px)/1.15 "Orbitron",sans-serif;letter-spacing:.12em}.preview-gate__panel p{margin:0 0 22px;color:#cbbfd5}.preview-gate__panel label{display:block;margin-bottom:8px;text-align:left}.preview-gate__panel input,.preview-gate__panel button{box-sizing:border-box;width:100%;min-height:48px;border-radius:12px;font:700 16px "Share Tech Mono",monospace}.preview-gate__panel input{padding:10px 14px;border:1px solid #744064;color:#fff;background:#100d19;outline:none}.preview-gate__panel button{margin-top:12px;border:1px solid #ff55bd;color:#120913;background:linear-gradient(135deg,#ff76ce,#bb6cff);cursor:pointer}.preview-gate__error{min-height:1.4em;margin:12px 0 0!important;color:#ff626f!important}</style>
 </head>
 
 <body>
@@ -1865,7 +1878,7 @@ html.preview-locked,html.preview-locked body{overflow:hidden!important}.preview-
       <div class="pill best">🏆: <span id="best">0</span></div>
       <div class="pill level">:🧬: <span id="level">1</span></div>
       <div class="pill lives">♥️: <span id="lives">5</span></div>
-      <div class="pill hits">🛡️: <span id="hits">0</span>/<span id="hitsMax">10</span><span class="ship-health-bar" aria-hidden="true"><i id="shipHealthFill"></i></span></div>
+      <div class="pill hits"><span id="hudPilotPortrait" class="hud-pilot-portrait" aria-label="Equipped pilot"></span><span id="hits">10</span>/<span id="hitsMax">10</span><span class="ship-health-bar" aria-hidden="true"><i id="shipHealthFill"></i></span></div>
       <div class="pill toNext">⏭️: <span id="toNext">0</span>/<span id="toNextMax">10</span></div>
 
       <div class="pill bossKills">Boss 💀: <span id="bossKills">0</span></div>
@@ -2149,6 +2162,7 @@ document.querySelectorAll('img[data-asset]').forEach((img) => {
     const hitsEl = document.getElementById('hits');
     const hitsMaxEl = document.getElementById('hitsMax');
     const shipHealthFillEl = document.getElementById('shipHealthFill');
+    const hudPilotPortraitEl = document.getElementById('hudPilotPortrait');
     const resetBtn = document.getElementById('reset-btn');
 
     const levelEl = document.getElementById('level');
@@ -2686,9 +2700,15 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
     // Mouse users can click or hold inside the playfield to fire.
     let mouseFireHeld = false;
     let mobileFireHeld = false;
+    let inventoryPointerScroll = null;
     canvas.addEventListener('pointerdown', (e) => {
       if(paused && !gameOver){
         e.preventDefault();
+        if(pauseMenuView==='inventory' && e.pointerType!=='mouse'){
+          inventoryPointerScroll={id:e.pointerId,startY:e.clientY,lastY:e.clientY,moved:false,startX:e.clientX};
+          canvas.setPointerCapture?.(e.pointerId);
+          return;
+        }
         handlePausePointer(e.clientX,e.clientY);
         return;
       }
@@ -2704,6 +2724,25 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
     canvas.addEventListener('pointerleave', (e) => {
       if(e.pointerType === 'mouse') mouseFireHeld = false;
     });
+    canvas.addEventListener('pointermove',(e)=>{
+      if(!inventoryPointerScroll || e.pointerId!==inventoryPointerScroll.id) return;
+      const delta=inventoryPointerScroll.lastY-e.clientY;
+      if(Math.abs(e.clientY-inventoryPointerScroll.startY)>7) inventoryPointerScroll.moved=true;
+      inventoryScrollY=clamp(inventoryScrollY+delta,0,inventoryMaxScroll());
+      inventoryPointerScroll.lastY=e.clientY;
+      e.preventDefault();
+    },{passive:false});
+    canvas.addEventListener('pointerup',(e)=>{
+      if(!inventoryPointerScroll || e.pointerId!==inventoryPointerScroll.id) return;
+      const gesture=inventoryPointerScroll;inventoryPointerScroll=null;
+      if(!gesture.moved) handlePausePointer(e.clientX,e.clientY);
+      e.preventDefault();
+    },{passive:false});
+    canvas.addEventListener('wheel',(e)=>{
+      if(!paused || pauseMenuView!=='inventory') return;
+      inventoryScrollY=clamp(inventoryScrollY+e.deltaY,0,inventoryMaxScroll());
+      e.preventDefault();
+    },{passive:false});
 
     // Game state
     let bestScore = Number(localStorage.getItem('asteroidBest') || 0);
@@ -2714,7 +2753,7 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
     hitsMaxEl.textContent = MAX_HITS;
 
     function updateHitUI(){
-      hitsEl.textContent = hits;
+      hitsEl.textContent = Math.max(0, MAX_HITS - hits);
       const remaining = clamp((MAX_HITS - hits) / MAX_HITS, 0, 1);
       shipHealthFillEl.style.width = `${remaining*100}%`;
     }
@@ -2730,9 +2769,20 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
       {id:'ship-crimson',type:'ship',name:'CRIMSON VIPER',price:5,color:'#ff496f'},
       {id:'ship-solar',type:'ship',name:'SOLAR WARDEN',price:5,color:'#ffbd45'},
       {id:'ship-void',type:'ship',name:'VOID PHANTOM',price:5,color:'#ae70ff'},
+      {id:'ship-emerald',type:'ship',name:'EMERALD EDGE',price:5,color:'#35f5a1'},
+      {id:'ship-cobalt',type:'ship',name:'COBALT GUNSHIP',price:5,color:'#4297ff'},
+      {id:'ship-manta',type:'ship',name:'STEALTH MANTA',price:5,color:'#8de8ff'},
+      {id:'ship-dogbus',type:'ship',name:'DOGFACE BUS',price:5,color:'#ffae45'},
+      {id:'ship-phoenix',type:'ship',name:'SOLAR PHOENIX',price:5,color:'#ff623b'},
       {id:'pilot-shadow',type:'pilot',name:'UNKNOWN PILOT',price:0,color:'#7d718d'},
       {id:'pilot-nova',type:'pilot',name:'NOVA',price:5,color:'#ff77c8'},
       {id:'pilot-ace',type:'pilot',name:'ACE REX',price:5,color:'#5dffbf'},
+      {id:'pilot-indian-f',type:'pilot',name:'CAPTAIN ASHA',price:5,color:'#ff9f68'},
+      {id:'pilot-indian-m',type:'pilot',name:'COMMANDER ARJUN',price:5,color:'#ffc95d'},
+      {id:'pilot-black-f',type:'pilot',name:'MAJOR IMANI',price:5,color:'#f06bb8'},
+      {id:'pilot-black-m',type:'pilot',name:'CAPTAIN MALIK',price:5,color:'#75c9ff'},
+      {id:'pilot-asian-f',type:'pilot',name:'COMMANDER MEI',price:5,color:'#ff6f91'},
+      {id:'pilot-asian-m',type:'pilot',name:'ACE KENJI',price:5,color:'#70e0d1'},
       {id:'scene-deep',type:'scene',name:'DEEP SPACE',price:0,color:'#171329'},
       {id:'scene-nebula',type:'scene',name:'NEBULA RUN',price:5,color:'#a33bba'},
       {id:'scene-solar',type:'scene',name:'SOLAR STORM',price:5,color:'#df5c28'},
@@ -2773,6 +2823,32 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
       'pilot-shadow':4,'pilot-nova':5,'pilot-ace':6,'missile-21':7,
       'scene-deep':8,'scene-nebula':9,'scene-solar':10
     };
+    const inventoryAtlas2Img = new Image();
+    inventoryAtlas2Img.decoding = 'async';
+    inventoryAtlas2Img.src = A('images/asteroids/inventory-atlas-2.png');
+    let inventoryAtlas2Ready = false;
+    inventoryAtlas2Img.onload = () => { inventoryAtlas2Ready = true; };
+    const inventoryAtlas2Cell = {
+      'ship-emerald':0,'ship-cobalt':1,'ship-manta':2,'ship-dogbus':3,'ship-phoenix':4,
+      'pilot-indian-f':5,'pilot-indian-m':6,'pilot-black-f':7,'pilot-black-m':8,
+      'pilot-asian-f':9,'pilot-asian-m':10
+    };
+    function pilotPortraitSource(pilotId=equippedStore.pilot){
+      const useAtlas2=Number.isInteger(inventoryAtlas2Cell[pilotId]);
+      const index=useAtlas2?inventoryAtlas2Cell[pilotId]:inventoryAtlasCell[pilotId];
+      if(!Number.isInteger(index)) return null;
+      return {img:useAtlas2?inventoryAtlas2Img:inventoryAtlasImg,index,url:A(useAtlas2?'images/asteroids/inventory-atlas-2.png':'images/asteroids/inventory-atlas.png')};
+    }
+    function updatePilotPortrait(){
+      const source=pilotPortraitSource();
+      if(!source || !hudPilotPortraitEl) return;
+      const col=source.index%4,row=Math.floor(source.index/4);
+      hudPilotPortraitEl.style.backgroundImage=`url("${source.url}")`;
+      hudPilotPortraitEl.style.backgroundPosition=`${col*100/3}% ${row*50}%`;
+      const pilot=STORE_ITEMS.find(item=>item.id===equippedStore.pilot);
+      hudPilotPortraitEl.setAttribute('aria-label',pilot?`Equipped pilot: ${pilot.name}`:'Equipped pilot');
+    }
+    updatePilotPortrait();
 
     const ship = {
       x: width / 2,
@@ -3700,19 +3776,42 @@ function updateBosses(dt){
     let pauseDirectionSelection = 0;
     let pauseControllerIndex = 0;
     let inventorySelection = 0;
+    let inventoryScrollY = 0;
     let pauseMenuNavLatch = false;
 
-    function pauseMenuNavigate(direction){
-      if(!paused || direction === 0) return;
-      if(pauseMenuView === 'root'){
-        pauseMenuSelection = (pauseMenuSelection + (direction > 0 ? 1 : -1) + 8) % 8;
-      }else if(pauseMenuView === 'inventory'){
-        inventorySelection = (inventorySelection + (direction > 0 ? 1 : -1) + STORE_ITEMS.length + 1) % (STORE_ITEMS.length + 1);
-      }else if(pauseMenuView === 'directions'){
-        pauseDirectionSelection = (pauseDirectionSelection + (direction > 0 ? 1 : -1) + 2) % 2;
-      }else if(pauseMenuView === 'controllerTypes'){
-        pauseControllerIndex = (pauseControllerIndex + (direction > 0 ? 1 : -1) + 4) % 4;
+    function spatialSelection(rects,current,dx,dy){
+      if(!rects.length || (!dx&&!dy)) return current;
+      const source=rects[current]||rects[0],sx=source.x+source.w/2,sy=source.y+source.h/2;
+      const primaryHorizontal=Math.abs(dx)>=Math.abs(dy);
+      let candidates=rects.map((r,i)=>({i,x:r.x+r.w/2,y:r.y+r.h/2})).filter(p=>p.i!==current&&(
+        primaryHorizontal?(dx>0?p.x>sx:p.x<sx):(dy>0?p.y>sy:p.y<sy)
+      ));
+      if(!candidates.length){
+        const edge=primaryHorizontal?(dx>0?Math.min(...rects.map(r=>r.x)):Math.max(...rects.map(r=>r.x+r.w))):(dy>0?Math.min(...rects.map(r=>r.y)):Math.max(...rects.map(r=>r.y+r.h)));
+        candidates=rects.map((r,i)=>({i,x:r.x+r.w/2,y:r.y+r.h/2,edgeDistance:primaryHorizontal?Math.abs(r.x-edge):Math.abs(r.y-edge)}));
       }
+      candidates.sort((a,b)=>{
+        const aPrimary=primaryHorizontal?Math.abs(a.x-sx):Math.abs(a.y-sy),bPrimary=primaryHorizontal?Math.abs(b.x-sx):Math.abs(b.y-sy);
+        const aCross=primaryHorizontal?Math.abs(a.y-sy):Math.abs(a.x-sx),bCross=primaryHorizontal?Math.abs(b.y-sy):Math.abs(b.x-sx);
+        return ((a.edgeDistance??0)*10000+aCross*6+aPrimary)-((b.edgeDistance??0)*10000+bCross*6+bPrimary);
+      });
+      return candidates[0]?.i??current;
+    }
+
+    function controllerTypeRects(){
+      if(width<600) return [0,1,2].map(i=>({x:45,y:88+i*82,w:width-90,h:66})).concat({x:90,y:340,w:width-180,h:60});
+      const gap=18,w=(width-100-gap*2)/3,y=height*.30;
+      return [0,1,2].map(i=>({x:50+i*(w+gap),y,w,h:125})).concat({x:width/2-170,y:y+145,w:340,h:60});
+    }
+
+    function pauseMenuNavigate(dx,dy=0){
+      if(!paused || (!dx&&!dy)) return;
+      if(pauseMenuView === 'root') pauseMenuSelection=spatialSelection(rootMenuRects(),pauseMenuSelection,dx,dy);
+      else if(pauseMenuView === 'inventory'){
+        inventorySelection=spatialSelection(inventoryRects(),inventorySelection,dx,dy);
+        ensureInventorySelectionVisible();
+      }else if(pauseMenuView === 'directions') pauseDirectionSelection=spatialSelection(directionActionRects(),pauseDirectionSelection,dx,dy);
+      else if(pauseMenuView === 'controllerTypes') pauseControllerIndex=spatialSelection(controllerTypeRects(),pauseControllerIndex,dx,dy);
     }
 
     function pauseMenuSelect(){
@@ -3722,7 +3821,7 @@ function updateBosses(dt){
         else if(pauseMenuSelection === 1){
           softRestart();
           showGameAlert('NEW GAME', 'sound-on');
-        }else if(pauseMenuSelection === 2){ pauseMenuView = 'inventory'; inventorySelection = 0; }
+        }else if(pauseMenuSelection === 2){ pauseMenuView = 'inventory'; inventorySelection = 0; inventoryScrollY=0; }
         else if(pauseMenuSelection === 3){ pauseMenuView = 'directions'; pauseDirectionSelection = 0; }
         else if(pauseMenuSelection === 4) pauseMenuView = 'controllerTypes';
         else if(pauseMenuSelection === 5) cycleSoundMode();
@@ -3736,6 +3835,7 @@ function updateBosses(dt){
           else{
             equippedStore[item.type]=item.id;
             saveInventory();
+            updatePilotPortrait();
             showGameAlert(`${item.name} EQUIPPED`,'sound-on');
           }
         }else if(storeCredits >= item.price){
@@ -3743,6 +3843,7 @@ function updateBosses(dt){
           ownedStoreItems.add(item.id);
           if(item.type !== 'upgrade') equippedStore[item.type]=item.id;
           saveInventory();
+          updatePilotPortrait();
           updateMissileUI();
           showGameAlert(`${item.name} UNLOCKED`,'sound-on');
         }else showGameAlert(`NEED ${item.price-storeCredits} MORE POINTS`,'sound-off');
@@ -3804,9 +3905,25 @@ function updateBosses(dt){
       const margin=width<600?18:34,gap=width<600?8:12;
       const w=(width-margin*2-gap*(cols-1))/cols;
       const top=height<500?74:(width<600?84:100);
+      const h=width<600?72:80;
+      return [...STORE_ITEMS,{id:'back'}].map((_,i)=>({x:margin+(i%cols)*(w+gap),y:top+Math.floor(i/cols)*(h+gap)-inventoryScrollY,w,h}));
+    }
+
+    function inventoryMaxScroll(){
+      const cols=width<600?2:3,gap=width<600?8:12,h=width<600?72:80;
+      const top=height<500?74:(width<600?84:100),bottom=height-10;
       const rows=Math.ceil((STORE_ITEMS.length+1)/cols);
-      const h=Math.max(48,Math.min(width<600?72:80,(height-top-12-gap*(rows-1))/rows));
-      return [...STORE_ITEMS,{id:'back'}].map((_,i)=>({x:margin+(i%cols)*(w+gap),y:top+Math.floor(i/cols)*(h+gap),w,h}));
+      return Math.max(0,rows*(h+gap)-gap-(bottom-top));
+    }
+
+    function ensureInventorySelectionVisible(){
+      const cols=width<600?2:3,gap=width<600?8:12,h=width<600?72:80;
+      const top=height<500?74:(width<600?84:100),bottom=height-10;
+      const row=Math.floor(inventorySelection/cols);
+      const itemTop=top+row*(h+gap)-inventoryScrollY,itemBottom=itemTop+h;
+      if(itemTop<top) inventoryScrollY-=top-itemTop;
+      else if(itemBottom>bottom) inventoryScrollY+=itemBottom-bottom;
+      inventoryScrollY=clamp(inventoryScrollY,0,inventoryMaxScroll());
     }
 
     function handlePausePointer(clientX,clientY){
@@ -3857,7 +3974,8 @@ function updateBosses(dt){
       const y = Math.abs(gamepadState.y) >= Math.abs(joyVec.y) ? gamepadState.y : joyVec.y;
       const strongest = Math.abs(x) >= Math.abs(y) ? x : y;
       if(Math.abs(strongest) > .55 && !pauseMenuNavLatch){
-        pauseMenuNavigate(strongest > 0 ? 1 : -1);
+        if(Math.abs(x)>=Math.abs(y)) pauseMenuNavigate(x>0?1:-1,0);
+        else pauseMenuNavigate(0,y>0?1:-1);
         pauseMenuNavLatch = true;
       }else if(Math.abs(strongest) < .25){
         pauseMenuNavLatch = false;
@@ -3933,12 +4051,18 @@ function updateBosses(dt){
         if(e.key === 'p' || e.key === 'P'){
           e.preventDefault();
           setPaused(false);
-        }else if(['ArrowLeft','ArrowUp','a','A','w','W'].includes(e.key)){
+        }else if(['ArrowLeft','a','A'].includes(e.key)){
           e.preventDefault();
-          if(!e.repeat) pauseMenuNavigate(-1);
-        }else if(['ArrowRight','ArrowDown','d','D','s','S'].includes(e.key)){
+          if(!e.repeat) pauseMenuNavigate(-1,0);
+        }else if(['ArrowRight','d','D'].includes(e.key)){
           e.preventDefault();
-          if(!e.repeat) pauseMenuNavigate(1);
+          if(!e.repeat) pauseMenuNavigate(1,0);
+        }else if(['ArrowUp','w','W'].includes(e.key)){
+          e.preventDefault();
+          if(!e.repeat) pauseMenuNavigate(0,-1);
+        }else if(['ArrowDown','s','S'].includes(e.key)){
+          e.preventDefault();
+          if(!e.repeat) pauseMenuNavigate(0,1);
         }else if((e.key === 'Enter' || e.key === ' ' || e.code === 'Space') && !e.repeat){
           e.preventDefault();
           pauseMenuSelect();
@@ -5271,7 +5395,20 @@ if (flashTimer > 0) {
         ctx.shadowBlur = 0;
       }
 
-      if (shipImgReady && shipImg.naturalWidth > 0) {
+      const detailedShipIndex=inventoryAtlas2Cell[equippedStore.ship];
+      if(inventoryAtlas2Ready && Number.isInteger(detailedShipIndex) && detailedShipIndex<=4){
+        const sw=inventoryAtlas2Img.naturalWidth/4,sh=inventoryAtlas2Img.naturalHeight/3;
+        const sx=(detailedShipIndex%4)*sw,sy=Math.floor(detailedShipIndex/4)*sh;
+        const spriteSize=ship.radius*(equippedStore.ship==='ship-dogbus'?3.75:3.45);
+        ctx.save();
+        ctx.rotate(SHIP_SPRITE_FORWARD_OFFSET);
+        // Screen blending drops the atlas' near-black space backdrop into the
+        // arena while retaining the bright hull silhouette and engine glow.
+        ctx.globalCompositeOperation='screen';
+        ctx.globalAlpha=.98;
+        ctx.drawImage(inventoryAtlas2Img,sx,sy,sw,sh,-spriteSize/2,-spriteSize/2,spriteSize,spriteSize);
+        ctx.restore();
+      } else if (shipImgReady && shipImg.naturalWidth > 0) {
         const spriteH = ship.radius * 2.75;
         const spriteW = spriteH * (shipImg.naturalWidth / shipImg.naturalHeight);
         ctx.save();
@@ -6321,19 +6458,25 @@ if (flashTimer > 0) {
         ctx.fillStyle='#ffd75d';ctx.font=`800 ${compact?14:16}px Share Tech Mono`;
         ctx.fillText(`AVAILABLE POINTS: ${storeCredits.toLocaleString()}`,width/2,compact?67:82);
         const rects=inventoryRects();
+        const inventoryTop=height<500?74:(width<600?84:100);
+        ctx.save();ctx.beginPath();ctx.rect(0,inventoryTop-2,width,height-inventoryTop+2);ctx.clip();
         STORE_ITEMS.forEach((item,i)=>{
           const owned=ownedStoreItems.has(item.id);
           const equipped=item.type!=='upgrade'&&equippedStore[item.type]===item.id;
           const status=equipped?'EQUIPPED':owned?'OWNED':`${item.price.toLocaleString()} PTS`;
           card(rects[i].x,rects[i].y,rects[i].w,rects[i].h,inventorySelection===i,'','');
-          const r=rects[i],atlasIndex=inventoryAtlasCell[item.id];
+          const r=rects[i];
+          const useAtlas2=Number.isInteger(inventoryAtlas2Cell[item.id]);
+          const atlasIndex=useAtlas2?inventoryAtlas2Cell[item.id]:inventoryAtlasCell[item.id];
+          const atlasImg=useAtlas2?inventoryAtlas2Img:inventoryAtlasImg;
+          const atlasReady=useAtlas2?inventoryAtlas2Ready:inventoryAtlasReady;
           const thumb=Math.max(38,Math.min(r.h-6,r.w*.42));
           const artX=r.x+4,artY=r.y+(r.h-thumb)/2;
-          if(inventoryAtlasReady && Number.isInteger(atlasIndex)){
-            const sw=inventoryAtlasImg.naturalWidth/4,sh=inventoryAtlasImg.naturalHeight/3;
+          if(atlasReady && Number.isInteger(atlasIndex)){
+            const sw=atlasImg.naturalWidth/4,sh=atlasImg.naturalHeight/3;
             const sx=(atlasIndex%4)*sw,sy=Math.floor(atlasIndex/4)*sh;
             ctx.save();roundRect(ctx,artX,artY,thumb,thumb,9,false,false);ctx.clip();
-            ctx.drawImage(inventoryAtlasImg,sx,sy,sw,sh,artX,artY,thumb,thumb);ctx.restore();
+            ctx.drawImage(atlasImg,sx,sy,sw,sh,artX,artY,thumb,thumb);ctx.restore();
             const textX=artX+thumb+(r.x+r.w-artX-thumb)/2;
             const titleSize=compact?(item.name.length>15?9:11):(item.name.length>18?11:13);
             ctx.fillStyle=inventorySelection===i?'#7dffbc':'#fff';ctx.font=`900 ${titleSize}px Orbitron`;
@@ -6344,6 +6487,10 @@ if (flashTimer > 0) {
         });
         const back=rects[STORE_ITEMS.length];
         actionCard(back,inventorySelection===STORE_ITEMS.length,'GO BACK');
+        ctx.restore();
+        ctx.fillStyle='rgba(125,255,188,.9)';ctx.font='900 15px system-ui';
+        if(inventoryScrollY>1) ctx.fillText('▲',width-14,inventoryTop+8);
+        if(inventoryScrollY<inventoryMaxScroll()-1) ctx.fillText('▼',width-14,height-12);
       }else if(pauseMenuView==='directions'){
         const lines=compact?[
           ['STEER / THRUST','Drag virtual joystick • Arrows / WASD • Stick / D-Pad'],
@@ -6500,11 +6647,44 @@ if (flashTimer > 0) {
       ctx.restore();
     }
 
+    function drawDefeatedPilot(){
+      const source=pilotPortraitSource();
+      const size=Math.min(width<600?78:96,height*.18);
+      const x=width/2,y=Math.max(size*.62,height*.18);
+      ctx.save();
+      ctx.beginPath();ctx.arc(x,y,size/2,0,Math.PI*2);ctx.clip();
+      ctx.fillStyle='#160b19';ctx.fillRect(x-size/2,y-size/2,size,size);
+      const ready=source&&(source.img===inventoryAtlas2Img?inventoryAtlas2Ready:inventoryAtlasReady);
+      if(ready){
+        const sw=source.img.naturalWidth/4,sh=source.img.naturalHeight/3;
+        const sx=(source.index%4)*sw,sy=Math.floor(source.index/4)*sh;
+        ctx.filter='grayscale(.5) brightness(.62) contrast(1.12)';
+        ctx.drawImage(source.img,sx,sy,sw,sh,x-size/2,y-size/2,size,size);
+        ctx.filter='none';
+      }else{
+        ctx.fillStyle='#6b5a72';ctx.beginPath();ctx.arc(x,y-size*.08,size*.22,0,Math.PI*2);ctx.fill();
+        ctx.beginPath();ctx.ellipse(x,y+size*.34,size*.34,size*.28,0,0,Math.PI*2);ctx.fill();
+      }
+      // A bruised red wash, lowered eyelids, tear and downturned mouth make
+      // this a distinct defeated portrait instead of reusing the active pose.
+      const bruise=ctx.createLinearGradient(x-size/2,y-size/2,x+size/2,y+size/2);
+      bruise.addColorStop(0,'rgba(90,0,24,.12)');bruise.addColorStop(1,'rgba(255,32,40,.32)');
+      ctx.fillStyle=bruise;ctx.fillRect(x-size/2,y-size/2,size,size);
+      ctx.strokeStyle='rgba(20,4,15,.88)';ctx.lineWidth=Math.max(2,size*.035);ctx.lineCap='round';
+      ctx.beginPath();ctx.moveTo(x-size*.23,y-size*.09);ctx.lineTo(x-size*.08,y-size*.05);ctx.moveTo(x+size*.08,y-size*.05);ctx.lineTo(x+size*.23,y-size*.09);ctx.stroke();
+      ctx.beginPath();ctx.arc(x,y+size*.25,size*.13,Math.PI*1.12,Math.PI*1.88);ctx.stroke();
+      ctx.fillStyle='rgba(92,190,255,.88)';ctx.beginPath();ctx.ellipse(x+size*.18,y+size*.08,size*.035,size*.09,-.12,0,Math.PI*2);ctx.fill();
+      ctx.strokeStyle='rgba(255,208,208,.85)';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(x-size*.33,y+size*.02);ctx.lineTo(x-size*.20,y+size*.12);ctx.moveTo(x+size*.28,y-size*.23);ctx.lineTo(x+size*.17,y-size*.12);ctx.stroke();
+      ctx.restore();
+      ctx.save();ctx.strokeStyle='rgba(255,76,112,.9)';ctx.lineWidth=3;ctx.shadowColor='rgba(255,45,90,.75)';ctx.shadowBlur=12;ctx.beginPath();ctx.arc(x,y,size/2,0,Math.PI*2);ctx.stroke();ctx.restore();
+    }
+
     function drawGameOver(){
       ctx.save();
       ctx.fillStyle = 'rgba(0,0,0,0.62)';
       ctx.fillRect(0,0,width,height);
       drawGameOverWreck();
+      drawDefeatedPilot();
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillStyle = 'rgba(255,231,255,0.95)';
