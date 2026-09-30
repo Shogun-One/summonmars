@@ -76,6 +76,16 @@
 
     *{ box-sizing:border-box; }
 
+    html{
+      width:100%;
+      height:100%;
+      overflow:hidden;
+      background:#05030b;
+    }
+    html:fullscreen,html:-webkit-full-screen,html:fullscreen body,html:-webkit-full-screen body{
+      width:100%;height:100%;margin:0;background:#05030b;
+    }
+
     body{
       margin:0;
       min-height:100vh;
@@ -2190,6 +2200,19 @@ document.querySelectorAll('img[data-asset]').forEach((img) => {
       }
     }
 
+    async function closeGameWindow(){
+      try{
+        if(fullscreenElement()){
+          const exit=document.exitFullscreen||document.webkitExitFullscreen||document.msExitFullscreen;
+          if(exit) await exit.call(document);
+        }
+      }catch{}
+      window.close();
+      setTimeout(()=>{
+        if(!window.closed) showGameAlert('CLOSE THIS BROWSER TAB TO EXIT','sound-off');
+      },180);
+    }
+
     // Browsers reject true fullscreen on an unattended page load. Attempt it
     // immediately, then retry on the first qualifying user gesture. Once the
     // game has entered fullscreen, an intentional exit is respected.
@@ -2740,6 +2763,16 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
     let shipImgReady = false;
     shipImg.onload = () => { shipImgReady = true; };
     shipImg.onerror = () => { shipImgReady = false; };
+    const inventoryAtlasImg = new Image();
+    inventoryAtlasImg.decoding = 'async';
+    inventoryAtlasImg.src = A('images/asteroids/inventory-atlas.png');
+    let inventoryAtlasReady = false;
+    inventoryAtlasImg.onload = () => { inventoryAtlasReady = true; };
+    const inventoryAtlasCell = {
+      'ship-starter':0,'ship-crimson':1,'ship-solar':2,'ship-void':3,
+      'pilot-shadow':4,'pilot-nova':5,'pilot-ace':6,'missile-21':7,
+      'scene-deep':8,'scene-nebula':9,'scene-solar':10
+    };
 
     const ship = {
       x: width / 2,
@@ -3689,14 +3722,12 @@ function updateBosses(dt){
         else if(pauseMenuSelection === 1){
           softRestart();
           showGameAlert('NEW GAME', 'sound-on');
-        }else if(pauseMenuSelection === 2){
-          toggleFullscreen();
-          showGameAlert(document.fullscreenElement ? 'EXITING FULLSCREEN' : 'FULLSCREEN', 'sound-on');
-        }else if(pauseMenuSelection === 3){ pauseMenuView = 'inventory'; inventorySelection = 0; }
-        else if(pauseMenuSelection === 4){ pauseMenuView = 'directions'; pauseDirectionSelection = 0; }
-        else if(pauseMenuSelection === 5) pauseMenuView = 'controllerTypes';
-        else if(pauseMenuSelection === 6) cycleSoundMode();
-        else cycleDifficulty(false);
+        }else if(pauseMenuSelection === 2){ pauseMenuView = 'inventory'; inventorySelection = 0; }
+        else if(pauseMenuSelection === 3){ pauseMenuView = 'directions'; pauseDirectionSelection = 0; }
+        else if(pauseMenuSelection === 4) pauseMenuView = 'controllerTypes';
+        else if(pauseMenuSelection === 5) cycleSoundMode();
+        else if(pauseMenuSelection === 6) cycleDifficulty(false);
+        else closeGameWindow();
       }else if(pauseMenuView === 'inventory'){
         if(inventorySelection === STORE_ITEMS.length){ pauseMenuView='root'; return; }
         const item=STORE_ITEMS[inventorySelection];
@@ -3750,9 +3781,9 @@ function updateBosses(dt){
         const splitGap=8,splitW=(w-splitGap)/2;
         return [
           {x,y:top,w:splitW,h}, {x:x+splitW+splitGap,y:top,w:splitW,h},
-          {x,y:top+h+gap,w:splitW,h}, {x:x+splitW+splitGap,y:top+h+gap,w:splitW,h},
-          {x,y:top+2*(h+gap),w,h}, {x,y:top+3*(h+gap),w,h},
-          {x,y:top+4*(h+gap),w,h}, {x,y:top+5*(h+gap),w,h}
+          {x,y:top+h+gap,w,h}, {x,y:top+2*(h+gap),w,h},
+          {x,y:top+3*(h+gap),w,h}, {x,y:top+4*(h+gap),w,h},
+          {x,y:top+5*(h+gap),w,h}, {x,y:top+6*(h+gap),w,h}
         ];
       }
       const margin=50,gapX=18,gapY=12,top=height<620?66:82;
@@ -3761,9 +3792,10 @@ function updateBosses(dt){
       const splitGap=10,splitW=(w-splitGap)/2,rightX=margin+w+gapX;
       return [
         {x:margin,y:top,w:splitW,h}, {x:margin+splitW+splitGap,y:top,w:splitW,h},
-        {x:rightX,y:top,w:splitW,h}, {x:rightX+splitW+splitGap,y:top,w:splitW,h},
+        {x:rightX,y:top,w,h},
         {x:margin,y:top+h+gapY,w,h}, {x:rightX,y:top+h+gapY,w,h},
-        {x:margin,y:top+2*(h+gapY),w,h}, {x:rightX,y:top+2*(h+gapY),w,h}
+        {x:margin,y:top+2*(h+gapY),w,h}, {x:rightX,y:top+2*(h+gapY),w,h},
+        {x:width/2-120,y:height-88,w:240,h:34}
       ];
     }
 
@@ -3771,7 +3803,9 @@ function updateBosses(dt){
       const cols=width<600?2:3;
       const margin=width<600?18:34,gap=width<600?8:12;
       const w=(width-margin*2-gap*(cols-1))/cols;
-      const h=width<600?72:80,top=width<600?84:100;
+      const top=height<500?74:(width<600?84:100);
+      const rows=Math.ceil((STORE_ITEMS.length+1)/cols);
+      const h=Math.max(48,Math.min(width<600?72:80,(height-top-12-gap*(rows-1))/rows));
       return [...STORE_ITEMS,{id:'back'}].map((_,i)=>({x:margin+(i%cols)*(w+gap),y:top+Math.floor(i/cols)*(h+gap),w,h}));
     }
 
@@ -6253,9 +6287,11 @@ if (flashTimer > 0) {
         roundRect(ctx,x,y,w,h,14,true,true);ctx.shadowBlur=0;
         const titleSize=compact?(title.length>24?13:title.length>18?15:17):(title.length>25?14:16);
         ctx.fillStyle=selected?'#7dffbc':'#fff0fa';ctx.font=`900 ${titleSize}px Orbitron`;
-        ctx.fillText(title,x+w/2,y+h*.38);
-        ctx.fillStyle='rgba(228,228,255,.76)';ctx.font=`${compact?16:12}px system-ui`;
-        ctx.fillText(description,x+w/2,y+h*.68);
+        ctx.fillText(title,x+w/2,y+(h<50?h*.5:h*.38));
+        if(description && h>=50){
+          ctx.fillStyle='rgba(228,228,255,.76)';ctx.font=`${compact?16:12}px system-ui`;
+          ctx.fillText(description,x+w/2,y+h*.68);
+        }
       };
       const actionCard=(rect,selected,title)=>{
         ctx.fillStyle=selected?'rgba(45,18,55,.98)':'rgba(15,9,24,.94)';
@@ -6273,12 +6309,12 @@ if (flashTimer > 0) {
         const entries=[
           ['RESUME','Continue'],
           ['RESET','New run'],
-          ['FULLSCREEN','Display'],
-          ['INVENTORY','Store'],
+          ['INVENTORY','Ships • Pilots • Scenes • Upgrades'],
           ['DIRECTIONS','All gameplay and menu controls'],
           ['CONTROLLER TYPE','Xbox • PlayStation • Keyboard'],
           [`SOUND: ${soundLabel}`,'Select to change audio mode'],
-          [`DIFFICULTY: ${DIFF_PRESETS[diffIndex].name.toUpperCase()}`,'Select to change difficulty']
+          [`DIFFICULTY: ${DIFF_PRESETS[diffIndex].name.toUpperCase()}`,'Select to change difficulty'],
+          ['CLOSE GAME','']
         ];
         rootMenuRects().forEach((rect,i)=>card(rect.x,rect.y,rect.w,rect.h,pauseMenuSelection===i,...entries[i]));
       }else if(pauseMenuView==='inventory'){
@@ -6290,20 +6326,19 @@ if (flashTimer > 0) {
           const equipped=item.type!=='upgrade'&&equippedStore[item.type]===item.id;
           const status=equipped?'EQUIPPED':owned?'OWNED':`${item.price.toLocaleString()} PTS`;
           card(rects[i].x,rects[i].y,rects[i].w,rects[i].h,inventorySelection===i,item.name,status);
-          const r=rects[i],cx=r.x+(compact?17:20);
-          ctx.save();ctx.globalAlpha=.38;ctx.fillStyle=item.color;ctx.strokeStyle='rgba(255,255,255,.72)';ctx.lineWidth=1.5;
-          if(item.type==='pilot'){
-            ctx.beginPath();ctx.arc(cx,r.y+14,compact?5:7,0,Math.PI*2);ctx.fill();
-            ctx.beginPath();ctx.moveTo(cx-(compact?9:12),r.y+(compact?28:33));ctx.quadraticCurveTo(cx,r.y+(compact?18:21),cx+(compact?9:12),r.y+(compact?28:33));ctx.closePath();ctx.fill();
-          }else if(item.type==='ship'){
-            ctx.beginPath();ctx.moveTo(cx,r.y+6);ctx.lineTo(cx+(compact?10:14),r.y+(compact?28:34));ctx.lineTo(cx,r.y+(compact?23:29));ctx.lineTo(cx-(compact?10:14),r.y+(compact?28:34));ctx.closePath();ctx.fill();ctx.stroke();
-          }else if(item.type==='scene'){
-            ctx.fillRect(cx-(compact?13:17),r.y+7,compact?26:34,compact?20:27);
-            ctx.fillStyle='#fff';ctx.globalAlpha=.65;ctx.fillRect(cx-6,r.y+12,2,2);ctx.fillRect(cx+7,r.y+18,2,2);
-          }else{
-            ctx.font=`900 ${compact?18:22}px Orbitron`;ctx.textAlign='center';ctx.fillText('21',cx,r.y+(compact?22:27));
+          const r=rects[i],atlasIndex=inventoryAtlasCell[item.id];
+          if(inventoryAtlasReady && Number.isInteger(atlasIndex)){
+            const sw=inventoryAtlasImg.naturalWidth/4,sh=inventoryAtlasImg.naturalHeight/3;
+            const sx=(atlasIndex%4)*sw,sy=Math.floor(atlasIndex/4)*sh;
+            ctx.save();roundRect(ctx,r.x+2,r.y+2,r.w-4,r.h-4,12,false,false);ctx.clip();
+            ctx.globalAlpha=.48;ctx.drawImage(inventoryAtlasImg,sx,sy,sw,sh,r.x+2,r.y+2,r.w-4,r.h-4);
+            ctx.globalAlpha=1;ctx.fillStyle='rgba(3,2,10,.30)';ctx.fillRect(r.x+2,r.y+2,r.w-4,r.h-4);ctx.restore();
+            const titleSize=compact?(item.name.length>17?11:13):(item.name.length>18?12:14);
+            ctx.fillStyle=inventorySelection===i?'#7dffbc':'#fff';ctx.font=`900 ${titleSize}px Orbitron`;
+            ctx.fillText(item.name,r.x+r.w/2,r.y+r.h*.38);
+            ctx.fillStyle=equipped?'#7dffbc':'rgba(255,255,255,.9)';ctx.font=`800 ${compact?12:11}px Share Tech Mono`;
+            ctx.fillText(status,r.x+r.w/2,r.y+r.h*.72);
           }
-          ctx.restore();
         });
         const back=rects[STORE_ITEMS.length];
         actionCard(back,inventorySelection===STORE_ITEMS.length,'GO BACK');
@@ -6315,7 +6350,7 @@ if (flashTimer > 0) {
           ['CHANGE WEAPON','Smaller bottom-right stamp • B / Circle'],
           ['SOUND','Pause Menu sound box • M • Y / Triangle'],
           ['PAUSE / MENU','Tap PAUSE stamp • Tap menu boxes • P / Start'],
-          ['TOUCH / FULLSCREEN','Touch controls hide with gamepad • Fullscreen box'],
+          ['TOUCH / FULLSCREEN','Touch controls hide with gamepad • Hold Start'],
           ['RESET / DIFFICULTY','Pause Menu boxes • R for reset']
         ]:[
           ['STEER / THRUST','Drag virtual joystick • Arrow Keys • WASD • Either Stick • D-Pad'],
@@ -6324,7 +6359,7 @@ if (flashTimer > 0) {
           ['CHANGE WEAPON','Smaller bottom-right stamp • B / Circle'],
           ['SOUND','Pause Menu sound box • M • Y / Triangle'],
           ['PAUSE / MENU','Tap PAUSE stamp • Tap menu boxes • P / Start'],
-          ['TOUCH / FULLSCREEN','Touch controls auto-hide with gamepad • Fullscreen box'],
+          ['TOUCH / FULLSCREEN','Touch controls auto-hide with gamepad • Hold Start'],
           ['RESET / DIFFICULTY','Pause Menu boxes • R for reset']
         ];
         ctx.textAlign='left';
@@ -6343,7 +6378,7 @@ if (flashTimer > 0) {
             ['CHANGE WEAPON','Smaller bottom-right stamp • B/Circle'],
             ['SOUND','Pause Menu box • M • Y/Triangle'],
             ['PAUSE / MENU','PAUSE stamp • Tap boxes • P/Start'],
-            ['TOUCH / FULLSCREEN','Auto-hides with controller • Fullscreen box'],
+            ['TOUCH / FULLSCREEN','Auto-hides with controller • Hold Start'],
             ['RESET / DIFFICULTY','Pause Menu boxes • R for reset']
           ];
           const margin=Math.max(55,width*.07),columnWidth=(width-margin*2)/2,startY=82,lineH=62;
