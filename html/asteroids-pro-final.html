@@ -2779,6 +2779,7 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
     const PRESTART_MS = 2200;
     // pre-start overlay style: initial boot vs. post-death respawn
     let preStartIsInitial = true;
+    let awaitingLaunchInput = true;
 
     let levelUpTimer = 0;
     let bossIncomingTimer = 0;
@@ -3306,8 +3307,25 @@ function updateBosses(dt){
     }
 
     function startGracePeriod(){
+      awaitingLaunchInput = false;
       preStartTimer = PRESTART_MS;
       running = false;
+    }
+
+    function launchInputActive(){
+      const keyboardSteer = ['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','a','A','d','D','w','W','s','S'].some(key => keysDown[key]);
+      const keyboardFire = keysDown[' '] || keysDown['Space'] || keysDown['Spacebar'] || keysDown['Enter'];
+      const touchInput = mobileFireHeld || Math.hypot(joyVec.x, joyVec.y) > 0.08;
+      const controllerInput = gamepadState.fire || Math.hypot(gamepadState.x, gamepadState.y) > 0.08;
+      return Boolean(keyboardSteer || keyboardFire || mouseFireHeld || touchInput || controllerInput);
+    }
+
+    function beginLaunchFromInput(){
+      if(!awaitingLaunchInput || paused || gameOver || !launchInputActive()) return false;
+      preStartIsInitial = true;
+      startGracePeriod();
+      startDefaultSound();
+      return true;
     }
 
     function awardScore(points){
@@ -3365,7 +3383,9 @@ function updateBosses(dt){
         levelUpTimer = 900;
       } else {
         preStartIsInitial = true;
-      startGracePeriod();
+        awaitingLaunchInput = true;
+        preStartTimer = 0;
+        running = false;
       }
     }
 
@@ -3431,7 +3451,9 @@ function updateBosses(dt){
         bestEl.textContent = bestScore;
       }
 
-      startGracePeriod();
+      awaitingLaunchInput = true;
+      preStartTimer = 0;
+      running = false;
     }
 
     function softRestart(){
@@ -4160,7 +4182,7 @@ document.addEventListener('visibilitychange', () => { if(document.hidden){ cance
     }
 
     function launchMissile(){
-      if(missileAmmo <= 0 || gameOver || paused || preStartTimer > 0 || ship.exploding > 0) return;
+      if(missileAmmo <= 0 || gameOver || paused || awaitingLaunchInput || preStartTimer > 0 || ship.exploding > 0) return;
       const ang = forwardAngle();
       const fx = Math.cos(ang), fy = Math.sin(ang);
       bullets.push({
@@ -4186,6 +4208,7 @@ document.addEventListener('visibilitychange', () => { if(document.hidden){ cance
 
     function shoot(){
       if(gameOver) return;
+      if(awaitingLaunchInput) return;
       if(ship.exploding > 0) return;
       if(preStartTimer > 0) return;
       if(paused) return;
@@ -4513,6 +4536,11 @@ document.addEventListener('visibilitychange', () => { if(document.hidden){ cance
       if(window.__securityFreeze) return;
 
       pollGamepad();
+
+      if(awaitingLaunchInput){
+        beginLaunchFromInput();
+        return;
+      }
 
       updateSky(dt);
       updateBosses(dt);
@@ -5852,6 +5880,31 @@ if (flashTimer > 0) {
       ctx.restore();
     }
 
+    function drawLaunchPrompt(){
+      if(!awaitingLaunchInput || paused || gameOver) return;
+      ctx.save();
+      ctx.fillStyle='rgba(0,0,0,.42)';
+      ctx.fillRect(0,0,width,height);
+      const boxW=Math.min(width-40,560),boxH=width<600?126:138;
+      const x=(width-boxW)/2,y=(height-boxH)/2;
+      ctx.fillStyle='rgba(12,6,22,.94)';
+      ctx.strokeStyle='rgba(125,255,188,.88)';
+      ctx.lineWidth=2;
+      ctx.shadowColor='rgba(80,255,165,.55)';
+      ctx.shadowBlur=18;
+      roundRect(ctx,x,y,boxW,boxH,16,true,true);
+      ctx.shadowBlur=0;
+      ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.fillStyle='#7dffbc';
+      ctx.font=`900 ${width<600?18:24}px Orbitron, system-ui`;
+      ctx.fillText('PLAYS BEST WITH',width/2,y+38);
+      ctx.fillText('A GAME CONTROLLER',width/2,y+68);
+      ctx.fillStyle='rgba(228,228,255,.82)';
+      ctx.font=`${width<600?12:14}px system-ui`;
+      ctx.fillText('Steer or fire to launch',width/2,y+101);
+      ctx.restore();
+    }
+
     function drawLevelUp(){
       if(levelUpTimer <= 0 || gameOver) return;
 
@@ -6247,6 +6300,7 @@ if (flashTimer > 0) {
       drawBossIncoming();
 
       drawCountdown();
+      drawLaunchPrompt();
       drawPaused();
 
       requestAnimationFrame(loop);
