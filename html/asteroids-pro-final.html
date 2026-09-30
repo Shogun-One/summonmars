@@ -1645,7 +1645,7 @@ body.touchpad-off .control-deck .mobile-touchpad{ display:none !important; }
     pointer-events:none;
   }
   body.game-paused .control-deck .mobile-touchpad{
-    transform:translateY(78px) !important;
+    display:none !important;
   }
   body.game-paused .control-deck .touchpad-plate{
     width:90px;
@@ -3489,16 +3489,16 @@ function updateBosses(dt){
     function pauseMenuSelect(){
       if(!paused) return;
       if(pauseMenuView === 'root'){
-        if(pauseMenuSelection === 0){ pauseMenuView = 'directions'; pauseDirectionSelection = 0; }
-        else if(pauseMenuSelection === 1) setPaused(false);
-        else if(pauseMenuSelection === 2){
+        if(pauseMenuSelection === 0) setPaused(false);
+        else if(pauseMenuSelection === 1){
           softRestart();
           showGameAlert('NEW GAME', 'sound-on');
-        }else if(pauseMenuSelection === 3) pauseMenuView = 'controllerTypes';
-        else if(pauseMenuSelection === 4){
+        }else if(pauseMenuSelection === 2){ pauseMenuView = 'directions'; pauseDirectionSelection = 0; }
+        else if(pauseMenuSelection === 3){
           toggleFullscreen();
           showGameAlert(document.fullscreenElement ? 'EXITING FULLSCREEN' : 'FULLSCREEN', 'sound-on');
-        }else if(pauseMenuSelection === 5) cycleSoundMode();
+        }else if(pauseMenuSelection === 4) pauseMenuView = 'controllerTypes';
+        else if(pauseMenuSelection === 5) cycleSoundMode();
         else cycleDifficulty(false);
       }else if(pauseMenuView === 'controllerTypes'){
         if(pauseControllerIndex === 3) pauseMenuView = 'root';
@@ -3532,10 +3532,10 @@ function updateBosses(dt){
     function rootMenuRects(){
       if(width < 600){
         const x=45,w=width-90,h=55,gap=7,top=66;
-        const splitGap=8,splitW=(w-splitGap)/2,splitY=top+h+gap;
+        const splitGap=8,splitW=(w-splitGap)/2;
         return [
-          {x,y:top,w,h},
-          {x,y:splitY,w:splitW,h}, {x:x+splitW+splitGap,y:splitY,w:splitW,h},
+          {x,y:top,w:splitW,h}, {x:x+splitW+splitGap,y:top,w:splitW,h},
+          {x,y:top+h+gap,w,h},
           {x,y:top+2*(h+gap),w,h}, {x,y:top+3*(h+gap),w,h},
           {x,y:top+4*(h+gap),w,h}, {x,y:top+5*(h+gap),w,h}
         ];
@@ -3545,8 +3545,8 @@ function updateBosses(dt){
       const h=Math.min(100,Math.max(76,(height-top-44-gapY*2)/3));
       const splitGap=10,splitW=(w-splitGap)/2,rightX=margin+w+gapX;
       return [
-        {x:margin,y:top,w,h},
-        {x:rightX,y:top,w:splitW,h}, {x:rightX+splitW+splitGap,y:top,w:splitW,h},
+        {x:margin,y:top,w:splitW,h}, {x:margin+splitW+splitGap,y:top,w:splitW,h},
+        {x:rightX,y:top,w,h},
         {x:margin,y:top+h+gapY,w,h}, {x:rightX,y:top+h+gapY,w,h},
         {x:margin,y:top+2*(h+gapY),w,h}, {x:rightX,y:top+2*(h+gapY),w,h}
       ];
@@ -6003,11 +6003,11 @@ if (flashTimer > 0) {
       if(pauseMenuView==='root'){
         const soundLabel = soundMode === 'full' ? 'MUSIC + EFFECTS' : soundMode === 'effects' ? 'EFFECTS ONLY' : 'SOUND OFF';
         const entries=[
-          ['DIRECTIONS','All gameplay and menu controls'],
           ['RESUME','Return to the action'],
           ['RESET','Start a new game'],
-          ['CONTROLLER TYPE','Xbox • PlayStation • Keyboard'],
+          ['DIRECTIONS','All gameplay and menu controls'],
           ['FULLSCREEN','Use the whole display'],
+          ['CONTROLLER TYPE','Xbox • PlayStation • Keyboard'],
           [`SOUND: ${soundLabel}`,'Select to change audio mode'],
           [`DIFFICULTY: ${DIFF_PRESETS[diffIndex].name.toUpperCase()}`,'Select to change difficulty']
         ];
