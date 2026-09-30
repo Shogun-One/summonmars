@@ -2217,7 +2217,8 @@ document.querySelectorAll('img[data-asset]').forEach((img) => {
       gameAlertEl.classList.add('show');
     }
     
-    setMusicUI(musicEnabled());
+    // Keep the illustrated stamps visible until music has actually begun.
+    setMusicUI(false);
 
     async function startDefaultSound(){
       if(defaultSoundStarted || !effectsEnabled()) return;
@@ -2229,6 +2230,9 @@ document.querySelectorAll('img[data-asset]').forEach((img) => {
           await music.play();
           if(!musicEnabled()){ music.pause(); return; }
           pulseActive = true;
+          setMusicUI(true);
+        }else{
+          setMusicUI(false);
         }
         defaultSoundStarted = true;
       }catch{
@@ -3542,6 +3546,7 @@ function updateBosses(dt){
       defaultSoundStarted = false;
       setPaused._wasPlaying = false;
       pulseActive = false;
+      setMusicUI(false);
       document.documentElement.style.setProperty('--bassKick','0');
     }
 
@@ -3756,6 +3761,13 @@ function updateBosses(dt){
     });
 
     document.addEventListener('keydown', (e) => {
+      // Game shortcuts must never intercept typing in password/login fields
+      // or any future text-entry controls.
+      const target = e.target;
+      if(target instanceof HTMLInputElement ||
+         target instanceof HTMLTextAreaElement ||
+         target instanceof HTMLSelectElement ||
+         target?.isContentEditable) return;
       keysDown[e.key] = true;
       if(e.key === ' ' || e.code === 'Space') e.preventDefault();
       if(gameOver){
