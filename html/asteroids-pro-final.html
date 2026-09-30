@@ -1624,7 +1624,7 @@ body.touchpad-off .control-deck .mobile-touchpad{ display:none !important; }
     width:var(--mobile-touchpad);
     height:var(--mobile-touchpad);
   }
-  body:not(.controller-connected) .control-deck .mobile-fire-btn{
+  .control-deck .mobile-fire-btn{
     display:grid;
     position:absolute !important;
     z-index:18;
@@ -1636,8 +1636,7 @@ body.touchpad-off .control-deck .mobile-touchpad{ display:none !important; }
     height:var(--mobile-small-control);
     transform:none !important;
   }
-  body.controller-connected .control-deck .mobile-touchpad,
-  body.controller-connected .control-deck .mobile-fire-btn{
+  body.controller-connected .control-deck .mobile-touchpad{
     display:none !important;
   }
   .touchpad-plate.pause-hold{
@@ -1662,7 +1661,7 @@ body.touchpad-off .control-deck .mobile-touchpad{ display:none !important; }
 /* Unfolded phones/tablets are wide but still touch-first. Keep the same
    on-screen Fire affordance until a physical controller is available. */
 @media (pointer:coarse), (min-width:680px) and (max-width:900px){
-  body:not(.controller-connected) .control-deck .mobile-fire-btn{
+  .control-deck .mobile-fire-btn{
     display:grid;
     position:absolute !important;
     z-index:18;
@@ -1674,10 +1673,16 @@ body.touchpad-off .control-deck .mobile-touchpad{ display:none !important; }
     height:60px;
     transform:none !important;
   }
-  body.controller-connected .control-deck .mobile-touchpad,
-  body.controller-connected .control-deck .mobile-fire-btn{
+  body.controller-connected .control-deck .mobile-touchpad{
     display:none !important;
   }
+}
+
+/* The reserve counter is a live gameplay control, but pause menus need the
+   whole arena. Keep it out of every paused layout, including unfolded phones. */
+body.game-paused .control-deck .missile-reserve{
+  opacity:0;
+  pointer-events:none;
 }
 
 /* Wide screens get a genuinely larger playfield, not a stretched portrait
@@ -1709,7 +1714,7 @@ footer{
   display:none !important;
 }
 html.preview-locked,html.preview-locked body{overflow:hidden!important}.preview-gate{position:fixed;inset:0;z-index:2147483647;display:grid;place-items:center;padding:24px;color:#ffeaff;background:radial-gradient(circle at 50% 35%,rgba(123,32,115,.3),transparent 34%),linear-gradient(145deg,#080711 0%,#171126 55%,#09070f 100%);font-family:"Share Tech Mono",monospace}.preview-gate[hidden]{display:none}.preview-gate__panel{width:min(440px,100%);padding:clamp(24px,6vw,42px);text-align:center;border:1px solid rgba(255,84,190,.48);border-radius:22px;background:rgba(8,7,17,.88);box-shadow:0 0 42px rgba(255,51,180,.2),inset 0 0 28px rgba(255,255,255,.025)}.preview-gate__panel h1{margin:0 0 10px;color:#f58bd6;font:800 clamp(22px,6vw,32px)/1.15 "Orbitron",sans-serif;letter-spacing:.12em}.preview-gate__panel p{margin:0 0 22px;color:#cbbfd5}.preview-gate__panel label{display:block;margin-bottom:8px;text-align:left}.preview-gate__panel input,.preview-gate__panel button{box-sizing:border-box;width:100%;min-height:48px;border-radius:12px;font:700 16px "Share Tech Mono",monospace}.preview-gate__panel input{padding:10px 14px;border:1px solid #744064;color:#fff;background:#100d19;outline:none}.preview-gate__panel button{margin-top:12px;border:1px solid #ff55bd;color:#120913;background:linear-gradient(135deg,#ff76ce,#bb6cff);cursor:pointer}.preview-gate__error{min-height:1.4em;margin:12px 0 0!important;color:#ff626f!important}
-</style>
+  </style>
 </head>
 
 <body>
@@ -2313,9 +2318,16 @@ function positionMissileReserve(){
     if(!deck) return;
     const deckRect = deck.getBoundingClientRect();
     const padRect = joystickEl.getBoundingClientRect();
+    const fireRect = mobileFireBtn.getBoundingClientRect();
     const size = 64;
-    missileReserveEl.style.left = `${Math.max(4, padRect.left - deckRect.left - size - 10)}px`;
-    missileReserveEl.style.top = `${padRect.top - deckRect.top + (padRect.height - size) / 2}px`;
+    // A connected controller hides the touchpad, whose zero-sized rectangle
+    // used to throw this counter to the page's top-left corner. In that state,
+    // anchor it beside the still-visible Fire stamp instead.
+    const anchorRect = padRect.width > 0 && padRect.height > 0 ? padRect : fireRect;
+    const anchorLeft = anchorRect.left - deckRect.left;
+    const anchorTop = anchorRect.top - deckRect.top;
+    missileReserveEl.style.left = `${Math.max(4, anchorLeft - size - 10)}px`;
+    missileReserveEl.style.top = `${Math.max(4, anchorTop + (anchorRect.height - size) / 2)}px`;
   }catch{}
 }
 
@@ -3502,8 +3514,8 @@ function updateBosses(dt){
 
     function directionActionRects(){
       if(width<600) return [
-        {x:90,y:430,w:width-180,h:44},
-        {x:90,y:484,w:width-180,h:44}
+        {x:90,y:350,w:width-180,h:44},
+        {x:90,y:400,w:width-180,h:44}
       ];
       const w=Math.min(340,width*.38),x=(width-w)/2;
       if(height<620) return [
@@ -5988,7 +6000,7 @@ if (flashTimer > 0) {
         ];
         ctx.textAlign='left';
         if(compact){
-          const left=20,startY=70,lineH=43;
+          const left=20,startY=62,lineH=36;
           lines.forEach(([label,value],i)=>{
             const y=startY+i*lineH;
             ctx.fillStyle='#ff8ac0';ctx.font='800 16px Share Tech Mono';ctx.fillText(label,left,y);
