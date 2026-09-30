@@ -2778,6 +2778,23 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
     const weaponLevels = { standard:0, cross:0, back:0, dog:0 };
     function setWeaponMode(mode){ weaponMode = mode; }
 
+    // Automatic equip priority requested for collected ammo. Standard's
+    // existing Quad enhancement remains part of the standard/double tier.
+    function weaponAutoRank(mode, level = null){
+      if(mode === 'single' || mode === 'standard' || mode === 'dual'){
+        return (level ?? weaponLevels.standard) > 0 ? 1 : 0;
+      }
+      const resolvedLevel = level ?? weaponLevels[mode] ?? 0;
+      if(mode === 'back') return resolvedLevel >= 2 ? 4 : resolvedLevel >= 1 ? 2 : -1;
+      if(mode === 'cross') return resolvedLevel >= 2 ? 6 : resolvedLevel >= 1 ? 3 : -1;
+      if(mode === 'dog') return resolvedLevel >= 2 ? 7 : resolvedLevel >= 1 ? 5 : -1;
+      return -1;
+    }
+
+    function equippedWeaponAutoRank(){
+      return weaponAutoRank(weaponMode);
+    }
+
     function weaponDisplayName(mode){
       if(mode === 'single' || mode === 'standard' || mode === 'dual'){
         if(weaponLevels.standard >= 2) return 'QUAD FIRE';
@@ -2808,9 +2825,11 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
       const currentLevel = weaponLevels[mode];
       if(currentLevel < 2){
         weaponLevels[mode] = currentLevel + 1;
+        const pickupMode = mode === 'standard' ? 'single' : mode;
+        const shouldAutoEquip = pickupMode === weaponMode || weaponAutoRank(mode) > equippedWeaponAutoRank();
+        if(shouldAutoEquip) weaponMode = pickupMode;
         const status = currentLevel === 0 ? ' COLLECTED' : ' UPGRADED';
-        const isEquipped = mode === 'standard' ? weaponMode === 'single' : mode === weaponMode;
-        const stored = isEquipped ? '' : ' — STORED';
+        const stored = shouldAutoEquip ? '' : ' — STORED';
         showGameAlert(weaponDisplayName(mode) + status + stored, 'sound-on');
       }else{
         awardScore(85); // 15 pickup points above + 85 = 100-point duplicate bonus
