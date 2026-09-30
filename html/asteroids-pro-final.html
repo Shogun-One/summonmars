@@ -2888,6 +2888,16 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
       'pilot-indian-f':5,'pilot-indian-m':6,'pilot-black-f':7,'pilot-black-m':8,
       'pilot-asian-f':9,'pilot-asian-m':10
     };
+    const defeatedPilotAtlasImg = new Image();
+    defeatedPilotAtlasImg.decoding = 'async';
+    defeatedPilotAtlasImg.src = A('images/asteroids/defeated-pilots-atlas-v1.png');
+    let defeatedPilotAtlasReady = false;
+    defeatedPilotAtlasImg.onload = () => { defeatedPilotAtlasReady = true; };
+    const defeatedPilotAtlasCell = {
+      'pilot-shadow':0,'pilot-nova':1,'pilot-ace':2,
+      'pilot-indian-f':3,'pilot-indian-m':4,'pilot-black-f':5,
+      'pilot-black-m':6,'pilot-asian-f':7,'pilot-asian-m':8
+    };
     const detailedShipSources={
       'ship-void':'images/asteroids/ship-void-phantom.png',
       'ship-emerald':'images/asteroids/ship-emerald.png',
@@ -2905,6 +2915,10 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
       const index=useAtlas2?inventoryAtlas2Cell[pilotId]:inventoryAtlasCell[pilotId];
       if(!Number.isInteger(index)) return null;
       return {img:useAtlas2?inventoryAtlas2Img:inventoryAtlasImg,index,url:A(useAtlas2?'images/asteroids/inventory-atlas-2.png':'images/asteroids/inventory-atlas.png')};
+    }
+    function defeatedPilotPortraitSource(pilotId=equippedStore.pilot){
+      const index=defeatedPilotAtlasCell[pilotId];
+      return Number.isInteger(index)?{img:defeatedPilotAtlasImg,index}:null;
     }
     function updatePilotPortrait(){
       const source=pilotPortraitSource();
@@ -6736,33 +6750,27 @@ if (flashTimer > 0) {
     }
 
     function drawDefeatedPilot(){
-      const source=pilotPortraitSource();
+      const source=defeatedPilotPortraitSource();
       const size=2*Math.min(width<600?78:96,height*.18);
       const x=width/2,y=Math.max(size*.62,height*.18);
       ctx.save();
       ctx.beginPath();ctx.arc(x,y,size/2,0,Math.PI*2);ctx.clip();
       ctx.fillStyle='#160b19';ctx.fillRect(x-size/2,y-size/2,size,size);
-      const ready=source&&(source.img===inventoryAtlas2Img?inventoryAtlas2Ready:inventoryAtlasReady);
-      if(ready){
-        const sw=source.img.naturalWidth/4,sh=source.img.naturalHeight/3;
-        const sx=(source.index%4)*sw,sy=Math.floor(source.index/4)*sh;
-        ctx.filter='grayscale(.5) brightness(.62) contrast(1.12)';
+      if(source&&defeatedPilotAtlasReady){
+        const sw=source.img.naturalWidth/3,sh=source.img.naturalHeight/3;
+        const sx=(source.index%3)*sw,sy=Math.floor(source.index/3)*sh;
+        ctx.filter='brightness(.82) contrast(1.12) saturate(.86)';
         ctx.drawImage(source.img,sx,sy,sw,sh,x-size/2,y-size/2,size,size);
         ctx.filter='none';
       }else{
         ctx.fillStyle='#6b5a72';ctx.beginPath();ctx.arc(x,y-size*.08,size*.22,0,Math.PI*2);ctx.fill();
         ctx.beginPath();ctx.ellipse(x,y+size*.34,size*.34,size*.28,0,0,Math.PI*2);ctx.fill();
       }
-      // A bruised red wash, lowered eyelids, tear and downturned mouth make
-      // this a distinct defeated portrait instead of reusing the active pose.
+      // The Game Over atlas contains genuinely separate defeated expressions.
+      // Keep only a restrained damage vignette so the new faces remain clear.
       const bruise=ctx.createLinearGradient(x-size/2,y-size/2,x+size/2,y+size/2);
-      bruise.addColorStop(0,'rgba(90,0,24,.12)');bruise.addColorStop(1,'rgba(255,32,40,.32)');
+      bruise.addColorStop(0,'rgba(30,0,18,.04)');bruise.addColorStop(1,'rgba(115,0,20,.20)');
       ctx.fillStyle=bruise;ctx.fillRect(x-size/2,y-size/2,size,size);
-      ctx.strokeStyle='rgba(20,4,15,.88)';ctx.lineWidth=Math.max(2,size*.035);ctx.lineCap='round';
-      ctx.beginPath();ctx.moveTo(x-size*.23,y-size*.09);ctx.lineTo(x-size*.08,y-size*.05);ctx.moveTo(x+size*.08,y-size*.05);ctx.lineTo(x+size*.23,y-size*.09);ctx.stroke();
-      ctx.beginPath();ctx.arc(x,y+size*.25,size*.13,Math.PI*1.12,Math.PI*1.88);ctx.stroke();
-      ctx.fillStyle='rgba(92,190,255,.88)';ctx.beginPath();ctx.ellipse(x+size*.18,y+size*.08,size*.035,size*.09,-.12,0,Math.PI*2);ctx.fill();
-      ctx.strokeStyle='rgba(255,208,208,.85)';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(x-size*.33,y+size*.02);ctx.lineTo(x-size*.20,y+size*.12);ctx.moveTo(x+size*.28,y-size*.23);ctx.lineTo(x+size*.17,y-size*.12);ctx.stroke();
       ctx.restore();
       ctx.save();ctx.strokeStyle='rgba(255,76,112,.9)';ctx.lineWidth=3;ctx.shadowColor='rgba(255,45,90,.75)';ctx.shadowBlur=12;ctx.beginPath();ctx.arc(x,y,size/2,0,Math.PI*2);ctx.stroke();ctx.restore();
     }
