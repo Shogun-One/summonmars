@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <title>Asteroid Drift - Summon Mars Arcade</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=overlays-content" />
 
   <!-- Spacey + readable HUD fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1606,10 +1606,19 @@ body.touchpad-off .control-deck .mobile-touchpad{ display:none !important; }
    the physical control deck inside one short browser viewport; use the full
    safe width and let the deck follow naturally below it. */
 @media (max-width:900px){
+  html,
   body{
+    width:100%;
+    height:var(--visual-height,100dvh);
+    min-height:var(--visual-height,100dvh);
     overflow-x:hidden;
     overflow-y:auto;
     align-items:flex-start;
+    background:radial-gradient(circle at top,var(--bg2),var(--bg1));
+  }
+  #bgfx,
+  #impactFx{
+    height:var(--visual-height,100dvh);
   }
   .wrapper{
     /* One outer console frame governs HUD, arena, and deck together. */
@@ -1827,7 +1836,7 @@ footer{
   display:none !important;
 }
 </style>
-<style>html.preview-locked,html.preview-locked body{overflow:hidden!important}.preview-gate{position:fixed;inset:0;z-index:2147483647;display:grid;place-items:center;padding:24px;color:#ffeaff;background:radial-gradient(circle at 50% 35%,rgba(123,32,115,.3),transparent 34%),linear-gradient(145deg,#080711 0%,#171126 55%,#09070f 100%);font-family:"Share Tech Mono",monospace}.preview-gate[hidden]{display:none}.preview-gate__panel{width:min(440px,100%);padding:clamp(24px,6vw,42px);text-align:center;border:1px solid rgba(255,84,190,.48);border-radius:22px;background:rgba(8,7,17,.88);box-shadow:0 0 42px rgba(255,51,180,.2),inset 0 0 28px rgba(255,255,255,.025)}.preview-gate__panel h1{margin:0 0 10px;color:#f58bd6;font:800 clamp(22px,6vw,32px)/1.15 "Orbitron",sans-serif;letter-spacing:.12em}.preview-gate__panel p{margin:0 0 22px;color:#cbbfd5}.preview-gate__panel label{display:block;margin-bottom:8px;text-align:left}.preview-gate__panel input,.preview-gate__panel button{box-sizing:border-box;width:100%;min-height:48px;border-radius:12px;font:700 16px "Share Tech Mono",monospace}.preview-gate__panel input{padding:10px 14px;border:1px solid #744064;color:#fff;background:#100d19;outline:none}.preview-gate__panel button{margin-top:12px;border:1px solid #ff55bd;color:#120913;background:linear-gradient(135deg,#ff76ce,#bb6cff);cursor:pointer}.preview-gate__error{min-height:1.4em;margin:12px 0 0!important;color:#ff626f!important}</style>
+<style>html.preview-locked,html.preview-locked body{width:100%;height:var(--visual-height,100dvh);min-height:var(--visual-height,100dvh);overflow:hidden!important;background:#080711}.preview-gate{position:fixed;inset:0;width:100%;height:var(--visual-height,100dvh);min-height:var(--visual-height,100dvh);z-index:2147483647;display:grid;place-items:center;padding:24px;color:#ffeaff;background:radial-gradient(circle at 50% 35%,rgba(123,32,115,.3),transparent 34%),linear-gradient(145deg,#080711 0%,#171126 55%,#09070f 100%);font-family:"Share Tech Mono",monospace}.preview-gate[hidden]{display:none}.preview-gate__panel{width:min(440px,100%);padding:clamp(24px,6vw,42px);text-align:center;border:1px solid rgba(255,84,190,.48);border-radius:22px;background:rgba(8,7,17,.88);box-shadow:0 0 42px rgba(255,51,180,.2),inset 0 0 28px rgba(255,255,255,.025)}.preview-gate__panel h1{margin:0 0 10px;color:#f58bd6;font:800 clamp(22px,6vw,32px)/1.15 "Orbitron",sans-serif;letter-spacing:.12em}.preview-gate__panel p{margin:0 0 22px;color:#cbbfd5}.preview-gate__panel label{display:block;margin-bottom:8px;text-align:left}.preview-gate__panel input,.preview-gate__panel button{box-sizing:border-box;width:100%;min-height:48px;border-radius:12px;font:700 16px "Share Tech Mono",monospace}.preview-gate__panel input{padding:10px 14px;border:1px solid #744064;color:#fff;background:#100d19;outline:none}.preview-gate__panel button{margin-top:12px;border:1px solid #ff55bd;color:#120913;background:linear-gradient(135deg,#ff76ce,#bb6cff);cursor:pointer}.preview-gate__error{min-height:1.4em;margin:12px 0 0!important;color:#ff626f!important}</style>
 </head>
 
 <body>
@@ -2249,6 +2258,7 @@ document.querySelectorAll('img[data-asset]').forEach((img) => {
     // immediately, then retry on the first qualifying user gesture. Once the
     // game has entered fullscreen, an intentional exit is respected.
     let autoFullscreenPending = true;
+    let fullscreenRequestInFlight = false;
     function syncViewportAfterFullscreen(){
       // Mobile browsers report two or three intermediate viewport sizes while
       // the keyboard closes and fullscreen settles. Refresh at each stable
@@ -2264,18 +2274,27 @@ document.querySelectorAll('img[data-asset]').forEach((img) => {
       setTimeout(refresh,90);
       setTimeout(refresh,260);
       setTimeout(refresh,520);
+      setTimeout(refresh,900);
+      setTimeout(refresh,1400);
     }
     async function requestLaunchFullscreen(event){
-      if(!autoFullscreenPending) return;
+      if(!autoFullscreenPending || fullscreenRequestInFlight) return;
       // Password focus/typing opens the mobile keyboard. Do not enter
       // fullscreen from those gestures; the gate explicitly requests it on
       // submit after blurring the field.
       if(event?.target?.closest?.('#previewGate')) return;
-      if(await enterFullscreen()){
-        autoFullscreenPending = false;
+      fullscreenRequestInFlight = true;
+      try{
+        if(await enterFullscreen()) autoFullscreenPending = false;
+      }finally{
+        fullscreenRequestInFlight = false;
         syncViewportAfterFullscreen();
       }
     }
+    // Request fullscreen directly from the trusted password-form submission,
+    // before its handler blurs the input/keyboard. Mobile Firefox and iOS can
+    // otherwise discard user activation and wait for an unwanted second tap.
+    document.getElementById('previewGateForm')?.addEventListener('submit',()=>requestLaunchFullscreen(),{capture:true});
     window.addEventListener('load', requestLaunchFullscreen, { once:true });
     window.addEventListener('load', syncViewportAfterFullscreen, { once:true });
     document.addEventListener('pointerdown', requestLaunchFullscreen, { capture:true });
@@ -2285,6 +2304,8 @@ document.querySelectorAll('img[data-asset]').forEach((img) => {
     document.addEventListener('fullscreenchange',syncViewportAfterFullscreen);
     document.addEventListener('webkitfullscreenchange',syncViewportAfterFullscreen);
     window.visualViewport?.addEventListener('resize',syncViewportAfterFullscreen);
+    window.visualViewport?.addEventListener('scroll',syncViewportAfterFullscreen);
+    window.addEventListener('orientationchange',syncViewportAfterFullscreen);
 
 // Music
     const musicBtn = document.getElementById('musicBtn');
