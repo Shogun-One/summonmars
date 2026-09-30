@@ -1623,7 +1623,12 @@ body.touchpad-off .control-deck .mobile-touchpad{ display:none !important; }
   .control-deck #musicBtn{
     width:var(--mobile-small-control);
     height:var(--mobile-small-control);
-    transform:none !important;
+  }
+  .control-deck #reset-btn{
+    transform:translate(16px,-18px) !important;
+  }
+  .control-deck #musicBtn{
+    transform:translate(-16px,-18px) !important;
   }
   .control-deck .touchpad-plate{
     width:var(--mobile-touchpad);
@@ -1735,7 +1740,39 @@ body.game-paused .control-deck .touchpad-plate{
   .control-deck{ max-width:720px; }
 }
 
-@media (min-width:901px){ .mobile-pause-stamp{ display:none !important; } }
+@media (min-width:901px){
+  .control-deck{
+    position:relative;
+  }
+  .control-deck #reset-btn{
+    transform:translate(108px,-76px) !important;
+  }
+  .control-deck #musicBtn{
+    transform:translate(-108px,-76px) !important;
+  }
+  .mobile-pause-stamp{
+    display:grid;
+    place-items:center;
+    position:absolute;
+    z-index:28;
+    left:calc(50% - 148px);
+    top:42px;
+    width:52px;
+    height:52px;
+    padding:0;
+    border:2px solid rgba(255,138,192,.72);
+    border-radius:50%;
+    color:#fff0fa;
+    background:radial-gradient(circle at 36% 30%,#7e315f 0 10%,#281025 48%,#08050c 76%);
+    box-shadow:0 0 16px rgba(255,59,130,.45),inset 0 0 13px rgba(255,255,255,.12);
+    font:900 10px 'Orbitron',system-ui;
+    letter-spacing:.04em;
+    text-shadow:0 0 7px rgba(255,138,192,.8);
+    touch-action:manipulation;
+  }
+  body.controller-connected .mobile-pause-stamp,
+  body.game-paused .mobile-pause-stamp{ display:none !important; }
+}
 
 /* Instruction/legal text is part of the pause presentation only. */
 .controls,
