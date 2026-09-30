@@ -1797,8 +1797,8 @@ html.preview-locked,html.preview-locked body{overflow:hidden!important}.preview-
         <span id="weaponStatusLabel">STANDARD</span>
       </div>
       <div id="hint-left" class="neon-hover-hint">Hold: Fire | Top Left: Missiles</div>
-      <div id="hint-right" class="neon-hover-hint">Touchscreen On/Off | Top Right: Sound</div>
-      <div id="hint-sound-start" class="neon-hover-hint hint-start">Tap Here for Sound</div>
+      <div id="hint-right" class="neon-hover-hint">Touchscreen On/Off | Sound: Pause Menu</div>
+      <div id="hint-sound-start" class="neon-hover-hint hint-start">Sound: Pause Menu</div>
 
       <button id="pauseBtn" class="bubble-btn pizza-btn" type="button"
               aria-label="Launch Missile" title="Launch Missile">
@@ -2113,7 +2113,11 @@ document.querySelectorAll('img[data-asset]').forEach((img) => {
     music.loop = true;
     music.preload = 'auto';
 
-    let musicOn = true;
+    const SOUND_MODES = ['full','effects','off'];
+    let soundMode = localStorage.getItem('asteroidSoundMode');
+    if(!SOUND_MODES.includes(soundMode)) soundMode = 'full';
+    const musicEnabled = () => soundMode === 'full';
+    const effectsEnabled = () => soundMode !== 'off';
     let defaultSoundStarted = false;
     function setMusicUI(on){
   musicBtn.classList.toggle('on', on);
@@ -2128,26 +2132,24 @@ document.querySelectorAll('img[data-asset]').forEach((img) => {
       gameAlertEl.classList.add('show');
     }
     
-    setMusicUI(true);
+    setMusicUI(musicEnabled());
 
     async function startDefaultSound(){
-      if(defaultSoundStarted || !musicOn) return;
+      if(defaultSoundStarted || !effectsEnabled()) return;
       try{
         setupAudioAnalyzer();
         if(audioCtx && audioCtx.state === 'suspended') await audioCtx.resume();
-        if(!musicOn) return;
-        music.volume = 0.75;
-        await music.play();
-        if(!musicOn){ music.pause(); return; }
-        pulseActive = true;
+        if(musicEnabled()){
+          music.volume = 0.75;
+          await music.play();
+          if(!musicEnabled()){ music.pause(); return; }
+          pulseActive = true;
+        }
         defaultSoundStarted = true;
       }catch{
         // Browsers may still defer playback until a later trusted gesture.
       }
     }
-
-    document.addEventListener('pointerdown', startDefaultSound, { capture:true });
-    document.addEventListener('keydown', startDefaultSound, { capture:true });
 
 
 // =====================
@@ -2310,7 +2312,7 @@ function positionMissileReserve(){
 
 function showDeckHints(ms = 1500){
   showHint(hintLeft,  'Joystick: Steer + Fire | Top Left: Missiles', ms);
-  showHint(hintRight, 'Sound stamp: Sound | Get 1-UPs: Touch controls', ms);
+  showHint(hintRight, 'Sound: Pause Menu | Get 1-UPs: Touch controls', ms);
   positionDeckHints();
 }
 
@@ -2335,51 +2337,60 @@ heatBtn.addEventListener('click', (event) => {
       heatBtn.setAttribute('aria-pressed', isOff ? 'true' : 'false');
     }
 
-    // The visible SOUND stamp controls all game audio.
-    musicBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      toggleMusic();
-    });
+    // The visible Sound stamp is display-only. Audio is configured from the
+    // Pause Menu (or cycled by the mapped keyboard/controller shortcut).
+    musicBtn.setAttribute('aria-disabled','true');
+    musicBtn.tabIndex = -1;
+    musicBtn.style.pointerEvents = 'none';
 
-async function toggleMusic(){
+async function setSoundMode(nextMode, announce = true){
+      if(!SOUND_MODES.includes(nextMode)) nextMode = 'full';
+      soundMode = nextMode;
+      localStorage.setItem('asteroidSoundMode', soundMode);
       try{
-        if(!musicOn){
+        if(effectsEnabled()){
           setupAudioAnalyzer();
           if(audioCtx && audioCtx.state === 'suspended') await audioCtx.resume();
-
+        }
+        if(musicEnabled()){
           music.volume = 0.75;
           await music.play();
           pulseActive = true;
           defaultSoundStarted = true;
-
-          musicOn = true;
           setMusicUI(true);
-          showGameAlert('SOUND ON', 'sound-on');
         }else{
           music.pause();
-          bossSting.pause();
-          bossSting.currentTime = 0;
           pulseActive = false;
           document.documentElement.style.setProperty('--bassKick','0');
-
-          musicOn = false;
           setMusicUI(false);
-          showGameAlert('SOUND OFF', 'sound-off');
+          if(!effectsEnabled()){
+            bossSting.pause();
+            bossSting.currentTime = 0;
+          }
+        }
+        if(announce){
+          const label = soundMode === 'full' ? 'MUSIC + EFFECTS' : soundMode === 'effects' ? 'EFFECTS ONLY' : 'SOUND OFF';
+          showGameAlert(label, soundMode === 'off' ? 'sound-off' : 'sound-on');
         }
       }catch(err){
         pulseActive = false;
         document.documentElement.style.setProperty('--bassKick','0');
-
-        musicOn = false;
+        soundMode = effectsEnabled() ? 'effects' : 'off';
+        localStorage.setItem('asteroidSoundMode', soundMode);
         setMusicUI(false);
         console.warn('Music could not start:', err);
       }
     }
 
+    function cycleSoundMode(){
+      const index = SOUND_MODES.indexOf(soundMode);
+      setSoundMode(SOUND_MODES[(index + 1) % SOUND_MODES.length]);
+    }
+
     // Layered Web Audio explosions. They share the master sound toggle, but
     // each death type has a different weight and pitch profile.
     function playExplosionSound(kind = 'enemy'){
-      if(!musicOn || !audioCtx) return;
+      if(!effectsEnabled() || !audioCtx) return;
       try{
         if(audioCtx.state === 'suspended') audioCtx.resume().catch(()=>{});
 
@@ -2393,7 +2404,7 @@ async function toggleMusic(){
         if(!music.paused){
           music.volume = isBoss ? 0.22 : isPlayer ? 0.32 : 0.50;
           setTimeout(() => {
-            if(musicOn && !music.paused) music.volume = 0.75;
+            if(musicEnabled() && !music.paused) music.volume = 0.75;
           }, isBoss ? 1450 : isPlayer ? 900 : 360);
         }
 
@@ -2460,7 +2471,7 @@ async function toggleMusic(){
     }
 
     function playMissileWhistle(){
-      if(!musicOn || !audioCtx) return;
+      if(!effectsEnabled() || !audioCtx) return;
       try{
         if(audioCtx.state === 'suspended') audioCtx.resume().catch(()=>{});
         const now = audioCtx.currentTime;
@@ -3461,7 +3472,7 @@ function updateBosses(dt){
     function pauseMenuNavigate(direction){
       if(!paused || direction === 0) return;
       if(pauseMenuView === 'root'){
-        pauseMenuSelection = (pauseMenuSelection + (direction > 0 ? 1 : -1) + 4) % 4;
+        pauseMenuSelection = (pauseMenuSelection + (direction > 0 ? 1 : -1) + 5) % 5;
       }else if(pauseMenuView === 'directions'){
         pauseDirectionSelection = (pauseDirectionSelection + (direction > 0 ? 1 : -1) + 2) % 2;
       }else if(pauseMenuView === 'controllerTypes'){
@@ -3477,7 +3488,8 @@ function updateBosses(dt){
         else if(pauseMenuSelection === 2){
           toggleFullscreen();
           showGameAlert(document.fullscreenElement ? 'EXITING FULLSCREEN' : 'FULLSCREEN', 'sound-on');
-        }else setPaused(false);
+        }else if(pauseMenuSelection === 3) cycleSoundMode();
+        else setPaused(false);
       }else if(pauseMenuView === 'controllerTypes'){
         if(pauseControllerIndex === 3) pauseMenuView = 'root';
         else pauseMenuView = 'controllerDetail';
@@ -3516,17 +3528,19 @@ function updateBosses(dt){
 
       if(pauseMenuView==='root'){
         if(compact){
-          if(y>=80&&y<=175) pauseMenuSelection=0;
-          else if(y>=185&&y<=280) pauseMenuSelection=1;
-          else if(y>=290&&y<=360) pauseMenuSelection=2;
-          else if(y>=370&&y<=424) pauseMenuSelection=3;
+          if(y>=68&&y<=153) pauseMenuSelection=0;
+          else if(y>=161&&y<=246) pauseMenuSelection=1;
+          else if(y>=254&&y<=312) pauseMenuSelection=2;
+          else if(y>=320&&y<=378) pauseMenuSelection=3;
+          else if(y>=386&&y<=436) pauseMenuSelection=4;
           else return;
         }else{
-          const gap=22,w=(width-100-gap)/2,top=height*.20;
-          if(y>=top&&y<=top+125&&x>=50&&x<=50+w) pauseMenuSelection=0;
-          else if(y>=top&&y<=top+125&&x>=50+w+gap&&x<=width-50) pauseMenuSelection=1;
-          else if(y>=top+145&&y<=top+215) pauseMenuSelection=2;
-          else if(y>=top+225&&y<=top+285) pauseMenuSelection=3;
+          const gap=22,w=(width-100-gap)/2,top=height*.14;
+          if(y>=top&&y<=top+110&&x>=50&&x<=50+w) pauseMenuSelection=0;
+          else if(y>=top&&y<=top+110&&x>=50+w+gap&&x<=width-50) pauseMenuSelection=1;
+          else if(y>=top+125&&y<=top+185) pauseMenuSelection=2;
+          else if(y>=top+195&&y<=top+255) pauseMenuSelection=3;
+          else if(y>=top+265&&y<=top+320) pauseMenuSelection=4;
           else return;
         }
         pauseMenuSelect();
@@ -3586,18 +3600,19 @@ function updateBosses(dt){
         if(setPaused._wasPlaying === undefined) setPaused._wasPlaying = false;
 
         if(paused){
-          setPaused._wasPlaying = (musicOn && music && !music.paused);
+          setPaused._wasPlaying = (musicEnabled() && music && !music.paused);
           if(setPaused._wasPlaying){ music.pause(); }
           // stop visual pulse while paused
           pulseActive = false;
           document.documentElement.style.setProperty('--bassKick','0');
         }else{
-          if(setPaused._wasPlaying){
+          if(setPaused._wasPlaying && musicEnabled()){
             music.play().catch(()=>{});
             pulseActive = true;
           }else{
+            if(!musicEnabled()) music.pause();
             // keep pulse accurate if music is on but browser blocked autoplay
-            pulseActive = musicOn && music && !music.paused;
+            pulseActive = musicEnabled() && music && !music.paused;
           }
         }
       }catch{}
@@ -3645,13 +3660,16 @@ function updateBosses(dt){
         e.preventDefault();
         if(!e.repeat) launchMissile();
       }
+      if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','a','A','d','D','w','W','s','S'].includes(e.key) && !e.repeat){
+        startDefaultSound();
+      }
       if(e.key === 'b' || e.key === 'B'){
         e.preventDefault();
         if(!e.repeat) cycleCollectedWeapon();
       }
       if(e.key === 'm' || e.key === 'M'){
         e.preventDefault();
-        if(!e.repeat) toggleMusic();
+        if(!e.repeat) cycleSoundMode();
       }
       if(e.key === 'r' || e.key === 'R'){
         e.preventDefault();
@@ -3810,7 +3828,7 @@ function updateBosses(dt){
     }
 
     function applyGamepadAction(action){
-      if(action === 'sound') toggleMusic();
+      if(action === 'sound') cycleSoundMode();
       else if(action === 'missile') launchMissile();
       else if(action === 'weaponCycle') cycleCollectedWeapon();
       else if(action === 'reset') softRestart();
@@ -3864,6 +3882,7 @@ function updateBosses(dt){
         gamepadState.x = 0;
         gamepadState.y = 0;
       }else{
+        if(!paused && !gameOver) startDefaultSound();
         const linear = Math.min(1, (magnitude - 0.18) / 0.82);
         // A gentle exponential curve gives fine control near the center while
         // still allowing full thrust at the edge of the stick.
@@ -4051,6 +4070,7 @@ joystickEl?.addEventListener('pointerdown', (e) => {
   },JOY_PAUSE_HOLD_MS);
 
   joyFromEvent(e);
+  if(Math.hypot(joyVec.x, joyVec.y) > DEADZONE) startDefaultSound();
 }, { passive:false });
 
 joystickEl?.addEventListener('pointermove', (e) => {
@@ -4062,6 +4082,7 @@ joystickEl?.addEventListener('pointermove', (e) => {
   if(moved > 10){
     joyDidMove = true;
     cancelJoyPauseHold();
+    startDefaultSound();
   }
 
   joyFromEvent(e);
@@ -5845,7 +5866,7 @@ if (flashTimer > 0) {
         bossIncomingDidSting = true;
         addShake(2, 160);
         try {
-          if(musicOn){
+          if(effectsEnabled()){
             bossSting.currentTime = 0;
             bossSting.play().catch(() => {});
           }
@@ -5956,17 +5977,20 @@ if (flashTimer > 0) {
       };
 
       if(pauseMenuView==='root'){
+        const soundLabel = soundMode === 'full' ? 'MUSIC + EFFECTS' : soundMode === 'effects' ? 'EFFECTS ONLY' : 'SOUND OFF';
         if(compact){
-          card(35,80,width-70,95,pauseMenuSelection===0,'DIRECTIONS','All gameplay and menu controls');
-          card(35,185,width-70,95,pauseMenuSelection===1,'CONTROLLER TYPE','Xbox • PlayStation • Keyboard');
-          card(90,290,width-180,70,pauseMenuSelection===2,'FULLSCREEN','Use the whole phone display');
-          card(90,370,width-180,54,pauseMenuSelection===3,'RESUME GAME','Return to the action');
+          card(35,68,width-70,85,pauseMenuSelection===0,'DIRECTIONS','All gameplay and menu controls');
+          card(35,161,width-70,85,pauseMenuSelection===1,'CONTROLLER TYPE','Xbox • PlayStation • Keyboard');
+          card(90,254,width-180,58,pauseMenuSelection===2,'FULLSCREEN','Use the whole phone display');
+          card(70,320,width-140,58,pauseMenuSelection===3,`SOUND: ${soundLabel}`,'Select to change audio mode');
+          card(90,386,width-180,50,pauseMenuSelection===4,'RESUME GAME','Return to the action');
         }else{
-          const gap=22,w=(width-100-gap)/2,y=height*.20,h=125;
+          const gap=22,w=(width-100-gap)/2,y=height*.14,h=110;
           card(50,y,w,h,pauseMenuSelection===0,'DIRECTIONS','View every gameplay control');
           card(50+w+gap,y,w,h,pauseMenuSelection===1,'CONTROLLER TYPE','View mapped buttons and keys');
-          card(width/2-210,y+145,420,70,pauseMenuSelection===2,'FULLSCREEN','Enter or exit browser fullscreen');
-          card(width/2-170,y+225,340,60,pauseMenuSelection===3,'RESUME GAME','Return to the action');
+          card(width/2-210,y+125,420,60,pauseMenuSelection===2,'FULLSCREEN','Enter or exit browser fullscreen');
+          card(width/2-230,y+195,460,60,pauseMenuSelection===3,`SOUND: ${soundLabel}`,'Select to cycle audio mode');
+          card(width/2-170,y+265,340,55,pauseMenuSelection===4,'RESUME GAME','Return to the action');
         }
       }else if(pauseMenuView==='directions'){
         const lines=compact?[
@@ -5974,7 +5998,7 @@ if (flashTimer > 0) {
           ['FIRE / SELECT','Touch joystick • Space / Enter • A / Cross'],
           ['MISSILES','Top-left stamp • Left Alt • X / Square'],
           ['CHANGE WEAPON','B / Circle • Status shown bottom-right'],
-          ['SOUND','Sound stamp • M • Y / Triangle'],
+          ['SOUND','Pause Menu sound box • M • Y / Triangle'],
           ['PAUSE / MENU','Hold joystick 0.65 sec • Tap menu boxes • P / Start'],
           ['TOUCH / FULLSCREEN','Touch controls hide with gamepad • Fullscreen box'],
           ['RESET','Reset stamp • R • Back / Share']
@@ -5983,7 +6007,7 @@ if (flashTimer > 0) {
           ['FIRE / SELECT','Touch joystick • Space / Enter • A / Cross'],
           ['MISSILES','Top-left stamp • Left Alt • X / Square'],
           ['CHANGE WEAPON','B / Circle • Status shown bottom-right'],
-          ['SOUND','Sound stamp • M • Y / Triangle'],
+          ['SOUND','Pause Menu sound box • M • Y / Triangle'],
           ['PAUSE / MENU','Hold joystick 0.65 sec • Tap menu boxes • P / Start'],
           ['TOUCH / FULLSCREEN','Touch controls auto-hide with gamepad • Fullscreen box'],
           ['RESET / DIFFICULTY','Reset stamp • R • Back / Share • Hold Reset for difficulty']
@@ -6002,7 +6026,7 @@ if (flashTimer > 0) {
             ['FIRE / SELECT','Touch joystick • Space/Enter • A/Cross'],
             ['MISSILES','Top-left stamp • Left Alt • X/Square'],
             ['CHANGE WEAPON','B/Circle • Bottom-right status'],
-            ['SOUND','Sound stamp • M • Y/Triangle'],
+            ['SOUND','Pause Menu box • M • Y/Triangle'],
             ['PAUSE / MENU','Hold joystick • Tap boxes • P/Start'],
             ['TOUCH / FULLSCREEN','Auto-hides with controller • Fullscreen box'],
             ['RESET / DIFFICULTY','Reset • R • Back/Share • Hold Reset']
@@ -6043,7 +6067,7 @@ if (flashTimer > 0) {
         ]:pauseControllerIndex===1?[
           'Cross: Fire / Select','Circle: Change Weapon','Square: Missiles','Triangle: Sound','Options: Pause • Hold Fullscreen','Share: Reset','Sticks / D-Pad: Steer'
         ]:[
-          'Space / Enter: Fire / Select','Left Alt: Missiles','B: Change Weapon','Arrow Keys / WASD: Steer','P: Pause / Resume','M: Sound • R: Reset Game'
+          'Space / Enter: Fire / Select','Left Alt: Missiles','B: Change Weapon','Arrow Keys / WASD: Steer','P: Pause / Resume','M: Cycle Sound • R: Reset Game'
         ];
         ctx.fillStyle='rgba(228,228,255,.9)';ctx.font=`${compact?16:12}px Share Tech Mono`;
         const cols=compact?1:2;
