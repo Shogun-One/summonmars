@@ -2898,7 +2898,7 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
       'ship-emerald':'images/asteroids/ship-emerald.png',
       'ship-cobalt':'images/asteroids/ship-cobalt.png',
       'ship-manta':'images/asteroids/ship-manta.png',
-      'ship-dogbus':'images/asteroids/ship-dogbus-topview.png',
+      'ship-dogbus':'images/asteroids/ship-dogbus-megahead.png',
       'ship-phoenix':'images/asteroids/ship-phoenix.png'
     };
     const detailedShipImgs={};
@@ -6742,7 +6742,7 @@ if (flashTimer > 0) {
 
     function drawDefeatedPilot(){
       const source=pilotPortraitSource();
-      const size=Math.min(width<600?78:96,height*.18);
+      const size=2*Math.min(width<600?78:96,height*.18);
       const x=width/2,y=Math.max(size*.62,height*.18);
       ctx.save();
       ctx.beginPath();ctx.arc(x,y,size/2,0,Math.PI*2);ctx.clip();
