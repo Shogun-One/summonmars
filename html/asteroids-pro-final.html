@@ -1579,7 +1579,7 @@ body.touchpad-off .control-deck .mobile-touchpad{ display:none !important; }
   }
   .wrapper{
     /* One outer console frame governs HUD, arena, and deck together. */
-    --mobile-console-width:min(480px, calc(100vw - 12px), max(300px, calc((100dvh - 260px) * .75)));
+    --mobile-console-width:min(480px, calc(100vw - 8px));
     --mobile-deck-height:clamp(158px, 52vw, 200px);
     --mobile-big-control:clamp(76px, 25vw, 96px);
     --mobile-small-control:clamp(46px, 16vw, 60px);
@@ -1635,9 +1635,36 @@ body.touchpad-off .control-deck .mobile-touchpad{ display:none !important; }
   body.controller-connected .control-deck .mobile-touchpad{
     display:none !important;
   }
-  .touchpad-plate.pause-hold{
-    border-color:rgba(125,255,188,.95);
-    box-shadow:0 0 18px rgba(125,255,188,.75), inset 0 0 24px rgba(125,255,188,.16);
+  .mobile-pause-stamp{
+    display:grid;
+    place-items:center;
+    position:absolute;
+    z-index:28;
+    left:calc(50% - (var(--mobile-touchpad) / 2) - clamp(48px,14vw,56px) - 10px);
+    top:clamp(34px,10vw,48px);
+    width:clamp(48px,14vw,56px);
+    height:clamp(48px,14vw,56px);
+    padding:0;
+    border:2px solid rgba(255,138,192,.72);
+    border-radius:50%;
+    color:#fff0fa;
+    background:radial-gradient(circle at 36% 30%,#7e315f 0 10%,#281025 48%,#08050c 76%);
+    box-shadow:0 0 16px rgba(255,59,130,.45),inset 0 0 13px rgba(255,255,255,.12);
+    font:900 clamp(9px,2.7vw,12px) 'Orbitron',system-ui;
+    letter-spacing:.04em;
+    text-shadow:0 0 7px rgba(255,138,192,.8);
+    touch-action:manipulation;
+  }
+  body.controller-connected .mobile-pause-stamp,
+  body.game-paused .mobile-pause-stamp{ display:none !important; }
+  @media (max-width:520px){
+    .mobile-pause-stamp{
+      left:calc(50% - (var(--mobile-touchpad) / 2) - 18px);
+      top:clamp(38px,11vw,48px);
+      width:42px;
+      height:42px;
+      font-size:8px;
+    }
   }
   body.game-paused .control-deck .bubble-btn,
   body.game-paused .control-deck .missile-reserve{
@@ -1674,6 +1701,20 @@ body.game-paused .control-deck .touchpad-plate{
 
 /* Wide screens get a genuinely larger playfield, not a stretched portrait
    canvas. Height remains reserved for the HUD and physical control deck. */
+@media (min-width:600px) and (max-width:900px){
+  .wrapper{ width:calc(100vw - 8px); }
+  .hud{ max-width:760px; }
+  .game-shell{ max-width:760px; }
+  canvas#game{
+    width:calc(100vw - 8px);
+    max-width:760px;
+    height:clamp(400px, calc(100dvh - 260px), 640px);
+    max-height:640px;
+    aspect-ratio:auto;
+  }
+  .control-deck{ max-width:720px; }
+}
+
 @media (min-width:901px){
   .wrapper{
     width:min(1800px, 100%);
@@ -1685,14 +1726,16 @@ body.game-paused .control-deck .touchpad-plate{
   canvas#game{
     /* Fill the usable desktop area. The 3× height limit prevents an
        impractically thin arena on very wide or short displays. */
-    width:min(calc(100vw - 32px), calc((100dvh - 345px) * 3), 1800px);
+    width:min(calc(100vw - 24px), calc((100dvh - 270px) * 3), 1800px);
     max-width:1800px;
-    height:clamp(300px, calc(100dvh - 345px), 680px);
-    max-height:680px;
+    height:clamp(340px, calc(100dvh - 270px), 760px);
+    max-height:760px;
     aspect-ratio:auto;
   }
   .control-deck{ max-width:720px; }
 }
+
+@media (min-width:901px){ .mobile-pause-stamp{ display:none !important; } }
 
 /* Instruction/legal text is part of the pause presentation only. */
 .controls,
@@ -1829,6 +1872,7 @@ html.preview-locked,html.preview-locked body{overflow:hidden!important}.preview-
                 <div class="joystick-knob stick" aria-hidden="true"></div>
               </div>
             </div>
+      <button id="mobilePauseBtn" class="mobile-pause-stamp" type="button" aria-label="Pause game">PAUSE</button>
 
       <button id="musicBtn" class="bubble-btn music-btn" type="button"
               aria-label="Weapon Change Status" title="Collect a special weapon to enable">
@@ -2041,10 +2085,10 @@ document.querySelectorAll('img[data-asset]').forEach((img) => {
     // Game
     // =========================
     const canvas = document.getElementById('game');
-    let wideArena = window.matchMedia('(min-width:901px)').matches;
+    let wideArena = window.matchMedia('(min-width:600px)').matches;
     if(wideArena){
-      const initialArenaHeight = Math.min(680, Math.max(300, window.innerHeight - 345));
-      const initialArenaWidth = Math.min(window.innerWidth - 32, initialArenaHeight * 3, 1800);
+      const initialArenaHeight = Math.min(760, Math.max(340, window.innerHeight - 270));
+      const initialArenaWidth = Math.min(window.innerWidth - 24, initialArenaHeight * 3, 1800);
       canvas.height = 500;
       canvas.width = Math.round(500 * initialArenaWidth / initialArenaHeight);
     }else{
@@ -2078,6 +2122,7 @@ document.querySelectorAll('img[data-asset]').forEach((img) => {
     const gameAlertEl = document.getElementById('gameAlert');
     const joystickEl = document.getElementById('joystick');
     const stickEl = joystickEl ? joystickEl.querySelector('.stick') : null;
+    const mobilePauseBtn = document.getElementById('mobilePauseBtn');
 
     let width = canvas.width;
     let height = canvas.height;
@@ -2630,7 +2675,7 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
     let lastMissileReserveAmmo = 0;
 
     function resizeGameArenaForViewport(){
-      const shouldBeWide = window.matchMedia('(min-width:901px)').matches;
+      const shouldBeWide = window.matchMedia('(min-width:600px)').matches;
       const displayRect = canvas.getBoundingClientRect();
       const targetHeight = shouldBeWide ? 500 : 640;
       const displayRatio = displayRect.height > 0 ? displayRect.width / displayRect.height : 1.92;
@@ -3970,24 +4015,12 @@ function updateBosses(dt){
     };
 
     // =========================
-// Joystick controls (MOVABLE + TAP TO PAUSE)
+// Joystick controls
 // =========================
 let joyActive = false;
 let joyVec = { x: 0, y: 0 };
 const DEADZONE = 0.08;
-
-// Deliberate stationary hold pauses/resumes without stealing steering taps.
-let joyTapStartT = 0;
-let joyTapStartX = 0;
-let joyTapStartY = 0;
 let joyDidMove = false;
-let joyPauseTimer = 0;
-const JOY_PAUSE_HOLD_MS = 650;
-
-function cancelJoyPauseHold(){
-  if(joyPauseTimer){ clearTimeout(joyPauseTimer); joyPauseTimer=0; }
-  joystickEl?.classList.remove('pause-hold');
-}
 
 // movable base position
 let joyBaseX = 0;
@@ -4077,7 +4110,7 @@ if(joystickEl){
   joystickEl.style.touchAction = 'none';
 }
 
-// Pointer events: tap to pause, drag to move
+// Pointer events: drag to steer and hold to fire. Pause has its own stamp.
 joystickEl?.addEventListener('pointerdown', (e) => {
   e.preventDefault();
   e.stopPropagation();
@@ -4093,23 +4126,7 @@ joystickEl?.addEventListener('pointerdown', (e) => {
     shootCooldown = shootDelay;
   }
 
-  joyTapStartT = performance.now();
-  joyTapStartX = e.clientX;
-  joyTapStartY = e.clientY;
   joyDidMove = false;
-
-  cancelJoyPauseHold();
-  joystickEl.classList.add('pause-hold');
-  joyPauseTimer=setTimeout(()=>{
-    joyPauseTimer=0;
-    joystickEl.classList.remove('pause-hold');
-    if(!joyDidMove && !gameOver){
-      mobileFireHeld = false;
-      resetJoy();
-      setPaused(!paused);
-      try{ navigator.vibrate?.(25); }catch{}
-    }
-  },JOY_PAUSE_HOLD_MS);
 
   joyFromEvent(e);
   if(Math.hypot(joyVec.x, joyVec.y) > DEADZONE) startDefaultSound();
@@ -4120,12 +4137,8 @@ joystickEl?.addEventListener('pointermove', (e) => {
   e.preventDefault();
   e.stopPropagation();
 
-  const moved = Math.hypot(e.clientX - joyTapStartX, e.clientY - joyTapStartY);
-  if(moved > 10){
-    joyDidMove = true;
-    cancelJoyPauseHold();
-    startDefaultSound();
-  }
+  joyDidMove = true;
+  startDefaultSound();
 
   joyFromEvent(e);
 }, { passive:false });
@@ -4134,7 +4147,6 @@ joystickEl?.addEventListener('pointerup', (e) => {
   e.preventDefault();
   e.stopPropagation();
 
-  cancelJoyPauseHold();
   mobileFireHeld = false;
   resetJoy();
 }, { passive:false });
@@ -4142,14 +4154,23 @@ joystickEl?.addEventListener('pointerup', (e) => {
 joystickEl?.addEventListener('pointercancel', (e) => {
   e.preventDefault();
   e.stopPropagation();
-  cancelJoyPauseHold();
   mobileFireHeld = false;
   resetJoy();
 }, { passive:false });
 
-joystickEl?.addEventListener('lostpointercapture', () => { cancelJoyPauseHold(); mobileFireHeld=false; resetJoy(); });
-window.addEventListener('blur', () => { cancelJoyPauseHold(); mobileFireHeld=false; resetJoy(); });
-document.addEventListener('visibilitychange', () => { if(document.hidden){ cancelJoyPauseHold(); mobileFireHeld=false; resetJoy(); }
+joystickEl?.addEventListener('lostpointercapture', () => { mobileFireHeld=false; resetJoy(); });
+window.addEventListener('blur', () => { mobileFireHeld=false; resetJoy(); });
+document.addEventListener('visibilitychange', () => { if(document.hidden){ mobileFireHeld=false; resetJoy(); }
+});
+
+mobilePauseBtn?.addEventListener('click', (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+  if(gameOver) return;
+  mobileFireHeld = false;
+  resetJoy();
+  setPaused(true);
+  try{ navigator.vibrate?.(25); }catch{}
 });
 
 
@@ -6072,7 +6093,7 @@ if (flashTimer > 0) {
           ['MISSILES','Top-left stamp • Left Alt • X / Square'],
           ['CHANGE WEAPON','Tap bottom-right stamp • B / Circle'],
           ['SOUND','Pause Menu sound box • M • Y / Triangle'],
-          ['PAUSE / MENU','Hold joystick 0.65 sec • Tap menu boxes • P / Start'],
+          ['PAUSE / MENU','Tap PAUSE stamp • Tap menu boxes • P / Start'],
           ['TOUCH / FULLSCREEN','Touch controls hide with gamepad • Fullscreen box'],
           ['RESET / DIFFICULTY','Pause Menu boxes • R for reset']
         ]:[
@@ -6081,7 +6102,7 @@ if (flashTimer > 0) {
           ['MISSILES','Top-left stamp • Left Alt • X / Square'],
           ['CHANGE WEAPON','Tap bottom-right stamp • B / Circle'],
           ['SOUND','Pause Menu sound box • M • Y / Triangle'],
-          ['PAUSE / MENU','Hold joystick 0.65 sec • Tap menu boxes • P / Start'],
+          ['PAUSE / MENU','Tap PAUSE stamp • Tap menu boxes • P / Start'],
           ['TOUCH / FULLSCREEN','Touch controls auto-hide with gamepad • Fullscreen box'],
           ['RESET / DIFFICULTY','Pause Menu boxes • R for reset']
         ];
@@ -6100,7 +6121,7 @@ if (flashTimer > 0) {
             ['MISSILES','Top-left stamp • Left Alt • X/Square'],
             ['CHANGE WEAPON','Bottom-right stamp • B/Circle'],
             ['SOUND','Pause Menu box • M • Y/Triangle'],
-            ['PAUSE / MENU','Hold joystick • Tap boxes • P/Start'],
+            ['PAUSE / MENU','PAUSE stamp • Tap boxes • P/Start'],
             ['TOUCH / FULLSCREEN','Auto-hides with controller • Fullscreen box'],
             ['RESET / DIFFICULTY','Pause Menu boxes • R for reset']
           ];
