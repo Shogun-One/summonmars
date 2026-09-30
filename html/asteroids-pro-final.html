@@ -1750,7 +1750,7 @@ html.preview-locked, html.preview-locked body{ overflow:hidden !important; }
             </button>
 
       <button id="reset-btn" class="bubble-btn restart-btn" type="button"
-              aria-label="Fire" title="Hold to Fire">
+              aria-label="Reset Game" title="Reset Game">
               <span class="ring flip" aria-hidden="true">
                 <span class="face stamp">
                   <img class="stamp-img" data-asset="images/asteroids/reset-stamp.png" alt="">
@@ -1769,7 +1769,7 @@ html.preview-locked, html.preview-locked body{ overflow:hidden !important; }
             </div>
 
       <button id="musicBtn" class="bubble-btn music-btn" type="button"
-              aria-label="Touchscreen Controls On/Off" title="Touchscreen Controls On/Off">
+              aria-label="Sound On/Off" title="Sound On/Off">
               <span class="ring flip" aria-hidden="true">
                 <span class="face stamp">
                   <img class="stamp-img" data-asset="images/asteroids/sound-stamp.png" alt="">
@@ -1780,7 +1780,7 @@ html.preview-locked, html.preview-locked body{ overflow:hidden !important; }
             </button>
 
       <button id="heatBtn" class="bubble-btn heat-btn" type="button"
-              aria-label="Sound On/Off" title="Sound On/Off">
+              aria-label="Touchscreen Controls On/Off" title="Touchscreen Controls On/Off">
               <span class="ring flip" aria-hidden="true">
                 <span class="face stamp">
                   <img class="stamp-img" data-asset="images/asteroids/extra-lives-stamp.png" alt="Get 1-UPs">
@@ -2055,8 +2055,8 @@ document.querySelectorAll('img[data-asset]').forEach((img) => {
     let musicOn = true;
     let defaultSoundStarted = false;
     function setMusicUI(on){
-  heatBtn.classList.toggle('on', on);
-  heatBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+  musicBtn.classList.toggle('on', on);
+  musicBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
   try{ document.body.classList.toggle('music-on', on); }catch{}
 }
 
@@ -2243,7 +2243,7 @@ function positionMissileReserve(){
 
 function showDeckHints(ms = 1500){
   showHint(hintLeft,  'Hold: Fire | Top Left: Missiles', ms);
-  showHint(hintRight, 'Touchscreen On/Off | Top Right: Sound', ms);
+  showHint(hintRight, 'Sound stamp: Sound | Get 1-UPs: Touch controls', ms);
   positionDeckHints();
 }
 
@@ -2253,24 +2253,25 @@ window.addEventListener('resize', () => {
   positionMissileReserve();
 });
 
-// Top-right deck button is sound-only.
+// The Get 1-UPs stamp currently toggles touchscreen steering visibility.
 heatBtn.addEventListener('contextmenu', event => event.preventDefault());
 heatBtn.addEventListener('click', (event) => {
   event.preventDefault();
-  toggleMusic();
+  toggleTouchscreenControls();
 });
 
 
     // Bottom-right deck button: show/hide the touchscreen steering pad.
     function toggleTouchscreenControls(){
       const isOff = document.body.classList.toggle('touchpad-off');
-      musicBtn.classList.toggle('on', isOff);
-      musicBtn.setAttribute('aria-pressed', isOff ? 'true' : 'false');
+      heatBtn.classList.toggle('on', isOff);
+      heatBtn.setAttribute('aria-pressed', isOff ? 'true' : 'false');
     }
 
+    // The visible SOUND stamp controls all game audio.
     musicBtn.addEventListener('click', (e) => {
       e.preventDefault();
-      toggleTouchscreenControls();
+      toggleMusic();
     });
 
 async function toggleMusic(){
@@ -2454,27 +2455,28 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
       softRestart();
     }
 
-    // Bottom-left deck button: press or hold to fire regular ammunition.
-    let deckFireHeld = false;
-    resetBtn.addEventListener('pointerdown', (e) => {
+    // Clickable stamps follow their visible labels. Physical gamepad fire
+    // remains mapped independently to A / Cross.
+    resetBtn.addEventListener('click', (e) => {
       e.preventDefault();
-      if(gameOver){
-        confirmGameOverChoice();
-        return;
-      }
-      if(paused){
-        pauseMenuSelect();
-        return;
-      }
-      deckFireHeld = true;
+      softRestart();
+      showGameAlert('NEW GAME', 'sound-on');
+    });
+
+    // Mouse users can click or hold inside the playfield to fire.
+    let mouseFireHeld = false;
+    canvas.addEventListener('pointerdown', (e) => {
+      if(e.pointerType !== 'mouse' || gameOver || paused) return;
+      e.preventDefault();
+      mouseFireHeld = true;
       shoot();
       shootCooldown = shootDelay;
     });
-
-    ['pointerup','pointercancel','pointerleave'].forEach(ev => {
-      resetBtn.addEventListener(ev, () => {
-        deckFireHeld = false;
-      });
+    window.addEventListener('pointerup', (e) => {
+      if(e.pointerType === 'mouse') mouseFireHeld = false;
+    });
+    canvas.addEventListener('pointerleave', (e) => {
+      if(e.pointerType === 'mouse') mouseFireHeld = false;
     });
 
     // Game state
@@ -3489,6 +3491,14 @@ function updateBosses(dt){
         e.preventDefault();
         if(!e.repeat) cycleCollectedWeapon();
       }
+      if(e.key === 'm' || e.key === 'M'){
+        e.preventDefault();
+        if(!e.repeat) toggleMusic();
+      }
+      if(e.key === 'r' || e.key === 'R'){
+        e.preventDefault();
+        if(!e.repeat) softRestart();
+      }
       if(e.key === 'p' || e.key === 'P'){
         e.preventDefault();
         if(!gameOver) setPaused(!paused);
@@ -4337,10 +4347,11 @@ document.addEventListener('visibilitychange', () => { if(document.hidden) resetJ
 
       shootCooldown -= dt;
       const regularFireHeld =
-        deckFireHeld ||
+        mouseFireHeld ||
         keysDown[' '] ||
         keysDown['Space'] ||
         keysDown['Spacebar'] ||
+        keysDown['Enter'] ||
         gamepadState.fire;
       if(shootCooldown <= 0 && regularFireHeld){
         shoot();
@@ -5760,19 +5771,19 @@ if (flashTimer > 0) {
           ['FIRE / SELECT','Fire stamp • Space / Enter • A / Cross'],
           ['MISSILES','Missile icon • Left Alt • X / Square'],
           ['CHANGE WEAPON','B / Circle'],
-          ['SOUND','Sound stamp • Y / Triangle'],
+          ['SOUND','Sound stamp • M • Y / Triangle'],
           ['PAUSE / RESUME','P • Start / Options'],
           ['FULLSCREEN','Hold Start / Options'],
-          ['RESET / DIFFICULTY','Reset • Back / Share • Hold Reset for difficulty']
+          ['RESET / DIFFICULTY','Reset stamp • R • Back / Share • Hold Reset for difficulty']
         ]:[
           ['STEER / THRUST','Touchpad • Arrow Keys • WASD • Either Stick • D-Pad'],
           ['FIRE / SELECT','Fire stamp • Space / Enter • A / Cross'],
           ['MISSILES','Missile icon • Left Alt • X / Square'],
           ['CHANGE WEAPON','B / Circle'],
-          ['SOUND','Sound stamp • Y / Triangle'],
+          ['SOUND','Sound stamp • M • Y / Triangle'],
           ['PAUSE / RESUME','P • Start / Options'],
           ['FULLSCREEN','Hold Start / Options'],
-          ['RESET / DIFFICULTY','Reset control • Back / Share • Hold Reset for difficulty']
+          ['RESET / DIFFICULTY','Reset stamp • R • Back / Share • Hold Reset for difficulty']
         ];
         ctx.textAlign='left';
         const left=compact?22:Math.max(70,width*.16),startY=compact?82:100,lineH=compact?55:48;
@@ -5796,7 +5807,7 @@ if (flashTimer > 0) {
         ]:pauseControllerIndex===1?[
           'Cross: Fire / Select','Circle: Change Weapon','Square: Missiles','Triangle: Sound','Options: Pause • Hold Fullscreen','Share: Reset','Sticks / D-Pad: Steer'
         ]:[
-          'Space / Enter: Fire / Select','Left Alt: Missiles','B: Change Weapon','Arrow Keys / WASD: Steer','P: Pause / Resume','Reset and Sound: Use screen stamps'
+          'Space / Enter: Fire / Select','Left Alt: Missiles','B: Change Weapon','Arrow Keys / WASD: Steer','P: Pause / Resume','M: Sound • R: Reset Game'
         ];
         ctx.fillStyle='rgba(228,228,255,.9)';ctx.font=`${compact?16:12}px Share Tech Mono`;
         const cols=compact?1:2;
