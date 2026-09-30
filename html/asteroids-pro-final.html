@@ -313,12 +313,9 @@
       box-shadow:0 0 12px rgba(255,40,40,.55), inset 0 0 12px rgba(255,80,60,.14);
       font:900 .78rem 'Share Tech Mono', ui-monospace, monospace;
       text-shadow:0 0 8px rgba(255,90,70,.8);
-      cursor:pointer;
-      touch-action:manipulation;
+      pointer-events:none;
     }
     .missile-reserve.active{ display:grid; place-items:center; }
-    .missile-reserve:hover{ filter:brightness(1.15); }
-    .missile-reserve:active{ scale:.92; }
     .missile-reserve.collected{ animation:missileReservePop .48s ease-out; }
     .missile-reserve-icon{ display:block; font-size:1.45rem; line-height:1; filter:drop-shadow(0 0 6px #ff3b30); }
     .missile-reserve-count{ display:block; margin-top:2px; }
@@ -327,6 +324,24 @@
       55%{ transform:scale(1.18); opacity:1; }
       100%{ transform:scale(1); opacity:1; }
     }
+
+    .weapon-status-overlay{
+      display:none;
+      position:absolute;
+      z-index:25;
+      overflow:hidden;
+      place-items:center;
+      border:1px solid rgba(118,242,255,.9);
+      border-radius:50%;
+      color:#f5fdff;
+      background:radial-gradient(circle at 35% 28%,rgba(60,210,255,.34),rgba(8,3,18,.97) 66%);
+      box-shadow:0 0 14px rgba(52,215,255,.55),inset 0 0 14px rgba(255,255,255,.1);
+      pointer-events:none;
+      text-align:center;
+    }
+    .weapon-status-overlay.active{display:grid}
+    .weapon-status-overlay img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.42}
+    .weapon-status-overlay span{position:relative;z-index:1;padding:2px;font:900 clamp(.52rem,1.8vw,.72rem)/1 'Share Tech Mono',monospace;text-shadow:0 0 7px #000,0 0 10px #41dcff}
 
     /* ✅ put it OUTSIDE the canvas block */
 body.music-on canvas#game{
@@ -1565,7 +1580,7 @@ body.touchpad-off .control-deck .mobile-touchpad{ display:none !important; }
     --mobile-deck-height:clamp(158px, 52vw, 200px);
     --mobile-big-control:clamp(76px, 25vw, 96px);
     --mobile-small-control:clamp(46px, 16vw, 60px);
-    --mobile-touchpad:clamp(116px, 40vw, 150px);
+    --mobile-touchpad:clamp(104px, 34vw, 132px);
     width:var(--mobile-console-width);
     max-height:none;
     padding-left:0;
@@ -1610,6 +1625,9 @@ body.touchpad-off .control-deck .mobile-touchpad{ display:none !important; }
   .control-deck .touchpad-plate{
     width:var(--mobile-touchpad);
     height:var(--mobile-touchpad);
+  }
+  .control-deck .mobile-touchpad{
+    transform:translateY(16px) !important;
   }
   body.controller-connected .control-deck .mobile-touchpad{
     display:none !important;
@@ -1766,13 +1784,18 @@ html.preview-locked,html.preview-locked body{overflow:hidden!important}.preview-
       <div id="gameAlert" class="game-alert" role="status" aria-live="polite"></div>
     </div>
     <div class="control-deck" aria-label="Controls">
-      <button id="missileReserve" class="missile-reserve" type="button"
-              aria-label="Launch missile, 0 remaining" aria-hidden="true" title="Launch missile">
+      <div id="missileReserve" class="missile-reserve" role="status"
+              aria-label="0 missiles remaining" aria-hidden="true">
         <span>
           <span class="missile-reserve-icon" aria-hidden="true">🚀</span>
           <span class="missile-reserve-count">×<span id="missileReserveCount">0</span></span>
         </span>
-      </button>
+      </div>
+      <div id="weaponStatusOverlay" class="weapon-status-overlay" role="status"
+           aria-label="Selected weapon" aria-hidden="true">
+        <img data-asset="images/asteroids/firepower-up.png" alt="">
+        <span id="weaponStatusLabel">STANDARD</span>
+      </div>
       <div id="hint-left" class="neon-hover-hint">Hold: Fire | Top Left: Missiles</div>
       <div id="hint-right" class="neon-hover-hint">Touchscreen On/Off | Top Right: Sound</div>
       <div id="hint-sound-start" class="neon-hover-hint hint-start">Tap Here for Sound</div>
@@ -2047,6 +2070,8 @@ document.querySelectorAll('img[data-asset]').forEach((img) => {
     const missileAmmoEl = document.getElementById('missileAmmo');
     const missileReserveEl = document.getElementById('missileReserve');
     const missileReserveCountEl = document.getElementById('missileReserveCount');
+    const weaponStatusOverlayEl = document.getElementById('weaponStatusOverlay');
+    const weaponStatusLabelEl = document.getElementById('weaponStatusLabel');
     const gameAlertEl = document.getElementById('gameAlert');
     const joystickEl = document.getElementById('joystick');
     const stickEl = joystickEl ? joystickEl.querySelector('.stick') : null;
@@ -2270,27 +2295,21 @@ function positionMissileReserve(){
     const deck = joystickEl.closest('.control-deck');
     if(!deck) return;
     const deckRect = deck.getBoundingClientRect();
-    const padRect = joystickEl.getBoundingClientRect();
-    const size = 64;
-    // A connected controller hides the virtual joystick, so give the missile
-    // reserve an independent centered anchor in that state.
-    if(document.body.classList.contains('controller-connected')){
-      // Keep the missile control centered between the speaker stacks.
-      missileReserveEl.style.left = `${Math.max(4, (deckRect.width - size) / 2)}px`;
-      missileReserveEl.style.top = `${Math.max(4, deckRect.height - size - 8)}px`;
-    }else{
-      const anchorLeft = padRect.left - deckRect.left;
-      const anchorTop = padRect.top - deckRect.top;
-      // On touch layouts it rides on the joystick's upper-right edge, clear
-      // of both speaker stacks and easy to reach with the other thumb.
-      missileReserveEl.style.left = `${Math.min(deckRect.width - size - 4, anchorLeft + padRect.width - size + 8)}px`;
-      missileReserveEl.style.top = `${Math.max(4, anchorTop + (padRect.height - size) / 2)}px`;
-    }
+    const resetRect = resetBtn.getBoundingClientRect();
+    const soundRect = musicBtn.getBoundingClientRect();
+    const placeOver = (overlay, targetRect) => {
+      overlay.style.left = `${targetRect.left - deckRect.left}px`;
+      overlay.style.top = `${targetRect.top - deckRect.top}px`;
+      overlay.style.width = `${targetRect.width}px`;
+      overlay.style.height = `${targetRect.height}px`;
+    };
+    placeOver(missileReserveEl, resetRect);
+    placeOver(weaponStatusOverlayEl, soundRect);
   }catch{}
 }
 
 function showDeckHints(ms = 1500){
-  showHint(hintLeft,  'Hold: Fire | Top Left: Missiles', ms);
+  showHint(hintLeft,  'Joystick: Steer + Fire | Top Left: Missiles', ms);
   showHint(hintRight, 'Sound stamp: Sound | Get 1-UPs: Touch controls', ms);
   positionDeckHints();
 }
@@ -2668,6 +2687,16 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
       return 'STANDARD FIRE';
     }
 
+    function updateWeaponStatusOverlay(){
+      const hasSpecialWeapon = weaponLevels.cross > 0 || weaponLevels.back > 0 || weaponLevels.dog > 0;
+      const shortNames = { single:'STANDARD', cross:'4-WAY', back:'EYES BACK', dog:'DOG MODE' };
+      weaponStatusLabelEl.textContent = shortNames[weaponMode] || 'STANDARD';
+      weaponStatusOverlayEl.classList.toggle('active', hasSpecialWeapon);
+      weaponStatusOverlayEl.setAttribute('aria-hidden', hasSpecialWeapon ? 'false' : 'true');
+      weaponStatusOverlayEl.setAttribute('aria-label', `Selected weapon: ${weaponDisplayName(weaponMode)}`);
+      if(hasSpecialWeapon) positionMissileReserve();
+    }
+
     function collectWeaponPickup(mode){
       // Legacy "dual" drops now enhance the standard Single → Double → Quad path.
       if(mode === 'dual' || mode === 'single') mode = 'standard';
@@ -2684,6 +2713,7 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
         awardScore(85); // 15 pickup points above + 85 = 100-point duplicate bonus
         showGameAlert(weaponDisplayName(mode) + ' BONUS +100', 'sound-on');
       }
+      updateWeaponStatusOverlay();
     }
 
     function loseWeaponEnhancements(){
@@ -2695,6 +2725,7 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
       }
       // Always confirm the death penalty so it cannot silently pass unnoticed.
       showGameAlert('WEAPON ENHANCEMENTS LOST', 'sound-off');
+      updateWeaponStatusOverlay();
     }
 
     function cycleCollectedWeapon(){
@@ -2706,6 +2737,7 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
       const currentIndex = Math.max(0, available.indexOf(weaponMode));
       weaponMode = available[(currentIndex + 1) % available.length];
       showGameAlert(weaponDisplayName(weaponMode), 'sound-on');
+      updateWeaponStatusOverlay();
     }
 
     let score = 0;
@@ -3362,6 +3394,7 @@ function updateBosses(dt){
 
       setWeaponMode("single");
       for(const mode of Object.keys(weaponLevels)) weaponLevels[mode] = 0;
+      updateWeaponStatusOverlay();
 
       const d = difficulty();
       for(let i=0;i<d.asteroidTarget;i++) spawnAsteroid(false);
@@ -3571,12 +3604,6 @@ function updateBosses(dt){
     }
 
     pauseBtn.addEventListener('pointerdown', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      launchMissile();
-    });
-
-    missileReserveEl.addEventListener('click', (e) => {
       e.preventDefault();
       e.stopPropagation();
       launchMissile();
@@ -4076,7 +4103,7 @@ document.addEventListener('visibilitychange', () => { if(document.hidden){ cance
       missileReserveCountEl.textContent = String(missileAmmo);
       missileReserveEl.classList.toggle('active', missileAmmo > 0);
       missileReserveEl.setAttribute('aria-hidden', missileAmmo > 0 ? 'false' : 'true');
-      missileReserveEl.setAttribute('aria-label', `Launch missile, ${missileAmmo} remaining`);
+      missileReserveEl.setAttribute('aria-label', `${missileAmmo} missiles remaining`);
       if(missileAmmo > 0) positionMissileReserve();
       if(missileAmmo > lastMissileReserveAmmo){
         missileReserveEl.classList.remove('collected');
@@ -5945,8 +5972,8 @@ if (flashTimer > 0) {
         const lines=compact?[
           ['STEER / THRUST','Drag virtual joystick • Arrows / WASD • Stick / D-Pad'],
           ['FIRE / SELECT','Touch joystick • Space / Enter • A / Cross'],
-          ['MISSILES','Missile icon • Left Alt • X / Square'],
-          ['CHANGE WEAPON','B / Circle'],
+          ['MISSILES','Top-left stamp • Left Alt • X / Square'],
+          ['CHANGE WEAPON','B / Circle • Status shown bottom-right'],
           ['SOUND','Sound stamp • M • Y / Triangle'],
           ['PAUSE / MENU','Hold joystick 0.65 sec • Tap menu boxes • P / Start'],
           ['TOUCH / FULLSCREEN','Touch controls hide with gamepad • Fullscreen box'],
@@ -5954,8 +5981,8 @@ if (flashTimer > 0) {
         ]:[
           ['STEER / THRUST','Drag virtual joystick • Arrow Keys • WASD • Either Stick • D-Pad'],
           ['FIRE / SELECT','Touch joystick • Space / Enter • A / Cross'],
-          ['MISSILES','Missile icon • Left Alt • X / Square'],
-          ['CHANGE WEAPON','B / Circle'],
+          ['MISSILES','Top-left stamp • Left Alt • X / Square'],
+          ['CHANGE WEAPON','B / Circle • Status shown bottom-right'],
           ['SOUND','Sound stamp • M • Y / Triangle'],
           ['PAUSE / MENU','Hold joystick 0.65 sec • Tap menu boxes • P / Start'],
           ['TOUCH / FULLSCREEN','Touch controls auto-hide with gamepad • Fullscreen box'],
@@ -5973,8 +6000,8 @@ if (flashTimer > 0) {
           const shortLines=[
             ['STEER / THRUST','Virtual joystick • Arrows/WASD • Stick/D-Pad'],
             ['FIRE / SELECT','Touch joystick • Space/Enter • A/Cross'],
-            ['MISSILES','Missile icon • Left Alt • X/Square'],
-            ['CHANGE WEAPON','B/Circle'],
+            ['MISSILES','Top-left stamp • Left Alt • X/Square'],
+            ['CHANGE WEAPON','B/Circle • Bottom-right status'],
             ['SOUND','Sound stamp • M • Y/Triangle'],
             ['PAUSE / MENU','Hold joystick • Tap boxes • P/Start'],
             ['TOUCH / FULLSCREEN','Auto-hides with controller • Fullscreen box'],
