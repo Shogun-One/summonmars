@@ -204,7 +204,7 @@
       margin-top:.15rem;
 
       display:grid;
-      grid-template-columns: repeat(7, minmax(0, 1fr));
+      grid-template-columns: repeat(3,minmax(0,1fr)) minmax(0,.9fr) repeat(3,minmax(0,.65fr));
       grid-template-areas:
         "score score best best toNext toNext toNext"
         "hits hits hits lives bossKills bossKills bossKills";
@@ -251,7 +251,7 @@
     }
     .hud .ship-health-bar{
       display:inline-block;
-      width:clamp(38px,10vw,48px);
+      width:clamp(52px,13vw,66px);
       height:7px;
       margin-left:5px;
       overflow:hidden;
@@ -272,7 +272,7 @@
 
     @media (max-width:520px){
       .hud{
-        grid-template-columns: repeat(7, minmax(0, 1fr));
+        grid-template-columns: repeat(3,minmax(0,1fr)) minmax(0,.9fr) repeat(3,minmax(0,.65fr));
         grid-template-areas:
           "score score best best toNext toNext toNext"
           "hits hits hits lives bossKills bossKills bossKills";
