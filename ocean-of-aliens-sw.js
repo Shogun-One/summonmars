@@ -1,10 +1,10 @@
-const CACHE_NAME = 'ocean-of-aliens-shell-v4';
+const CACHE_NAME = 'ocean-of-aliens-shell-v5';
 const APP_SHELL = [
-  '/html/asteroids-pro-final.html',
-  '/asteroid-drift.webmanifest',
-  '/images/asteroids/app-icon-192.png',
-  '/images/asteroids/app-icon-512.png',
-  '/images/asteroids/asteroid-drift-splash.webp'
+  '/oceanofaliens.html',
+  '/ocean-of-aliens.webmanifest',
+  '/images/ocean-of-aliens/app-icon-192.png',
+  '/images/ocean-of-aliens/app-icon-512.png',
+  '/images/ocean-of-aliens/ocean-of-aliens-splash.webp'
 ];
 
 self.addEventListener('install', event => {
@@ -38,7 +38,7 @@ self.addEventListener('fetch', event => {
       return response;
     }).catch(() => caches.match(request).then(cached => {
       if(cached) return cached;
-      if(request.mode === 'navigate') return caches.match('/html/asteroids-pro-final.html');
+      if(request.mode === 'navigate') return caches.match('/oceanofaliens.html');
       return Response.error();
     }))
   );

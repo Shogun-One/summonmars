@@ -12,9 +12,9 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Ocean of Aliens" />
-  <link rel="manifest" href="/asteroid-drift.webmanifest" />
-  <link rel="apple-touch-icon" href="/images/asteroids/app-icon-192.png" />
-  <link rel="preload" as="image" type="image/webp" href="/images/asteroids/asteroid-drift-splash.webp" />
+  <link rel="manifest" href="/ocean-of-aliens.webmanifest" />
+  <link rel="apple-touch-icon" href="/images/ocean-of-aliens/app-icon-192.png" />
+  <link rel="preload" as="image" type="image/webp" href="/images/ocean-of-aliens/ocean-of-aliens-splash.webp" />
   <script src="https://cdn.busuanzi.cc/busuanzi/3.6.9/busuanzi.min.js" defer></script>
 
   <!-- Spacey + readable HUD fonts -->
@@ -183,7 +183,7 @@
     .launch-choice small{display:block;margin-top:5px;color:#bcb1c8;font:600 13px 'Share Tech Mono',monospace}
     .launch-choice button.controller-selected,
     .launch-choice button:focus{outline:2px solid #7dffbc;outline-offset:3px;color:#7dffbc;box-shadow:0 0 26px rgba(80,255,165,.48)}
-    .splash-screen{position:fixed;inset:0;z-index:2147483646;display:grid;place-items:center;width:100%;height:var(--visual-height,100dvh);min-height:var(--visual-height,100dvh);overflow:hidden;background:#05030b url('/images/asteroids/asteroid-drift-splash.webp') center/cover no-repeat;color:#fff;font-family:'Orbitron',sans-serif;isolation:isolate}
+    .splash-screen{position:fixed;inset:0;z-index:2147483646;display:grid;place-items:center;width:100%;height:var(--visual-height,100dvh);min-height:var(--visual-height,100dvh);overflow:hidden;background:#05030b url('/images/ocean-of-aliens/ocean-of-aliens-splash.webp') center/cover no-repeat;color:#fff;font-family:'Orbitron',sans-serif;isolation:isolate}
     .splash-screen[hidden]{display:none}
     .splash-screen::before{content:"";position:absolute;inset:-8%;z-index:-1;background:inherit;animation:splashDrift 3s cubic-bezier(.18,.74,.22,1) both}
     .splash-screen::after{content:"";position:absolute;inset:0;z-index:-1;background:radial-gradient(circle at 50% 48%,transparent 8%,rgba(4,2,11,.18) 58%,rgba(4,2,11,.78) 100%),linear-gradient(180deg,rgba(3,2,10,.3),transparent 45%,rgba(3,2,10,.68))}
@@ -1270,7 +1270,7 @@ body.touchpad-off .mobile-touchpad{ display:none !important; }
 }
 
 
-/* ===== ASTEROIDS: Control Deck (below game window, like TMNT) ===== */
+/* ===== OCEAN OF ALIENS: Control Deck (below game window, like TMNT) ===== */
 .control-deck{
   width:100%;
   max-width:480px;
@@ -1448,7 +1448,7 @@ body.touchpad-off .control-deck .mobile-touchpad{ display:none !important; }
 }
 
 
-/* === MOBILE STAMP LAYOUT TUNING (Asteroids-Pro) === */
+/* === MOBILE STAMP LAYOUT TUNING (Ocean of Aliens) === */
 
 /* Hint styling: NEON RED (desktop + mobile) */
 .control-deck .neon-hover-hint{
@@ -2195,7 +2195,7 @@ footer{
       </div>
       <button id="weaponStatusOverlay" class="weapon-status-overlay" type="button"
            aria-label="Change weapon" aria-hidden="true">
-        <img data-asset="images/asteroids/firepower-up.png" alt="">
+        <img data-asset="images/ocean-of-aliens/firepower-up.png" alt="">
         <span id="weaponStatusLabel">STANDARD</span>
       </button>
       <div id="hint-left" class="neon-hover-hint">Hold: Fire | Top Left: Missiles</div>
@@ -2206,7 +2206,7 @@ footer{
               aria-label="Launch Missile" title="Launch Missile">
               <span class="ring flip" aria-hidden="true">
                 <span class="face stamp">
-                  <img class="stamp-img" data-asset="images/asteroids/unique-boss-stamp.png" alt="">
+                  <img class="stamp-img" data-asset="images/ocean-of-aliens/unique-boss-stamp.png" alt="">
                   <span id="missileAmmo" class="missile-ammo">×0</span>
                 </span>
                 <span class="face woofer"></span>
@@ -2217,7 +2217,7 @@ footer{
               aria-label="Launch Missile" title="Collect a MISSILE ×3 pickup">
               <span class="ring flip" aria-hidden="true">
                 <span class="face stamp">
-                  <img class="stamp-img" data-asset="images/asteroids/missile-stamp.png" alt="">
+                  <img class="stamp-img" data-asset="images/ocean-of-aliens/missile-stamp.png" alt="">
                 </span>
                 <span class="face woofer"></span>
               </span>
@@ -2234,7 +2234,7 @@ footer{
               aria-label="Weapon Change Status" title="Collect a special weapon to enable">
               <span class="ring flip" aria-hidden="true">
                 <span class="face stamp">
-                  <img class="stamp-img" data-asset="images/asteroids/firepower-up.png" alt="Weapon Change">
+                  <img class="stamp-img" data-asset="images/ocean-of-aliens/firepower-up.png" alt="Weapon Change">
                 </span>
                 <span class="face woofer"></span>
               </span>
@@ -2244,7 +2244,7 @@ footer{
               aria-label="Touchscreen Controls On/Off" title="Touchscreen Controls On/Off">
               <span class="ring flip" aria-hidden="true">
                 <span class="face stamp">
-                  <img class="stamp-img" data-asset="images/asteroids/extra-lives-stamp.png" alt="Get 1-UPs">
+                  <img class="stamp-img" data-asset="images/ocean-of-aliens/extra-lives-stamp.png" alt="Get 1-UPs">
                 </span>
                 <span class="face woofer"></span>
               </span>
@@ -2263,10 +2263,10 @@ footer{
   <script>
 
 // Asset helper (must be defined BEFORE any code uses A())
-const ASSET_ROOT = (location.protocol === 'file:') ? '../' : '/';
+const ASSET_ROOT = (location.protocol === 'file:') ? './' : '/';
 const A = (p) => ASSET_ROOT + String(p).replace(/^\/+/, '');
 
-// Stamp images live outside /html/, so set them via A() to keep file:// and GitHub paths happy.
+// Resolve game assets from the canonical root page in both file and hosted modes.
 document.querySelectorAll('img[data-asset]').forEach((img) => {
   try { img.src = A(img.dataset.asset); } catch {}
 });
@@ -2680,8 +2680,8 @@ document.querySelectorAll('img[data-asset]').forEach((img) => {
     window.addEventListener('load', syncViewportAfterFullscreen, { once:true });
     document.addEventListener('pointerdown', requestLaunchFullscreen, { capture:true });
     document.addEventListener('keydown', requestLaunchFullscreen, { capture:true });
-    document.addEventListener('asteroid-unlock-submit',()=>requestLaunchFullscreen());
-    document.addEventListener('asteroid-gate-unlocked',syncViewportAfterFullscreen);
+    document.addEventListener('ocean-of-aliens-unlock-submit',()=>requestLaunchFullscreen());
+    document.addEventListener('ocean-of-aliens-gate-unlocked',syncViewportAfterFullscreen);
     function handleFullscreenChange(){
       if(fullscreenElement()) autoFullscreenPending = false;
       else if(!launchFlowComplete) autoFullscreenPending = true;
@@ -2695,7 +2695,7 @@ document.querySelectorAll('img[data-asset]').forEach((img) => {
 
 // Music
     const musicBtn = document.getElementById('musicBtn');
-    const music = new Audio(A('mp3/asteroids-track.mp3'));
+    const music = new Audio(A('mp3/destructive-energy.mp3'));
 
     // Boss incoming sting
     const bossSting = new Audio(A('mp3/boss-sting.mp3'));
@@ -2715,33 +2715,43 @@ document.querySelectorAll('img[data-asset]').forEach((img) => {
     music.loop = false;
     music.preload = 'auto';
 
+    const STORAGE_PREFIX = 'oceanOfAliens';
+    const LEGACY_STORAGE_PREFIX = ['aster','oid'].join('');
+    const storageKey = suffix => `${STORAGE_PREFIX}${suffix}`;
+    for(const suffix of ['SoundMode','MusicPlayMode','MusicOrderVersion','MusicTrack','MusicVolume','EffectsVolume','DiffIndex','Best','StoreCredits','OwnedItems','EquippedItems','CampaignProgressV1','GamepadConfig','GamepadConfigVersion']){
+      const currentKey=storageKey(suffix);
+      const legacyKey=`${LEGACY_STORAGE_PREFIX}${suffix}`;
+      if(localStorage.getItem(currentKey)===null && localStorage.getItem(legacyKey)!==null){
+        localStorage.setItem(currentKey,localStorage.getItem(legacyKey));
+      }
+    }
     const SOUND_MODES = ['full','music','effects','off'];
-    let soundMode = localStorage.getItem('asteroidSoundMode');
+    let soundMode = localStorage.getItem(storageKey('SoundMode'));
     if(!SOUND_MODES.includes(soundMode)) soundMode = 'full';
     const musicEnabled = () => soundMode === 'full' || soundMode === 'music';
     const effectsEnabled = () => soundMode === 'full' || soundMode === 'effects';
     const MUSIC_TRACKS = [
       {name:'RACE TO MARS',src:'mp3/race-to-mars.mp3'},
-      {name:'DESTRUCTIVE ENERGY',src:'mp3/asteroids-track.mp3'},
+      {name:'DESTRUCTIVE ENERGY',src:'mp3/destructive-energy.mp3'},
       {name:'WAKE UP MY MIND 1',src:'mp3/wake-up-my-mind-1.mp3'},
       {name:'WHERE THE STARS ASCEND',src:'mp3/where-the-stars-ascend.mp3'}
     ];
     const MUSIC_PLAY_MODES = ['alternate','repeat'];
-    let musicPlayMode = localStorage.getItem('asteroidMusicPlayMode');
+    let musicPlayMode = localStorage.getItem(storageKey('MusicPlayMode'));
     if(!MUSIC_PLAY_MODES.includes(musicPlayMode)) musicPlayMode = 'alternate';
     const MUSIC_ORDER_VERSION = 'race-first-v1';
-    const savedMusicOrderVersion = localStorage.getItem('asteroidMusicOrderVersion');
+    const savedMusicOrderVersion = localStorage.getItem(storageKey('MusicOrderVersion'));
     let musicTrackIndex = savedMusicOrderVersion===MUSIC_ORDER_VERSION
-      ? clamp(Number(localStorage.getItem('asteroidMusicTrack') || 0),0,MUSIC_TRACKS.length-1)
+      ? clamp(Number(localStorage.getItem(storageKey('MusicTrack')) || 0),0,MUSIC_TRACKS.length-1)
       : 0;
     if(savedMusicOrderVersion!==MUSIC_ORDER_VERSION){
-      localStorage.setItem('asteroidMusicTrack','0');
-      localStorage.setItem('asteroidMusicOrderVersion',MUSIC_ORDER_VERSION);
+      localStorage.setItem(storageKey('MusicTrack'),'0');
+      localStorage.setItem(storageKey('MusicOrderVersion'),MUSIC_ORDER_VERSION);
     }
     music.src = A(MUSIC_TRACKS[musicTrackIndex].src);
     music.loop = musicPlayMode === 'repeat';
-    let musicVolume = clamp(Math.round(Number(localStorage.getItem('asteroidMusicVolume') || 50)/10)*10,0,100);
-    let effectsVolume = clamp(Math.round(Number(localStorage.getItem('asteroidEffectsVolume') || 80)/10)*10,0,100);
+    let musicVolume = clamp(Math.round(Number(localStorage.getItem(storageKey('MusicVolume')) || 50)/10)*10,0,100);
+    let effectsVolume = clamp(Math.round(Number(localStorage.getItem(storageKey('EffectsVolume')) || 80)/10)*10,0,100);
     const musicVolumeScale = () => musicVolume/100;
     const effectsVolumeScale = () => effectsVolume/100;
     function applyMusicVolume(duck=1){ music.volume=clamp(musicVolumeScale()*duck,0,1); }
@@ -2750,7 +2760,7 @@ document.querySelectorAll('img[data-asset]').forEach((img) => {
     applyEffectsVolume();
     function cycleMusicTrack(direction=1,announce=true){
       musicTrackIndex=(musicTrackIndex+direction+MUSIC_TRACKS.length)%MUSIC_TRACKS.length;
-      localStorage.setItem('asteroidMusicTrack',String(musicTrackIndex));
+      localStorage.setItem(storageKey('MusicTrack'),String(musicTrackIndex));
       music.pause();
       music.src=A(MUSIC_TRACKS[musicTrackIndex].src);
       music.loop=musicPlayMode==='repeat';
@@ -2762,7 +2772,7 @@ document.querySelectorAll('img[data-asset]').forEach((img) => {
     }
     function toggleMusicPlayMode(){
       musicPlayMode=musicPlayMode==='alternate'?'repeat':'alternate';
-      localStorage.setItem('asteroidMusicPlayMode',musicPlayMode);
+      localStorage.setItem(storageKey('MusicPlayMode'),musicPlayMode);
       music.loop=musicPlayMode==='repeat';
       showGameAlert(musicPlayMode==='alternate'?'ALTERNATE SONGS':'REPEAT SONG','sound-on');
     }
@@ -2774,14 +2784,14 @@ document.querySelectorAll('img[data-asset]').forEach((img) => {
         musicVolume=musicVolume+direction*10;
         if(musicVolume>100) musicVolume=0;
         if(musicVolume<0) musicVolume=100;
-        localStorage.setItem('asteroidMusicVolume',String(musicVolume));
+        localStorage.setItem(storageKey('MusicVolume'),String(musicVolume));
         applyMusicVolume();
         showGameAlert(`MUSIC VOLUME ${musicVolume}/100`,'sound-on');
       }else{
         effectsVolume=effectsVolume+direction*10;
         if(effectsVolume>100) effectsVolume=0;
         if(effectsVolume<0) effectsVolume=100;
-        localStorage.setItem('asteroidEffectsVolume',String(effectsVolume));
+        localStorage.setItem(storageKey('EffectsVolume'),String(effectsVolume));
         applyEffectsVolume();
         showGameAlert(`EFFECTS VOLUME ${effectsVolume}/100`,'sound-on');
       }
@@ -3080,7 +3090,7 @@ heatBtn.addEventListener('click', (event) => {
 async function setSoundMode(nextMode, announce = true){
       if(!SOUND_MODES.includes(nextMode)) nextMode = 'full';
       soundMode = nextMode;
-      localStorage.setItem('asteroidSoundMode', soundMode);
+      localStorage.setItem(storageKey('SoundMode'), soundMode);
       try{
         if(effectsEnabled() || musicEnabled()){
           setupAudioAnalyzer();
@@ -3111,7 +3121,7 @@ async function setSoundMode(nextMode, announce = true){
         pulseActive = false;
         document.documentElement.style.setProperty('--bassKick','0');
         soundMode = effectsEnabled() ? 'effects' : 'off';
-        localStorage.setItem('asteroidSoundMode', soundMode);
+        localStorage.setItem(storageKey('SoundMode'), soundMode);
         setMusicUI(false);
         console.warn('Music could not start:', err);
       }
@@ -3372,7 +3382,7 @@ async function setSoundMode(nextMode, announce = true){
       { name:"Bring the pain!",    mult:1.68, movement:1.30, enemyFire:1.38, bulletSpeed:1.30, armor:3, bossAggro:1.48, progress:1.60, extraBossShots:3 },
     ];
 
-    let diffIndex = Number(localStorage.getItem('asteroidDiffIndex') || 0);
+    let diffIndex = Number(localStorage.getItem(storageKey('DiffIndex')) || 0);
 
     function setDiffUI(){
       if(!diffLabelEl) return;
@@ -3389,7 +3399,7 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
 
     function cycleDifficulty(restart = true){
       diffIndex = (diffIndex + 1) % DIFF_PRESETS.length;
-      localStorage.setItem('asteroidDiffIndex', String(diffIndex));
+      localStorage.setItem(storageKey('DiffIndex'), String(diffIndex));
       setDiffUI();
       if(restart) softRestart();
     }
@@ -3477,7 +3487,7 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
     },{passive:false});
 
     // Game state
-    let bestScore = Number(localStorage.getItem('asteroidBest') || 0);
+    let bestScore = Number(localStorage.getItem(storageKey('Best')) || 0);
     bestEl.textContent = bestScore;
     let score = 0;
 
@@ -3521,24 +3531,24 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
       {id:'scene-solar',type:'scene',name:'SOLAR STORM',price:4000,color:'#df5c28'},
       {id:'missile-21',type:'upgrade',name:'MISSILE BAY 21',price:6000,color:'#ff784e'}
     ];
-    let storeCredits = Math.max(0, Number(localStorage.getItem('asteroidStoreCredits') || 0));
+    let storeCredits = Math.max(0, Number(localStorage.getItem(storageKey('StoreCredits')) || 0));
     function syncPointsBalanceUI(){
       scoreEl.textContent = score.toLocaleString();
     }
     syncPointsBalanceUI();
     let ownedStoreItems;
-    try{ ownedStoreItems = new Set(JSON.parse(localStorage.getItem('asteroidOwnedItems') || '[]')); }
+    try{ ownedStoreItems = new Set(JSON.parse(localStorage.getItem(storageKey('OwnedItems')) || '[]')); }
     catch{ ownedStoreItems = new Set(); }
     ['ship-starter','pilot-shadow','scene-deep'].forEach(id=>ownedStoreItems.add(id));
     let equippedStore = {ship:'ship-starter',pilot:'pilot-shadow',scene:'scene-deep'};
-    try{ equippedStore = {...equippedStore,...JSON.parse(localStorage.getItem('asteroidEquippedItems') || '{}')}; }catch{}
+    try{ equippedStore = {...equippedStore,...JSON.parse(localStorage.getItem(storageKey('EquippedItems')) || '{}')}; }catch{}
     for(const type of ['ship','pilot','scene']){
       if(!ownedStoreItems.has(equippedStore[type])) equippedStore[type] = `${type}-${type==='ship'?'starter':type==='pilot'?'shadow':'deep'}`;
     }
     function saveInventory(){
-      localStorage.setItem('asteroidStoreCredits',String(storeCredits));
-      localStorage.setItem('asteroidOwnedItems',JSON.stringify([...ownedStoreItems]));
-      localStorage.setItem('asteroidEquippedItems',JSON.stringify(equippedStore));
+      localStorage.setItem(storageKey('StoreCredits'),String(storeCredits));
+      localStorage.setItem(storageKey('OwnedItems'),JSON.stringify([...ownedStoreItems]));
+      localStorage.setItem(storageKey('EquippedItems'),JSON.stringify(equippedStore));
     }
     saveInventory();
 
@@ -3546,13 +3556,13 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
     const shipImg = new Image();
     shipImg.decoding = "async";
     shipImg.loading = "eager";
-    shipImg.src = A("images/asteroids/spaceship-player-v2.png");
+    shipImg.src = A("images/ocean-of-aliens/spaceship-player-v2.png");
     let shipImgReady = false;
     shipImg.onload = () => { shipImgReady = true; };
     shipImg.onerror = () => { shipImgReady = false; };
     const inventoryAtlasImg = new Image();
     inventoryAtlasImg.decoding = 'async';
-    inventoryAtlasImg.src = A('images/asteroids/inventory-atlas.png');
+    inventoryAtlasImg.src = A('images/ocean-of-aliens/inventory-atlas.png');
     let inventoryAtlasReady = false;
     inventoryAtlasImg.onload = () => { inventoryAtlasReady = true; };
     const inventoryAtlasCell = {
@@ -3562,7 +3572,7 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
     };
     const inventoryAtlas2Img = new Image();
     inventoryAtlas2Img.decoding = 'async';
-    inventoryAtlas2Img.src = A('images/asteroids/inventory-atlas-2.png');
+    inventoryAtlas2Img.src = A('images/ocean-of-aliens/inventory-atlas-2.png');
     let inventoryAtlas2Ready = false;
     inventoryAtlas2Img.onload = () => { inventoryAtlas2Ready = true; };
     const inventoryAtlas2Cell = {
@@ -3589,7 +3599,7 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
     }
     const defeatedPilotAtlasImg = new Image();
     defeatedPilotAtlasImg.decoding = 'async';
-    defeatedPilotAtlasImg.src = A('images/asteroids/defeated-pilots-atlas-v1.png');
+    defeatedPilotAtlasImg.src = A('images/ocean-of-aliens/defeated-pilots-atlas-v1.png');
     let defeatedPilotAtlasReady = false;
     defeatedPilotAtlasImg.onload = () => { defeatedPilotAtlasReady = true; };
     const defeatedPilotAtlasCell = {
@@ -3598,12 +3608,12 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
       'pilot-black-m':6,'pilot-asian-f':7,'pilot-asian-m':8
     };
     const detailedShipSources={
-      'ship-void':'images/asteroids/ship-void-phantom.png',
-      'ship-emerald':'images/asteroids/ship-emerald.png',
-      'ship-cobalt':'images/asteroids/ship-cobalt.png',
-      'ship-manta':'images/asteroids/ship-manta.png',
-      'ship-dogbus':'images/asteroids/ship-dogbus-cleanhead.png',
-      'ship-phoenix':'images/asteroids/ship-phoenix.png'
+      'ship-void':'images/ocean-of-aliens/ship-void-phantom.png',
+      'ship-emerald':'images/ocean-of-aliens/ship-emerald.png',
+      'ship-cobalt':'images/ocean-of-aliens/ship-cobalt.png',
+      'ship-manta':'images/ocean-of-aliens/ship-manta.png',
+      'ship-dogbus':'images/ocean-of-aliens/ship-dogbus-cleanhead.png',
+      'ship-phoenix':'images/ocean-of-aliens/ship-phoenix.png'
     };
     const detailedShipImgs={};
     for(const [id,src] of Object.entries(detailedShipSources)){
@@ -3613,7 +3623,7 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
       const useAtlas2=Number.isInteger(inventoryAtlas2Cell[pilotId]);
       const index=useAtlas2?inventoryAtlas2Cell[pilotId]:inventoryAtlasCell[pilotId];
       if(!Number.isInteger(index)) return null;
-      return {img:useAtlas2?inventoryAtlas2Img:inventoryAtlasImg,index,url:A(useAtlas2?'images/asteroids/inventory-atlas-2.png':'images/asteroids/inventory-atlas.png')};
+      return {img:useAtlas2?inventoryAtlas2Img:inventoryAtlasImg,index,url:A(useAtlas2?'images/ocean-of-aliens/inventory-atlas-2.png':'images/ocean-of-aliens/inventory-atlas.png')};
     }
     function defeatedPilotPortraitSource(pilotId=equippedStore.pilot){
       const index=defeatedPilotAtlasCell[pilotId];
@@ -3895,8 +3905,8 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
     let gameOverSelection = 'restart';
     let gameOverConfirmLatch = false;
     let gameOverAxisLatch = 0;
-    const CAMPAIGN_SAVE_KEY='asteroidCampaignProgressV1';
-    const NEW_GAME_PENDING_KEY='asteroid-new-game-pending';
+    const CAMPAIGN_SAVE_KEY=storageKey('CampaignProgressV1');
+    const NEW_GAME_PENDING_KEY='ocean-of-aliens-new-game-pending';
     let campaignSessionStarted=false;
 
     function readCampaignProgress(){
@@ -3952,7 +3962,7 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
       const img = new Image();
       img.decoding = "async";
       img.loading = "eager";
-      img.src = A("images/asteroids/") + fn;
+      img.src = A("images/ocean-of-aliens/") + fn;
       return img; 
     });
 
@@ -3960,7 +3970,7 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
     const firepowerImg = new Image();
     firepowerImg.decoding = "async";
     firepowerImg.loading = "eager";
-    firepowerImg.src = A("images/asteroids/firepower-up.png");
+    firepowerImg.src = A("images/ocean-of-aliens/firepower-up.png");
 
     // Warm up boss images to avoid first-draw stutter
     Promise.allSettled(
@@ -4577,12 +4587,12 @@ function updateBosses(dt){
       score += points;
       storeCredits += points;
       syncPointsBalanceUI();
-      localStorage.setItem('asteroidStoreCredits',String(storeCredits));
+      localStorage.setItem(storageKey('StoreCredits'),String(storeCredits));
 
       if(score > bestScore){
         bestScore = score;
         bestEl.textContent = bestScore;
-        localStorage.setItem('asteroidBest', String(bestScore));
+        localStorage.setItem(storageKey('Best'), String(bestScore));
       }
       saveCampaignProgress();
     }
@@ -4706,7 +4716,7 @@ function updateBosses(dt){
 
       if(!keepBest){
         bestScore = 0;
-        localStorage.setItem('asteroidBest', '0');
+        localStorage.setItem(storageKey('Best'), '0');
         bestEl.textContent = bestScore;
       }
 
@@ -4832,7 +4842,9 @@ function updateBosses(dt){
     function resetAllPersistentProgressInPlace(){
       // A reload drops fullscreen on mobile. Reset the same persistent and
       // in-memory state without navigating so the launch remains seamless.
-      for(const key of Object.keys(localStorage)) if(key.startsWith('asteroid')) localStorage.removeItem(key);
+      for(const key of Object.keys(localStorage)){
+        if(key.startsWith(STORAGE_PREFIX) || key.startsWith(LEGACY_STORAGE_PREFIX)) localStorage.removeItem(key);
+      }
       sessionStorage.removeItem(NEW_GAME_PENDING_KEY);
 
       storeCredits = 0;
@@ -4881,7 +4893,7 @@ function updateBosses(dt){
       sessionStorage.removeItem(NEW_GAME_PENDING_KEY);
       showOpeningSplash();
     }
-    document.addEventListener('asteroid-gate-unlocked',handleGameUnlocked,{once:true});
+    document.addEventListener('ocean-of-aliens-gate-unlocked',handleGameUnlocked,{once:true});
 
     function softRestart(){
       resetRun(true);
@@ -5339,8 +5351,8 @@ function updateBosses(dt){
       difficulty: 10,
       fullscreen: 11,
     });
-    const GAMEPAD_CONFIG_KEY = 'asteroidGamepadConfig';
-    const GAMEPAD_CONFIG_VERSION_KEY = 'asteroidGamepadConfigVersion';
+    const GAMEPAD_CONFIG_KEY = storageKey('GamepadConfig');
+    const GAMEPAD_CONFIG_VERSION_KEY = storageKey('GamepadConfigVersion');
     const gamepadState = {
       connected: false,
       id: '',
@@ -5633,7 +5645,7 @@ function updateBosses(dt){
 
     window.addEventListener('gamepadconnected', updateControllerStatus);
     window.addEventListener('gamepaddisconnected', updateControllerStatus);
-    window.__asteroidGamepad = {
+    window.__oceanOfAliensGamepad = {
       get state(){ return { ...gamepadState, previousButtons: undefined }; },
       get mapping(){ return { ...gamepadConfig, fire: [...gamepadConfig.fire] }; },
     };
@@ -8325,11 +8337,11 @@ if (flashTimer > 0) {
     beginLevel(1);
     if(!document.getElementById('previewGate')) setTimeout(handleGameUnlocked,0);
     if('serviceWorker' in navigator && (location.protocol==='https:' || location.hostname==='127.0.0.1' || location.hostname==='localhost')){
-      window.addEventListener('load',()=>navigator.serviceWorker.register('/asteroid-drift-sw.js',{scope:'/html/'}).catch(()=>{}),{once:true});
+      window.addEventListener('load',()=>navigator.serviceWorker.register('/ocean-of-aliens-sw.js',{scope:'/'}).catch(()=>{}),{once:true});
     }
     requestAnimationFrame(loop);
   </script>
 
-  <script>(()=>{const gate=document.getElementById('previewGate'),form=document.getElementById('previewGateForm'),input=document.getElementById('previewPassword'),error=document.getElementById('previewGateError'),expectedHash='a5ccb1c538e34663a658b1be28b16455ee5285efb10e6f1d4caba1f69ec9782b',sessionKey='asteroid-drift-final-unlocked-10h',unlockLifetimeMs=10*60*60*1000;function unlock(){input.blur();gate.hidden=true;document.documentElement.classList.remove('preview-locked');document.dispatchEvent(new Event('asteroid-gate-unlocked'))}async function sha256(value){const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(value));return Array.from(new Uint8Array(digest),byte=>byte.toString(16).padStart(2,'0')).join('')}document.documentElement.classList.add('preview-locked');const unlockExpiresAt=Number(sessionStorage.getItem(sessionKey));if(Number.isFinite(unlockExpiresAt)&&Date.now()<unlockExpiresAt){unlock();return}sessionStorage.removeItem(sessionKey);form.addEventListener('submit',async event=>{event.preventDefault();error.textContent='';input.blur();document.dispatchEvent(new Event('asteroid-unlock-submit'));try{if(await sha256(input.value)===expectedHash){sessionStorage.setItem(sessionKey,String(Date.now()+unlockLifetimeMs));input.value='';unlock()}else{error.textContent='Incorrect password. Please try again.';input.focus();input.select()}}catch{error.textContent='Unable to verify the password in this browser.'}})})();</script>
+  <script>(()=>{const gate=document.getElementById('previewGate'),form=document.getElementById('previewGateForm'),input=document.getElementById('previewPassword'),error=document.getElementById('previewGateError'),expectedHash='a5ccb1c538e34663a658b1be28b16455ee5285efb10e6f1d4caba1f69ec9782b',sessionKey='ocean-of-aliens-unlocked-10h',unlockLifetimeMs=10*60*60*1000;function unlock(){input.blur();gate.hidden=true;document.documentElement.classList.remove('preview-locked');document.dispatchEvent(new Event('ocean-of-aliens-gate-unlocked'))}async function sha256(value){const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(value));return Array.from(new Uint8Array(digest),byte=>byte.toString(16).padStart(2,'0')).join('')}document.documentElement.classList.add('preview-locked');const unlockExpiresAt=Number(sessionStorage.getItem(sessionKey));if(Number.isFinite(unlockExpiresAt)&&Date.now()<unlockExpiresAt){unlock();return}sessionStorage.removeItem(sessionKey);form.addEventListener('submit',async event=>{event.preventDefault();error.textContent='';input.blur();document.dispatchEvent(new Event('ocean-of-aliens-unlock-submit'));try{if(await sha256(input.value)===expectedHash){sessionStorage.setItem(sessionKey,String(Date.now()+unlockLifetimeMs));input.value='';unlock()}else{error.textContent='Incorrect password. Please try again.';input.focus();input.select()}}catch{error.textContent='Unable to verify the password in this browser.'}})})();</script>
 </body>
 </html>

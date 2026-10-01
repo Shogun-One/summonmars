@@ -1,10 +1,10 @@
 {
-  "id": "/html/asteroids-pro-final.html",
+  "id": "/oceanofaliens.html",
   "name": "Ocean of Aliens",
   "short_name": "Ocean of Aliens",
   "description": "Drift, fire, and survive in a full-screen space combat arcade game by Summon Mars.",
-  "start_url": "/html/asteroids-pro-final.html?source=installed-app",
-  "scope": "/html/",
+  "start_url": "/oceanofaliens.html?source=installed-app",
+  "scope": "/",
   "display": "fullscreen",
   "display_override": ["fullscreen", "standalone"],
   "orientation": "any",
@@ -13,13 +13,13 @@
   "categories": ["games", "entertainment"],
   "icons": [
     {
-      "src": "/images/asteroids/app-icon-192.png",
+      "src": "/images/ocean-of-aliens/app-icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/images/asteroids/app-icon-512.png",
+      "src": "/images/ocean-of-aliens/app-icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
