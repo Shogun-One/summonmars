@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ocean-of-aliens-shell-v6';
+const CACHE_NAME = 'ocean-of-aliens-shell-v7';
 const APP_SHELL = [
   '/oceanofaliens.html',
   '/ocean-of-aliens.webmanifest',
@@ -6,8 +6,10 @@ const APP_SHELL = [
   '/images/ocean-of-aliens/app-icon-512.png',
   '/images/ocean-of-aliens/ocean-of-aliens-splash.webp',
   '/mp3/pilot-male-hit.mp3',
+  '/mp3/pilot-male-defeat-short.mp3',
   '/mp3/pilot-male-defeat.mp3',
   '/mp3/pilot-female-hit.mp3',
+  '/mp3/pilot-female-defeat-short.mp3',
   '/mp3/pilot-female-defeat.mp3',
   '/mp3/boss-defeat.mp3'
 ];

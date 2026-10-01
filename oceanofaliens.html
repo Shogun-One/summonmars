@@ -2699,6 +2699,7 @@ document.querySelectorAll('img[data-asset]').forEach((img) => {
       if(fullscreenElement()) autoFullscreenPending = false;
       else if(!launchFlowComplete) autoFullscreenPending = true;
       syncViewportAfterFullscreen();
+      setTimeout(armEffectsAudioSession,0);
     }
     document.addEventListener('fullscreenchange',handleFullscreenChange);
     document.addEventListener('webkitfullscreenchange',handleFullscreenChange);
@@ -3242,6 +3243,8 @@ async function setSoundMode(nextMode, announce = true){
     const combatVocalSamples={
       maleHit:new Audio(A('mp3/pilot-male-hit.mp3')),
       femaleHit:new Audio(A('mp3/pilot-female-hit.mp3')),
+      maleDefeatShort:new Audio(A('mp3/pilot-male-defeat-short.mp3')),
+      femaleDefeatShort:new Audio(A('mp3/pilot-female-defeat-short.mp3')),
       maleDefeat:new Audio(A('mp3/pilot-male-defeat.mp3')),
       femaleDefeat:new Audio(A('mp3/pilot-female-defeat.mp3')),
       bossDefeat:new Audio(A('mp3/boss-defeat.mp3'))
@@ -3270,6 +3273,31 @@ async function setSoundMode(nextMode, announce = true){
       sample.play().catch(()=>activeCombatSamples.delete(sample));
       return sample;
     }
+
+    function armEffectsAudioSession(){
+      if(!effectsEnabled()) return;
+      setupAudioAnalyzer();
+      for(const sample of Object.values(combatVocalSamples)){
+        try{ if(sample.readyState<2) sample.load(); }catch{}
+      }
+      if(!audioCtx || audioCtx.state==='running') return;
+      audioCtx.resume().then(()=>{
+        // Prime the resumed graph with one silent frame. This prevents mobile
+        // browsers from leaving Web Audio dormant after GAME OVER/fullscreen
+        // transitions while the already-playing music element continues.
+        const source=audioCtx.createBufferSource();
+        const gain=audioCtx.createGain();
+        gain.gain.value=0;
+        source.buffer=audioCtx.createBuffer(1,1,audioCtx.sampleRate);
+        source.connect(gain).connect(audioCtx.destination);
+        source.start();
+      }).catch(()=>{});
+    }
+    document.addEventListener('pointerdown',armEffectsAudioSession,{capture:true});
+    document.addEventListener('keydown',armEffectsAudioSession,{capture:true});
+    document.addEventListener('visibilitychange',()=>{
+      if(!document.hidden) armEffectsAudioSession();
+    });
 
     let combatVocalGeneration=0;
     let combatVoiceCatalog=[];
@@ -3319,7 +3347,10 @@ async function setSoundMode(nextMode, announce = true){
         if(generation!==combatVocalGeneration) return;
         try{
           activeCombatUtterances.add(utterance);
-          const release=()=>activeCombatUtterances.delete(utterance);
+          const release=()=>{
+            activeCombatUtterances.delete(utterance);
+            armEffectsAudioSession();
+          };
           utterance.addEventListener?.('end',release,{once:true});
           utterance.addEventListener?.('error',release,{once:true});
           window.speechSynthesis.speak(utterance);
@@ -3393,7 +3424,11 @@ async function setSoundMode(nextMode, announce = true){
       // performances. Final pilot deaths and every boss death have a baked,
       // multi-tap echo so the tail cannot disappear during a screen change.
       playCombatSample(
-        isBoss?'bossDefeat':isFemale?'femaleDefeat':'maleDefeat',
+        isBoss
+          ? 'bossDefeat'
+          : final
+            ? (isFemale?'femaleDefeat':'maleDefeat')
+            : (isFemale?'femaleDefeatShort':'maleDefeatShort'),
         {volume:isBoss?1:.96,replace:isBoss||final}
       );
       triggerSpeakerBoom(isBoss?1.25:.96,isBoss?1120:500);
@@ -4962,6 +4997,7 @@ function updateBosses(dt){
 
     function softRestart(){
       resetRun(true);
+      armEffectsAudioSession();
       beginLevel(1);
     }
 
@@ -4985,6 +5021,7 @@ function updateBosses(dt){
       ship.exploding = 0;
       ship.invuln = 1600;
       enemyBullets = [];
+      armEffectsAudioSession();
       running = false;
       preStartIsInitial = false;
       startGracePeriod();
@@ -4993,6 +5030,7 @@ function updateBosses(dt){
 
     function confirmGameOverChoice(){
       if(!gameOver) return;
+      armEffectsAudioSession();
       restoreGameFullscreenFromGesture();
       if(gameOverSelection === 'continue' && storeCredits >= CONTINUE_COST) continueRun();
       else softRestart();
