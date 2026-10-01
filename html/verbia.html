@@ -17,7 +17,14 @@
       --gold: #ffd978;
       --coral: #ff896f;
       --line: rgba(117, 245, 199, 0.22);
+      --bg-glow: rgba(62, 178, 143, 0.24);
+      --bg-second: rgba(255, 217, 120, 0.12);
     }
+
+    :root[data-theme="cosmic-red"] { --mint:#ff7772; --gold:#ffc36b; --muted:#d6aaa6; --deep:#170506; --panel:rgba(45,10,12,.84); --bg-glow:rgba(255,60,74,.25); --bg-second:rgba(255,173,74,.13); }
+    :root[data-theme="nebula-blue"] { --mint:#67d9ff; --gold:#a9b8ff; --muted:#9cbfd1; --deep:#030b1c; --panel:rgba(7,25,52,.84); --bg-glow:rgba(42,140,255,.25); --bg-second:rgba(126,98,255,.14); }
+    :root[data-theme="solar-yellow"] { --mint:#ffd75f; --gold:#ff9f55; --muted:#d2c49b; --deep:#171004; --panel:rgba(48,35,8,.84); --bg-glow:rgba(255,210,54,.24); --bg-second:rgba(255,122,41,.13); }
+    :root[data-theme="violet-drift"] { --mint:#d692ff; --gold:#ff9fd7; --muted:#c5abd2; --deep:#100419; --panel:rgba(33,10,48,.84); --bg-glow:rgba(178,70,255,.25); --bg-second:rgba(255,89,183,.12); }
 
     * { box-sizing: border-box; }
 
@@ -33,8 +40,8 @@
       color: var(--ink);
       font-family: Inter, ui-rounded, "SF Pro Rounded", system-ui, sans-serif;
       background:
-        radial-gradient(circle at 18% 12%, rgba(62, 178, 143, 0.24), transparent 30%),
-        radial-gradient(circle at 84% 26%, rgba(255, 217, 120, 0.12), transparent 28%),
+        radial-gradient(circle at 18% 12%, var(--bg-glow), transparent 30%),
+        radial-gradient(circle at 84% 26%, var(--bg-second), transparent 28%),
         linear-gradient(155deg, #092722 0%, var(--deep) 56%, #071818 100%);
       user-select: none;
       -webkit-user-select: none;
@@ -204,14 +211,12 @@
     }
 
     .word-display[data-empty="true"] {
-      color: var(--muted);
-      font-family: inherit;
-      font-size: .72rem;
-      font-weight: 700;
-      letter-spacing: .12em;
-      text-transform: uppercase;
-      text-shadow: none;
+      opacity: 0;
     }
+
+    .board-tools { position:absolute; z-index:8; top:14px; left:15px; display:flex; align-items:center; gap:7px; }
+    .avatar-badge { width:52px; height:52px; padding:0; overflow:hidden; border:1px solid color-mix(in srgb, var(--mint) 45%, transparent); border-radius:16px 7px 16px 7px; background:rgba(0,0,0,.24); box-shadow:0 0 18px color-mix(in srgb, var(--mint) 18%, transparent); cursor:pointer; }
+    .pause-button { width:35px; height:35px; border:1px solid rgba(255,255,255,.14); border-radius:10px 4px 10px 4px; color:var(--ink); background:rgba(0,0,0,.25); font-weight:900; cursor:pointer; }
 
     .shuffle-button {
       position: absolute;
@@ -290,6 +295,45 @@
     }
 
     .letter-node:focus-visible { outline: 3px solid var(--gold); outline-offset: 4px; }
+
+    .playfield[data-shape="triangle"] .letter-node { clip-path:polygon(50% 2%, 98% 92%, 2% 92%); padding-top:20px; }
+    .playfield[data-shape="circle"] .letter-node { clip-path:circle(49%); border-radius:50%; }
+    .playfield[data-shape="square"] .letter-node { clip-path:polygon(8% 0, 100% 8%, 92% 100%, 0 92%); border-radius:0; }
+
+    .menu-overlay { position:fixed; z-index:50; inset:0; display:grid; place-items:center; padding:max(18px,env(safe-area-inset-top)) 16px max(18px,env(safe-area-inset-bottom)); background:rgba(1,7,7,.8); backdrop-filter:blur(18px); opacity:0; pointer-events:none; transition:opacity .22s ease; }
+    .menu-overlay.open { opacity:1; pointer-events:auto; }
+    .start-menu { width:min(100%,500px); max-height:92svh; overflow-y:auto; padding:22px; border:1px solid color-mix(in srgb, var(--mint) 30%, transparent); border-radius:28px 10px 28px 10px; background:linear-gradient(150deg,color-mix(in srgb,var(--panel) 94%,#fff 6%),color-mix(in srgb,var(--deep) 94%,#000 6%)); box-shadow:0 30px 90px rgba(0,0,0,.58),inset 0 1px rgba(255,255,255,.07); }
+    .menu-brand { text-align:center; }
+    .menu-brand h2 { margin:0; font-family:Georgia,serif; font-size:2.8rem; font-weight:500; letter-spacing:-.05em; }
+    .menu-brand p { margin:6px 0 0; color:var(--muted); font-size:.7rem; letter-spacing:.18em; text-transform:uppercase; }
+    .menu-section { margin-top:20px; }
+    .menu-section h3 { margin:0 0 9px; color:var(--gold); font-size:.68rem; letter-spacing:.13em; text-transform:uppercase; }
+    .choice-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:7px; }
+    .choice-button { min-height:42px; padding:7px 5px; border:1px solid rgba(255,255,255,.12); border-radius:11px 5px 11px 5px; color:var(--muted); background:rgba(255,255,255,.04); font-size:.64rem; font-weight:800; line-height:1.1; cursor:pointer; }
+    .choice-button.selected { color:#07130f; border-color:var(--mint); background:var(--mint); }
+    .theme-swatch { display:block; width:17px; height:17px; margin:0 auto 5px; border-radius:50%; background:var(--swatch); box-shadow:0 0 10px var(--swatch); }
+    .avatar-grid { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:8px; }
+    .avatar-choice { padding:5px 3px 6px; border:1px solid rgba(255,255,255,.1); border-radius:13px 5px 13px 5px; color:var(--muted); background:rgba(255,255,255,.035); font-size:.58rem; font-weight:800; cursor:pointer; }
+    .avatar-choice.selected { color:var(--ink); border-color:var(--gold); box-shadow:0 0 16px color-mix(in srgb,var(--gold) 20%,transparent); }
+    .menu-action { width:100%; margin-top:22px; padding:13px; border:0; border-radius:15px 6px 15px 6px; color:#07130f; background:linear-gradient(135deg,var(--mint),var(--gold)); font-size:.78rem; font-weight:900; letter-spacing:.12em; text-transform:uppercase; cursor:pointer; }
+
+    .avatar-portrait { --skin:#8d5a3c; --hair:#15120f; --shirt:var(--mint); position:relative; width:100%; height:100%; overflow:hidden; background:radial-gradient(circle at 50% 32%,color-mix(in srgb,var(--shirt) 24%,transparent),transparent 58%); }
+    .avatar-portrait .body { position:absolute; z-index:1; width:72%; height:38%; left:14%; bottom:-9%; border-radius:50% 50% 8px 8px; background:linear-gradient(135deg,color-mix(in srgb,var(--shirt) 75%,white),var(--shirt)); }
+    .avatar-portrait .neck { position:absolute; z-index:2; width:18%; height:20%; left:41%; top:55%; background:var(--skin); }
+    .avatar-portrait .head { position:absolute; z-index:3; width:43%; height:48%; left:28.5%; top:18%; border-radius:46% 46% 42% 42%; background:linear-gradient(135deg,color-mix(in srgb,var(--skin) 82%,white),var(--skin)); box-shadow:inset -3px -3px rgba(0,0,0,.1); }
+    .avatar-portrait .head::before { content:""; position:absolute; width:62%; height:5%; left:19%; top:49%; border-top:2px solid rgba(28,20,17,.75); border-left:3px dotted rgba(28,20,17,.75); border-right:3px dotted rgba(28,20,17,.75); }
+    .avatar-portrait .head::after { content:""; position:absolute; width:24%; height:9%; left:38%; bottom:17%; border-bottom:2px solid rgba(93,35,32,.65); border-radius:50%; }
+    .avatar-portrait .hair { position:absolute; z-index:4; width:50%; height:33%; left:25%; top:11%; border-radius:52% 52% 34% 34%; background:var(--hair); }
+    .avatar-portrait[data-hair="long"] .hair { height:58%; width:57%; left:21.5%; border-radius:50% 50% 34% 34%; }
+    .avatar-portrait[data-hair="curl"] .hair { width:58%; height:37%; left:21%; top:8%; border-radius:45%; box-shadow:-4px 5px var(--hair),4px 4px var(--hair),0 -3px var(--hair); }
+    .avatar-portrait[data-hair="wrap"] .hair { width:53%; height:26%; left:23.5%; top:10%; border-radius:48% 48% 16% 16%; background:linear-gradient(90deg,var(--hair),color-mix(in srgb,var(--hair) 70%,white)); }
+    .avatar-portrait.robot .head { width:48%; height:43%; left:26%; top:19%; border-radius:9px 3px 9px 3px; background:linear-gradient(135deg,#c9d8df,#55707e); }
+    .avatar-portrait.robot .hair,.avatar-portrait.robot .neck { background:#607d89; }
+    .avatar-portrait.robot .head::before { height:4px; border:0; background:var(--mint); box-shadow:0 0 8px var(--mint); }
+    .avatar-portrait.robot .head::after { width:34%; left:33%; border-color:#20343c; }
+    .avatar-choice .avatar-portrait { height:52px; margin-bottom:4px; }
+
+    @media (max-width:420px) { .choice-grid{grid-template-columns:repeat(2,minmax(0,1fr));}.avatar-grid{grid-template-columns:repeat(5,minmax(0,1fr));}.start-menu{padding:18px 15px;} }
 
     .hint {
       position: absolute;
@@ -546,7 +590,11 @@
     </section>
 
     <section class="playfield" id="playfield" aria-label="Letter constellation. Drag through letters to form a word.">
-      <div class="word-display" id="wordDisplay" data-empty="true" aria-live="polite">Trace the constellation</div>
+      <div class="board-tools">
+        <button class="avatar-badge" id="avatarBadge" type="button" aria-label="Open player and game menu"></button>
+        <button class="pause-button" id="pauseButton" type="button" aria-label="Pause and open game menu">Ⅱ</button>
+      </div>
+      <div class="word-display" id="wordDisplay" data-empty="true" aria-live="polite"></div>
       <button class="shuffle-button" id="shuffleButton" type="button" aria-label="Shuffle letter positions">↝ Shuffle</button>
       <div class="toast" id="toast" role="status" aria-live="assertive"></div>
       <svg id="paths" aria-hidden="true">
@@ -571,6 +619,47 @@
       <button class="control" id="resetButton" type="button">Reset board</button>
     </section>
   </main>
+
+  <div class="menu-overlay open" id="menuOverlay" aria-hidden="false">
+    <section class="start-menu" role="dialog" aria-modal="true" aria-labelledby="menuTitle">
+      <div class="menu-brand">
+        <h2 id="menuTitle">Verbia</h2>
+        <p>Create your path through words</p>
+      </div>
+      <div class="menu-section">
+        <h3>Cosmic color</h3>
+        <div class="choice-grid" id="themeChoices">
+          <button class="choice-button" type="button" data-theme-choice="emerald"><span class="theme-swatch" style="--swatch:#75f5c7"></span>Emerald</button>
+          <button class="choice-button" type="button" data-theme-choice="cosmic-red"><span class="theme-swatch" style="--swatch:#ff7772"></span>Cosmic red</button>
+          <button class="choice-button" type="button" data-theme-choice="nebula-blue"><span class="theme-swatch" style="--swatch:#67d9ff"></span>Nebula blue</button>
+          <button class="choice-button" type="button" data-theme-choice="solar-yellow"><span class="theme-swatch" style="--swatch:#ffd75f"></span>Solar yellow</button>
+          <button class="choice-button" type="button" data-theme-choice="violet-drift"><span class="theme-swatch" style="--swatch:#d692ff"></span>Violet drift</button>
+        </div>
+      </div>
+      <div class="menu-section">
+        <h3>Letter path</h3>
+        <div class="choice-grid" id="layoutChoices">
+          <button class="choice-button" type="button" data-layout-choice="smile">Smile arc</button>
+          <button class="choice-button" type="button" data-layout-choice="frown">Frown arc</button>
+          <button class="choice-button" type="button" data-layout-choice="triangle">Triangle trail</button>
+        </div>
+      </div>
+      <div class="menu-section">
+        <h3>Letter shape</h3>
+        <div class="choice-grid" id="shapeChoices">
+          <button class="choice-button" type="button" data-shape-choice="shard">Original shards</button>
+          <button class="choice-button" type="button" data-shape-choice="triangle">Triangles</button>
+          <button class="choice-button" type="button" data-shape-choice="circle">Circles</button>
+          <button class="choice-button" type="button" data-shape-choice="square">Squares</button>
+        </div>
+      </div>
+      <div class="menu-section">
+        <h3>Choose your explorer</h3>
+        <div class="avatar-grid" id="avatarChoices"></div>
+      </div>
+      <button class="menu-action" id="resumeButton" type="button">Begin journey</button>
+    </section>
+  </div>
 
   <div class="sheet-backdrop" id="discoveryBackdrop" aria-hidden="true">
     <section class="discovery-sheet" role="dialog" aria-modal="true" aria-labelledby="discoveryTitle">
@@ -625,14 +714,30 @@
         }
       ];
 
-      const layouts = [
-        [[15,34],[47,27],[82,38],[67,55],[84,72],[38,74]],
-        [[20,27],[72,31],[86,51],[53,43],[18,57],[48,73]],
-        [[13,40],[39,27],[78,30],[87,62],[56,74],[25,66]]
-      ];
-      const links = [[0,1],[1,2],[2,3],[3,4],[3,5],[0,5]];
+      const layouts = {
+        smile: [[10,35],[24,52],[41,65],[59,65],[76,52],[90,35]],
+        frown: [[10,65],[24,48],[41,35],[59,35],[76,48],[90,65]],
+        triangle: [[50,28],[72,43],[88,69],[50,73],[12,69],[28,43]]
+      };
+      const layoutLinks = {
+        smile: [[0,1],[1,2],[2,3],[3,4],[4,5]],
+        frown: [[0,1],[1,2],[2,3],[3,4],[4,5]],
+        triangle: [[0,1],[1,2],[2,3],[3,4],[4,5],[5,0]]
+      };
       const tilts = [-8,5,11,-5,7,-11];
       const storageKey = "verbia-progress-v2";
+      const settingsKey = "verbia-settings-v1";
+      const avatars = [
+        {id:"amara",name:"Amara",skin:"#6f3f2b",hair:"#17110f",shirt:"#75f5c7",hairStyle:"curl"},
+        {id:"luca",name:"Luca",skin:"#d7a06f",hair:"#4a2d1c",shirt:"#67d9ff",hairStyle:"short"},
+        {id:"mei",name:"Mei",skin:"#e1b07e",hair:"#17171b",shirt:"#d692ff",hairStyle:"long"},
+        {id:"asha",name:"Asha",skin:"#9a6042",hair:"#5a251e",shirt:"#ffc36b",hairStyle:"wrap"},
+        {id:"diego",name:"Diego",skin:"#b8754d",hair:"#241812",shirt:"#ff7772",hairStyle:"short"},
+        {id:"noor",name:"Noor",skin:"#c98e67",hair:"#191318",shirt:"#8ea8ff",hairStyle:"long"},
+        {id:"kai",name:"Kai",skin:"#8d573b",hair:"#111a20",shirt:"#6ee0ba",hairStyle:"short"},
+        {id:"zoe",name:"Zoe",skin:"#f0c59f",hair:"#9a4d28",shirt:"#ff93c9",hairStyle:"curl"},
+        {id:"rx7",name:"RX-7",skin:"#71858e",hair:"#344b57",shirt:"#67d9ff",hairStyle:"robot",robot:true}
+      ];
       const playfield = document.querySelector("#playfield");
       const letterNodes = document.querySelector("#letterNodes");
       const wordDisplay = document.querySelector("#wordDisplay");
@@ -657,8 +762,17 @@
       const bonusTab = document.querySelector("#bonusTab");
       const sheetContent = document.querySelector("#sheetContent");
       const toast = document.querySelector("#toast");
+      const avatarBadge = document.querySelector("#avatarBadge");
+      const pauseButton = document.querySelector("#pauseButton");
+      const menuOverlay = document.querySelector("#menuOverlay");
+      const resumeButton = document.querySelector("#resumeButton");
+      const themeChoices = document.querySelector("#themeChoices");
+      const layoutChoices = document.querySelector("#layoutChoices");
+      const shapeChoices = document.querySelector("#shapeChoices");
+      const avatarChoices = document.querySelector("#avatarChoices");
 
       let progress = loadProgress();
+      let settings = loadSettings();
       let boardIndex = Math.min(progress.current || 0, boards.length - 1);
       let nodes = [];
       let tracing = false;
@@ -667,7 +781,10 @@
       let pointer = null;
       let activeTab = "goals";
       let toastTimer;
+      let hasStarted = false;
 
+      renderAvatarChoices();
+      applySettings(false);
       renderBoard();
 
       playfield.addEventListener("pointerdown", event => {
@@ -702,6 +819,37 @@
       document.addEventListener("keydown", event => { if (event.key === "Escape") closeSheet(); });
       goalsTab.addEventListener("click", () => setTab("goals"));
       bonusTab.addEventListener("click", () => setTab("bonus"));
+      pauseButton.addEventListener("click", openMenu);
+      avatarBadge.addEventListener("click", openMenu);
+      resumeButton.addEventListener("click", closeMenu);
+
+      themeChoices.addEventListener("click", event => {
+        const choice = event.target.closest("[data-theme-choice]");
+        if (!choice) return;
+        settings.theme = choice.dataset.themeChoice;
+        applySettings(false);
+      });
+
+      layoutChoices.addEventListener("click", event => {
+        const choice = event.target.closest("[data-layout-choice]");
+        if (!choice) return;
+        settings.layout = choice.dataset.layoutChoice;
+        applySettings(true);
+      });
+
+      shapeChoices.addEventListener("click", event => {
+        const choice = event.target.closest("[data-shape-choice]");
+        if (!choice) return;
+        settings.shape = choice.dataset.shapeChoice;
+        applySettings(false);
+      });
+
+      avatarChoices.addEventListener("click", event => {
+        const choice = event.target.closest("[data-avatar-choice]");
+        if (!choice) return;
+        settings.avatar = choice.dataset.avatarChoice;
+        applySettings(false);
+      });
 
       nextButton.addEventListener("click", () => {
         boardIndex = (boardIndex + 1) % boards.length;
@@ -741,7 +889,7 @@
       function renderBoard() {
         resetTrace();
         const board = boards[boardIndex];
-        const layout = layouts[boardIndex % layouts.length];
+        const layout = layouts[settings.layout] || layouts.smile;
         boardNumber.textContent = String(boardIndex + 1).padStart(2, "0");
         letterNodes.replaceChildren();
         [...board.letters].forEach((letter, index) => {
@@ -789,7 +937,7 @@
       function drawConstellation() {
         if (!nodes.length) return;
         constellationLines.replaceChildren();
-        links.forEach(([a,b]) => {
+        (layoutLinks[settings.layout] || layoutLinks.smile).forEach(([a,b]) => {
           if (!nodes[a] || !nodes[b]) return;
           const start = nodeCenter(nodes[a]);
           const end = nodeCenter(nodes[b]);
@@ -811,7 +959,7 @@
 
       function renderWord() {
         const word = selected.map(node => node.dataset.letter).join("");
-        wordDisplay.textContent = word || "Trace the constellation";
+        wordDisplay.textContent = word;
         wordDisplay.dataset.empty = String(!word);
       }
 
@@ -940,6 +1088,75 @@
           sheetContent.append(group);
         });
       }
+
+      function openMenu() {
+        resetTrace();
+        menuOverlay.classList.add("open");
+        menuOverlay.setAttribute("aria-hidden", "false");
+        resumeButton.textContent = hasStarted ? "Resume board" : "Begin journey";
+        resumeButton.focus();
+      }
+
+      function closeMenu() {
+        menuOverlay.classList.remove("open");
+        menuOverlay.setAttribute("aria-hidden", "true");
+        hasStarted = true;
+        pauseButton.focus();
+      }
+
+      function renderAvatarChoices() {
+        avatarChoices.replaceChildren();
+        avatars.forEach(avatar => {
+          const button = document.createElement("button");
+          button.className = "avatar-choice";
+          button.type = "button";
+          button.dataset.avatarChoice = avatar.id;
+          button.setAttribute("aria-label", `Choose ${avatar.name} avatar`);
+          button.append(createPortrait(avatar));
+          const label = document.createElement("span");
+          label.textContent = avatar.name;
+          button.append(label);
+          avatarChoices.append(button);
+        });
+      }
+
+      function createPortrait(avatar) {
+        const portrait = document.createElement("div");
+        portrait.className = `avatar-portrait${avatar.robot ? " robot" : ""}`;
+        portrait.dataset.hair = avatar.hairStyle;
+        portrait.style.setProperty("--skin", avatar.skin);
+        portrait.style.setProperty("--hair", avatar.hair);
+        portrait.style.setProperty("--shirt", avatar.shirt);
+        portrait.setAttribute("aria-hidden", "true");
+        ["body","neck","head","hair"].forEach(part => {
+          const element = document.createElement("span");
+          element.className = part;
+          portrait.append(element);
+        });
+        return portrait;
+      }
+
+      function applySettings(rerenderBoard) {
+        document.documentElement.dataset.theme = settings.theme;
+        playfield.dataset.shape = settings.shape;
+        const avatar = avatars.find(item => item.id === settings.avatar) || avatars[0];
+        avatarBadge.replaceChildren(createPortrait(avatar));
+        avatarBadge.setAttribute("aria-label", `${avatar.name} selected. Open player and game menu`);
+        document.querySelectorAll("[data-theme-choice]").forEach(button => button.classList.toggle("selected", button.dataset.themeChoice === settings.theme));
+        document.querySelectorAll("[data-layout-choice]").forEach(button => button.classList.toggle("selected", button.dataset.layoutChoice === settings.layout));
+        document.querySelectorAll("[data-shape-choice]").forEach(button => button.classList.toggle("selected", button.dataset.shapeChoice === settings.shape));
+        document.querySelectorAll("[data-avatar-choice]").forEach(button => button.classList.toggle("selected", button.dataset.avatarChoice === settings.avatar));
+        saveSettings();
+        if (rerenderBoard) renderBoard();
+      }
+
+      function loadSettings() {
+        try {
+          return { theme:"emerald", layout:"smile", shape:"shard", avatar:"amara", ...JSON.parse(localStorage.getItem(settingsKey) || "{}") };
+        } catch { return { theme:"emerald", layout:"smile", shape:"shard", avatar:"amara" }; }
+      }
+
+      function saveSettings() { localStorage.setItem(settingsKey, JSON.stringify(settings)); }
 
       function loadProgress() {
         try {
