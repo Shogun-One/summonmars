@@ -920,7 +920,7 @@
         localStorage.removeItem("verbia-progress-v2");
         localStorage.removeItem(settingsKey);
         localStorage.removeItem("verbia-prototype-board-01");
-        progress = freshProgress();
+        progress = freshProgress(true);
         profileExists = true;
         settings = { theme:"emerald", layout:"smile", shape:"shard", avatar:"amara" };
         boardIndex = 0;
@@ -1001,8 +1001,8 @@
         requestAnimationFrame(() => { drawConstellation(); renderProgress(); });
       }
 
-      function freshProgress() {
-        return { currentLevel:1, boards:{}, levelBoards:{}, signatures:[], seed:Math.floor(Math.random() * 2147483647) || 9173 };
+      function freshProgress(profileCreated = false) {
+        return { profileCreated, currentLevel:1, boards:{}, levelBoards:{}, signatures:[], seed:Math.floor(Math.random() * 2147483647) || 9173 };
       }
 
       function letterCountForLevel(level) {
@@ -1393,7 +1393,9 @@
       function storedProfileExists() {
         try {
           const saved = JSON.parse(localStorage.getItem(storageKey) || "null");
-          return Boolean(saved && saved.boards && saved.levelBoards);
+          if (!saved || !saved.boards || !saved.levelBoards) return false;
+          const hasDiscoveries = Object.values(saved.boards).some(words => Array.isArray(words) && words.length > 0);
+          return saved.profileCreated === true || saved.currentLevel > 1 || hasDiscoveries;
         } catch { return false; }
       }
 
@@ -1528,6 +1530,7 @@
 
       function saveProgress() {
         profileExists = true;
+        progress.profileCreated = true;
         localStorage.setItem(storageKey, JSON.stringify(progress));
       }
 
