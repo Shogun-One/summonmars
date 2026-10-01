@@ -718,7 +718,7 @@ body.music-on canvas#game{
   box-shadow:
     inset 0 0 0 2px rgba(255,255,255,.06),
     inset 0 0 10px rgba(0,0,0,.55);
-  transform: scale(calc(1 + (var(--bassKick, 0) * 0.68)));
+  transform: scale(calc(1 + (var(--bassKick, 0) * 1.05)));
   transition: transform 60ms linear;
 }
 
@@ -747,7 +747,7 @@ body.music-on canvas#game{
     inset 0 0 0 1px rgba(255,138,192,.10),
     inset 0 0 18px rgba(0,0,0,.65);
 
-  transform: scale(calc(1 + (var(--bassKick, 0) * 1.28)));
+  transform: scale(calc(1 + (var(--bassKick, 0) * 1.75)));
   transition: transform 60ms linear;
 
 }
@@ -757,18 +757,32 @@ body.music-on canvas#game{
 .bubble-btn .ring.flip .face.woofer{ opacity:0; transform: rotateY(180deg); }
 
 /* Music ON: flip to woofer */
-body.music-on .bubble-btn .ring.flip .face.stamp{
+body.music-on .bubble-btn .ring.flip .face.stamp,
+body.speaker-boom .bubble-btn .ring.flip .face.stamp{
   opacity:0;
   transform: rotateY(-180deg);
 }
-body.music-on .bubble-btn .ring.flip .face.woofer{
+body.music-on .bubble-btn .ring.flip .face.woofer,
+body.speaker-boom .bubble-btn .ring.flip .face.woofer{
   opacity:1;
   transform: rotateY(0deg);
 }
-body.music-on .bubble-btn .ring.flip{
-  transform:scale(calc(1 + (var(--bassKick, 0) * 0.28)));
+body.music-on .bubble-btn .ring.flip,
+body.speaker-boom .bubble-btn .ring.flip{
+  transform:scale(calc(1 + (var(--bassKick, 0) * 0.42)));
+  filter:brightness(calc(1 + (var(--bassKick, 0) * .42)))
+         drop-shadow(0 0 calc(8px + (var(--bassKick, 0) * 22px)) rgba(255,59,155,.72));
   transition:transform 55ms linear;
   will-change:transform;
+}
+
+body.music-on .bubble-btn .ring.flip .face.woofer,
+body.speaker-boom .bubble-btn .ring.flip .face.woofer{
+  box-shadow:
+    inset 0 0 0 2px rgba(255,255,255,.12),
+    inset 0 0 26px rgba(0,0,0,.88),
+    0 0 14px rgba(255,59,155,.55),
+    0 0 28px rgba(79,225,255,.25);
 }
 
 /* small status dot on the Music bubble (still useful) */
@@ -2659,45 +2673,67 @@ function setupAudioAnalyzer(){
 // kick memory (snappy impulse)
 let __bassPrev = 0;
 let __bassKick = 0;
+let __effectKick = 0;
+let __speakerBoomUntil = 0;
+let __speakerBoomToken = 0;
 let __bassData = null;
 let __lastAudioVizAt = 0;
 
-function updateAudioViz(){
-  // No music? Keep everything calm.
-  if(!pulseActive || !bassAnalyser){
-    __bassPrev = 0;
-    __bassKick = 0;
-    document.documentElement.style.setProperty('--bassKick', '0');
-    return;
-  }
+function triggerSpeakerBoom(strength = 1, duration = 420){
+  if(!effectsEnabled()) return;
+  const punch = clamp(strength, .2, 1.35);
+  __effectKick = Math.max(__effectKick, punch);
+  __speakerBoomUntil = Math.max(__speakerBoomUntil, performance.now() + duration);
+  document.body.classList.add('speaker-boom');
+  const token = ++__speakerBoomToken;
+  document.querySelectorAll('.bubble-btn .ring.flip').forEach((ring,index)=>{
+    const twist = (index % 2 ? -1 : 1) * (1.2 + punch * 1.8);
+    try{
+      ring.animate([
+        { transform:'scale(1)', offset:0 },
+        { transform:`translate(${twist}px,${-punch*2.2}px) rotate(${twist}deg) scale(${1+punch*.28})`, offset:.18 },
+        { transform:`translate(${-twist*.65}px,${punch*1.4}px) rotate(${-twist*.65}deg) scale(${1+punch*.12})`, offset:.42 },
+        { transform:`translate(${twist*.28}px,0) rotate(${twist*.2}deg) scale(${1+punch*.05})`, offset:.68 },
+        { transform:'scale(1)', offset:1 }
+      ], { duration, easing:'cubic-bezier(.2,.8,.25,1)' });
+    }catch{}
+  });
+  const settleSpeaker = ()=>{
+    if(token !== __speakerBoomToken) return;
+    const remaining = __speakerBoomUntil - performance.now();
+    if(remaining > 20){ setTimeout(settleSpeaker,remaining + 25); return; }
+    document.body.classList.remove('speaker-boom');
+  };
+  setTimeout(settleSpeaker,duration + 60);
+}
 
+function updateAudioViz(){
   const vizNow = performance.now();
   if(vizNow - __lastAudioVizAt < 32) return;
   __lastAudioVizAt = vizNow;
 
-  if(!__bassData || __bassData.length !== bassAnalyser.frequencyBinCount){
-    __bassData = new Uint8Array(bassAnalyser.frequencyBinCount);
+  if(pulseActive && bassAnalyser){
+    if(!__bassData || __bassData.length !== bassAnalyser.frequencyBinCount){
+      __bassData = new Uint8Array(bassAnalyser.frequencyBinCount);
+    }
+    const b = __bassData;
+    bassAnalyser.getByteFrequencyData(b);
+    const lowBins = Math.min(16, b.length);
+    let low = 0;
+    for(let i=0;i<lowBins;i++) low += b[i];
+    low /= lowBins;
+    const bassN = Math.pow(clamp(low / 255,0,1), .58);
+    __bassKick *= .70;
+    if(bassN > __bassKick) __bassKick = bassN;
+  }else{
+    __bassPrev = 0;
+    __bassKick *= .64;
   }
-  const b = __bassData;
-  bassAnalyser.getByteFrequencyData(b);
 
-  // Bass energy: average of the lowest bins (more forgiving than the old edge-detector)
-  const lowBins = Math.min(16, b.length); // bins 0..15
-  let low = 0;
-  for(let i=0;i<lowBins;i++) low += b[i];
-  low /= lowBins;
-
-  // Normalize to 0..1
-  let bassN = Math.max(0, Math.min(1, low / 255));
-
-  // Add a little punch curve so small bass still shows, but big kicks POP
-  bassN = Math.pow(bassN, 0.65);
-
-  // Smooth decay + take the max for a visible thump
-  __bassKick = (__bassKick || 0) * 0.72;
-  if(bassN > __bassKick) __bassKick = bassN;
-
-  document.documentElement.style.setProperty('--bassKick', String(__bassKick || 0));
+  __effectKick *= vizNow < __speakerBoomUntil ? .82 : .58;
+  if(__effectKick < .008) __effectKick = 0;
+  const visibleKick = Math.min(1.35, Math.max(__bassKick * 1.28, __effectKick));
+  document.documentElement.style.setProperty('--bassKick', String(visibleKick));
 }
 
     // =========================
@@ -2854,6 +2890,7 @@ async function setSoundMode(nextMode, announce = true){
         const isPlayer = kind === 'player';
         const duration = isBoss ? 1.45 : isPlayer ? 0.92 : 0.38;
         const volume = isBoss ? 0.92 : isPlayer ? 0.76 : 0.48;
+        triggerSpeakerBoom(isBoss ? 1.35 : isPlayer ? 1.12 : .72, isBoss ? 1050 : isPlayer ? 720 : 360);
 
         // Briefly duck the soundtrack so the blast is unmistakable in combat.
         if(!music.paused){
@@ -2923,6 +2960,114 @@ async function setSoundMode(nextMode, announce = true){
       }catch(err){
         console.warn('Explosion sound failed:', err);
       }
+    }
+
+    function playDamageSound(){
+      if(!effectsEnabled() || !audioCtx) return;
+      try{
+        if(audioCtx.state === 'suspended') audioCtx.resume().catch(()=>{});
+        const now = audioCtx.currentTime;
+        const output = audioCtx.createGain();
+        const thud = audioCtx.createOscillator();
+        const alarm = audioCtx.createOscillator();
+        const thudGain = audioCtx.createGain();
+        const alarmGain = audioCtx.createGain();
+        const filter = audioCtx.createBiquadFilter();
+
+        output.gain.setValueAtTime(Math.max(.001,.48*effectsVolumeScale()),now);
+        output.gain.exponentialRampToValueAtTime(.001,now+.22);
+        output.connect(audioCtx.destination);
+
+        thud.type='square';
+        thud.frequency.setValueAtTime(240,now);
+        thud.frequency.exponentialRampToValueAtTime(62,now+.17);
+        thudGain.gain.setValueAtTime(.52,now);
+        thudGain.gain.exponentialRampToValueAtTime(.001,now+.19);
+        filter.type='lowpass';
+        filter.frequency.setValueAtTime(1050,now);
+        filter.frequency.exponentialRampToValueAtTime(180,now+.18);
+        thud.connect(filter).connect(thudGain).connect(output);
+
+        alarm.type='sine';
+        alarm.frequency.setValueAtTime(980,now);
+        alarm.frequency.exponentialRampToValueAtTime(410,now+.13);
+        alarmGain.gain.setValueAtTime(.22,now);
+        alarmGain.gain.exponentialRampToValueAtTime(.001,now+.15);
+        alarm.connect(alarmGain).connect(output);
+
+        thud.start(now); thud.stop(now+.20);
+        alarm.start(now); alarm.stop(now+.16);
+        triggerSpeakerBoom(.48,190);
+        setTimeout(()=>{
+          for(const node of [thud,alarm,thudGain,alarmGain,filter,output]) try{ node.disconnect(); }catch{}
+        },330);
+      }catch(err){ console.warn('Damage sound failed:',err); }
+    }
+
+    function playDefeatYell(kind='player'){
+      if(!effectsEnabled() || !audioCtx) return;
+      try{
+        if(audioCtx.state === 'suspended') audioCtx.resume().catch(()=>{});
+        const now = audioCtx.currentTime;
+        const isBoss = kind === 'boss';
+        const duration = isBoss ? 1.08 : .48;
+        const voice = audioCtx.createOscillator();
+        const body = audioCtx.createOscillator();
+        const voiceGain = audioCtx.createGain();
+        const master = audioCtx.createGain();
+        const compressor = audioCtx.createDynamicsCompressor();
+        const formants = isBoss ? [560,920,1760] : [760,1180,2380];
+
+        voice.type='sawtooth';
+        body.type='triangle';
+        voice.frequency.setValueAtTime(isBoss ? 132 : 255,now);
+        voice.frequency.exponentialRampToValueAtTime(isBoss ? 54 : 138,now+duration);
+        body.frequency.setValueAtTime(isBoss ? 66 : 128,now);
+        body.frequency.exponentialRampToValueAtTime(isBoss ? 29 : 72,now+duration);
+        voiceGain.gain.setValueAtTime(.001,now);
+        voiceGain.gain.linearRampToValueAtTime(1,now+.045);
+        voiceGain.gain.setValueAtTime(1,now+duration*.42);
+        voiceGain.gain.exponentialRampToValueAtTime(.001,now+duration);
+        master.gain.setValueAtTime(Math.max(.001,(isBoss ? .40 : .29)*effectsVolumeScale()),now);
+        compressor.threshold.value=-20;
+        compressor.ratio.value=7;
+        compressor.attack.value=.006;
+        compressor.release.value=.16;
+        compressor.connect(master).connect(audioCtx.destination);
+
+        const filters=[];
+        for(const [index,frequency] of formants.entries()){
+          const filter=audioCtx.createBiquadFilter();
+          const gain=audioCtx.createGain();
+          filter.type='bandpass';
+          filter.frequency.value=frequency;
+          filter.Q.value=isBoss ? 3.8 : 5.2;
+          gain.gain.value=[1,.68,.32][index];
+          voice.connect(filter).connect(gain).connect(voiceGain);
+          filters.push(filter,gain);
+        }
+        body.connect(voiceGain);
+        voiceGain.connect(compressor);
+
+        const echoes=[];
+        if(isBoss){
+          for(const [delayTime,level] of [[.24,.34],[.47,.18]]){
+            const delay=audioCtx.createDelay(1);
+            const echoGain=audioCtx.createGain();
+            delay.delayTime.value=delayTime;
+            echoGain.gain.value=level;
+            voiceGain.connect(delay).connect(echoGain).connect(compressor);
+            echoes.push(delay,echoGain);
+          }
+        }
+
+        voice.start(now); body.start(now);
+        voice.stop(now+duration); body.stop(now+duration);
+        triggerSpeakerBoom(isBoss ? 1.25 : .96,isBoss ? 1120 : 500);
+        setTimeout(()=>{
+          for(const node of [voice,body,voiceGain,compressor,master,...filters,...echoes]) try{ node.disconnect(); }catch{}
+        },(duration + (isBoss ? .65 : .18))*1000);
+      }catch(err){ console.warn('Defeat yell failed:',err); }
     }
 
     function playMissileWhistle(){
@@ -5230,6 +5375,7 @@ mobilePauseBtn?.addEventListener('click', (e) => {
       updateHitUI();
       flashTimer = 220;
       spawnImpact(ship.x, ship.y);
+      playDamageSound();
       addShake(3.5, 220);
 
       if(hits >= MAX_HITS){
@@ -5241,6 +5387,7 @@ mobilePauseBtn?.addEventListener('click', (e) => {
         spawnExplosion(ship.x, ship.y, 2.2, 'player');
         spawnExplosion(ship.x + rand(-10,10), ship.y + rand(-10,10), 1.1, 'player');
         playExplosionSound('player');
+        playDefeatYell('player');
         addShake(7, 520);
 
         triggerBoomFlash(260);
@@ -5782,6 +5929,7 @@ mobilePauseBtn?.addEventListener('click', (e) => {
               spawnExplosion(bo.x+rand(14,28), bo.y+rand(-18,18), 2.4, 'boss');
               spawnExplosion(bo.x+rand(-18,18), bo.y+rand(12,28), 2.0, 'boss');
               playExplosionSound('boss');
+              playDefeatYell('boss');
               addShake(12, 850);
               triggerBoomFlash(420);
               bosses.splice(i,1);
