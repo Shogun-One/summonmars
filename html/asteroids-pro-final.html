@@ -2962,6 +2962,26 @@ async function setSoundMode(nextMode, announce = true){
       }
     }
 
+    function speakCombatVocal(text,{pitch=1,rate=1,volume=1,echo=false}={}){
+      if(!effectsEnabled() || !('speechSynthesis' in window) || typeof SpeechSynthesisUtterance==='undefined') return;
+      const speak=(delay,echoScale=1,echoPitch=pitch)=>setTimeout(()=>{
+        if(!effectsEnabled()) return;
+        try{
+          const utterance=new SpeechSynthesisUtterance(text);
+          utterance.lang='en-US';
+          utterance.pitch=clamp(echoPitch,.1,2);
+          utterance.rate=clamp(rate,.45,2);
+          utterance.volume=clamp(volume*effectsVolumeScale()*echoScale,0,1);
+          const voices=window.speechSynthesis.getVoices();
+          const english=voices.find(voice=>/^en[-_]/i.test(voice.lang));
+          if(english) utterance.voice=english;
+          window.speechSynthesis.speak(utterance);
+        }catch{}
+      },delay);
+      speak(0);
+      if(echo){ speak(430,.42,pitch*.82); speak(760,.22,pitch*.68); }
+    }
+
     function playDamageSound(){
       if(!effectsEnabled() || !audioCtx) return;
       try{
@@ -2997,6 +3017,7 @@ async function setSoundMode(nextMode, announce = true){
 
         thud.start(now); thud.stop(now+.20);
         alarm.start(now); alarm.stop(now+.16);
+        speakCombatVocal('Uhh!',{pitch:.68,rate:1.42,volume:.92});
         triggerSpeakerBoom(.48,190);
         setTimeout(()=>{
           for(const node of [thud,alarm,thudGain,alarmGain,filter,output]) try{ node.disconnect(); }catch{}
@@ -3014,6 +3035,8 @@ async function setSoundMode(nextMode, announce = true){
         const voice = audioCtx.createOscillator();
         const body = audioCtx.createOscillator();
         const voiceGain = audioCtx.createGain();
+        const directFilter = audioCtx.createBiquadFilter();
+        const directGain = audioCtx.createGain();
         const master = audioCtx.createGain();
         const compressor = audioCtx.createDynamicsCompressor();
         const formants = isBoss ? [560,920,1760] : [760,1180,2380];
@@ -3028,7 +3051,7 @@ async function setSoundMode(nextMode, announce = true){
         voiceGain.gain.linearRampToValueAtTime(1,now+.045);
         voiceGain.gain.setValueAtTime(1,now+duration*.42);
         voiceGain.gain.exponentialRampToValueAtTime(.001,now+duration);
-        master.gain.setValueAtTime(Math.max(.001,(isBoss ? .40 : .29)*effectsVolumeScale()),now);
+        master.gain.setValueAtTime(Math.max(.001,(isBoss ? .76 : .58)*effectsVolumeScale()),now);
         compressor.threshold.value=-20;
         compressor.ratio.value=7;
         compressor.attack.value=.006;
@@ -3046,6 +3069,11 @@ async function setSoundMode(nextMode, announce = true){
           voice.connect(filter).connect(gain).connect(voiceGain);
           filters.push(filter,gain);
         }
+        directFilter.type='lowpass';
+        directFilter.frequency.value=isBoss?1450:2100;
+        directFilter.Q.value=.8;
+        directGain.gain.value=isBoss ? .34 : .25;
+        voice.connect(directFilter).connect(directGain).connect(voiceGain);
         body.connect(voiceGain);
         voiceGain.connect(compressor);
 
@@ -3063,9 +3091,15 @@ async function setSoundMode(nextMode, announce = true){
 
         voice.start(now); body.start(now);
         voice.stop(now+duration); body.stop(now+duration);
+        speakCombatVocal('Aaah!',{
+          pitch:isBoss ? .32 : .86,
+          rate:isBoss ? .55 : .82,
+          volume:1,
+          echo:isBoss
+        });
         triggerSpeakerBoom(isBoss ? 1.25 : .96,isBoss ? 1120 : 500);
         setTimeout(()=>{
-          for(const node of [voice,body,voiceGain,compressor,master,...filters,...echoes]) try{ node.disconnect(); }catch{}
+          for(const node of [voice,body,voiceGain,directFilter,directGain,compressor,master,...filters,...echoes]) try{ node.disconnect(); }catch{}
         },(duration + (isBoss ? .65 : .18))*1000);
       }catch(err){ console.warn('Defeat yell failed:',err); }
     }
@@ -4410,21 +4444,30 @@ function updateBosses(dt){
 
     function spatialSelection(rects,current,dx,dy){
       if(!rects.length || (!dx&&!dy)) return current;
-      const source=rects[current]||rects[0],sx=source.x+source.w/2,sy=source.y+source.h/2;
-      const primaryHorizontal=Math.abs(dx)>=Math.abs(dy);
-      let candidates=rects.map((r,i)=>({i,x:r.x+r.w/2,y:r.y+r.h/2})).filter(p=>p.i!==current&&(
-        primaryHorizontal?(dx>0?p.x>sx:p.x<sx):(dy>0?p.y>sy:p.y<sy)
-      ));
-      if(!candidates.length){
-        const edge=primaryHorizontal?(dx>0?Math.min(...rects.map(r=>r.x)):Math.max(...rects.map(r=>r.x+r.w))):(dy>0?Math.min(...rects.map(r=>r.y)):Math.max(...rects.map(r=>r.y+r.h)));
-        candidates=rects.map((r,i)=>({i,x:r.x+r.w/2,y:r.y+r.h/2,edgeDistance:primaryHorizontal?Math.abs(r.x-edge):Math.abs(r.y-edge)}));
+      const source=rects[current]||rects[0];
+      const sx=source.x+source.w/2,sy=source.y+source.h/2;
+      const points=rects.map((r,i)=>({i,r,x:r.x+r.w/2,y:r.y+r.h/2}));
+
+      if(dx){
+        // Horizontal input remains on the same visible row. This prevents a
+        // split card from jumping diagonally to another section.
+        const sameRow=points.filter(p=>p.i!==current &&
+          Math.min(source.y+source.h,p.r.y+p.r.h)-Math.max(source.y,p.r.y)>Math.min(source.h,p.r.h)*.35 &&
+          (dx>0?p.x>sx+1:p.x<sx-1));
+        if(!sameRow.length) return current;
+        sameRow.sort((a,b)=>Math.abs(a.x-sx)-Math.abs(b.x-sx));
+        return sameRow[0].i;
       }
-      candidates.sort((a,b)=>{
-        const aPrimary=primaryHorizontal?Math.abs(a.x-sx):Math.abs(a.y-sy),bPrimary=primaryHorizontal?Math.abs(b.x-sx):Math.abs(b.y-sy);
-        const aCross=primaryHorizontal?Math.abs(a.y-sy):Math.abs(a.x-sx),bCross=primaryHorizontal?Math.abs(b.y-sy):Math.abs(b.x-sx);
-        return ((a.edgeDistance??0)*10000+aCross*6+aPrimary)-((b.edgeDistance??0)*10000+bCross*6+bPrimary);
-      });
-      return candidates[0]?.i??current;
+
+      // Vertical input advances to the immediately adjacent visual row, then
+      // selects the card whose center is closest horizontally.
+      const vertical=points.filter(p=>p.i!==current&&(dy>0?p.y>sy+1:p.y<sy-1));
+      if(!vertical.length) return current;
+      const nearestRowDistance=Math.min(...vertical.map(p=>Math.abs(p.y-sy)));
+      const rowTolerance=3;
+      const nearestRow=vertical.filter(p=>Math.abs(Math.abs(p.y-sy)-nearestRowDistance)<=rowTolerance);
+      nearestRow.sort((a,b)=>Math.abs(a.x-sx)-Math.abs(b.x-sx)||a.i-b.i);
+      return nearestRow[0].i;
     }
 
     function controllerTypeRects(){
@@ -5375,7 +5418,7 @@ mobilePauseBtn?.addEventListener('click', (e) => {
       updateHitUI();
       flashTimer = 220;
       spawnImpact(ship.x, ship.y);
-      playDamageSound();
+      if(hits < MAX_HITS) playDamageSound();
       addShake(3.5, 220);
 
       if(hits >= MAX_HITS){
