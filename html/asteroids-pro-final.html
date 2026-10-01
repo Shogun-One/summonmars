@@ -2549,8 +2549,24 @@ document.querySelectorAll('img[data-asset]').forEach((img) => {
       if(!fullscreenElement()){
         enterFullscreen();
       }else{
+        // The Game Over screen must remain a stable, usable application
+        // surface. A held controller button previously toggled fullscreen off
+        // while the player was trying to choose Restart or Continue.
+        if(gameOver) return;
         (doc.exitFullscreen || doc.webkitExitFullscreen || doc.msExitFullscreen).call(doc);
       }
+    }
+
+    function restoreGameFullscreenFromGesture(){
+      if(fullscreenElement() || fullscreenRequestInFlight) return;
+      // Called synchronously from a real pointer/key gesture so browsers that
+      // require user activation can restore fullscreen before the next run.
+      autoFullscreenPending = true;
+      fullscreenRequestInFlight = true;
+      enterFullscreen().then((entered)=>{
+        if(entered) autoFullscreenPending = false;
+        syncViewportAfterFullscreen();
+      }).finally(()=>{ fullscreenRequestInFlight = false; });
     }
 
     function closeGameWindow(){
@@ -3131,8 +3147,15 @@ async function setSoundMode(nextMode, announce = true){
       }
     }
 
-    function speakCombatVocal(text,{pitch=1,rate=1,volume=1,echo=false}={}){
+    function selectedPilotVoiceProfile(){
+      return new Set(['pilot-nova','pilot-indian-f','pilot-black-f','pilot-asian-f']).has(equippedStore.pilot)
+        ? 'female'
+        : 'male';
+    }
+
+    function speakCombatVocal(text,{pitch=1,rate=1,volume=1,echo=false,profile='female',replace=false}={}){
       if(!effectsEnabled() || !('speechSynthesis' in window) || typeof SpeechSynthesisUtterance==='undefined') return;
+      if(replace){ try{ window.speechSynthesis.cancel(); }catch{} }
       const speak=(delay,echoScale=1,echoPitch=pitch)=>setTimeout(()=>{
         if(!effectsEnabled()) return;
         try{
@@ -3142,8 +3165,13 @@ async function setSoundMode(nextMode, announce = true){
           utterance.rate=clamp(rate,.45,2);
           utterance.volume=clamp(volume*effectsVolumeScale()*echoScale,0,1);
           const voices=window.speechSynthesis.getVoices();
-          const english=voices.find(voice=>/^en[-_]/i.test(voice.lang)&&/(natural|premium|enhanced|samantha|google|ava|aria)/i.test(voice.name))
-            || voices.find(voice=>/^en[-_]/i.test(voice.lang));
+          const englishVoices=voices.filter(voice=>/^en[-_]/i.test(voice.lang));
+          const malePattern=/(male|david|mark|guy|alex|daniel|james|thomas|aaron|fred|ralph|george|lee|ryan)/i;
+          const femalePattern=/(female|samantha|ava|aria|zira|victoria|karen|moira|susan|joanna|serena)/i;
+          const preferredPattern=profile==='female'?femalePattern:malePattern;
+          const english=englishVoices.find(voice=>preferredPattern.test(voice.name))
+            || englishVoices.find(voice=>profile==='female'?!malePattern.test(voice.name):!femalePattern.test(voice.name))
+            || englishVoices[0];
           if(english) utterance.voice=english;
           window.speechSynthesis.speak(utterance);
         }catch{}
@@ -3187,7 +3215,13 @@ async function setSoundMode(nextMode, announce = true){
 
         thud.start(now); thud.stop(now+.20);
         alarm.start(now); alarm.stop(now+.16);
-        speakCombatVocal('Ugh!',{pitch:1.02,rate:1.18,volume:1});
+        const profile=selectedPilotVoiceProfile();
+        speakCombatVocal(profile==='female'?'Ugh!':'Hrrugh!',{
+          profile,
+          pitch:profile==='female'?1.02:.58,
+          rate:profile==='female'?1.18:.82,
+          volume:1
+        });
         triggerSpeakerBoom(.48,190);
         setTimeout(()=>{
           for(const node of [thud,alarm,thudGain,alarmGain,filter,output]) try{ node.disconnect(); }catch{}
@@ -3195,18 +3229,30 @@ async function setSoundMode(nextMode, announce = true){
       }catch(err){ console.warn('Damage sound failed:',err); }
     }
 
-    function playDefeatYell(kind='player'){
+    function playDefeatYell(kind='player',{final=false}={}){
       if(!effectsEnabled()) return;
       const isBoss=kind==='boss';
+      const profile=isBoss?'boss':selectedPilotVoiceProfile();
+      const isFemale=profile==='female';
       // Keep the blast synthesis inside playExplosionSound(). The vocal must
       // come from a human voice; oscillator "formants" sounded like a horn.
-      speakCombatVocal(isBoss?'Aaaaah!':'Aaah!',{
-        pitch:isBoss?.72:1.08,
-        rate:isBoss?.62:.90,
+      speakCombatVocal(isBoss?'Rrraaaaagh!':isFemale?'Aaah!':'Aaaarrgh!',{
+        profile,
+        pitch:isBoss?.30:isFemale?1.08:.54,
+        rate:isBoss?.50:isFemale?.90:.72,
         volume:1,
-        echo:isBoss
+        echo:isBoss||final,
+        replace:final
       });
       triggerSpeakerBoom(isBoss?1.25:.96,isBoss?1120:500);
+      if(final){
+        clearTimeout(playDefeatYell._announcementTimer);
+        playDefeatYell._announcementTimer=setTimeout(()=>{
+          speakCombatVocal(storeCredits>=CONTINUE_COST?'Continue?':'Game Over',{
+            profile:'male',pitch:.72,rate:.78,volume:.92
+          });
+        },1550);
+      }
     }
 
     function playMissileWhistle(){
@@ -3277,6 +3323,12 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
       if(e.pointerType === 'mouse' && e.button !== 0) return;
       e.preventDefault();
       e.stopPropagation();
+      if(gameOver){
+        restoreGameFullscreenFromGesture();
+        gameOverSelection='restart';
+        confirmGameOverChoice();
+        return;
+      }
       launchMissile();
       try{ navigator.vibrate?.(18); }catch{}
     }
@@ -3299,6 +3351,12 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
     let mobileFireHeld = false;
     let inventoryPointerScroll = null;
     canvas.addEventListener('pointerdown', (e) => {
+      if(gameOver){
+        e.preventDefault();
+        restoreGameFullscreenFromGesture();
+        handleGameOverPointer(e.clientX,e.clientY);
+        return;
+      }
       if(paused && !gameOver){
         e.preventDefault();
         if(pauseMenuView==='inventory' && e.pointerType!=='mouse'){
@@ -4506,6 +4564,8 @@ function updateBosses(dt){
     }
 
     function resetRun(keepBest = true){
+      clearTimeout(playDefeatYell._announcementTimer);
+      try{ window.speechSynthesis?.cancel(); }catch{}
       score = 0;
       hits = 0;
       lives = MAX_LIVES;
@@ -4702,6 +4762,8 @@ function updateBosses(dt){
     }
 
     function continueRun(){
+      clearTimeout(playDefeatYell._announcementTimer);
+      try{ window.speechSynthesis?.cancel(); }catch{}
       if(storeCredits < CONTINUE_COST) return;
       storeCredits -= CONTINUE_COST;
       saveInventory();
@@ -4727,8 +4789,29 @@ function updateBosses(dt){
 
     function confirmGameOverChoice(){
       if(!gameOver) return;
+      restoreGameFullscreenFromGesture();
       if(gameOverSelection === 'continue' && storeCredits >= CONTINUE_COST) continueRun();
       else softRestart();
+    }
+
+    function handleGameOverPointer(clientX,clientY){
+      if(!gameOver) return;
+      const rect=canvas.getBoundingClientRect();
+      if(!rect.width||!rect.height) return;
+      const x=(clientX-rect.left)*width/rect.width;
+      const y=(clientY-rect.top)*height/rect.height;
+      const gap=16;
+      const boxW=(width-56-gap)/2;
+      const boxH=126;
+      const boxY=height*.48;
+      if(y<boxY||y>boxY+boxH) return;
+      if(x>=20&&x<=20+boxW){
+        gameOverSelection='restart';
+        confirmGameOverChoice();
+      }else if(x>=36+boxW&&x<=36+boxW*2&&storeCredits>=CONTINUE_COST){
+        gameOverSelection='continue';
+        confirmGameOverChoice();
+      }
     }
 
 // Pause button + P key
@@ -5044,6 +5127,7 @@ function updateBosses(dt){
       keysDown[e.key] = true;
       if(e.key === ' ' || e.code === 'Space') e.preventDefault();
       if(gameOver){
+        restoreGameFullscreenFromGesture();
         if(e.key === 'ArrowLeft' || e.key === 'ArrowUp' || e.key === 'a' || e.key === 'A' || e.key === 'w' || e.key === 'W'){
           e.preventDefault();
           gameOverSelection = 'restart';
@@ -5333,7 +5417,7 @@ function updateBosses(dt){
         if(startPressed && !startWasPressed){
           startHoldStartedAt = performance.now();
           startHoldTriggered = false;
-        }else if(startPressed && !startHoldTriggered && startHoldStartedAt &&
+        }else if(startPressed && !startHoldTriggered && startHoldStartedAt && !gameOver &&
           performance.now() - startHoldStartedAt >= START_FULLSCREEN_HOLD_MS){
           startHoldTriggered = true;
           toggleFullscreen();
@@ -5750,7 +5834,8 @@ mobilePauseBtn?.addEventListener('pointerdown', (e) => {
         spawnExplosion(ship.x, ship.y, 2.2, 'player');
         spawnExplosion(ship.x + rand(-10,10), ship.y + rand(-10,10), 1.1, 'player');
         playExplosionSound('player');
-        playDefeatYell('player');
+        const isFinalLife=lives<=0;
+        playDefeatYell('player',{final:isFinalLife});
         // Every lost life gets a clearly visible shake, but remains softer
         // and shorter than the final GAME OVER collapse below.
         addShake(9.5, 680);
@@ -7975,7 +8060,7 @@ if (flashTimer > 0) {
         'Hit Reset Field',
         'to run it back.'
       ]);
-      choiceBox(36+boxW, gameOverSelection === 'continue' && affordable, affordable, 'CONTINUE', [
+      choiceBox(36+boxW, gameOverSelection === 'continue' && affordable, affordable, 'CONTINUE?', [
         affordable ? 'Spend 2,000 points' : 'Requires 2,000 points',
         affordable ? 'Buy 5 more lives.' : `Current points: ${storeCredits}`,
         affordable ? `Points after: ${storeCredits-CONTINUE_COST}` : 'Unavailable'
