@@ -11,6 +11,7 @@
   <meta name="apple-mobile-web-app-title" content="Asteroid Drift" />
   <link rel="manifest" href="/asteroid-drift.webmanifest" />
   <link rel="apple-touch-icon" href="/images/asteroids/app-icon-192.png" />
+  <link rel="preload" as="image" type="image/webp" href="/images/asteroids/asteroid-drift-splash.webp" />
   <script src="https://cdn.busuanzi.cc/busuanzi/3.6.9/busuanzi.min.js" defer></script>
 
   <!-- Spacey + readable HUD fonts -->
@@ -177,6 +178,20 @@
     .launch-choice button:disabled{cursor:not-allowed;color:#77717d;border-color:rgba(150,145,155,.34);background:#0d0b11;box-shadow:none;filter:grayscale(1);opacity:.55}
     .launch-choice button:disabled small{color:#6f6975}
     .launch-choice small{display:block;margin-top:5px;color:#bcb1c8;font:600 13px 'Share Tech Mono',monospace}
+    .launch-choice button.controller-selected,
+    .launch-choice button:focus{outline:2px solid #7dffbc;outline-offset:3px;color:#7dffbc;box-shadow:0 0 26px rgba(80,255,165,.48)}
+    .splash-screen{position:fixed;inset:0;z-index:2147483646;display:grid;place-items:center;width:100%;height:var(--visual-height,100dvh);min-height:var(--visual-height,100dvh);overflow:hidden;background:#05030b url('/images/asteroids/asteroid-drift-splash.webp') center/cover no-repeat;color:#fff;font-family:'Orbitron',sans-serif;isolation:isolate}
+    .splash-screen[hidden]{display:none}
+    .splash-screen::before{content:"";position:absolute;inset:-8%;z-index:-1;background:inherit;animation:splashDrift 3s cubic-bezier(.18,.74,.22,1) both}
+    .splash-screen::after{content:"";position:absolute;inset:0;z-index:-1;background:radial-gradient(circle at 50% 48%,transparent 8%,rgba(4,2,11,.18) 58%,rgba(4,2,11,.78) 100%),linear-gradient(180deg,rgba(3,2,10,.3),transparent 45%,rgba(3,2,10,.68))}
+    .splash-screen__content{text-align:center;padding:24px;animation:splashReveal 3s ease both}
+    .splash-screen__title{margin:0;color:#ff9cdd;text-shadow:0 0 12px #ff39ba,0 0 34px rgba(111,221,255,.75);font:900 clamp(26px,7vw,86px)/1 'Orbitron',sans-serif;letter-spacing:.08em;white-space:nowrap}
+    .splash-screen__tagline{margin:12px 0 0;color:#c9f7ff;text-shadow:0 0 12px rgba(79,222,255,.9);font:700 clamp(12px,2.5vw,21px)/1.25 'Share Tech Mono',monospace;letter-spacing:.32em}
+    .splash-screen__progress{position:absolute;left:50%;bottom:max(28px,env(safe-area-inset-bottom));width:min(360px,68vw);height:3px;overflow:hidden;translate:-50% 0;border-radius:99px;background:rgba(255,255,255,.16)}
+    .splash-screen__progress::after{content:"";display:block;width:100%;height:100%;transform-origin:left;background:linear-gradient(90deg,#5ff7ff,#ff53c6);box-shadow:0 0 13px #ff53c6;animation:splashProgress 3s linear both}
+    @keyframes splashDrift{0%{transform:scale(1.12) translate3d(-1.4%,1%,0);filter:brightness(.48) saturate(.8)}35%{filter:brightness(1.08) saturate(1.25)}100%{transform:scale(1.02) translate3d(1%,-.5%,0);filter:brightness(.7) saturate(1.05)}}
+    @keyframes splashReveal{0%,12%{opacity:0;transform:scale(.84);filter:blur(10px)}35%,78%{opacity:1;transform:scale(1);filter:blur(0)}100%{opacity:0;transform:scale(1.05);filter:blur(4px)}}
+    @keyframes splashProgress{from{transform:scaleX(0)}to{transform:scaleX(1)}}
 
     .wrapper{
       position:relative;
@@ -2045,6 +2060,13 @@ footer{
 </head>
 
 <body>
+  <section id="splashScreen" class="splash-screen" aria-label="Asteroid Drift opening" hidden>
+    <div class="splash-screen__content">
+      <h1 class="splash-screen__title">ASTEROID DRIFT</h1>
+      <p class="splash-screen__tagline">DRIFT · FIRE · SURVIVE</p>
+    </div>
+    <div class="splash-screen__progress" aria-hidden="true"></div>
+  </section>
   <section id="previewGate" class="preview-gate" aria-labelledby="previewGateTitle"><form id="previewGateForm" class="preview-gate__panel"><h1 id="previewGateTitle">ASTEROID DRIFT</h1><p>Private playtest build</p><label for="previewPassword">Enter playtest password</label><input id="previewPassword" name="password" type="password" autocomplete="current-password" autocapitalize="none" spellcheck="false" required autofocus><button type="submit">UNLOCK GAME</button><p id="previewGateError" class="preview-gate__error" role="alert" aria-live="polite"></p></form></section>
   <canvas id="bgfx" aria-hidden="true"></canvas>
   <div id="impactFx" aria-hidden="true">
@@ -2527,9 +2549,14 @@ document.querySelectorAll('img[data-asset]').forEach((img) => {
     const stickEl = joystickEl ? joystickEl.querySelector('.stick') : null;
     const mobilePauseBtn = document.getElementById('mobilePauseBtn');
     const launchChoiceEl = document.getElementById('launchChoice');
+    const splashScreenEl = document.getElementById('splashScreen');
     const continueGameBtn = document.getElementById('continueGameBtn');
     const continueGameMetaEl = document.getElementById('continueGameMeta');
     const newGameBtn = document.getElementById('newGameBtn');
+    let splashActive = false;
+    let launchChoiceSelection = 0;
+    let launchAxisLatch = 0;
+    let suppressLaunchCarryover = false;
 
     let width = canvas.width;
     let height = canvas.height;
@@ -3050,7 +3077,8 @@ async function setSoundMode(nextMode, announce = true){
           setupAudioAnalyzer();
           if(audioCtx && audioCtx.state === 'suspended') await audioCtx.resume();
         }
-        if(musicEnabled()){
+        const gameplayAudioActive = defaultSoundStarted && launchChoiceEl.hidden && !splashActive && !paused;
+        if(musicEnabled() && gameplayAudioActive){
           applyMusicVolume();
           await music.play();
           pulseActive = true;
@@ -4703,7 +4731,42 @@ function updateBosses(dt){
       continueGameMetaEl.textContent=saved
         ? `Resume Level ${Math.max(1,saved.level|0)} • ${storeCredits.toLocaleString()} points • ${Math.max(0,ownedStoreItems.size-3)} unlocks`
         : 'No saved game yet';
-      requestAnimationFrame(()=>(saved?continueGameBtn:newGameBtn).focus());
+      setLaunchChoiceSelection(saved ? 0 : 1);
+    }
+
+    function setLaunchChoiceSelection(index){
+      const buttons=[continueGameBtn,newGameBtn];
+      launchChoiceSelection=index===0 && continueGameBtn.disabled ? 1 : clamp(index,0,buttons.length-1);
+      buttons.forEach((button,buttonIndex)=>button.classList.toggle('controller-selected',buttonIndex===launchChoiceSelection));
+      requestAnimationFrame(()=>buttons[launchChoiceSelection].focus({preventScroll:true}));
+    }
+
+    function navigateLaunchChoice(direction){
+      if(launchChoiceEl.hidden || splashActive || !direction) return;
+      const enabled=[0,1].filter(index=>![continueGameBtn,newGameBtn][index].disabled);
+      const current=Math.max(0,enabled.indexOf(launchChoiceSelection));
+      setLaunchChoiceSelection(enabled[(current+(direction>0?1:-1)+enabled.length)%enabled.length]);
+    }
+
+    function confirmLaunchChoice(){
+      if(launchChoiceEl.hidden || splashActive) return;
+      suppressLaunchCarryover=true;
+      [continueGameBtn,newGameBtn][launchChoiceSelection]?.click();
+    }
+
+    function showOpeningSplash(){
+      splashActive=true;
+      running=false;
+      launchChoiceEl.hidden=true;
+      splashScreenEl.hidden=false;
+      music.pause();
+      pulseActive=false;
+      setMusicUI(false);
+      setTimeout(()=>{
+        splashScreenEl.hidden=true;
+        splashActive=false;
+        showLaunchChoice();
+      },3000);
     }
 
     function startFreshCampaignAfterReset(){
@@ -4786,10 +4849,8 @@ function updateBosses(dt){
     });
 
     function handleGameUnlocked(){
-      if(sessionStorage.getItem(NEW_GAME_PENDING_KEY)==='1'){
-        sessionStorage.removeItem(NEW_GAME_PENDING_KEY);
-        startFreshCampaignAfterReset();
-      }else showLaunchChoice();
+      sessionStorage.removeItem(NEW_GAME_PENDING_KEY);
+      showOpeningSplash();
     }
     document.addEventListener('asteroid-gate-unlocked',handleGameUnlocked,{once:true});
 
@@ -5405,7 +5466,6 @@ function updateBosses(dt){
       for(let index = 0; index < currentButtons.length; index++){
         if(buttonEdge(index, currentButtons)){
           controllerLastInput.textContent = `Last input: Button ${index}`;
-          startDefaultSound();
         }
       }
 
@@ -5420,12 +5480,50 @@ function updateBosses(dt){
         stick = { x:pad.axes[6] || 0, y:pad.axes[7] || 0 };
       }
 
+      // The opening splash is intentionally silent and non-interactive. On
+      // the following Continue/New Game screen, reserve the controller for
+      // menu navigation so it cannot trigger music or gameplay shortcuts.
+      if(splashActive){
+        gamepadState.x=0;
+        gamepadState.y=0;
+        gamepadState.fire=false;
+        launchAxisLatch=0;
+        gamepadState.previousButtons=currentButtons;
+        return;
+      }
+      if(!launchChoiceEl.hidden){
+        const dpadDirection=buttonEdge(12,currentButtons)||buttonEdge(14,currentButtons)
+          ? -1
+          : buttonEdge(13,currentButtons)||buttonEdge(15,currentButtons) ? 1 : 0;
+        const dominantAxis=Math.abs(stick.y)>=Math.abs(stick.x)?stick.y:stick.x;
+        const axisDirection=Math.abs(dominantAxis)>.55?Math.sign(dominantAxis):0;
+        if(dpadDirection) navigateLaunchChoice(dpadDirection);
+        else if(axisDirection && !launchAxisLatch) navigateLaunchChoice(axisDirection);
+        launchAxisLatch=axisDirection;
+        if(gamepadConfig.fire.some(index=>buttonEdge(index,currentButtons))) confirmLaunchChoice();
+        gamepadState.x=0;
+        gamepadState.y=0;
+        gamepadState.fire=false;
+        gamepadState.previousButtons=currentButtons;
+        return;
+      }
+      launchAxisLatch=0;
+
+      if(suppressLaunchCarryover){
+        const fireStillHeld=gamepadConfig.fire.some(index=>currentButtons[index]);
+        if(Math.hypot(stick.x,stick.y)<.22 && !fireStillHeld) suppressLaunchCarryover=false;
+        gamepadState.x=0;
+        gamepadState.y=0;
+        gamepadState.fire=false;
+        gamepadState.previousButtons=currentButtons;
+        return;
+      }
+
       const magnitude = Math.hypot(stick.x, stick.y);
       if(magnitude < 0.18){
         gamepadState.x = 0;
         gamepadState.y = 0;
       }else{
-        if(!paused && !gameOver) startDefaultSound();
         const linear = Math.min(1, (magnitude - 0.18) / 0.82);
         // A gentle exponential curve gives fine control near the center while
         // still allowing full thrust at the edge of the stick.

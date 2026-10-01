@@ -1,9 +1,10 @@
-const CACHE_NAME = 'asteroid-drift-shell-v1';
+const CACHE_NAME = 'asteroid-drift-shell-v2';
 const APP_SHELL = [
   '/html/asteroids-pro-final.html',
   '/asteroid-drift.webmanifest',
   '/images/asteroids/app-icon-192.png',
-  '/images/asteroids/app-icon-512.png'
+  '/images/asteroids/app-icon-512.png',
+  '/images/asteroids/asteroid-drift-splash.webp'
 ];
 
 self.addEventListener('install', event => {
