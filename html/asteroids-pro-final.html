@@ -124,7 +124,7 @@
       pointer-events:none;
     }
 
-    /* impact FX overlay (broken glass + flash) */
+    /* impact FX overlay (soft damage flash) */
     #impactFx{
       position:fixed;
       inset:0;
@@ -141,8 +141,7 @@
     #impactFx.active{ opacity:1; }
     #impactFx.glass{
       background-image:
-        radial-gradient(circle at 50% 40%, rgba(255,255,255,.10), rgba(0,0,0,0) 55%),
-        url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%201200%201200%27%3E%3Cg%20fill%3D%27none%27%20stroke%3D%27rgba(255%2C231%2C255%2C0.32)%27%20stroke-width%3D%273.2%27%20stroke-linecap%3D%27round%27%3E%3Cpath%20d%3D%27M600%20620%20L80%20120%27/%3E%3Cpath%20d%3D%27M600%20620%20L1120%20120%27/%3E%3Cpath%20d%3D%27M600%20620%20L90%201090%27/%3E%3Cpath%20d%3D%27M600%20620%20L1110%201090%27/%3E%3Cpath%20d%3D%27M600%20620%20L600%20-40%27/%3E%3Cpath%20d%3D%27M600%20620%20L600%201240%27/%3E%3Cpath%20d%3D%27M600%20620%20L-40%20620%27/%3E%3Cpath%20d%3D%27M600%20620%20L1240%20620%27/%3E%3Cpath%20d%3D%27M600%20620%20C520%20560%20450%20520%20400%20450%27/%3E%3Cpath%20d%3D%27M600%20620%20C680%20560%20760%20510%20820%20430%27/%3E%3Cpath%20d%3D%27M600%20620%20C520%20690%20450%20760%20370%20810%27/%3E%3Cpath%20d%3D%27M600%20620%20C680%20690%20740%20780%20820%20840%27/%3E%3C/g%3E%3C/svg%3E");
+        radial-gradient(circle at 50% 42%, rgba(255,255,255,.10), rgba(255,59,130,.055) 34%, rgba(0,0,0,0) 68%);
     }
     #impactFx.boomflash{
       background-image: radial-gradient(circle at 50% 45%, rgba(255,59,130,.22), rgba(0,0,0,0) 60%);
@@ -200,7 +199,7 @@
         .hud{
       width:100%;
       max-width:480px;
-      font-size:.85rem;
+      font-size:.92rem;
       opacity:.92;
       margin-top:.15rem;
 
@@ -278,7 +277,7 @@
           "score score best best toNext toNext toNext"
           "hits hits hits lives bossKills bossKills bossKills";
         gap:.4rem;
-        font-size:.8rem;
+        font-size:.86rem;
       }
       .hud .pill{ padding:.24rem .5rem; }
     }
@@ -978,12 +977,13 @@ body.music-on .bubble-btn .ring.flip{
 
     .visit-counter {
       position: fixed;
-      bottom: calc(8px + env(safe-area-inset-bottom));
-      left: 50%;
+      top: calc(6px + env(safe-area-inset-top));
+      bottom: auto;
+      left: 8px;
       right: auto;
-      transform: translateX(-50%);
-      font-size: 0.7rem;
-      opacity: 0.68;
+      transform: none;
+      font-size: 0.56rem;
+      opacity: 0.22;
       letter-spacing: 0.08em;
       color: rgba(255,255,255,0.75);
       pointer-events: none;
@@ -1041,7 +1041,7 @@ body.music-on .bubble-btn .ring.flip{
 
       .hud{
         gap:.45rem;
-        font-size:.8rem;
+        font-size:.86rem;
       }
       .hud .pill{ padding:.24rem .52rem; }
 
@@ -1065,7 +1065,11 @@ body.music-on .hud .pill{
       .wrapper{ gap:.35rem; padding:.5rem; }
       .subtitle{ display:none; }
       footer{ display:none; }
-      .visit-counter{ font-size:.62rem; bottom:calc(4px + env(safe-area-inset-bottom)); }
+      .visit-counter{
+        top:calc(3px + env(safe-area-inset-top));
+        bottom:auto;
+        font-size:.52rem;
+      }
 
       canvas#game{
         width: min(100%, calc((100dvh - 345px) * .75), 480px);
@@ -2873,6 +2877,7 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
     // Game state
     let bestScore = Number(localStorage.getItem('asteroidBest') || 0);
     bestEl.textContent = bestScore;
+    let score = 0;
 
     const MAX_HITS = 10;
     const MAX_LIVES = 5;
@@ -2916,7 +2921,7 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
     ];
     let storeCredits = Math.max(0, Number(localStorage.getItem('asteroidStoreCredits') || 0));
     function syncPointsBalanceUI(){
-      scoreEl.textContent = storeCredits.toLocaleString();
+      scoreEl.textContent = score.toLocaleString();
     }
     syncPointsBalanceUI();
     let ownedStoreItems;
@@ -3208,7 +3213,6 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
       updateWeaponStatusOverlay();
     }
 
-    let score = 0;
     let hits = 0;
     let lives = MAX_LIVES;
 
@@ -5689,8 +5693,8 @@ mobilePauseBtn?.addEventListener('click', (e) => {
 
       for(const item of spaceFlow){
         if(item.kind==='star'){
-          const alpha=.10+item.depth*.42;
-          const streak=1+item.depth*5.5;
+          const alpha=.07+item.depth*.26;
+          const streak=.7+item.depth*2.3;
           const grad=ctx.createLinearGradient(item.x,item.y-streak,item.x,item.y+streak);
           grad.addColorStop(0,'rgba(215,225,255,0)');
           grad.addColorStop(1,`rgba(215,225,255,${alpha})`);
