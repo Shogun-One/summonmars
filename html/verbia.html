@@ -77,9 +77,10 @@
       width: min(100%, 540px);
       min-height: 100svh;
       margin: 0 auto;
-      padding: max(20px, env(safe-area-inset-top)) 18px max(22px, env(safe-area-inset-bottom));
+      padding: max(50px, calc(env(safe-area-inset-top) + 22px)) 18px max(22px, env(safe-area-inset-bottom));
       display: grid;
-      grid-template-rows: auto auto minmax(365px, 1fr) auto;
+      grid-template-rows: auto auto auto auto;
+      align-content: start;
       gap: 14px;
     }
 
@@ -179,6 +180,7 @@
 
     .playfield {
       position: relative;
+      height: clamp(390px, 58svh, 540px);
       min-height: 365px;
       overflow: hidden;
       border: 1px solid rgba(117,245,199,.2);
@@ -475,11 +477,9 @@
     .reward-wheel-wrap { position:relative; width:260px; height:260px; margin:0 auto 15px; }
     .reward-pointer { position:absolute; z-index:4; left:50%; top:-10px; translate:-50% 0; color:#fff1a3; font-size:2rem; filter:drop-shadow(0 2px 5px #000); }
     .reward-dart { position:absolute; z-index:5; left:50%; top:-65px; translate:-50% 0; font-size:2.2rem; opacity:0; }
-    .reward-dart.fired { animation:dartThrow .55s cubic-bezier(.2,.8,.25,1) forwards; }
-    @keyframes dartThrow { 0%{opacity:1;transform:translateY(-75px) scale(1.4)} 85%,100%{opacity:1;transform:translateY(82px) scale(.82)} }
+    .reward-dart.fired { animation:dartThrow var(--dart-duration,.65s) cubic-bezier(.18,.78,.22,1) forwards; }
+    @keyframes dartThrow { 0%{opacity:1;transform:translate(0,-75px) rotate(-12deg) scale(1.4)} 82%,100%{opacity:1;transform:translate(var(--dart-x,0),var(--dart-y,100px)) rotate(var(--dart-rotate,0deg)) scale(.82)} }
     .reward-wheel { position:absolute; inset:8px; border:8px solid #efe2a1; border-radius:50%; background:conic-gradient(#ed6d5f 0 60deg,#61cfaa 60deg 120deg,#678cf1 120deg 180deg,#f3bf45 180deg 240deg,#b46fdb 240deg 300deg,#e89551 300deg); box-shadow:0 0 30px rgba(255,217,120,.28),inset 0 0 25px rgba(0,0,0,.35); }
-    .reward-wheel.spinning { animation:wheelSpin 2.3s linear infinite; }
-    @keyframes wheelSpin { to { transform:rotate(360deg); } }
     .wheel-label { position:absolute; left:50%; top:50%; width:76px; margin:-10px 0 0 -38px; color:white; font-size:.62rem; font-weight:950; text-shadow:0 1px 3px #000; transform:rotate(var(--angle)) translateY(-84px) rotate(var(--back)); }
     .power-label { display:flex; justify-content:space-between; color:var(--muted); font-size:.58rem; font-weight:850; letter-spacing:.09em; text-transform:uppercase; }
     .power-meter { height:22px; margin:6px 0 12px; padding:3px; overflow:hidden; border:1px solid rgba(255,255,255,.16); border-radius:99px; background:#090e13; cursor:crosshair; }
@@ -654,14 +654,13 @@
     .launch-choice-button:disabled small { color:#939e9b; }
 
     @media (min-height: 760px) {
-      .app { grid-template-rows: auto auto minmax(430px, 1fr) auto; }
-      .playfield { min-height: 430px; }
+      .playfield { min-height: 410px; }
     }
 
     @media (max-height: 680px) {
-      .app { padding-top: 10px; padding-bottom: 10px; gap: 9px; grid-template-rows: auto auto minmax(330px, 1fr) auto; }
+      .app { padding-top:max(34px,calc(env(safe-area-inset-top) + 14px)); padding-bottom:10px; gap:9px; }
       h1 { font-size: 2.35rem; }
-      .playfield { min-height: 330px; }
+      .playfield { height:48svh; min-height:330px; }
       .progress-card { padding-block: 9px; }
     }
 
@@ -802,7 +801,7 @@
       <p>Tap the cycling power meter to throw your dart at the spinning reward world.</p>
       <div class="reward-wheel-wrap">
         <span class="reward-pointer" aria-hidden="true">▼</span><span class="reward-dart" id="rewardDart" aria-hidden="true">🎯</span>
-        <div class="reward-wheel spinning" id="rewardWheel">
+        <div class="reward-wheel" id="rewardWheel">
           <span class="wheel-label" style="--angle:30deg;--back:-30deg">Hints ×3</span><span class="wheel-label" style="--angle:90deg;--back:-90deg">200 pts</span><span class="wheel-label" style="--angle:150deg;--back:-150deg">50 pts</span><span class="wheel-label" style="--angle:210deg;--back:-210deg">Hint ×1</span><span class="wheel-label" style="--angle:270deg;--back:-270deg">100 pts</span><span class="wheel-label" style="--angle:330deg;--back:-330deg">25 pts</span>
         </div>
       </div>
@@ -918,6 +917,9 @@
       let hasStarted = false;
       let powerValue = 0;
       let powerFrame = 0;
+      let wheelFrame = 0;
+      let wheelAngle = 0;
+      let wheelLastTime = 0;
 
       ensureBoard(boardIndex + 1);
 
@@ -1577,12 +1579,28 @@
         rewardFire.disabled = false;
         rewardFire.textContent = "Throw dart";
         rewardDart.classList.remove("fired");
-        rewardWheel.classList.add("spinning");
-        rewardWheel.style.transform = "";
+        rewardDart.style.removeProperty("--dart-x");
+        rewardDart.style.removeProperty("--dart-y");
+        rewardWheel.style.transition = "none";
         rewardOverlay.classList.add("open");
         rewardOverlay.setAttribute("aria-hidden", "false");
+        startRewardWheel();
         animatePowerMeter();
         rewardFire.focus();
+      }
+
+      function startRewardWheel() {
+        cancelAnimationFrame(wheelFrame);
+        wheelLastTime = performance.now();
+        const spin = now => {
+          if (!rewardOverlay.classList.contains("open") || rewardFire.disabled) return;
+          const elapsed = Math.min(40, now - wheelLastTime);
+          wheelLastTime = now;
+          wheelAngle = (wheelAngle + elapsed * .13) % 360;
+          rewardWheel.style.transform = `rotate(${wheelAngle}deg)`;
+          wheelFrame = requestAnimationFrame(spin);
+        };
+        wheelFrame = requestAnimationFrame(spin);
       }
 
       function animatePowerMeter() {
@@ -1601,17 +1619,32 @@
         if (!rewardOverlay.classList.contains("open") || rewardFire.disabled || progress.dailyRewardDate === todayKey()) return;
         rewardFire.disabled = true;
         cancelAnimationFrame(powerFrame);
+        cancelAnimationFrame(wheelFrame);
         const prizes = [
           {label:"3 extra hints",hints:3}, {label:"200 points",points:200},
           {label:"50 points",points:50}, {label:"1 extra hint",hints:1},
           {label:"100 points",points:100}, {label:"25 points",points:25}
         ];
-        const timing = Math.floor((performance.now() / 383) % 6);
-        const prizeIndex = (timing + Math.floor(powerValue * 6)) % prizes.length;
+        const releaseTime = performance.now();
+        const flightDuration = Math.round(850 - powerValue * 360);
+        const dartX = Math.round(Math.sin(releaseTime / 173) * (18 - powerValue * 7));
+        const dartTravel = Math.round(90 + powerValue * 95);
+        const landingY = -65 + dartTravel;
+        const landingAngle = Math.atan2(dartX, 130 - landingY) * 180 / Math.PI;
+        const coastDegrees = flightDuration * .13 * .48;
+        const finalWheelAngle = (wheelAngle + coastDegrees) % 360;
+        const localAngle = ((landingAngle - finalWheelAngle) % 360 + 360) % 360;
+        const prizeIndex = Math.floor(localAngle / 60) % prizes.length;
         const prize = prizes[prizeIndex];
-        rewardWheel.classList.remove("spinning");
-        rewardWheel.style.transform = `rotate(${720 + (5 - prizeIndex) * 60}deg)`;
+        rewardWheel.style.transition = `transform ${flightDuration}ms cubic-bezier(.12,.72,.2,1)`;
+        rewardWheel.style.transform = `rotate(${wheelAngle + coastDegrees}deg)`;
+        rewardDart.style.setProperty("--dart-x", `${dartX}px`);
+        rewardDart.style.setProperty("--dart-y", `${dartTravel}px`);
+        rewardDart.style.setProperty("--dart-rotate", `${Math.round(dartX * .9)}deg`);
+        rewardDart.style.setProperty("--dart-duration", `${flightDuration}ms`);
+        void rewardDart.offsetWidth;
         rewardDart.classList.add("fired");
+        wheelAngle = finalWheelAngle;
         progress.points = (progress.points || 0) + (prize.points || 0);
         progress.hints.count += prize.hints || 0;
         progress.dailyRewardDate = todayKey();
@@ -1622,11 +1655,12 @@
           rewardFire.textContent = "Prize collected";
           renderWallet();
           navigator.vibrate?.([35,30,60]);
-        }, 560);
+        }, flightDuration + 80);
       }
 
       function closeDailyReward() {
         cancelAnimationFrame(powerFrame);
+        cancelAnimationFrame(wheelFrame);
         rewardOverlay.classList.remove("open");
         rewardOverlay.setAttribute("aria-hidden", "true");
         if (!dailyBubble.hidden) dailyBubble.focus();
