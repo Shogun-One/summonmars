@@ -3235,6 +3235,42 @@ async function setSoundMode(nextMode, announce = true){
         : 'male';
     }
 
+    // Combat vocals are fixed audio assets instead of SpeechSynthesis voices.
+    // Mobile browsers and controller emulators can substitute, flatten, or
+    // completely omit synthesized voices; these recordings sound identical on
+    // every device and already contain the intended death echo.
+    const combatVocalSamples={
+      maleHit:new Audio(A('mp3/pilot-male-hit.mp3')),
+      femaleHit:new Audio(A('mp3/pilot-female-hit.mp3')),
+      maleDefeat:new Audio(A('mp3/pilot-male-defeat.mp3')),
+      femaleDefeat:new Audio(A('mp3/pilot-female-defeat.mp3')),
+      bossDefeat:new Audio(A('mp3/boss-defeat.mp3'))
+    };
+    Object.values(combatVocalSamples).forEach(sample=>{
+      sample.preload='auto';
+      sample.playsInline=true;
+    });
+    const activeCombatSamples=new Set();
+    function stopCombatSamples(){
+      for(const sample of activeCombatSamples){
+        try{ sample.pause(); sample.currentTime=0; }catch{}
+      }
+      activeCombatSamples.clear();
+    }
+    function playCombatSample(name,{volume=1,replace=false}={}){
+      if(!effectsEnabled()) return null;
+      const original=combatVocalSamples[name];
+      if(!original) return null;
+      if(replace) stopCombatSamples();
+      const sample=original.cloneNode(true);
+      sample.volume=clamp(volume*effectsVolumeScale(),0,1);
+      sample.addEventListener('ended',()=>activeCombatSamples.delete(sample),{once:true});
+      sample.addEventListener('error',()=>activeCombatSamples.delete(sample),{once:true});
+      activeCombatSamples.add(sample);
+      sample.play().catch(()=>activeCombatSamples.delete(sample));
+      return sample;
+    }
+
     let combatVocalGeneration=0;
     let combatVoiceCatalog=[];
     const activeCombatUtterances=new Set();
@@ -3340,12 +3376,7 @@ async function setSoundMode(nextMode, announce = true){
         thud.start(now); thud.stop(now+.20);
         alarm.start(now); alarm.stop(now+.16);
         const profile=selectedPilotVoiceProfile();
-        speakCombatVocal(profile==='female'?'Ugh!':'Urgh!',{
-          profile,
-          pitch:profile==='female'?1.08:.42,
-          rate:profile==='female'?1.08:.72,
-          volume:1
-        });
+        playCombatSample(profile==='female'?'femaleHit':'maleHit',{volume:1});
         triggerSpeakerBoom(.48,190);
         setTimeout(()=>{
           for(const node of [thud,alarm,thudGain,alarmGain,filter,output]) try{ node.disconnect(); }catch{}
@@ -3358,16 +3389,13 @@ async function setSoundMode(nextMode, announce = true){
       const isBoss=kind==='boss';
       const profile=isBoss?'boss':selectedPilotVoiceProfile();
       const isFemale=profile==='female';
-      // Keep the blast synthesis inside playExplosionSound(). The vocal must
-      // come from a human voice; oscillator "formants" sounded like a horn.
-      speakCombatVocal(isBoss?'Nooo... Raaagh!':isFemale?'Aah! No!':'Aargh!',{
-        profile,
-        pitch:isBoss?.26:isFemale?1.12:.38,
-        rate:isBoss?.58:isFemale?.88:.68,
-        volume:1,
-        echo:isBoss||final,
-        replace:isBoss||final
-      });
+      // Bosses use a separate colossal growl; pilots use distinct male/female
+      // performances. Final pilot deaths and every boss death have a baked,
+      // multi-tap echo so the tail cannot disappear during a screen change.
+      playCombatSample(
+        isBoss?'bossDefeat':isFemale?'femaleDefeat':'maleDefeat',
+        {volume:isBoss?1:.96,replace:isBoss||final}
+      );
       triggerSpeakerBoom(isBoss?1.25:.96,isBoss?1120:500);
       if(final){
         clearTimeout(playDefeatYell._announcementTimer);
@@ -3375,7 +3403,7 @@ async function setSoundMode(nextMode, announce = true){
           speakCombatVocal(storeCredits>=CONTINUE_COST?'Continue?':'Game Over',{
             profile:'male',pitch:.72,rate:.78,volume:.92
           });
-        },3000);
+        },isFemale?4300:3750);
       }
     }
 
@@ -5533,7 +5561,12 @@ function updateBosses(dt){
 
     function pollGamepad(){
       const pads = navigator.getGamepads ? Array.from(navigator.getGamepads()).filter(Boolean) : [];
-      const pad = pads[0];
+      // Emulators frequently expose a stale controller in slot 0 and the
+      // actively-used controller in a later slot. Follow whichever connected
+      // pad is producing input instead of assuming the first slot is correct.
+      const pad = pads.find(candidate=>
+        candidate.buttons.some(pressed) || candidate.axes.some(value=>Math.abs(value||0)>.20)
+      ) || pads[0];
       const wasConnected = gamepadState.connected;
       gamepadState.connected = Boolean(pad);
 
@@ -5581,27 +5614,10 @@ function updateBosses(dt){
         gamepadState.previousButtons=currentButtons;
         return;
       }
-      if(!launchChoiceEl.hidden){
-        const dpadDirection=buttonEdge(12,currentButtons)||buttonEdge(14,currentButtons)
-          ? -1
-          : buttonEdge(13,currentButtons)||buttonEdge(15,currentButtons) ? 1 : 0;
-        const dominantAxis=Math.abs(stick.y)>=Math.abs(stick.x)?stick.y:stick.x;
-        const axisDirection=Math.abs(dominantAxis)>.55?Math.sign(dominantAxis):0;
-        if(dpadDirection) navigateLaunchChoice(dpadDirection);
-        else if(axisDirection && !launchAxisLatch) navigateLaunchChoice(axisDirection);
-        launchAxisLatch=axisDirection;
-        if(gamepadConfig.fire.some(index=>buttonEdge(index,currentButtons))) confirmLaunchChoice();
-        gamepadState.x=0;
-        gamepadState.y=0;
-        gamepadState.fire=false;
-        gamepadState.previousButtons=currentButtons;
-        return;
-      }
-      launchAxisLatch=0;
 
-      // Game Over is a real controller menu, not gameplay. Handle digital
-      // edges here so A/Cross always activates and the D-pad works even when
-      // the simulation is stopped or a stick is still returning to center.
+      // GAME OVER takes precedence over every hidden/transition menu. The old
+      // ordering allowed a lingering Continue/New Game layer to consume all
+      // controller input even while the game-over card was visibly on top.
       if(gameOver){
         const previousChoice=gameOverSelection;
         const towardRestart=currentButtons[12]||currentButtons[14];
@@ -5614,11 +5630,10 @@ function updateBosses(dt){
         }
         gameOverAxisLatch=navDirection;
 
-        // Always accept standard A/Cross (button 0) as well as every custom
-        // fire binding. Require a full release after the death animation so a
-        // held fire button cannot instantly restart, then confirm on the next
-        // deliberate press even if a browser/emulator misses the edge frame.
-        const confirmIndexes=[...new Set([0,...gamepadConfig.fire])];
+        // Accept every normal face button plus configured fire and Start.
+        // A held fire from the death frame must be released once; after that,
+        // any deliberate face-button press activates the glowing choice.
+        const confirmIndexes=[...new Set([0,1,2,3,9,...gamepadConfig.fire])];
         const confirmHeld=confirmIndexes.some(index=>Boolean(currentButtons[index]));
         if(gameOverConfirmLatch){
           if(!confirmHeld) gameOverConfirmLatch=false;
@@ -5637,6 +5652,23 @@ function updateBosses(dt){
         gamepadState.previousButtons=currentButtons;
         return;
       }
+      if(!launchChoiceEl.hidden){
+        const dpadDirection=buttonEdge(12,currentButtons)||buttonEdge(14,currentButtons)
+          ? -1
+          : buttonEdge(13,currentButtons)||buttonEdge(15,currentButtons) ? 1 : 0;
+        const dominantAxis=Math.abs(stick.y)>=Math.abs(stick.x)?stick.y:stick.x;
+        const axisDirection=Math.abs(dominantAxis)>.55?Math.sign(dominantAxis):0;
+        if(dpadDirection) navigateLaunchChoice(dpadDirection);
+        else if(axisDirection && !launchAxisLatch) navigateLaunchChoice(axisDirection);
+        launchAxisLatch=axisDirection;
+        if(gamepadConfig.fire.some(index=>buttonEdge(index,currentButtons))) confirmLaunchChoice();
+        gamepadState.x=0;
+        gamepadState.y=0;
+        gamepadState.fire=false;
+        gamepadState.previousButtons=currentButtons;
+        return;
+      }
+      launchAxisLatch=0;
 
       if(suppressLaunchCarryover){
         const fireStillHeld=gamepadConfig.fire.some(index=>currentButtons[index]);
@@ -6125,6 +6157,10 @@ mobilePauseBtn?.addEventListener('pointerdown', (e) => {
           gameOverSelection = 'restart';
           gameOverConfirmLatch = true;
           gameOverAxisLatch = 0;
+          // Never leave an invisible launch menu eligible to intercept the
+          // controller while the game-over choices are visible.
+          launchChoiceEl.hidden = true;
+          splashScreenEl.hidden = true;
           gameOver = true;
           running = false;
           return;

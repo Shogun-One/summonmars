@@ -1,10 +1,15 @@
-const CACHE_NAME = 'ocean-of-aliens-shell-v5';
+const CACHE_NAME = 'ocean-of-aliens-shell-v6';
 const APP_SHELL = [
   '/oceanofaliens.html',
   '/ocean-of-aliens.webmanifest',
   '/images/ocean-of-aliens/app-icon-192.png',
   '/images/ocean-of-aliens/app-icon-512.png',
-  '/images/ocean-of-aliens/ocean-of-aliens-splash.webp'
+  '/images/ocean-of-aliens/ocean-of-aliens-splash.webp',
+  '/mp3/pilot-male-hit.mp3',
+  '/mp3/pilot-male-defeat.mp3',
+  '/mp3/pilot-female-hit.mp3',
+  '/mp3/pilot-female-defeat.mp3',
+  '/mp3/boss-defeat.mp3'
 ];
 
 self.addEventListener('install', event => {
