@@ -1960,9 +1960,9 @@ body.game-paused .control-deck .touchpad-plate{
     top:28% !important;
   }
   .control-deck #reset-btn{
-    left:calc(env(safe-area-inset-left) + clamp(22px,3.4vw,38px)) !important;
-    top:auto !important;
-    bottom:12% !important;
+    left:calc(env(safe-area-inset-left) + clamp(12px,2.4vw,26px)) !important;
+    top:60% !important;
+    bottom:auto !important;
     width:clamp(46px,12vh,56px) !important;
     height:clamp(46px,12vh,56px) !important;
   }
@@ -1972,17 +1972,17 @@ body.game-paused .control-deck .touchpad-plate{
     top:28% !important;
   }
   .control-deck #musicBtn{
-    right:calc(env(safe-area-inset-right) + clamp(22px,3.4vw,38px)) !important;
+    right:calc(env(safe-area-inset-right) + clamp(12px,2.4vw,26px)) !important;
     left:auto !important;
-    top:auto !important;
-    bottom:12% !important;
+    top:60% !important;
+    bottom:auto !important;
     width:clamp(46px,12vh,56px) !important;
     height:clamp(46px,12vh,56px) !important;
   }
   .control-deck .mobile-touchpad{
     position:absolute !important;
-    left:50% !important;
-    right:auto !important;
+    left:auto !important;
+    right:calc(env(safe-area-inset-right) + clamp(6px,1.6vw,14px)) !important;
     top:auto !important;
     bottom:calc(env(safe-area-inset-bottom) + 4px) !important;
     width:clamp(98px,28vh,122px) !important;
@@ -1990,7 +1990,7 @@ body.game-paused .control-deck .touchpad-plate{
     margin:0 !important;
     display:flex;
     pointer-events:auto;
-    transform:translateX(-50%) !important;
+    transform:none !important;
   }
   .control-deck .touchpad-plate{
     width:100% !important;
@@ -1998,7 +1998,8 @@ body.game-paused .control-deck .touchpad-plate{
   }
   .mobile-pause-stamp{
     position:absolute;
-    left:calc(50% - clamp(49px,14vh,61px) - 50px) !important;
+    left:calc(env(safe-area-inset-left) + clamp(16px,2.8vw,30px)) !important;
+    right:auto !important;
     top:auto !important;
     bottom:calc(env(safe-area-inset-bottom) + 16px) !important;
     width:44px;
