@@ -160,6 +160,8 @@
     }
 
     .progress-row strong { color: var(--ink); }
+    .score-display { display:flex; align-items:baseline; gap:8px; }
+    .score-display strong { color:var(--gold); font-family:Georgia,serif; font-size:1rem; letter-spacing:0; }
 
     .progress-track {
       height: 5px;
@@ -321,7 +323,7 @@
     .playfield[data-shape="circle"] .letter-node { clip-path:circle(49%); border-radius:50%; }
     .playfield[data-shape="square"] .letter-node { clip-path:polygon(8% 0, 100% 8%, 92% 100%, 0 92%); border-radius:0; }
 
-    .menu-overlay { position:fixed; z-index:50; inset:0; display:grid; place-items:center; padding:max(18px,env(safe-area-inset-top)) 16px max(18px,env(safe-area-inset-bottom)); background:rgba(1,7,7,.8); backdrop-filter:blur(18px); opacity:0; pointer-events:none; transition:opacity .22s ease; }
+    .menu-overlay { position:fixed; z-index:50; inset:0; display:grid; place-items:start center; overflow-y:auto; padding:max(18px,env(safe-area-inset-top)) 16px max(18px,env(safe-area-inset-bottom)); background:rgba(1,7,7,.8); backdrop-filter:blur(18px); opacity:0; pointer-events:none; transition:opacity .22s ease; }
     .menu-overlay.open { opacity:1; pointer-events:auto; }
     .start-menu { width:min(100%,500px); max-height:92svh; overflow-y:auto; padding:22px; color:var(--surface-text); border:1px solid color-mix(in srgb, var(--mint) 48%, transparent); border-radius:28px 10px 28px 10px; background:linear-gradient(150deg,rgba(17,24,25,.98),rgba(4,8,10,.98)); box-shadow:0 30px 90px rgba(0,0,0,.68),inset 0 1px rgba(255,255,255,.1); }
     .menu-brand { text-align:center; }
@@ -455,6 +457,7 @@
 
     .control:active { transform: scale(.97); }
     .control:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+    .control:disabled { opacity:.42; cursor:not-allowed; transform:none; }
 
     .control.primary {
       display: none;
@@ -487,6 +490,17 @@
     .reward-fire { width:100%; padding:13px; border:0; border-radius:14px 5px 14px 5px; color:#172000; background:linear-gradient(135deg,var(--gold),#ff8c5f); font-weight:950; letter-spacing:.1em; text-transform:uppercase; cursor:pointer; }
     .reward-fire:disabled { opacity:.55; cursor:not-allowed; }
     .reward-result { min-height:24px; margin:12px 0 0; color:var(--gold); font-weight:900; }
+    .previous-overlay { position:fixed; z-index:75; inset:0; display:grid; place-items:center; padding:18px; background:rgba(1,5,10,.86); backdrop-filter:blur(15px); opacity:0; pointer-events:none; transition:opacity .2s ease; }
+    .previous-overlay.open { opacity:1; pointer-events:auto; }
+    .previous-panel { width:min(100%,430px); padding:22px; color:var(--surface-text); border:1px solid color-mix(in srgb,var(--mint) 38%,transparent); border-radius:28px 10px 28px 10px; background:linear-gradient(155deg,#122b2b,#070b17); box-shadow:0 30px 90px rgba(0,0,0,.65); }
+    .previous-panel h2 { margin:0; font:500 2rem Georgia,serif; }
+    .previous-panel>p { margin:7px 0 16px; color:var(--surface-muted); font-size:.72rem; line-height:1.45; }
+    .previous-list { display:grid; gap:8px; }
+    .previous-choice { display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:12px; width:100%; padding:12px; border:1px solid rgba(255,255,255,.16); border-radius:14px 5px 14px 5px; color:var(--surface-text); background:rgba(255,255,255,.07); text-align:left; cursor:pointer; }
+    .previous-choice strong { color:var(--gold); font:600 1.05rem Georgia,serif; }
+    .previous-choice span { color:var(--surface-muted); font-size:.67rem; }
+    .previous-choice b { color:var(--mint); font-size:.7rem; }
+    .previous-empty { margin:0; padding:15px; border:1px dashed rgba(255,255,255,.18); border-radius:13px; color:var(--surface-muted); text-align:center; font-size:.72rem; }
     .wallet-card { display:flex; justify-content:space-between; gap:12px; padding:12px; border:1px solid rgba(255,217,120,.3); border-radius:13px 5px 13px 5px; background:rgba(255,217,120,.09); color:var(--surface-muted); font-size:.7rem; font-weight:750; }
     .wallet-card strong { display:block; color:var(--gold); font-size:1rem; }
     .store-preview { display:grid; grid-template-columns:repeat(3,1fr); gap:7px; }
@@ -700,8 +714,7 @@
 
     <section class="progress-card" aria-label="Board progress">
       <div class="progress-row">
-        <span>Discovery</span>
-        <strong><span id="foundCount">0</span> / <span id="totalCount">12</span></strong>
+        <span class="score-display">Score <strong id="boardScore">0</strong></span>
         <span id="boardState">Find 6 to clear</span>
       </div>
       <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
@@ -742,12 +755,12 @@
         <span class="shelf-arrow" aria-hidden="true">⌃</span>
       </button>
       <button class="control primary" id="nextButton" type="button">Continue</button>
-      <button class="control" id="resetButton" type="button">Reset board</button>
+      <button class="control" id="previousBoardsButton" type="button">Previous boards</button>
     </section>
   </main>
 
   <div class="menu-overlay" id="menuOverlay" aria-hidden="true">
-    <section class="start-menu" role="dialog" aria-modal="true" aria-labelledby="menuTitle">
+    <section class="start-menu" id="startMenu" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="menuTitle">
       <div class="menu-brand">
         <h2 id="menuTitle">Verbia</h2>
         <p>Create your path through words</p>
@@ -792,6 +805,15 @@
         <div class="store-preview"><div class="store-item">Comet trail<strong>250 pts</strong></div><div class="store-item">Moon pet<strong>600 pts</strong></div><div class="store-item">Nova jacket<strong>900 pts</strong></div></div>
       </div>
       <button class="menu-action" id="resumeButton" type="button">Begin journey</button>
+    </section>
+  </div>
+
+  <div class="previous-overlay" id="previousBoardsOverlay" aria-hidden="true">
+    <section class="previous-panel" role="dialog" aria-modal="true" aria-labelledby="previousBoardsTitle">
+      <h2 id="previousBoardsTitle">Previous Boards</h2>
+      <p>Revisit any of your five most recent cleared boards that still have undiscovered stage words.</p>
+      <div class="previous-list" id="previousBoardsList"></div>
+      <button class="menu-action" id="closePreviousBoards" type="button">Back to board</button>
     </section>
   </div>
 
@@ -855,8 +877,7 @@
       const pathLine = document.querySelector("#pathLine");
       const pathGlow = document.querySelector("#pathGlow");
       const constellationLines = document.querySelector("#constellationLines");
-      const foundCount = document.querySelector("#foundCount");
-      const totalCount = document.querySelector("#totalCount");
+      const boardScore = document.querySelector("#boardScore");
       const progressFill = document.querySelector("#progressFill");
       const boardState = document.querySelector("#boardState");
       const boardNumber = document.querySelector("#boardNumber");
@@ -868,7 +889,7 @@
       const hintButton = document.querySelector("#hintButton");
       const hintCount = document.querySelector("#hintCount");
       const nextButton = document.querySelector("#nextButton");
-      const resetButton = document.querySelector("#resetButton");
+      const previousBoardsButton = document.querySelector("#previousBoardsButton");
       const backdrop = document.querySelector("#discoveryBackdrop");
       const closeDiscoveries = document.querySelector("#closeDiscoveries");
       const goalsTab = document.querySelector("#goalsTab");
@@ -879,6 +900,7 @@
       const pauseButton = document.querySelector("#pauseButton");
       const spaceBackdrop = document.querySelector("#spaceBackdrop");
       const menuOverlay = document.querySelector("#menuOverlay");
+      const startMenu = document.querySelector("#startMenu");
       const resumeButton = document.querySelector("#resumeButton");
       const themeChoices = document.querySelector("#themeChoices");
       const layoutChoices = document.querySelector("#layoutChoices");
@@ -902,9 +924,13 @@
       const powerFill = document.querySelector("#powerFill");
       const walletPoints = document.querySelector("#walletPoints");
       const walletHints = document.querySelector("#walletHints");
+      const previousBoardsOverlay = document.querySelector("#previousBoardsOverlay");
+      const previousBoardsList = document.querySelector("#previousBoardsList");
+      const closePreviousBoards = document.querySelector("#closePreviousBoards");
 
       let profileExists = storedProfileExists();
       let progress = loadProgress();
+      progress.highestLevel = deriveHighestLevel(progress);
       let settings = loadSettings();
       let boardIndex = Math.max(0, (progress.currentLevel || 1) - 1);
       let nodes = [];
@@ -973,6 +999,21 @@
       powerMeter.addEventListener("click", throwDailyDart);
       powerMeter.addEventListener("keydown", event => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); throwDailyDart(); } });
       closeReward.addEventListener("click", closeDailyReward);
+      previousBoardsButton.addEventListener("click", openPreviousBoards);
+      closePreviousBoards.addEventListener("click", closePreviousBoardsPanel);
+      previousBoardsOverlay.addEventListener("click", event => { if (event.target === previousBoardsOverlay) closePreviousBoardsPanel(); });
+      previousBoardsList.addEventListener("click", event => {
+        const choice = event.target.closest("[data-board-index]");
+        if (!choice) return;
+        boardIndex = Number(choice.dataset.boardIndex);
+        progress.currentLevel = boardIndex + 1;
+        ensureBoard(boardIndex + 1);
+        saveProgress();
+        closePreviousBoardsPanel(false);
+        closeDiscoveryShelf();
+        renderBoard();
+        showToast(`Board ${String(boardIndex + 1).padStart(2,"0")} reopened`);
+      });
 
       themeChoices.addEventListener("click", event => {
         const choice = event.target.closest("[data-theme-choice]");
@@ -1031,12 +1072,18 @@
       });
 
       nextButton.addEventListener("click", () => {
-        boardIndex += 1;
+        const frontier = progress.highestLevel || 1;
+        if (boardIndex + 1 < frontier) {
+          boardIndex = frontier - 1;
+        } else {
+          boardIndex += 1;
+          progress.highestLevel = Math.max(frontier, boardIndex + 1);
+        }
         progress.currentLevel = boardIndex + 1;
-        ensureBoard(boardIndex + 1);
+        ensureBoard(progress.currentLevel);
         saveProgress();
         renderBoard();
-        showToast(`Level ${boardIndex + 1} opened`);
+        showToast(`Board ${String(boardIndex + 1).padStart(2,"0")} opened`);
       });
 
       shuffleButton.addEventListener("click", () => {
@@ -1053,15 +1100,6 @@
         });
         showToast("Constellation remapped");
         navigator.vibrate?.(18);
-      });
-
-      resetButton.addEventListener("click", () => {
-        if (!window.confirm(`Reset discoveries for Board ${String(boardIndex + 1).padStart(2,"0")}?`)) return;
-        progress.boards[boardIndex] = [];
-        saveProgress();
-        resetTrace();
-        renderProgress();
-        showToast("This board was reset");
       });
 
       window.addEventListener("resize", () => { drawConstellation(); drawPath(); renderMilestoneBackground(boardIndex + 1); });
@@ -1092,12 +1130,14 @@
           letterNodes.append(node);
         });
         nodes = [...letterNodes.querySelectorAll(".letter-node")];
-        nextButton.textContent = "Continue";
+        nextButton.textContent = boardIndex + 1 < (progress.highestLevel || 1)
+          ? `Return to Board ${String(progress.highestLevel).padStart(2,"0")}`
+          : "Continue";
         requestAnimationFrame(() => { drawConstellation(); renderProgress(); });
       }
 
       function freshProgress(profileCreated = false) {
-        return { profileCreated, currentLevel:1, boards:{}, levelBoards:{}, signatures:[], hintHistory:{}, points:0, hints:{date:todayKey(),count:3}, dailyRewardDate:"", seed:Math.floor(Math.random() * 2147483647) || 9173 };
+        return { profileCreated, currentLevel:1, highestLevel:1, boards:{}, levelBoards:{}, signatures:[], hintHistory:{}, points:0, hints:{date:todayKey(),count:3}, dailyRewardDate:"", seed:Math.floor(Math.random() * 2147483647) || 9173 };
       }
 
       function letterCountForLevel(level) {
@@ -1375,15 +1415,14 @@
         const bonusFound = found.filter(word => !board.goals.includes(word));
         const amount = goalFound.length;
         const cleared = amount >= board.clearAt;
-        foundCount.textContent = amount;
-        totalCount.textContent = board.goals.length;
+        boardScore.textContent = progress.points || 0;
         goalSummary.textContent = `${amount} / ${board.goals.length}`;
         bonusSummary.textContent = bonusFound.length;
         progressFill.style.width = `${Math.min(100, amount / board.goals.length * 100)}%`;
         boardState.textContent = amount === board.goals.length ? "Mastered" : cleared ? "Board cleared" : `Find ${board.clearAt - amount} to clear`;
         nextButton.classList.toggle("show", cleared);
-        resetButton.style.display = cleared ? "none" : "block";
         boardComplete.classList.toggle("show", cleared);
+        renderPreviousBoardsButton();
         renderDiscoveryShelf();
         if (backdrop.classList.contains("open")) renderSheet();
       }
@@ -1461,7 +1500,11 @@
         menuOverlay.classList.add("open");
         menuOverlay.setAttribute("aria-hidden", "false");
         resumeButton.textContent = hasStarted ? "Resume board" : "Begin journey";
-        resumeButton.focus();
+        requestAnimationFrame(() => {
+          menuOverlay.scrollTop = 0;
+          startMenu.scrollTop = 0;
+          startMenu.focus({preventScroll:true});
+        });
       }
 
       function closeMenu() {
@@ -1543,6 +1586,7 @@
         hintButton.setAttribute("aria-label", `Use a hint. ${availableHints} available`);
         hintButton.disabled = availableHints < 1;
         walletPoints.textContent = progress.points || 0;
+        boardScore.textContent = progress.points || 0;
         walletHints.textContent = `${availableHints} available`;
       }
 
@@ -1779,6 +1823,60 @@
           if (saved?.boards && saved?.levelBoards) return saved;
           return freshProgress();
         } catch { return freshProgress(); }
+      }
+
+      function deriveHighestLevel(state) {
+        const generatedLevels = Object.keys(state.levelBoards || {}).map(key => Number(key) + 1).filter(Number.isFinite);
+        return Math.max(1, Number(state.highestLevel) || 1, Number(state.currentLevel) || 1, ...generatedLevels);
+      }
+
+      function getPreviousBoardChoices() {
+        const choices = [];
+        const frontierIndex = (progress.highestLevel || 1) - 1;
+        for (let index = frontierIndex - 1; index >= Math.max(0, frontierIndex - 5); index--) {
+          if (index === boardIndex) continue;
+          const board = ensureBoard(index + 1);
+          const found = [...new Set((progress.boards[index] || []).map(word => String(word).toUpperCase()))]
+            .filter(word => board.accepted.includes(word));
+          const stageFound = found.filter(word => board.goals.includes(word));
+          if (stageFound.length >= board.clearAt && stageFound.length < board.goals.length) {
+            choices.push({ index, found:stageFound.length, total:board.goals.length, remaining:board.goals.length - stageFound.length });
+          }
+        }
+        return choices;
+      }
+
+      function renderPreviousBoardsButton() {
+        const choices = getPreviousBoardChoices();
+        previousBoardsButton.disabled = choices.length === 0;
+        previousBoardsButton.setAttribute("aria-label", choices.length
+          ? `Previous boards. ${choices.length} incomplete board${choices.length === 1 ? "" : "s"} available.`
+          : "No incomplete cleared boards available yet.");
+      }
+
+      function openPreviousBoards() {
+        const choices = getPreviousBoardChoices();
+        if (!choices.length) {
+          showToast("No incomplete cleared boards in your recent five", "duplicate");
+          return;
+        }
+        previousBoardsList.replaceChildren(...choices.map(choice => {
+          const button = document.createElement("button");
+          button.className = "previous-choice";
+          button.type = "button";
+          button.dataset.boardIndex = choice.index;
+          button.innerHTML = `<strong>Board ${String(choice.index + 1).padStart(2,"0")}</strong><span>${choice.found} of ${choice.total} stage words found</span><b>${choice.remaining} left</b>`;
+          return button;
+        }));
+        previousBoardsOverlay.classList.add("open");
+        previousBoardsOverlay.setAttribute("aria-hidden", "false");
+        previousBoardsList.querySelector("button")?.focus();
+      }
+
+      function closePreviousBoardsPanel(restoreFocus = true) {
+        previousBoardsOverlay.classList.remove("open");
+        previousBoardsOverlay.setAttribute("aria-hidden", "true");
+        if (restoreFocus) previousBoardsButton.focus();
       }
 
       function saveProgress() {
