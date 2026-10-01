@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <title>Asteroid Drift - Summon Mars Arcade</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=overlays-content" />
+  <script src="https://cdn.busuanzi.cc/busuanzi/3.6.9/busuanzi.min.js" defer></script>
 
   <!-- Spacey + readable HUD fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -977,15 +978,19 @@ body.music-on .bubble-btn .ring.flip{
 
     .visit-counter {
       position: fixed;
-      bottom: 8px;
-      right: 14px;
+      bottom: calc(8px + env(safe-area-inset-bottom));
+      left: 50%;
+      right: auto;
+      transform: translateX(-50%);
       font-size: 0.7rem;
-      opacity: 0.45;
+      opacity: 0.68;
       letter-spacing: 0.08em;
       color: rgba(255,255,255,0.75);
       pointer-events: none;
       z-index: 20;
+      white-space: nowrap;
     }
+    body.game-paused .visit-counter{ display:none !important; }
 
     /* --- MOBILE VIEWPORT + SAFE AREA FIXES --- */
     html, body { height: 100%; }
@@ -1060,7 +1065,7 @@ body.music-on .hud .pill{
       .wrapper{ gap:.35rem; padding:.5rem; }
       .subtitle{ display:none; }
       footer{ display:none; }
-      .visit-counter{ display:none; }
+      .visit-counter{ font-size:.62rem; bottom:calc(4px + env(safe-area-inset-bottom)); }
 
       canvas#game{
         width: min(100%, calc((100dvh - 345px) * .75), 480px);
@@ -1992,7 +1997,7 @@ footer{
     © 2026 Summon Mars ™. All rights reserved.
   </footer>
   <div class="visit-counter">
-    Visitors: <span id="busuanzi_value_site_uv"></span>
+    Visitors: <span id="busuanzi_page_uv">—</span>
   </div>
 
   <script>
