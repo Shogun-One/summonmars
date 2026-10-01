@@ -1786,9 +1786,27 @@ body.game-paused .control-deck .touchpad-plate{
   border-radius:50% !important;
 }
 
-/* Wide screens get a genuinely larger playfield, not a stretched portrait
-   canvas. Height remains reserved for the HUD and physical control deck. */
-@media (min-width:600px) and (max-width:900px){
+/* Portrait tablets need the same measured-height treatment as phones. Width
+   alone is not a reliable orientation signal (large Android tablets can be
+   800-900 CSS px wide while still portrait). */
+@media (min-width:521px) and (max-width:900px) and (orientation:portrait){
+  body{ overflow:hidden; }
+  .wrapper{ width:calc(100vw - 8px - env(safe-area-inset-left) - env(safe-area-inset-right)); }
+  .hud,
+  .game-shell{ max-width:none; }
+  canvas#game{
+    width:100%;
+    max-width:none;
+    height:var(--compact-arena-height, calc(100dvh - 300px));
+    max-height:none;
+    aspect-ratio:auto;
+  }
+  .control-deck{ max-width:min(720px, calc(100vw - 16px)); }
+}
+
+/* Landscape tablets get a genuinely wider playfield. Height remains reserved
+   for the HUD and physical control deck. */
+@media (min-width:600px) and (max-width:900px) and (orientation:landscape){
   .wrapper{ width:calc(100vw - 8px); }
   .hud{ max-width:760px; }
   .game-shell{ max-width:760px; }
@@ -3075,9 +3093,11 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
     let missileAmmo = 0;
     let lastMissileReserveAmmo = 0;
 
-    function fitPhoneArenaToViewport(){
-      if(!window.matchMedia('(max-width:520px)').matches){
+    function fitCompactArenaToViewport(){
+      const isCompactPortrait = window.matchMedia('(max-width:900px) and (orientation:portrait)').matches;
+      if(!isCompactPortrait){
         canvas.style.removeProperty('--phone-arena-height');
+        canvas.style.removeProperty('--compact-arena-height');
         return;
       }
 
@@ -3095,14 +3115,15 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
       // playfield consume every remaining safe pixel.
       const deckFootprint = Math.max(0, deckHeight + deckMarginTop);
       const availableHeight = Math.floor(viewportHeight - shellTop - deckFootprint - safeBottom - 4);
-      const arenaHeight = Math.max(260, Math.min(720, availableHeight));
+      const arenaHeight = Math.max(260, Math.min(1200, availableHeight));
       canvas.style.setProperty('--phone-arena-height', `${arenaHeight}px`);
+      canvas.style.setProperty('--compact-arena-height', `${arenaHeight}px`);
     }
 
     function resizeGameArenaForViewport(){
-      fitPhoneArenaToViewport();
-      const shouldBeWide = window.matchMedia('(min-width:600px)').matches;
+      fitCompactArenaToViewport();
       const displayRect = canvas.getBoundingClientRect();
+      const shouldBeWide = displayRect.width > displayRect.height * 1.05;
       const displayRatio = displayRect.height > 0 ? displayRect.width / displayRect.height : 1.92;
       const targetWidth = shouldBeWide ? Math.round(500 * displayRatio) : 480;
       const targetHeight = shouldBeWide ? 500 : Math.round(targetWidth / Math.max(.45, displayRatio));
