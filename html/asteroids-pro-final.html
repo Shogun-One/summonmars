@@ -2,13 +2,16 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Asteroid Drift - Summon Mars Arcade</title>
+  <title>Ocean of Aliens - Summon Mars Arcade</title>
+  <meta name="description" content="Ocean of Aliens is a full-screen space combat arcade game by Summon Mars. Drift, fire, and survive." />
+  <meta property="og:title" content="Ocean of Aliens" />
+  <meta property="og:description" content="Drift, fire, and survive in a full-screen space combat arcade game by Summon Mars." />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=overlays-content" />
   <meta name="theme-color" content="#080711" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="Asteroid Drift" />
+  <meta name="apple-mobile-web-app-title" content="Ocean of Aliens" />
   <link rel="manifest" href="/asteroid-drift.webmanifest" />
   <link rel="apple-touch-icon" href="/images/asteroids/app-icon-192.png" />
   <link rel="preload" as="image" type="image/webp" href="/images/asteroids/asteroid-drift-splash.webp" />
@@ -184,13 +187,16 @@
     .splash-screen[hidden]{display:none}
     .splash-screen::before{content:"";position:absolute;inset:-8%;z-index:-1;background:inherit;animation:splashDrift 3s cubic-bezier(.18,.74,.22,1) both}
     .splash-screen::after{content:"";position:absolute;inset:0;z-index:-1;background:radial-gradient(circle at 50% 48%,transparent 8%,rgba(4,2,11,.18) 58%,rgba(4,2,11,.78) 100%),linear-gradient(180deg,rgba(3,2,10,.3),transparent 45%,rgba(3,2,10,.68))}
-    .splash-screen__content{text-align:center;padding:24px;animation:splashReveal 3s ease both}
-    .splash-screen__title{margin:0;color:#ff9cdd;text-shadow:0 0 12px #ff39ba,0 0 34px rgba(111,221,255,.75);font:900 clamp(26px,7vw,86px)/1 'Orbitron',sans-serif;letter-spacing:.08em;white-space:nowrap}
-    .splash-screen__tagline{margin:12px 0 0;color:#c9f7ff;text-shadow:0 0 12px rgba(79,222,255,.9);font:700 clamp(12px,2.5vw,21px)/1.25 'Share Tech Mono',monospace;letter-spacing:.32em}
+    .splash-screen__content{text-align:center;padding:24px}
+    .splash-screen__title{max-width:calc(100vw - 32px);margin:0 auto;color:#ff9cdd;text-shadow:0 0 12px #ff39ba,0 0 34px rgba(111,221,255,.75);font:900 clamp(19px,4.2vw,58px)/1 'Orbitron',sans-serif;letter-spacing:.055em;white-space:nowrap;animation:splashTitleReveal 3s ease both}
+    .splash-screen__byline{margin:clamp(9px,2vw,17px) 0 0;color:#fff0fb;text-shadow:0 0 10px rgba(255,83,198,.82);font:700 clamp(11px,2vw,18px)/1.2 'Orbitron',sans-serif;letter-spacing:.22em;text-transform:uppercase;animation:splashBylineReveal 3s ease both}
+    .splash-screen__tagline{margin:clamp(12px,2.4vw,22px) 0 0;color:#c9f7ff;text-shadow:0 0 12px rgba(79,222,255,.9);font:700 clamp(11px,2.5vw,21px)/1.25 'Share Tech Mono',monospace;letter-spacing:.28em;white-space:nowrap;animation:splashTaglineReveal 3s ease both}
     .splash-screen__progress{position:absolute;left:50%;bottom:max(28px,env(safe-area-inset-bottom));width:min(360px,68vw);height:3px;overflow:hidden;translate:-50% 0;border-radius:99px;background:rgba(255,255,255,.16)}
     .splash-screen__progress::after{content:"";display:block;width:100%;height:100%;transform-origin:left;background:linear-gradient(90deg,#5ff7ff,#ff53c6);box-shadow:0 0 13px #ff53c6;animation:splashProgress 3s linear both}
     @keyframes splashDrift{0%{transform:scale(1.12) translate3d(-1.4%,1%,0);filter:brightness(.48) saturate(.8)}35%{filter:brightness(1.08) saturate(1.25)}100%{transform:scale(1.02) translate3d(1%,-.5%,0);filter:brightness(.7) saturate(1.05)}}
-    @keyframes splashReveal{0%,12%{opacity:0;transform:scale(.84);filter:blur(10px)}35%,78%{opacity:1;transform:scale(1);filter:blur(0)}100%{opacity:0;transform:scale(1.05);filter:blur(4px)}}
+    @keyframes splashTitleReveal{0%,10%{opacity:0;transform:scale(.82);filter:blur(12px)}28%,84%{opacity:1;transform:scale(1);filter:blur(0)}100%{opacity:0;transform:scale(1.04);filter:blur(4px)}}
+    @keyframes splashBylineReveal{0%,31%{opacity:0;transform:translateY(8px);filter:blur(7px)}45%,86%{opacity:1;transform:translateY(0);filter:blur(0)}100%{opacity:0;transform:translateY(-3px);filter:blur(3px)}}
+    @keyframes splashTaglineReveal{0%,50%{opacity:0;transform:translateY(9px);filter:blur(7px)}64%,88%{opacity:1;transform:translateY(0);filter:blur(0)}100%{opacity:0;transform:translateY(-3px);filter:blur(3px)}}
     @keyframes splashProgress{from{transform:scaleX(0)}to{transform:scaleX(1)}}
 
     .wrapper{
@@ -2060,14 +2066,15 @@ footer{
 </head>
 
 <body>
-  <section id="splashScreen" class="splash-screen" aria-label="Asteroid Drift opening" hidden>
+  <section id="splashScreen" class="splash-screen" aria-label="Ocean of Aliens opening" hidden>
     <div class="splash-screen__content">
-      <h1 class="splash-screen__title">ASTEROID DRIFT</h1>
+      <h1 class="splash-screen__title">OCEAN OF ALIENS</h1>
+      <p class="splash-screen__byline">BY SUMMON MARS</p>
       <p class="splash-screen__tagline">DRIFT · FIRE · SURVIVE</p>
     </div>
     <div class="splash-screen__progress" aria-hidden="true"></div>
   </section>
-  <section id="previewGate" class="preview-gate" aria-labelledby="previewGateTitle"><form id="previewGateForm" class="preview-gate__panel"><h1 id="previewGateTitle">ASTEROID DRIFT</h1><p>Private playtest build</p><label for="previewPassword">Enter playtest password</label><input id="previewPassword" name="password" type="password" autocomplete="current-password" autocapitalize="none" spellcheck="false" required autofocus><button type="submit">UNLOCK GAME</button><p id="previewGateError" class="preview-gate__error" role="alert" aria-live="polite"></p></form></section>
+  <section id="previewGate" class="preview-gate" aria-labelledby="previewGateTitle"><form id="previewGateForm" class="preview-gate__panel"><h1 id="previewGateTitle">OCEAN OF ALIENS</h1><p>Private playtest build</p><label for="previewPassword">Enter playtest password</label><input id="previewPassword" name="password" type="password" autocomplete="current-password" autocapitalize="none" spellcheck="false" required autofocus><button type="submit">UNLOCK GAME</button><p id="previewGateError" class="preview-gate__error" role="alert" aria-live="polite"></p></form></section>
   <canvas id="bgfx" aria-hidden="true"></canvas>
   <div id="impactFx" aria-hidden="true">
     <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
@@ -2096,7 +2103,7 @@ footer{
   </div>
   <section id="launchChoice" class="launch-choice" aria-labelledby="launchChoiceTitle" hidden>
     <div class="launch-choice__panel">
-      <h2 id="launchChoiceTitle">ASTEROID DRIFT</h2>
+      <h2 id="launchChoiceTitle">OCEAN OF ALIENS</h2>
       <p>Choose how to launch.</p>
       <button id="continueGameBtn" type="button">CONTINUE GAME<small id="continueGameMeta">Resume saved progress</small></button>
       <button id="newGameBtn" type="button">NEW GAME<small>Reset all progress, points, and collections</small></button>
@@ -2158,7 +2165,7 @@ footer{
   </div>
 
   <div class="wrapper">
-    <h1>ASTEROID DRIFT</h1>
+    <h1>OCEAN OF ALIENS</h1>
     <!-- subtitle moved into in-game start overlay -->
 <div class="controls">
       Directions: Steer + Fire: Virtual Joystick | [↑][↓][←][→] | WASD Keys | Gamepad Joystick or Directional Pad

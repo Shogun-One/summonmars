@@ -1,8 +1,8 @@
 {
   "id": "/html/asteroids-pro-final.html",
-  "name": "Asteroid Drift",
-  "short_name": "Asteroid Drift",
-  "description": "A full-screen space combat arcade game.",
+  "name": "Ocean of Aliens",
+  "short_name": "Ocean of Aliens",
+  "description": "Drift, fire, and survive in a full-screen space combat arcade game by Summon Mars.",
   "start_url": "/html/asteroids-pro-final.html?source=installed-app",
   "scope": "/html/",
   "display": "fullscreen",

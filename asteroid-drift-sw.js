@@ -1,4 +1,4 @@
-const CACHE_NAME = 'asteroid-drift-shell-v3';
+const CACHE_NAME = 'ocean-of-aliens-shell-v4';
 const APP_SHELL = [
   '/html/asteroids-pro-final.html',
   '/asteroid-drift.webmanifest',
