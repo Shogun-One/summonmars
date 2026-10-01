@@ -210,6 +210,12 @@
       pointer-events: none;
     }
 
+    .constellation-line {
+      stroke: rgba(117,245,199,.1);
+      stroke-width: 1.5;
+      stroke-dasharray: 2 9;
+    }
+
     .path-glow, .path-line {
       fill: none;
       stroke-linecap: round;
@@ -270,7 +276,7 @@
 
     .lower-panel {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) auto;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
       gap: 10px;
     }
 
@@ -282,11 +288,33 @@
       background: var(--panel);
     }
 
-    .discoveries h2 {
+    .discoveries h2, .discovery-label {
       margin: 0 0 7px;
       color: var(--muted);
       font-size: .68rem;
       letter-spacing: .13em;
+      text-transform: uppercase;
+    }
+
+    .discovery-summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .discovery-count {
+      color: var(--ink);
+      font-family: Georgia, serif;
+      font-size: 1.12rem;
+    }
+
+    .discovery-count small {
+      color: var(--muted);
+      font-family: inherit;
+      font-size: .62rem;
+      font-weight: 700;
+      letter-spacing: .08em;
       text-transform: uppercase;
     }
 
@@ -329,6 +357,100 @@
 
     .control:active { transform: scale(.97); }
     .control:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+    .control.primary {
+      display: none;
+      color: #092019;
+      border-color: var(--mint);
+      background: linear-gradient(135deg, var(--mint), #b8f39b);
+      box-shadow: 0 8px 24px rgba(117,245,199,.18);
+    }
+
+    .control.primary.show { display: block; }
+
+    .sheet-backdrop {
+      position: fixed;
+      z-index: 30;
+      inset: 0;
+      display: grid;
+      align-items: end;
+      background: rgba(1,8,7,.72);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .2s ease;
+      backdrop-filter: blur(8px);
+    }
+
+    .sheet-backdrop.open { opacity: 1; pointer-events: auto; }
+
+    .discovery-sheet {
+      width: min(100%, 540px);
+      max-height: min(78svh, 680px);
+      margin: 0 auto;
+      padding: 18px 18px max(22px, env(safe-area-inset-bottom));
+      overflow: hidden;
+      border: 1px solid rgba(117,245,199,.22);
+      border-bottom: 0;
+      border-radius: 28px 28px 0 0;
+      background: linear-gradient(165deg, #10382f, #061713 72%);
+      box-shadow: 0 -30px 70px rgba(0,0,0,.48);
+      transform: translateY(24px);
+      transition: transform .24s ease;
+    }
+
+    .sheet-backdrop.open .discovery-sheet { transform: translateY(0); }
+
+    .sheet-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .sheet-header h2 { margin: 0; font-family: Georgia, serif; font-size: 1.55rem; font-weight: 500; }
+    .sheet-header p { margin: 4px 0 0; color: var(--muted); font-size: .72rem; }
+
+    .close-button {
+      width: 40px;
+      height: 40px;
+      border: 1px solid rgba(255,255,255,.15);
+      border-radius: 50%;
+      color: var(--ink);
+      background: rgba(255,255,255,.06);
+      cursor: pointer;
+    }
+
+    .tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin: 18px 0 14px; padding: 4px; border-radius: 15px; background: rgba(0,0,0,.2); }
+    .tab { padding: 10px; border: 0; border-radius: 11px; color: var(--muted); background: transparent; font-size: .72rem; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; cursor: pointer; }
+    .tab.active { color: #082019; background: var(--mint); }
+
+    .sheet-content { max-height: 48svh; overflow-y: auto; padding-right: 3px; }
+    .word-group + .word-group { margin-top: 17px; }
+    .word-group h3 { margin: 0 0 8px; color: var(--gold); font-size: .66rem; letter-spacing: .12em; text-transform: uppercase; }
+    .word-grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 7px; }
+    .word-chip { min-width: 0; padding: 8px 6px; overflow: hidden; border: 1px solid rgba(117,245,199,.14); border-radius: 10px; color: var(--mint); background: rgba(117,245,199,.06); font-size: .72rem; font-weight: 800; letter-spacing: .06em; text-align: center; text-overflow: ellipsis; }
+    .word-chip.missing { color: rgba(167,199,189,.46); background: rgba(0,0,0,.12); letter-spacing: .12em; }
+    .sheet-note { margin: 0 0 13px; color: var(--muted); font-size: .72rem; line-height: 1.45; }
+
+    .board-complete {
+      position: absolute;
+      z-index: 6;
+      right: 16px;
+      bottom: 14px;
+      padding: 6px 9px;
+      border-radius: 99px;
+      color: #082019;
+      background: var(--gold);
+      font-size: .6rem;
+      font-weight: 900;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      opacity: 0;
+      transform: translateY(6px);
+      transition: .2s ease;
+    }
+
+    .board-complete.show { opacity: 1; transform: translateY(0); }
 
     .toast {
       position: fixed;
@@ -379,7 +501,7 @@
         <p class="eyebrow">A world made of words</p>
         <h1>Verbia</h1>
       </div>
-      <div class="level-mark">Board<strong>01</strong></div>
+      <div class="level-mark">Board<strong id="boardNumber">01</strong></div>
     </header>
 
     <section class="progress-card" aria-label="Board progress">
@@ -394,31 +516,404 @@
     <section class="playfield" id="playfield" aria-label="Letter constellation. Drag through letters to form a word.">
       <div class="word-display" id="wordDisplay" data-empty="true" aria-live="polite">Trace the constellation</div>
       <svg id="paths" aria-hidden="true">
+        <g id="constellationLines"></g>
         <polyline class="path-glow" id="pathGlow" points=""></polyline>
         <polyline class="path-line" id="pathLine" points=""></polyline>
       </svg>
-      <button class="letter-node" style="left:50%; top:31%" data-letter="S" aria-label="Letter S">S</button>
-      <button class="letter-node" style="left:24%; top:48%" data-letter="T" aria-label="Letter T">T</button>
-      <button class="letter-node" style="left:76%; top:48%" data-letter="R" aria-label="Letter R">R</button>
-      <button class="letter-node" style="left:31%; top:73%" data-letter="E" aria-label="Letter E">E</button>
-      <button class="letter-node" style="left:69%; top:73%" data-letter="M" aria-label="Letter M">M</button>
-      <button class="letter-node" style="left:50%; top:57%" data-letter="A" aria-label="Letter A">A</button>
+      <div id="letterNodes"></div>
+      <span class="board-complete" id="boardComplete">Cleared</span>
       <p class="hint">Touch • trace • release</p>
     </section>
 
     <section class="lower-panel">
-      <div class="discoveries">
-        <h2>Discovered words</h2>
-        <div class="word-list" id="wordList"><span class="empty-list">Your discoveries will appear here.</span></div>
-      </div>
+      <button class="discoveries control" id="discoveriesButton" type="button">
+        <span class="discovery-label">Discoveries</span>
+        <span class="discovery-summary">
+          <span class="discovery-count"><span id="goalSummary">0 / 18</span> <small>stage</small></span>
+          <span class="discovery-count"><span id="bonusSummary">0</span> <small>bonus</small></span>
+        </span>
+      </button>
+      <button class="control primary" id="nextButton" type="button">Continue</button>
       <button class="control" id="resetButton" type="button">Reset board</button>
     </section>
   </main>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+  <div class="sheet-backdrop" id="discoveryBackdrop" aria-hidden="true">
+    <section class="discovery-sheet" role="dialog" aria-modal="true" aria-labelledby="discoveryTitle">
+      <div class="sheet-header">
+        <div>
+          <h2 id="discoveryTitle">Board discoveries</h2>
+          <p id="sheetSubtitle">Stage words advance the board. Bonus words earn extra discovery points.</p>
+        </div>
+        <button class="close-button" id="closeDiscoveries" type="button" aria-label="Close discoveries">✕</button>
+      </div>
+      <div class="tabs" role="tablist" aria-label="Discovery categories">
+        <button class="tab active" id="goalsTab" type="button" role="tab" aria-selected="true">Stage words</button>
+        <button class="tab" id="bonusTab" type="button" role="tab" aria-selected="false">Bonus words</button>
+      </div>
+      <div class="sheet-content" id="sheetContent"></div>
+    </section>
+  </div>
+
+  <script>
+    window.VERBIA_V2 = true;
+    (() => {
+      const boards = [
+        {
+          letters: "MASTER", clearAt: 10,
+          goals: ["ARTS","MASTER","MATES","MEATS","RATE","RATES","REST","SAME","SEAM","SMART","STAR","STARE","STEAM","STREAM","TAME","TEAM","TEAMS","TEARS"],
+          accepted: ["ARE","ARM","ARMS","ART","ARTS","ASTER","ATE","EAR","EARS","EAST","EAT","EATS","ERA","ERAS","MARE","MARES","MASTER","MAST","MAT","MATE","MATES","MATS","MEAT","MEATS","MESA","META","RAM","RAMS","RAT","RATE","RATES","RATS","REST","SAME","SAT","SEA","SEAM","SEAT","SET","SMART","SMEAR","STAR","STARE","STEAM","STEM","STREAM","TAME","TAMER","TAMERS","TASER","TEAM","TEAMS","TEAR","TEARS","TERM","TERMS","TRAM","TRAMS","TSAR"]
+        },
+        {
+          letters: "GARDEN", clearAt: 9,
+          goals: ["AGED","ANGER","DARE","DANGER","DEAR","DRAG","EARN","GARDEN","GEAR","GRADE","GRAND","NEAR","RAGE","RANGE","RANGED","READ"],
+          accepted: ["AGE","AGED","AND","ANGER","ARE","DANGER","DARE","DARN","DEAN","DEAR","DEN","DRAG","EAR","EARN","END","ERA","GARDEN","GEAR","GRADE","GRAD","GRAND","NAG","NEAR","NERD","RAG","RAGE","RAN","RAND","RANGE","RANGED","READ","RED","RAGED"]
+        },
+        {
+          letters: "PLANET", clearAt: 10,
+          goals: ["LATE","LEAN","LEAP","LEAPT","NEAT","PALE","PANEL","PENAL","PETAL","PLAN","PLANE","PLANET","PLANT","PLATE","PLEA","TALE","TAPE"],
+          accepted: ["ALE","ANT","APE","ATE","LANE","LATE","LEAN","LEAP","LEAPT","LENT","NAP","NEAT","NET","PALE","PAL","PAN","PANEL","PANT","PAT","PEA","PEN","PENAL","PET","PETAL","PLAN","PLANE","PLANET","PLANT","PLATE","PLEA","TALE","TAN","TAP","TAPE","TEA","TEN"]
+        },
+        {
+          letters: "CLOVER", clearAt: 6,
+          goals: ["CLOVER","CORE","COVE","COVER","LORE","LOVE","LOVER","OVER","ROLE","VOLE"],
+          accepted: ["CLOVER","CORE","COVE","COVER","ECO","LORE","LOVE","LOVER","ORE","ORC","OVER","REV","ROE","ROLE","VOLE"]
+        },
+        {
+          letters: "FRIEND", clearAt: 10,
+          goals: ["DINE","DINER","DIRE","FEND","FERN","FIEND","FIND","FINDER","FINE","FINED","FINER","FIRE","FIRED","FRIED","FRIEND","INFER","REIN","RIDE"],
+          accepted: ["DEN","DIE","DIN","DINE","DINER","DIRE","END","FED","FEND","FERN","FIEND","FIN","FIND","FINDER","FINE","FINED","FINER","FIR","FIRE","FIRED","FRIED","FRIEND","INFER","NERD","RED","REF","REIN","RID","RIDE","RIFE"]
+        },
+        {
+          letters: "ORANGE", clearAt: 8,
+          goals: ["ANGER","EARN","GEAR","GONE","GONER","GORE","GROAN","NEAR","OGRE","ORANGE","ORGAN","RAGE","RANGE"],
+          accepted: ["AGE","AGO","ANGER","ARE","EAR","EARN","EGO","ERA","GEAR","GONE","GONER","GORE","GROAN","NAG","NEAR","NOR","OGRE","ONE","ORANGE","ORE","ORGAN","RAGE","RAN","RANGE","ROE"]
+        }
+      ];
+
+      const layouts = [
+        [[18,35],[55,27],[84,43],[73,68],[39,76],[14,58]],
+        [[15,40],[42,27],[78,31],[86,61],[54,75],[20,69]],
+        [[21,29],[63,25],[84,51],[66,76],[28,72],[12,50]]
+      ];
+      const links = [[0,1],[1,2],[2,3],[3,4],[4,5],[5,0],[1,4]];
+      const storageKey = "verbia-progress-v2";
+      const playfield = document.querySelector("#playfield");
+      const letterNodes = document.querySelector("#letterNodes");
+      const wordDisplay = document.querySelector("#wordDisplay");
+      const pathLine = document.querySelector("#pathLine");
+      const pathGlow = document.querySelector("#pathGlow");
+      const constellationLines = document.querySelector("#constellationLines");
+      const foundCount = document.querySelector("#foundCount");
+      const totalCount = document.querySelector("#totalCount");
+      const progressFill = document.querySelector("#progressFill");
+      const boardState = document.querySelector("#boardState");
+      const boardNumber = document.querySelector("#boardNumber");
+      const boardComplete = document.querySelector("#boardComplete");
+      const goalSummary = document.querySelector("#goalSummary");
+      const bonusSummary = document.querySelector("#bonusSummary");
+      const discoveriesButton = document.querySelector("#discoveriesButton");
+      const nextButton = document.querySelector("#nextButton");
+      const resetButton = document.querySelector("#resetButton");
+      const backdrop = document.querySelector("#discoveryBackdrop");
+      const closeDiscoveries = document.querySelector("#closeDiscoveries");
+      const goalsTab = document.querySelector("#goalsTab");
+      const bonusTab = document.querySelector("#bonusTab");
+      const sheetContent = document.querySelector("#sheetContent");
+      const toast = document.querySelector("#toast");
+
+      let progress = loadProgress();
+      let boardIndex = Math.min(progress.current || 0, boards.length - 1);
+      let nodes = [];
+      let tracing = false;
+      let pointerId = null;
+      let selected = [];
+      let pointer = null;
+      let activeTab = "goals";
+      let toastTimer;
+
+      renderBoard();
+
+      playfield.addEventListener("pointerdown", event => {
+        const node = event.target.closest(".letter-node");
+        if (!node || tracing) return;
+        event.preventDefault();
+        tracing = true;
+        pointerId = event.pointerId;
+        playfield.setPointerCapture?.(pointerId);
+        selectNode(node);
+        updatePointer(event);
+      });
+
+      playfield.addEventListener("pointermove", event => {
+        if (!tracing || event.pointerId !== pointerId) return;
+        event.preventDefault();
+        updatePointer(event);
+        const hovered = document.elementFromPoint(event.clientX, event.clientY)?.closest(".letter-node");
+        if (hovered && playfield.contains(hovered)) selectNode(hovered);
+        drawPath();
+      });
+
+      playfield.addEventListener("pointerup", finishTrace);
+      playfield.addEventListener("pointercancel", finishTrace);
+      playfield.addEventListener("lostpointercapture", event => {
+        if (tracing && event.pointerId === pointerId) finishTrace(event);
+      });
+
+      discoveriesButton.addEventListener("click", openDiscoveries);
+      closeDiscoveries.addEventListener("click", closeSheet);
+      backdrop.addEventListener("click", event => { if (event.target === backdrop) closeSheet(); });
+      document.addEventListener("keydown", event => { if (event.key === "Escape") closeSheet(); });
+      goalsTab.addEventListener("click", () => setTab("goals"));
+      bonusTab.addEventListener("click", () => setTab("bonus"));
+
+      nextButton.addEventListener("click", () => {
+        boardIndex = (boardIndex + 1) % boards.length;
+        progress.current = boardIndex;
+        saveProgress();
+        renderBoard();
+        showToast(boardIndex ? `Board ${String(boardIndex + 1).padStart(2,"0")} opened` : "Back to Board 01");
+      });
+
+      resetButton.addEventListener("click", () => {
+        if (!window.confirm(`Reset discoveries for Board ${String(boardIndex + 1).padStart(2,"0")}?`)) return;
+        progress.boards[boardIndex] = [];
+        saveProgress();
+        resetTrace();
+        renderProgress();
+        showToast("This board was reset");
+      });
+
+      window.addEventListener("resize", () => { drawConstellation(); drawPath(); });
+
+      function renderBoard() {
+        resetTrace();
+        const board = boards[boardIndex];
+        const layout = layouts[boardIndex % layouts.length];
+        boardNumber.textContent = String(boardIndex + 1).padStart(2, "0");
+        letterNodes.replaceChildren();
+        [...board.letters].forEach((letter, index) => {
+          const node = document.createElement("button");
+          node.className = "letter-node";
+          node.type = "button";
+          node.dataset.letter = letter;
+          node.style.left = `${layout[index][0]}%`;
+          node.style.top = `${layout[index][1]}%`;
+          node.textContent = letter;
+          node.setAttribute("aria-label", `Letter ${letter}`);
+          node.addEventListener("keydown", event => {
+            if (event.key !== "Enter" && event.key !== " ") return;
+            event.preventDefault();
+            if (!selected.includes(node)) selectNode(node); else submitWord();
+          });
+          letterNodes.append(node);
+        });
+        nodes = [...letterNodes.querySelectorAll(".letter-node")];
+        nextButton.textContent = boardIndex === boards.length - 1 ? "Return to Board 01" : "Continue";
+        requestAnimationFrame(() => { drawConstellation(); renderProgress(); });
+      }
+
+      function selectNode(node) {
+        if (selected.includes(node)) return;
+        selected.push(node);
+        node.classList.add("selected");
+        navigator.vibrate?.(10);
+        renderWord();
+        drawPath();
+      }
+
+      function updatePointer(event) {
+        const box = playfield.getBoundingClientRect();
+        pointer = { x: event.clientX - box.left, y: event.clientY - box.top };
+      }
+
+      function nodeCenter(node) {
+        const fieldBox = playfield.getBoundingClientRect();
+        const box = node.getBoundingClientRect();
+        return { x: box.left + box.width / 2 - fieldBox.left, y: box.top + box.height / 2 - fieldBox.top };
+      }
+
+      function drawConstellation() {
+        if (!nodes.length) return;
+        constellationLines.replaceChildren();
+        links.forEach(([a,b]) => {
+          if (!nodes[a] || !nodes[b]) return;
+          const start = nodeCenter(nodes[a]);
+          const end = nodeCenter(nodes[b]);
+          const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+          line.setAttribute("x1", start.x); line.setAttribute("y1", start.y);
+          line.setAttribute("x2", end.x); line.setAttribute("y2", end.y);
+          line.setAttribute("class", "constellation-line");
+          constellationLines.append(line);
+        });
+      }
+
+      function drawPath() {
+        const points = selected.map(nodeCenter);
+        if (tracing && pointer) points.push(pointer);
+        const value = points.map(point => `${point.x},${point.y}`).join(" ");
+        pathLine.setAttribute("points", value);
+        pathGlow.setAttribute("points", value);
+      }
+
+      function renderWord() {
+        const word = selected.map(node => node.dataset.letter).join("");
+        wordDisplay.textContent = word || "Trace the constellation";
+        wordDisplay.dataset.empty = String(!word);
+      }
+
+      function finishTrace(event) {
+        if (!tracing || (event.pointerId != null && event.pointerId !== pointerId)) return;
+        tracing = false;
+        pointer = null;
+        submitWord();
+      }
+
+      function submitWord() {
+        const board = boards[boardIndex];
+        const word = selected.map(node => node.dataset.letter).join("");
+        const accepted = new Set(board.accepted);
+        const found = getFound();
+        if (word.length < 3) {
+          if (word) showToast("Words need at least 3 letters", true);
+        } else if (!accepted.has(word)) {
+          showToast(`${word} is not in this board's family-safe dictionary`, true);
+        } else if (found.includes(word)) {
+          showToast(`${word} was already discovered`);
+        } else {
+          found.push(word);
+          progress.boards[boardIndex] = found;
+          saveProgress();
+          const isGoal = board.goals.includes(word);
+          showToast(isGoal ? `${word} • stage word +10` : `${word} • bonus word +5`);
+          navigator.vibrate?.([22,32,22]);
+          renderProgress();
+        }
+        window.setTimeout(resetTrace, 140);
+      }
+
+      function resetTrace() {
+        tracing = false; pointerId = null; pointer = null;
+        selected.forEach(node => node.classList.remove("selected"));
+        selected = [];
+        if (wordDisplay) renderWord();
+        if (pathLine) drawPath();
+      }
+
+      function getFound() { return progress.boards[boardIndex] || []; }
+
+      function renderProgress() {
+        const board = boards[boardIndex];
+        const found = getFound();
+        const goalFound = found.filter(word => board.goals.includes(word));
+        const bonusFound = found.filter(word => !board.goals.includes(word));
+        const amount = goalFound.length;
+        const cleared = amount >= board.clearAt;
+        foundCount.textContent = amount;
+        totalCount.textContent = board.goals.length;
+        goalSummary.textContent = `${amount} / ${board.goals.length}`;
+        bonusSummary.textContent = bonusFound.length;
+        progressFill.style.width = `${Math.min(100, amount / board.goals.length * 100)}%`;
+        boardState.textContent = amount === board.goals.length ? "Mastered" : cleared ? "Board cleared" : `Find ${board.clearAt - amount} to clear`;
+        nextButton.classList.toggle("show", cleared);
+        resetButton.style.display = cleared ? "none" : "block";
+        boardComplete.classList.toggle("show", cleared);
+        if (backdrop.classList.contains("open")) renderSheet();
+      }
+
+      function openDiscoveries() {
+        activeTab = "goals";
+        setTab("goals");
+        backdrop.classList.add("open");
+        backdrop.setAttribute("aria-hidden", "false");
+        closeDiscoveries.focus();
+      }
+
+      function closeSheet() {
+        if (!backdrop.classList.contains("open")) return;
+        backdrop.classList.remove("open");
+        backdrop.setAttribute("aria-hidden", "true");
+        discoveriesButton.focus();
+      }
+
+      function setTab(tab) {
+        activeTab = tab;
+        goalsTab.classList.toggle("active", tab === "goals");
+        bonusTab.classList.toggle("active", tab === "bonus");
+        goalsTab.setAttribute("aria-selected", String(tab === "goals"));
+        bonusTab.setAttribute("aria-selected", String(tab === "bonus"));
+        renderSheet();
+      }
+
+      function renderSheet() {
+        const board = boards[boardIndex];
+        const found = getFound();
+        sheetContent.replaceChildren();
+        const note = document.createElement("p");
+        note.className = "sheet-note";
+        note.textContent = activeTab === "goals"
+          ? `Find ${board.clearAt} of ${board.goals.length} stage words to continue. Hidden slots show the remaining word lengths without spoiling them.`
+          : "Every valid non-stage word earns bonus points. Unfound bonus words stay hidden so experimentation remains rewarding.";
+        sheetContent.append(note);
+        const source = activeTab === "goals" ? board.goals : found.filter(word => !board.goals.includes(word));
+        if (!source.length) {
+          const empty = document.createElement("p");
+          empty.className = "sheet-note";
+          empty.textContent = "No bonus discoveries yet—keep experimenting with the constellation.";
+          sheetContent.append(empty);
+          return;
+        }
+        const groups = [...source]
+          .sort((a,b) => a.length - b.length || a.localeCompare(b))
+          .reduce((result, word) => {
+            (result[word.length] ||= []).push(word);
+            return result;
+          }, {});
+        Object.entries(groups).forEach(([length, words]) => {
+          const group = document.createElement("section");
+          group.className = "word-group";
+          const heading = document.createElement("h3");
+          heading.textContent = `${length}-letter words`;
+          const grid = document.createElement("div");
+          grid.className = "word-grid";
+          words.forEach(word => {
+            const item = document.createElement("div");
+            const revealed = activeTab === "bonus" || found.includes(word);
+            item.className = `word-chip${revealed ? "" : " missing"}`;
+            item.textContent = revealed ? word : "•".repeat(word.length);
+            grid.append(item);
+          });
+          group.append(heading, grid);
+          sheetContent.append(group);
+        });
+      }
+
+      function loadProgress() {
+        try {
+          const saved = JSON.parse(localStorage.getItem(storageKey) || "null");
+          if (saved?.boards) return saved;
+          const legacy = JSON.parse(localStorage.getItem("verbia-prototype-board-01") || "[]");
+          return { current: 0, boards: { 0: Array.isArray(legacy) ? legacy.filter(word => boards[0].accepted.includes(word)) : [] } };
+        } catch { return { current: 0, boards: {} }; }
+      }
+
+      function saveProgress() { localStorage.setItem(storageKey, JSON.stringify(progress)); }
+
+      function showToast(message, isError = false) {
+        window.clearTimeout(toastTimer);
+        toast.textContent = message;
+        toast.classList.toggle("error", isError);
+        toast.classList.add("show");
+        toastTimer = window.setTimeout(() => toast.classList.remove("show"), 1800);
+      }
+    })();
+  </script>
+
   <script>
     (() => {
+      if (window.VERBIA_V2) return;
       const validWords = new Set([
         "ARM", "ART", "ATE", "EAR", "EAT", "ERA", "MAT", "RAM", "RAT", "SAT", "SEA", "SET",
         "STAR", "RATE", "TEAM", "MATE", "MEAT", "TAME", "SEAM", "SAME", "REST", "MARE",
