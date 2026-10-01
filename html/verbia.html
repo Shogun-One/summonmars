@@ -202,7 +202,7 @@
     .word-display {
       position: absolute;
       z-index: 5;
-      top: 22px;
+      top: 74px;
       left: 50%;
       width: calc(100% - 36px);
       min-height: 50px;
@@ -251,8 +251,11 @@
     }
 
     .shuffle-button:active { transform: scale(.96); }
-    .hint-button { position:absolute; z-index:7; right:17px; top:58px; min-width:72px; padding:7px 9px; border:1px solid color-mix(in srgb,var(--mint) 28%,transparent); border-radius:5px 12px 5px 12px; color:var(--mint); background:rgba(0,0,0,.25); font-size:.61rem; font-weight:850; letter-spacing:.06em; text-transform:uppercase; cursor:pointer; }
-    .hint-button:disabled { opacity:.42; cursor:not-allowed; }
+    .bubble-tools { position:absolute; z-index:9; top:12px; left:50%; display:flex; gap:8px; transform:translateX(-50%); }
+    .hint-button,.daily-bubble { position:relative; inset:auto; width:56px; height:56px; padding:0; border:2px solid var(--gold); border-radius:50%; color:#201500; background:radial-gradient(circle at 34% 26%,#fff7b2,var(--gold) 45%,#df7e35); box-shadow:0 0 0 5px rgba(255,217,120,.07),0 9px 22px rgba(0,0,0,.42); font-size:1.28rem; line-height:1; cursor:pointer; animation:bubbleFloat 2.2s ease-in-out infinite; }
+    .hint-button { border-color:var(--mint); background:radial-gradient(circle at 34% 26%,#f5fff9,var(--mint) 45%,color-mix(in srgb,var(--mint) 58%,#214f42)); animation-delay:-.7s; }
+    .hint-button small,.daily-bubble small { display:block; margin-top:2px; color:#1d1607; font-size:.45rem; font-weight:950; line-height:1; letter-spacing:.045em; text-transform:uppercase; }
+    .hint-button:disabled { opacity:.42; cursor:not-allowed; filter:grayscale(.6); animation:none; }
 
     #paths {
       position: absolute;
@@ -461,10 +464,8 @@
 
     .control.primary.show { display: block; }
 
-    .daily-bubble { position:fixed; z-index:22; right:max(16px,env(safe-area-inset-right)); top:44%; width:68px; height:68px; border:2px solid var(--gold); border-radius:50%; color:#221500; background:radial-gradient(circle at 35% 28%,#fff4a8,var(--gold) 44%,#df792e); box-shadow:0 0 0 7px rgba(255,217,120,.09),0 12px 30px rgba(0,0,0,.45); font-size:1.5rem; cursor:pointer; animation:dailyFloat 2.2s ease-in-out infinite; }
     .daily-bubble[hidden] { display:none; }
-    .daily-bubble small { display:block; font-size:.48rem; font-weight:950; letter-spacing:.06em; text-transform:uppercase; }
-    @keyframes dailyFloat { 50% { transform:translateY(-8px) rotate(4deg); box-shadow:0 0 0 11px rgba(255,217,120,0),0 16px 35px rgba(0,0,0,.42); } }
+    @keyframes bubbleFloat { 50% { transform:translateY(-5px) rotate(3deg); box-shadow:0 0 0 9px rgba(255,217,120,0),0 13px 27px rgba(0,0,0,.42); } }
 
     .reward-overlay { position:fixed; z-index:80; inset:0; display:grid; place-items:center; padding:18px; background:rgba(1,5,10,.88); backdrop-filter:blur(15px); opacity:0; pointer-events:none; transition:opacity .2s ease; }
     .reward-overlay.open { opacity:1; pointer-events:auto; }
@@ -689,7 +690,6 @@
   </section>
 
   <canvas class="space-backdrop" id="spaceBackdrop" aria-hidden="true"></canvas>
-  <button class="daily-bubble" id="dailyBubble" type="button" hidden aria-label="Play today's daily dart reward">🎯<small>Daily</small></button>
   <main class="app">
     <header>
       <div class="brand">
@@ -715,7 +715,10 @@
       </div>
       <div class="word-display" id="wordDisplay" data-empty="true" aria-live="polite"></div>
       <button class="shuffle-button" id="shuffleButton" type="button" aria-label="Shuffle letter positions">↝ Shuffle</button>
-      <button class="hint-button" id="hintButton" type="button">Hint · <span id="hintCount">3</span></button>
+      <div class="bubble-tools" aria-label="Board bonuses">
+        <button class="hint-button" id="hintButton" type="button" aria-label="Use a hint">💡<small>Hint · <span id="hintCount">3</span></small></button>
+        <button class="daily-bubble" id="dailyBubble" type="button" hidden aria-label="Play today's daily dart reward">🎯<small>Daily</small></button>
+      </div>
       <div class="toast" id="toast" role="status" aria-live="assertive"></div>
       <svg id="paths" aria-hidden="true">
         <g id="constellationLines"></g>
@@ -1535,6 +1538,7 @@
       function renderWallet() {
         const availableHints = progress.hints?.count ?? 3;
         hintCount.textContent = availableHints;
+        hintButton.setAttribute("aria-label", `Use a hint. ${availableHints} available`);
         hintButton.disabled = availableHints < 1;
         walletPoints.textContent = progress.points || 0;
         walletHints.textContent = `${availableHints} available`;
