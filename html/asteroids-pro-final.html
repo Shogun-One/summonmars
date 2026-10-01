@@ -391,10 +391,6 @@
       text-align:center;
     }
     .weapon-status-overlay.active{display:grid;pointer-events:auto}
-    body.game-paused .weapon-status-overlay{
-      display:none !important;
-      pointer-events:none !important;
-    }
     .weapon-status-overlay.active:active{transform:scale(.94)}
     .weapon-status-overlay img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.42}
     .weapon-status-overlay span{position:relative;z-index:1;padding:2px;font:900 clamp(.52rem,1.8vw,.72rem)/1 'Share Tech Mono',monospace;text-shadow:0 0 7px #000,0 0 10px #41dcff}
@@ -1750,8 +1746,7 @@ body.touchpad-off .control-deck .mobile-touchpad{ display:none !important; }
     text-shadow:0 0 7px rgba(255,138,192,.8);
     touch-action:manipulation;
   }
-  body.controller-connected .mobile-pause-stamp,
-  body.game-paused .mobile-pause-stamp{ display:none !important; }
+  body.controller-connected .mobile-pause-stamp{ display:none !important; }
   @media (max-width:520px){
     .mobile-pause-stamp{
       left:calc(50% - (var(--mobile-touchpad) / 2) - 18px);
@@ -1760,11 +1755,6 @@ body.touchpad-off .control-deck .mobile-touchpad{ display:none !important; }
       height:42px;
       font-size:8px;
     }
-  }
-  body.game-paused .control-deck .bubble-btn,
-  body.game-paused .control-deck .missile-reserve{
-    opacity:0;
-    pointer-events:none;
   }
   body.game-paused .control-deck .mobile-touchpad{
     display:none !important;
@@ -1804,13 +1794,6 @@ body.touchpad-off .control-deck .mobile-touchpad{ display:none !important; }
   .controller-config-btn{
     top:max(calc(10px + env(safe-area-inset-top)), 44px);
   }
-}
-
-/* The reserve counter is a live gameplay control, but pause menus need the
-   whole arena. Keep it out of every paused layout, including unfolded phones. */
-body.game-paused .control-deck .missile-reserve{
-  opacity:0;
-  pointer-events:none;
 }
 
 /* Circular joystick only: never reintroduce the legacy square touch plate. */
@@ -1908,8 +1891,7 @@ body.game-paused .control-deck .touchpad-plate{
     text-shadow:0 0 7px rgba(255,138,192,.8);
     touch-action:manipulation;
   }
-  body.controller-connected .mobile-pause-stamp,
-  body.game-paused .mobile-pause-stamp{ display:none !important; }
+  body.controller-connected .mobile-pause-stamp{ display:none !important; }
 }
 
 /* Compact landscape phones: preserve vertical room by moving the stamp deck
@@ -1931,6 +1913,7 @@ body.game-paused .control-deck .touchpad-plate{
   }
   .wrapper{
     --landscape-rail:clamp(92px,12vw,116px);
+    --landscape-top-stamp-y:20%;
     width:100%;
     height:100%;
     max-height:none;
@@ -1995,7 +1978,7 @@ body.game-paused .control-deck .touchpad-plate{
   }
   .control-deck #pauseBtn{
     left:calc(env(safe-area-inset-left) + clamp(8px,2vw,18px)) !important;
-    top:20% !important;
+    top:var(--landscape-top-stamp-y) !important;
   }
   .control-deck #reset-btn{
     left:calc(env(safe-area-inset-left) + clamp(16px,2.8vw,30px)) !important;
@@ -2008,7 +1991,7 @@ body.game-paused .control-deck .touchpad-plate{
   .control-deck #heatBtn{
     right:calc(env(safe-area-inset-right) + clamp(8px,2vw,18px)) !important;
     left:auto !important;
-    top:20% !important;
+    top:var(--landscape-top-stamp-y) !important;
   }
   .control-deck #musicBtn{
     right:calc(env(safe-area-inset-right) + clamp(16px,2.8vw,30px)) !important;
@@ -2030,7 +2013,7 @@ body.game-paused .control-deck .touchpad-plate{
     margin:0 !important;
     display:flex;
     pointer-events:auto;
-    transform:none !important;
+    transform:translateX(clamp(8px,1.2vw,12px)) !important;
   }
   .control-deck .touchpad-plate{
     width:100% !important;
@@ -2048,13 +2031,7 @@ body.game-paused .control-deck .touchpad-plate{
   }
   body.controller-connected .control-deck .mobile-touchpad,
   body.controller-connected .mobile-pause-stamp{ display:none !important; }
-  body.game-paused .control-deck .bubble-btn,
-  body.game-paused .control-deck .missile-reserve{
-    opacity:0;
-    pointer-events:none;
-  }
-  body.game-paused .control-deck .mobile-touchpad,
-  body.game-paused .mobile-pause-stamp{ display:none !important; }
+  body.game-paused .control-deck .mobile-touchpad{ display:none !important; }
 }
 
 /* Instruction/legal text is part of the pause presentation only. */
@@ -3565,23 +3542,43 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
     let enemiesSinceMissileReward = 0;
     let nextEnemyTauntAt = performance.now() + 1800;
 
-    const WEAPONS = { single:{}, cross:{}, back:{}, dog:{} };
+    const WEAPONS = { single:{}, cross:{}, back:{}, dog:{}, laser:{} };
     let weaponMode = "single";
-    const weaponLevels = { standard:0, cross:0, back:0, dog:0 };
+    const weaponLevels = { standard:0, cross:0, back:0, dog:0, laser:0 };
     function setWeaponMode(mode){ weaponMode = mode; }
 
-    // Automatic equip priority requested for collected ammo:
-    // Single → Double → Eyes Back → Quad → 4-Way → Eyes Enhanced →
-    // Dog Mode → 4-Way Enhanced → Dog Enhanced.
+    // Upgrade/drop order. Pickups expose the first missing step, preventing an
+    // endgame gun from appearing during the opening upgrades.
+    const WEAPON_PROGRESSION = [
+      {mode:'standard',level:1,kind:'dual'},   // Double Fire
+      {mode:'laser',level:1,kind:'laser'},     // Single Laser
+      {mode:'back',level:1,kind:'back'},       // Eyes in Back
+      {mode:'standard',level:2,kind:'dual'},   // Quad Fire
+      {mode:'cross',level:1,kind:'cross'},     // 4-Way Fire
+      {mode:'back',level:2,kind:'back'},       // Eyes Enhanced
+      {mode:'dog',level:1,kind:'dog'},         // Dog Mode
+      {mode:'laser',level:2,kind:'laser'},     // Dual Lasers
+      {mode:'cross',level:2,kind:'cross'},     // 4-Way Enhanced
+      {mode:'dog',level:2,kind:'dog'},         // Dog Enhanced
+      {mode:'laser',level:3,kind:'laser'}      // Dual Front + Rear Laser
+    ];
+    const maxWeaponLevel = mode => mode === 'laser' ? 3 : 2;
+    function nextProgressiveWeaponPickupKind(){
+      const next=WEAPON_PROGRESSION.find(step=>(weaponLevels[step.mode]||0)<step.level);
+      if(next) return next.kind;
+      return WEAPON_PROGRESSION[Math.floor(Math.random()*WEAPON_PROGRESSION.length)].kind;
+    }
+
     function weaponAutoRank(mode, level = null){
       if(mode === 'single' || mode === 'standard' || mode === 'dual'){
         const resolvedLevel = level ?? weaponLevels.standard;
-        return resolvedLevel >= 2 ? 3 : resolvedLevel >= 1 ? 1 : 0;
+        return resolvedLevel >= 2 ? 4 : resolvedLevel >= 1 ? 1 : 0;
       }
       const resolvedLevel = level ?? weaponLevels[mode] ?? 0;
-      if(mode === 'back') return resolvedLevel >= 2 ? 5 : resolvedLevel >= 1 ? 2 : -1;
-      if(mode === 'cross') return resolvedLevel >= 2 ? 7 : resolvedLevel >= 1 ? 4 : -1;
-      if(mode === 'dog') return resolvedLevel >= 2 ? 8 : resolvedLevel >= 1 ? 6 : -1;
+      if(mode === 'laser') return resolvedLevel >= 3 ? 11 : resolvedLevel >= 2 ? 8 : resolvedLevel >= 1 ? 2 : -1;
+      if(mode === 'back') return resolvedLevel >= 2 ? 6 : resolvedLevel >= 1 ? 3 : -1;
+      if(mode === 'cross') return resolvedLevel >= 2 ? 9 : resolvedLevel >= 1 ? 5 : -1;
+      if(mode === 'dog') return resolvedLevel >= 2 ? 10 : resolvedLevel >= 1 ? 7 : -1;
       return -1;
     }
 
@@ -3590,7 +3587,7 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
     }
 
     function autoEquipBestCollectedWeapon(){
-      const candidates=['single','back','cross','dog'];
+      const candidates=['single','laser','back','cross','dog'];
       weaponMode=candidates.reduce((best,mode)=>weaponAutoRank(mode)>weaponAutoRank(best)?mode:best,'single');
       return weaponMode;
     }
@@ -3604,12 +3601,13 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
       if(mode === 'cross') return weaponLevels.cross >= 2 ? 'DOUBLE 4-WAY FIRE' : '4-WAY FIRE';
       if(mode === 'back') return weaponLevels.back >= 2 ? 'DUAL REAR FIRE' : 'EYES IN BACK';
       if(mode === 'dog') return weaponLevels.dog >= 2 ? 'SIX-SHOT DOG MODE' : 'DOG MODE';
+      if(mode === 'laser') return weaponLevels.laser >= 3 ? 'TRIDENT LASERS' : weaponLevels.laser >= 2 ? 'DUAL LASERS' : 'LASER';
       return 'STANDARD FIRE';
     }
 
     function updateWeaponStatusOverlay(){
-      const hasSpecialWeapon = weaponLevels.cross > 0 || weaponLevels.back > 0 || weaponLevels.dog > 0;
-      const shortNames = { single:'STANDARD', cross:'4-WAY', back:'EYES BACK', dog:'DOG MODE' };
+      const hasSpecialWeapon = weaponLevels.cross > 0 || weaponLevels.back > 0 || weaponLevels.dog > 0 || weaponLevels.laser > 0;
+      const shortNames = { single:'STANDARD', cross:'4-WAY', back:'EYES BACK', dog:'DOG MODE', laser:'LASER' };
       weaponStatusLabelEl.textContent = shortNames[weaponMode] || 'STANDARD';
       weaponStatusOverlayEl.classList.toggle('active', hasSpecialWeapon);
       weaponStatusOverlayEl.setAttribute('aria-hidden', hasSpecialWeapon ? 'false' : 'true');
@@ -3624,7 +3622,7 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
 
       const currentLevel = weaponLevels[mode];
       const pickupMode = mode === 'standard' ? 'single' : mode;
-      if(currentLevel < 2){
+      if(currentLevel < maxWeaponLevel(mode)){
         weaponLevels[mode] = currentLevel + 1;
         autoEquipBestCollectedWeapon();
         const didAutoEquip = weaponMode === pickupMode;
@@ -3646,7 +3644,7 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
       // Standard fire loses one step per death: Quad → Double → Single.
       if(weaponLevels.standard > 0) weaponLevels.standard--;
       // Special weapons stay collected, but lose their enhanced tier.
-      for(const mode of ['cross','back','dog']){
+      for(const mode of ['cross','back','dog','laser']){
         if(weaponLevels[mode] > 1) weaponLevels[mode] = 1;
       }
       // Always confirm the death penalty so it cannot silently pass unnoticed.
@@ -3657,13 +3655,15 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
     function cycleCollectedWeapon(){
       if(gameOver || paused) return;
       const available = ['single'];
-      if(weaponLevels.cross > 0) available.push('cross');
+      if(weaponLevels.laser > 0) available.push('laser');
       if(weaponLevels.back > 0) available.push('back');
+      if(weaponLevels.cross > 0) available.push('cross');
       if(weaponLevels.dog > 0) available.push('dog');
       const currentIndex = Math.max(0, available.indexOf(weaponMode));
       weaponMode = available[(currentIndex + 1) % available.length];
       showGameAlert(weaponDisplayName(weaponMode), 'sound-on');
       updateWeaponStatusOverlay();
+      saveCampaignProgress();
     }
 
     let hits = 0;
@@ -4259,10 +4259,15 @@ function updateBosses(dt){
       let mode = null;
       let icon = "fire";
 
-      if(kind === "dual"){ label = "STANDARD UPGRADE"; mode = "standard"; }
-      if(kind === "cross"){ label = "4-WAY FIRE"; mode = "cross"; icon = "cross"; }
-      if(kind === "back"){ label = "Eyes In Back"; mode = "back"; }
-      if(kind === "dog"){ label = "Dog Mode"; mode = "dog"; }
+      if(kind === "dual"){ label = weaponLevels.standard > 0 ? "QUAD FIRE" : "DOUBLE FIRE"; mode = "standard"; }
+      if(kind === "cross"){ label = weaponLevels.cross > 0 ? "4-WAY ENHANCED" : "4-WAY FIRE"; mode = "cross"; icon = "cross"; }
+      if(kind === "back"){ label = weaponLevels.back > 0 ? "EYES ENHANCED" : "EYES IN BACK"; mode = "back"; }
+      if(kind === "dog"){ label = weaponLevels.dog > 0 ? "DOG ENHANCED" : "DOG MODE"; mode = "dog"; }
+      if(kind === "laser"){
+        label = weaponLevels.laser >= 2 ? "TRIDENT LASERS" : weaponLevels.laser >= 1 ? "DUAL LASERS" : "LASER";
+        mode = "laser";
+        icon = "laser";
+      }
       if(kind === "life"){ label = "1-UP"; icon = "life"; }
       if(kind === "missile"){ label = "MISSILE ×3"; icon = "missile"; }
       if(kind === "healthPack"){ label = "FULL REPAIR"; icon = "health"; }
@@ -4303,10 +4308,7 @@ function updateBosses(dt){
       const roll = Math.random();
       let kind;
       if(roll < ASTEROID_DROP_LIFE_SHARE) kind = 'life';
-      else {
-        const weapons = ['dual','cross','back','dog'];
-        kind = weapons[Math.floor(Math.random()*weapons.length)];
-      }
+      else kind = nextProgressiveWeaponPickupKind();
       spawnPickup(kind, x, y);
     }
 
@@ -4495,7 +4497,7 @@ function updateBosses(dt){
         bossKills=Math.max(0,Number(saved.bossKills)||0);
         killsThisLevel=clamp(Number(saved.killsThisLevel)||0,0,Math.max(0,levelProgressGoal(targetLevel)-1));
         missileAmmo=clamp(Number(saved.missileAmmo)||0,0,missileAmmoCapacity());
-        for(const mode of Object.keys(weaponLevels)) weaponLevels[mode]=clamp(Number(saved.weaponLevels?.[mode])||0,0,2);
+        for(const mode of Object.keys(weaponLevels)) weaponLevels[mode]=clamp(Number(saved.weaponLevels?.[mode])||0,0,maxWeaponLevel(mode));
         weaponMode=Object.hasOwn(WEAPONS,saved.weaponMode)?saved.weaponMode:'single';
         if(weaponMode!=='single' && weaponLevels[weaponMode]<=0) autoEquipBestCollectedWeapon();
       }
@@ -4869,15 +4871,19 @@ function updateBosses(dt){
         if(paused){
           setPaused._wasPlaying = (musicEnabled() && music && !music.paused);
           if(setPaused._wasPlaying){ music.pause(); }
+          // Pausing returns the four speaker faces to their illustrated
+          // stamps. Only the joystick disappears while the menu is open.
+          setMusicUI(false);
           // stop visual pulse while paused
           pulseActive = false;
           document.documentElement.style.setProperty('--bassKick','0');
         }else{
           if(setPaused._wasPlaying && musicEnabled()){
-            music.play().catch(()=>{});
+            music.play().then(()=>setMusicUI(true)).catch(()=>setMusicUI(false));
             pulseActive = true;
           }else{
             if(!musicEnabled()) music.pause();
+            setMusicUI(musicEnabled() && music && !music.paused);
             // keep pulse accurate if music is on but browser blocked autoplay
             pulseActive = musicEnabled() && music && !music.paused;
           }
@@ -5438,6 +5444,11 @@ mobilePauseBtn?.addEventListener('click', (e) => {
       bullets.push({ x:px, y:py, vx: Math.cos(ang)*speed, vy: Math.sin(ang)*speed, life, r, kind:'plasma', damage:1 });
     }
 
+    function pushLaser(px,py,ang){
+      const speed=10.5;
+      bullets.push({x:px,y:py,vx:Math.cos(ang)*speed,vy:Math.sin(ang)*speed,life:1250,r:4,kind:'laser',damage:2});
+    }
+
     function shoot(){
       if(gameOver) return;
       if(awaitingLaunchInput) return;
@@ -5504,6 +5515,15 @@ mobilePauseBtn?.addEventListener('click', (e) => {
           pushBullet(noseX, noseY, ang - spread, spd*0.98);
           pushBullet(noseX, noseY, ang + spread, spd*0.98);
         }
+      } else if(weaponMode === "laser"){
+        if(weaponLevels.laser >= 2){
+          const off=5.8;
+          pushLaser(noseX+px*off,noseY+py*off,ang);
+          pushLaser(noseX-px*off,noseY-py*off,ang);
+        }else{
+          pushLaser(noseX,noseY,ang);
+        }
+        if(weaponLevels.laser >= 3) pushLaser(tailX,tailY,ang+Math.PI);
       } else {
         pushBullet(noseX, noseY, ang, spd);
       }
@@ -6061,7 +6081,7 @@ mobilePauseBtn?.addEventListener('click', (e) => {
               updateMissileUI();
               showGameAlert(`MISSILES +${missilesAdded} — ${missileAmmo}/${missileCapacity}`, 'sound-on');
             }
-          }else if(p.kind === "dual" || p.kind === "cross" || p.kind === "back" || p.kind === "dog"){
+          }else if(p.kind === "dual" || p.kind === "cross" || p.kind === "back" || p.kind === "dog" || p.kind === "laser"){
             collectWeaponPickup(p.kind);
           }else if(p.mode){
             collectWeaponPickup(p.mode);
@@ -6656,6 +6676,17 @@ if (flashTimer > 0) {
             ctx.restore();
           }
           ctx.restore();
+        }else if(p.icon === "laser"){
+          ctx.save();
+          ctx.rotate(Math.sin(p.bob)*.08);
+          ctx.shadowColor='#58f7ff';
+          ctx.shadowBlur=14;
+          ctx.strokeStyle='#d9ffff';
+          ctx.lineWidth=3.5;
+          ctx.beginPath();ctx.moveTo(0,-13);ctx.lineTo(0,13);ctx.stroke();
+          ctx.strokeStyle='#54dfff';ctx.lineWidth=1.5;
+          ctx.beginPath();ctx.moveTo(-5,-9);ctx.lineTo(0,-14);ctx.lineTo(5,-9);ctx.stroke();
+          ctx.restore();
         }else if(p.icon === "health"){
           ctx.shadowColor = 'rgba(80,255,165,.95)';
           ctx.shadowBlur = 12;
@@ -6757,6 +6788,27 @@ if (flashTimer > 0) {
           ctx.beginPath();
           ctx.moveTo(0,-10); ctx.quadraticCurveTo(6,-4,5,6); ctx.lineTo(-5,6); ctx.quadraticCurveTo(-6,-4,0,-10); ctx.closePath();
           ctx.fill(); ctx.stroke();
+          ctx.restore();
+        }else if(b.kind === 'laser'){
+          const length=22;
+          const speed=Math.hypot(b.vx,b.vy)||1;
+          const ux=b.vx/speed,uy=b.vy/speed;
+          ctx.save();
+          ctx.strokeStyle='rgba(210,255,255,.98)';
+          ctx.lineWidth=2.4;
+          ctx.shadowColor='#43eaff';
+          ctx.shadowBlur=12;
+          ctx.beginPath();
+          ctx.moveTo(b.x-ux*length,b.y-uy*length);
+          ctx.lineTo(b.x+ux*5,b.y+uy*5);
+          ctx.stroke();
+          ctx.strokeStyle='rgba(69,218,255,.6)';
+          ctx.lineWidth=5.5;
+          ctx.globalAlpha=.45;
+          ctx.beginPath();
+          ctx.moveTo(b.x-ux*length,b.y-uy*length);
+          ctx.lineTo(b.x+ux*5,b.y+uy*5);
+          ctx.stroke();
           ctx.restore();
         }else{
           ctx.fillStyle = '#ffe7ff';
