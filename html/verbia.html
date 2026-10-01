@@ -69,14 +69,23 @@
     }
 
     header {
+      position: relative;
       display: flex;
-      align-items: flex-end;
-      justify-content: space-between;
-      gap: 16px;
+      align-items: center;
+      justify-content: center;
+      min-height: 74px;
+      text-align: center;
+    }
+
+    .brand {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
 
     .eyebrow {
-      margin: 0 0 2px;
+      order: 2;
+      margin: 7px 0 0;
       color: var(--mint);
       font-size: .68rem;
       font-weight: 800;
@@ -95,6 +104,9 @@
     }
 
     .level-mark {
+      position: absolute;
+      right: 0;
+      bottom: 5px;
       min-width: 64px;
       color: var(--muted);
       text-align: right;
@@ -201,6 +213,26 @@
       text-shadow: none;
     }
 
+    .shuffle-button {
+      position: absolute;
+      z-index: 7;
+      right: 17px;
+      top: 19px;
+      min-width: 72px;
+      padding: 8px 10px;
+      border: 1px solid rgba(255,217,120,.25);
+      border-radius: 12px 5px 12px 5px;
+      color: var(--gold);
+      background: rgba(255,217,120,.07);
+      font-size: .62rem;
+      font-weight: 850;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+
+    .shuffle-button:active { transform: scale(.96); }
+
     #paths {
       position: absolute;
       z-index: 1;
@@ -228,19 +260,19 @@
     .letter-node {
       position: absolute;
       z-index: 3;
-      width: clamp(60px, 17vw, 76px);
-      aspect-ratio: 1;
-      transform: translate(-50%, -50%);
+      width: clamp(58px, 16vw, 72px);
+      height: clamp(66px, 18vw, 82px);
+      transform: translate(-50%, -50%) rotate(var(--tilt, 0deg));
       display: grid;
       place-items: center;
-      border: 1px solid rgba(255,255,255,.27);
-      border-radius: 50%;
+      border: 0;
+      border-radius: 0;
+      clip-path: polygon(17% 2%, 82% 10%, 100% 48%, 73% 96%, 13% 86%, 0 32%);
       color: var(--ink);
       background:
-        radial-gradient(circle at 34% 27%, rgba(255,255,255,.23), transparent 24%),
-        radial-gradient(circle, #174b3f, #09251f 70%);
+        linear-gradient(145deg, rgba(255,255,255,.22), transparent 28%),
+        linear-gradient(155deg, #1b5b4b, #0b2c25 72%);
       box-shadow:
-        0 0 0 7px rgba(117,245,199,.045),
         0 10px 28px rgba(0,0,0,.34),
         inset 0 0 15px rgba(117,245,199,.12);
       font-family: Georgia, serif;
@@ -251,11 +283,10 @@
     }
 
     .letter-node.selected {
-      transform: translate(-50%, -50%) scale(1.09);
-      border-color: var(--gold);
+      transform: translate(-50%, -50%) rotate(var(--tilt, 0deg)) scale(1.1);
       color: #07130f;
-      background: radial-gradient(circle at 34% 27%, #fff8ce, var(--gold) 68%, #ddaf4b);
-      box-shadow: 0 0 0 8px rgba(255,217,120,.09), 0 0 28px rgba(255,217,120,.45);
+      background: linear-gradient(145deg, #fff9d7, var(--gold) 60%, #d9a438);
+      box-shadow: 0 0 30px rgba(255,217,120,.5);
     }
 
     .letter-node:focus-visible { outline: 3px solid var(--gold); outline-offset: 4px; }
@@ -453,11 +484,11 @@
     .board-complete.show { opacity: 1; transform: translateY(0); }
 
     .toast {
-      position: fixed;
-      z-index: 20;
-      top: max(18px, env(safe-area-inset-top));
+      position: absolute;
+      z-index: 12;
+      top: 76px;
       left: 50%;
-      max-width: calc(100% - 36px);
+      max-width: calc(100% - 46px);
       padding: 10px 16px;
       border: 1px solid rgba(117,245,199,.35);
       border-radius: 99px;
@@ -470,12 +501,13 @@
       text-align: center;
       opacity: 0;
       pointer-events: none;
-      transform: translate(-50%, -18px);
+      transform: translate(-50%, -8px);
       transition: opacity .2s ease, transform .2s ease;
     }
 
     .toast.show { opacity: 1; transform: translate(-50%, 0); }
     .toast.error { border-color: rgba(255,137,111,.4); background: var(--coral); }
+    .toast.duplicate { border-color: rgba(255,217,120,.5); background: var(--gold); }
 
     @media (min-height: 760px) {
       .app { grid-template-rows: auto auto minmax(430px, 1fr) auto; }
@@ -497,9 +529,9 @@
 <body>
   <main class="app">
     <header>
-      <div>
-        <p class="eyebrow">A world made of words</p>
+      <div class="brand">
         <h1>Verbia</h1>
+        <p class="eyebrow">A world made of words</p>
       </div>
       <div class="level-mark">Board<strong id="boardNumber">01</strong></div>
     </header>
@@ -515,6 +547,8 @@
 
     <section class="playfield" id="playfield" aria-label="Letter constellation. Drag through letters to form a word.">
       <div class="word-display" id="wordDisplay" data-empty="true" aria-live="polite">Trace the constellation</div>
+      <button class="shuffle-button" id="shuffleButton" type="button" aria-label="Shuffle letter positions">↝ Shuffle</button>
+      <div class="toast" id="toast" role="status" aria-live="assertive"></div>
       <svg id="paths" aria-hidden="true">
         <g id="constellationLines"></g>
         <polyline class="path-glow" id="pathGlow" points=""></polyline>
@@ -537,8 +571,6 @@
       <button class="control" id="resetButton" type="button">Reset board</button>
     </section>
   </main>
-
-  <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <div class="sheet-backdrop" id="discoveryBackdrop" aria-hidden="true">
     <section class="discovery-sheet" role="dialog" aria-modal="true" aria-labelledby="discoveryTitle">
@@ -594,11 +626,12 @@
       ];
 
       const layouts = [
-        [[18,35],[55,27],[84,43],[73,68],[39,76],[14,58]],
-        [[15,40],[42,27],[78,31],[86,61],[54,75],[20,69]],
-        [[21,29],[63,25],[84,51],[66,76],[28,72],[12,50]]
+        [[15,34],[47,27],[82,38],[67,55],[84,72],[38,74]],
+        [[20,27],[72,31],[86,51],[53,43],[18,57],[48,73]],
+        [[13,40],[39,27],[78,30],[87,62],[56,74],[25,66]]
       ];
-      const links = [[0,1],[1,2],[2,3],[3,4],[4,5],[5,0],[1,4]];
+      const links = [[0,1],[1,2],[2,3],[3,4],[3,5],[0,5]];
+      const tilts = [-8,5,11,-5,7,-11];
       const storageKey = "verbia-progress-v2";
       const playfield = document.querySelector("#playfield");
       const letterNodes = document.querySelector("#letterNodes");
@@ -615,6 +648,7 @@
       const goalSummary = document.querySelector("#goalSummary");
       const bonusSummary = document.querySelector("#bonusSummary");
       const discoveriesButton = document.querySelector("#discoveriesButton");
+      const shuffleButton = document.querySelector("#shuffleButton");
       const nextButton = document.querySelector("#nextButton");
       const resetButton = document.querySelector("#resetButton");
       const backdrop = document.querySelector("#discoveryBackdrop");
@@ -677,6 +711,22 @@
         showToast(boardIndex ? `Board ${String(boardIndex + 1).padStart(2,"0")} opened` : "Back to Board 01");
       });
 
+      shuffleButton.addEventListener("click", () => {
+        resetTrace();
+        const letters = nodes.map(node => node.dataset.letter);
+        for (let index = letters.length - 1; index > 0; index--) {
+          const swapWith = Math.floor(Math.random() * (index + 1));
+          [letters[index], letters[swapWith]] = [letters[swapWith], letters[index]];
+        }
+        nodes.forEach((node, index) => {
+          node.dataset.letter = letters[index];
+          node.textContent = letters[index];
+          node.setAttribute("aria-label", `Letter ${letters[index]}`);
+        });
+        showToast("Constellation remapped");
+        navigator.vibrate?.(18);
+      });
+
       resetButton.addEventListener("click", () => {
         if (!window.confirm(`Reset discoveries for Board ${String(boardIndex + 1).padStart(2,"0")}?`)) return;
         progress.boards[boardIndex] = [];
@@ -701,6 +751,7 @@
           node.dataset.letter = letter;
           node.style.left = `${layout[index][0]}%`;
           node.style.top = `${layout[index][1]}%`;
+          node.style.setProperty("--tilt", `${tilts[index]}deg`);
           node.textContent = letter;
           node.setAttribute("aria-label", `Letter ${letter}`);
           node.addEventListener("keydown", event => {
@@ -781,7 +832,7 @@
         } else if (!accepted.has(word)) {
           showToast(`${word} is not in this board's family-safe dictionary`, true);
         } else if (found.includes(word)) {
-          showToast(`${word} was already discovered`);
+          showToast(`${word} • already discovered`, "duplicate");
         } else {
           found.push(word);
           progress.boards[boardIndex] = found;
@@ -901,12 +952,13 @@
 
       function saveProgress() { localStorage.setItem(storageKey, JSON.stringify(progress)); }
 
-      function showToast(message, isError = false) {
+      function showToast(message, kind = false) {
         window.clearTimeout(toastTimer);
         toast.textContent = message;
-        toast.classList.toggle("error", isError);
+        toast.classList.toggle("error", kind === true || kind === "error");
+        toast.classList.toggle("duplicate", kind === "duplicate");
         toast.classList.add("show");
-        toastTimer = window.setTimeout(() => toast.classList.remove("show"), 1800);
+        toastTimer = window.setTimeout(() => toast.classList.remove("show"), kind === "duplicate" ? 2400 : 1900);
       }
     })();
   </script>
