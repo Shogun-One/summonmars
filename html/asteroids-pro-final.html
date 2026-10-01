@@ -2764,11 +2764,15 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
     }
     resetBtn.addEventListener('pointerdown', handleMissilePointer, { passive:false });
 
-    weaponStatusOverlayEl.addEventListener('click', (e) => {
+    // Use the second pointer immediately so weapon cycling remains available
+    // while another finger owns the joystick for steering/autofire.
+    weaponStatusOverlayEl.addEventListener('pointerdown', (e) => {
+      if(e.pointerType === 'mouse' && e.button !== 0) return;
       e.preventDefault();
       e.stopPropagation();
       cycleCollectedWeapon();
-    });
+      try{ navigator.vibrate?.(12); }catch{}
+    }, { passive:false });
 
     // Mouse users can click or hold inside the playfield to fire.
     let mouseFireHeld = false;
@@ -2839,27 +2843,27 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
 
     const STORE_ITEMS = [
       {id:'ship-starter',type:'ship',name:'PULSEWING',price:0,color:'#45eaff'},
-      {id:'ship-crimson',type:'ship',name:'CRIMSON VIPER',price:5,color:'#ff496f'},
-      {id:'ship-solar',type:'ship',name:'SOLAR WARDEN',price:5,color:'#ffbd45'},
-      {id:'ship-void',type:'ship',name:'VOID PHANTOM',price:5,color:'#ae70ff'},
-      {id:'ship-emerald',type:'ship',name:'EMERALD EDGE',price:5,color:'#35f5a1'},
-      {id:'ship-cobalt',type:'ship',name:'COBALT GUNSHIP',price:5,color:'#4297ff'},
-      {id:'ship-manta',type:'ship',name:'STEALTH MANTA',price:5,color:'#8de8ff'},
-      {id:'ship-dogbus',type:'ship',name:'DOGFACE BUS',price:5,color:'#ffae45'},
-      {id:'ship-phoenix',type:'ship',name:'SOLAR PHOENIX',price:5,color:'#ff623b'},
+      {id:'ship-crimson',type:'ship',name:'CRIMSON VIPER',price:2000,color:'#ff496f'},
+      {id:'ship-solar',type:'ship',name:'SOLAR WARDEN',price:2000,color:'#ffbd45'},
+      {id:'ship-void',type:'ship',name:'VOID PHANTOM',price:2000,color:'#ae70ff'},
+      {id:'ship-emerald',type:'ship',name:'EMERALD EDGE',price:3000,color:'#35f5a1'},
+      {id:'ship-cobalt',type:'ship',name:'COBALT GUNSHIP',price:3000,color:'#4297ff'},
+      {id:'ship-manta',type:'ship',name:'STEALTH MANTA',price:3000,color:'#8de8ff'},
+      {id:'ship-dogbus',type:'ship',name:'DOGFACE BUS',price:3000,color:'#ffae45'},
+      {id:'ship-phoenix',type:'ship',name:'SOLAR PHOENIX',price:3000,color:'#ff623b'},
       {id:'pilot-shadow',type:'pilot',name:'UNKNOWN PILOT',price:0,color:'#7d718d'},
-      {id:'pilot-nova',type:'pilot',name:'NOVA',price:5,color:'#ff77c8'},
-      {id:'pilot-ace',type:'pilot',name:'ACE REX',price:5,color:'#5dffbf'},
-      {id:'pilot-indian-f',type:'pilot',name:'CAPTAIN ASHA',price:5,color:'#ff9f68'},
-      {id:'pilot-indian-m',type:'pilot',name:'COMMANDER ARJUN',price:5,color:'#ffc95d'},
-      {id:'pilot-black-f',type:'pilot',name:'MAJOR IMANI',price:5,color:'#f06bb8'},
-      {id:'pilot-black-m',type:'pilot',name:'CAPTAIN MALIK',price:5,color:'#75c9ff'},
-      {id:'pilot-asian-f',type:'pilot',name:'COMMANDER MEI',price:5,color:'#ff6f91'},
-      {id:'pilot-asian-m',type:'pilot',name:'ACE KENJI',price:5,color:'#70e0d1'},
+      {id:'pilot-nova',type:'pilot',name:'NOVA',price:3500,color:'#ff77c8'},
+      {id:'pilot-ace',type:'pilot',name:'ACE REX',price:3500,color:'#5dffbf'},
+      {id:'pilot-indian-f',type:'pilot',name:'CAPTAIN ASHA',price:3500,color:'#ff9f68'},
+      {id:'pilot-indian-m',type:'pilot',name:'COMMANDER ARJUN',price:3500,color:'#ffc95d'},
+      {id:'pilot-black-f',type:'pilot',name:'MAJOR IMANI',price:3500,color:'#f06bb8'},
+      {id:'pilot-black-m',type:'pilot',name:'CAPTAIN MALIK',price:3500,color:'#75c9ff'},
+      {id:'pilot-asian-f',type:'pilot',name:'COMMANDER MEI',price:3500,color:'#ff6f91'},
+      {id:'pilot-asian-m',type:'pilot',name:'ACE KENJI',price:3500,color:'#70e0d1'},
       {id:'scene-deep',type:'scene',name:'DEEP SPACE',price:0,color:'#171329'},
-      {id:'scene-nebula',type:'scene',name:'NEBULA RUN',price:5,color:'#a33bba'},
-      {id:'scene-solar',type:'scene',name:'SOLAR STORM',price:5,color:'#df5c28'},
-      {id:'missile-21',type:'upgrade',name:'MISSILE BAY 21',price:5,color:'#ff784e'}
+      {id:'scene-nebula',type:'scene',name:'NEBULA RUN',price:4000,color:'#a33bba'},
+      {id:'scene-solar',type:'scene',name:'SOLAR STORM',price:4000,color:'#df5c28'},
+      {id:'missile-21',type:'upgrade',name:'MISSILE BAY 21',price:6000,color:'#ff784e'}
     ];
     let storeCredits = Math.max(0, Number(localStorage.getItem('asteroidStoreCredits') || 0));
     let ownedStoreItems;
@@ -3994,7 +3998,12 @@ function updateBosses(dt){
 
     function rootMenuRects(){
       if(width < 600){
-        const x=45,w=width-90,h=55,gap=7,top=66;
+        // Seven rows share the available height. Keep the final card above a
+        // dedicated footer band instead of letting EXIT GAME collide with it.
+        const x=45,w=width-90,top=height<400?54:66;
+        const footerTop=height-42,menuBottom=footerTop-8;
+        const gap=height<440?4:7;
+        const h=Math.max(22,Math.min(55,(menuBottom-top-gap*6)/7));
         const splitGap=8,splitW=(w-splitGap)/2;
         return [
           {x,y:top,w:splitW,h}, {x:x+splitW+splitGap,y:top,w:splitW,h},
@@ -4006,10 +4015,11 @@ function updateBosses(dt){
       const margin=50,gapX=18,gapY=12,top=height<620?66:82;
       const w=(width-margin*2-gapX)/2;
       const exitH=Math.min(36,Math.max(30,height*.07));
-      const h=Math.min(100,Math.max(52,(height-top-gapY*2-exitH-18)/3));
+      const menuBottom=height-50;
+      const h=Math.min(100,Math.max(36,(menuBottom-top-gapY*2-exitH-10)/3));
       const splitGap=10,splitW=(w-splitGap)/2,rightX=margin+w+gapX;
       const gridBottom=top+3*h+gapY*2;
-      const exitY=Math.min(height-exitH-8,gridBottom+10);
+      const exitY=Math.min(menuBottom-exitH,gridBottom+10);
       return [
         {x:margin,y:top,w:splitW,h}, {x:margin+splitW+splitGap,y:top,w:splitW,h},
         {x:rightX,y:top,w,h},
