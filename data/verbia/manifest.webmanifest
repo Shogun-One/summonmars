@@ -1,0 +1,26 @@
+{
+  "name": "Verbia — A World Made of Words",
+  "short_name": "Verbia",
+  "description": "Trace letter constellations and discover words.",
+  "start_url": "../../html/verbia.html",
+  "scope": "../../",
+  "display": "fullscreen",
+  "display_override": ["fullscreen", "standalone", "minimal-ui"],
+  "orientation": "portrait",
+  "background_color": "#04100f",
+  "theme_color": "#071917",
+  "icons": [
+    {
+      "src": "../../images/verbia/verbia-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "../../images/verbia/verbia-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

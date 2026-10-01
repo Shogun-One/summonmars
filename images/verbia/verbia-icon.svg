@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title">
+  <title id="title">Verbia</title>
+  <defs>
+    <radialGradient id="space" cx="32%" cy="22%" r="92%">
+      <stop offset="0" stop-color="#155b4d"/>
+      <stop offset=".52" stop-color="#07231f"/>
+      <stop offset="1" stop-color="#020b0d"/>
+    </radialGradient>
+    <linearGradient id="letter" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#fffce8"/>
+      <stop offset="1" stop-color="#ffd978"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#space)"/>
+  <g fill="#75f5c7">
+    <circle cx="88" cy="105" r="5"/><circle cx="416" cy="91" r="4"/><circle cx="433" cy="364" r="6"/><circle cx="94" cy="398" r="4"/>
+  </g>
+  <path d="M116 155 256 392 396 155" fill="none" stroke="#75f5c7" stroke-width="5" stroke-linecap="round" stroke-dasharray="3 15" opacity=".48"/>
+  <g fill="#0e493d" stroke="#75f5c7" stroke-width="4">
+    <path d="m71 118 92-18 45 76-62 75-91-34z"/>
+    <path d="m349 105 91 31 17 93-83 42-67-66z"/>
+    <path d="m205 326 75-39 72 50-22 89-96 4-48-57z"/>
+  </g>
+  <g fill="url(#letter)" font-family="Georgia,serif" font-size="104" text-anchor="middle">
+    <text x="130" y="203">V</text><text x="384" y="217">B</text><text x="270" y="394">A</text>
+  </g>
+</svg>

@@ -4,7 +4,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#071917" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Verbia" />
   <meta name="description" content="Verbia prototype — trace a constellation of letters and discover words." />
+  <link rel="manifest" href="../data/verbia/manifest.webmanifest" />
+  <link rel="icon" href="../images/verbia/verbia-icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" sizes="180x180" href="../images/verbia/verbia-icon-180.png" />
   <title>Verbia — Word Discovery Prototype</title>
   <style>
     :root {
@@ -33,6 +40,7 @@
     * { box-sizing: border-box; }
 
     html, body {
+      width: 100%;
       min-height: 100%;
       margin: 0;
       overscroll-behavior: none;
@@ -666,6 +674,7 @@
     .launch-choice-button.primary small { color:var(--accent-muted); font-weight:850; }
     .launch-choice-button:disabled { cursor:not-allowed; color:#b8c0be; border-color:rgba(170,180,178,.2); background:linear-gradient(135deg,#303837,#1d2423); filter:grayscale(1); box-shadow:none; }
     .launch-choice-button:disabled small { color:#939e9b; }
+    .install-note { margin:16px 5px 0 !important; color:var(--surface-muted); font-size:.65rem; font-weight:650 !important; line-height:1.45; }
 
     @media (min-height: 760px) {
       .playfield { min-height: 410px; }
@@ -699,6 +708,7 @@
       <p>Choose how your journey begins.</p>
       <button class="launch-choice-button primary" id="continueGameButton" type="button">Continue<small id="continueGameMeta">Resume your saved word journey</small></button>
       <button class="launch-choice-button" id="newGameButton" type="button">New Game<small>Clear Verbia progress and create a new explorer</small></button>
+      <p class="install-note">For app-style fullscreen on a phone, choose Install or Add to Home Screen from the browser menu.</p>
     </div>
   </section>
 
@@ -1045,6 +1055,7 @@
 
       continueGameButton.addEventListener("click", () => {
         if (!hasSavedGame()) return;
+        enterImmersiveMode();
         launchOverlay.hidden = true;
         hasStarted = true;
         menuOverlay.classList.remove("open");
@@ -1052,6 +1063,7 @@
       });
 
       newGameButton.addEventListener("click", () => {
+        enterImmersiveMode();
         localStorage.removeItem(storageKey);
         localStorage.removeItem("verbia-progress-v2");
         localStorage.removeItem(settingsKey);
@@ -1508,10 +1520,22 @@
       }
 
       function closeMenu() {
+        enterImmersiveMode();
         menuOverlay.classList.remove("open");
         menuOverlay.setAttribute("aria-hidden", "true");
         hasStarted = true;
         pauseButton.focus();
+      }
+
+      function enterImmersiveMode() {
+        if (document.fullscreenElement || navigator.standalone === true) return;
+        const root = document.documentElement;
+        const request = root.requestFullscreen || root.webkitRequestFullscreen;
+        if (!request) return;
+        try {
+          const result = request.call(root, { navigationUI:"hide" });
+          result?.catch?.(() => {});
+        } catch {}
       }
 
       function showOpeningSplash() {
