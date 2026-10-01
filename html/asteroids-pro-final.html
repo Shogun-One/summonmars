@@ -93,7 +93,8 @@
 
     html{
       width:100%;
-      height:100%;
+      height:var(--visual-height,100dvh);
+      min-height:var(--visual-height,100dvh);
       overflow:hidden;
       background:#05030b;
     }
@@ -103,7 +104,8 @@
 
     body{
       margin:0;
-      min-height:100vh;
+      height:var(--visual-height,100dvh);
+      min-height:var(--visual-height,100dvh);
       display:flex;
       align-items:flex-start;
       justify-content:center;
@@ -157,7 +159,7 @@
       inset:0;
     }
 
-    .launch-choice{position:fixed;inset:0;z-index:2147483646;display:grid;place-items:center;padding:24px;color:#ffeaff;background:rgba(5,4,12,.88);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);font-family:'Share Tech Mono',monospace}
+    .launch-choice{position:fixed;inset:0;z-index:2147483646;display:grid;place-items:center;width:100%;height:var(--visual-height,100dvh);min-height:var(--visual-height,100dvh);overflow:hidden;padding:24px;color:#ffeaff;background:rgba(5,4,12,.96);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);font-family:'Share Tech Mono',monospace}
     .launch-choice[hidden]{display:none}
     .launch-choice__panel{width:min(470px,100%);padding:clamp(24px,6vw,42px);text-align:center;border:1px solid rgba(255,84,190,.48);border-radius:22px;background:rgba(8,7,17,.94);box-shadow:0 0 42px rgba(255,51,180,.22)}
     .launch-choice h2{margin:0 0 8px;color:#f58bd6;font:800 clamp(22px,6vw,31px)/1.15 'Orbitron',sans-serif;letter-spacing:.08em}
@@ -2245,6 +2247,55 @@ document.querySelectorAll('img[data-asset]').forEach((img) => {
       window.__securityFreeze=false;
     });
 
+    // Keep the password, Continue/New Game, and first game frame on one
+    // physical viewport. Mobile browsers temporarily report the keyboard's
+    // reduced visual viewport while it is closing; accepting that value was
+    // the source of the black strip and layout jump between launch screens.
+    let launchViewportLocked = true;
+    let launchViewportHeight = 0;
+    let launchViewportOrientation = '';
+    function physicalOrientationKey(){
+      const type = screen.orientation?.type;
+      if(type) return type.startsWith('landscape') ? 'landscape' : 'portrait';
+      return screen.width >= screen.height ? 'landscape' : 'portrait';
+    }
+    function rawViewportHeight(){
+      return Math.max(
+        Number(window.innerHeight) || 0,
+        Number(document.documentElement.clientHeight) || 0,
+        Number(window.visualViewport?.height) || 0
+      );
+    }
+    function applyStableViewport(){
+      const orientation = physicalOrientationKey();
+      const measured = Math.max(1, Math.round(rawViewportHeight()));
+      if(orientation !== launchViewportOrientation){
+        launchViewportOrientation = orientation;
+        launchViewportHeight = measured;
+      }else if(launchViewportLocked){
+        launchViewportHeight = Math.max(launchViewportHeight, measured);
+      }else{
+        launchViewportHeight = measured;
+      }
+      document.documentElement.style.setProperty('--visual-height', `${launchViewportHeight}px`);
+      return launchViewportHeight;
+    }
+    function lockLaunchViewport(){
+      launchViewportLocked = true;
+      applyStableViewport();
+    }
+    function releaseLaunchViewportAfterSettle(){
+      lockLaunchViewport();
+      [0,90,260,520,900,1400].forEach(delay=>setTimeout(applyStableViewport,delay));
+      setTimeout(()=>{
+        launchViewportLocked = false;
+        applyStableViewport();
+        resizeBG();
+        resizeGameArenaForViewport();
+      },1550);
+    }
+    applyStableViewport();
+
     // =========================
     // Background FX
     // =========================
@@ -2298,10 +2349,11 @@ document.querySelectorAll('img[data-asset]').forEach((img) => {
 
     function resizeBG(){
       const dpr = Math.max(1, Math.floor(window.devicePixelRatio || 1));
+      const viewportHeight = applyStableViewport();
       bg.width = Math.floor(window.innerWidth * dpr);
-      bg.height = Math.floor(window.innerHeight * dpr);
+      bg.height = Math.floor(viewportHeight * dpr);
       bg.style.width = window.innerWidth + 'px';
-      bg.style.height = window.innerHeight + 'px';
+      bg.style.height = viewportHeight + 'px';
       bgc.setTransform(dpr,0,0,dpr,0,0);
     }
     window.addEventListener('resize', resizeBG);
@@ -2516,13 +2568,13 @@ document.querySelectorAll('img[data-asset]').forEach((img) => {
     // game has entered fullscreen, an intentional exit is respected.
     let autoFullscreenPending = true;
     let fullscreenRequestInFlight = false;
+    let launchFlowComplete = false;
     function syncViewportAfterFullscreen(){
       // Mobile browsers report two or three intermediate viewport sizes while
       // the keyboard closes and fullscreen settles. Refresh at each stable
       // point so the arena never keeps the password screen's shorter height.
       const refresh=()=>{
-        const visibleHeight = Math.round(window.visualViewport?.height || window.innerHeight);
-        document.documentElement.style.setProperty('--visual-height', `${visibleHeight}px`);
+        applyStableViewport();
         window.scrollTo(0,0);
         resizeBG();
         resizeGameArenaForViewport();
@@ -2558,8 +2610,13 @@ document.querySelectorAll('img[data-asset]').forEach((img) => {
     document.addEventListener('keydown', requestLaunchFullscreen, { capture:true });
     document.addEventListener('asteroid-unlock-submit',()=>requestLaunchFullscreen());
     document.addEventListener('asteroid-gate-unlocked',syncViewportAfterFullscreen);
-    document.addEventListener('fullscreenchange',syncViewportAfterFullscreen);
-    document.addEventListener('webkitfullscreenchange',syncViewportAfterFullscreen);
+    function handleFullscreenChange(){
+      if(fullscreenElement()) autoFullscreenPending = false;
+      else if(!launchFlowComplete) autoFullscreenPending = true;
+      syncViewportAfterFullscreen();
+    }
+    document.addEventListener('fullscreenchange',handleFullscreenChange);
+    document.addEventListener('webkitfullscreenchange',handleFullscreenChange);
     window.visualViewport?.addEventListener('resize',syncViewportAfterFullscreen);
     window.visualViewport?.addEventListener('scroll',syncViewportAfterFullscreen);
     window.addEventListener('orientationchange',syncViewportAfterFullscreen);
@@ -3475,7 +3532,7 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
         return;
       }
 
-      const viewportHeight = window.visualViewport?.height || window.innerHeight;
+      const viewportHeight = applyStableViewport();
       const shellTop = canvas.closest('.game-shell')?.getBoundingClientRect().top || 0;
       const deck = document.querySelector('.control-deck');
       const deckStyle = deck ? getComputedStyle(deck) : null;
@@ -4575,16 +4632,60 @@ function updateBosses(dt){
       saveCampaignProgress();
     }
 
+    function beginLaunchTransition(){
+      launchFlowComplete = false;
+      lockLaunchViewport();
+      if(!fullscreenElement()) autoFullscreenPending = true;
+      requestLaunchFullscreen();
+      syncViewportAfterFullscreen();
+      releaseLaunchViewportAfterSettle();
+      setTimeout(()=>{ launchFlowComplete = true; },1600);
+    }
+
+    function resetAllPersistentProgressInPlace(){
+      // A reload drops fullscreen on mobile. Reset the same persistent and
+      // in-memory state without navigating so the launch remains seamless.
+      for(const key of Object.keys(localStorage)) if(key.startsWith('asteroid')) localStorage.removeItem(key);
+      sessionStorage.removeItem(NEW_GAME_PENDING_KEY);
+
+      storeCredits = 0;
+      ownedStoreItems.clear();
+      ['ship-starter','pilot-shadow','scene-deep'].forEach(id=>ownedStoreItems.add(id));
+      equippedStore = {ship:'ship-starter',pilot:'pilot-shadow',scene:'scene-deep'};
+      updatePilotPortrait();
+
+      diffIndex = 0;
+      setDiffUI();
+      soundMode = 'full';
+      musicPlayMode = 'alternate';
+      musicTrackIndex = 0;
+      music.pause();
+      music.src = A(MUSIC_TRACKS[0].src);
+      music.loop = false;
+      music.currentTime = 0;
+      musicVolume = 50;
+      effectsVolume = 80;
+      applyMusicVolume();
+      applyEffectsVolume();
+      defaultSoundStarted = false;
+      setMusicUI(false);
+
+      gamepadConfig = sanitizeGamepadConfig(DEFAULT_GAMEPAD_CONFIG);
+      populateGamepadConfig(gamepadConfig);
+      saveInventory();
+    }
+
     continueGameBtn.addEventListener('click',()=>{
       const saved=readCampaignProgress();
       if(!saved) return;
+      beginLaunchTransition();
       launchChoiceEl.hidden=true;
       restoreCampaignProgress(saved);
     });
     newGameBtn.addEventListener('click',()=>{
-      for(const key of Object.keys(localStorage)) if(key.startsWith('asteroid')) localStorage.removeItem(key);
-      sessionStorage.setItem(NEW_GAME_PENDING_KEY,'1');
-      location.reload();
+      beginLaunchTransition();
+      resetAllPersistentProgressInPlace();
+      startFreshCampaignAfterReset();
     });
 
     function handleGameUnlocked(){
