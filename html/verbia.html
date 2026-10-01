@@ -1640,7 +1640,7 @@
         renderWallet();
         const clueNumber = previousHints.length;
         const pattern = word.length > 2 ? `${word[0]}${"•".repeat(word.length - 2)}${word.at(-1)}` : word;
-        showToast(`Hint ${clueNumber} • ${pattern} • ${word.length} letters`, "success");
+        showToast(`Hint ${clueNumber} • ${pattern} • ${word.length} letters`, "success", 4500);
       }
 
       function openDailyReward() {
@@ -1923,7 +1923,7 @@
         localStorage.setItem(storageKey, JSON.stringify(progress));
       }
 
-      function showToast(message, kind = false) {
+      function showToast(message, kind = false, duration = null) {
         window.clearTimeout(toastTimer);
         toast.textContent = message;
         toast.classList.toggle("error", kind === true || kind === "error");
@@ -1931,7 +1931,8 @@
         toast.classList.toggle("success", kind === "success");
         toast.classList.toggle("bonus", kind === "bonus");
         toast.classList.add("show");
-        toastTimer = window.setTimeout(() => toast.classList.remove("show"), kind === "duplicate" || kind === "bonus" ? 2400 : 1900);
+        const displayTime = duration ?? (kind === "duplicate" || kind === "bonus" ? 2400 : 1900);
+        toastTimer = window.setTimeout(() => toast.classList.remove("show"), displayTime);
       }
     })();
   </script>
