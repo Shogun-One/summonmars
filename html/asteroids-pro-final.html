@@ -710,30 +710,29 @@ body.music-on canvas#game{
   position:absolute;
   inset: 2px;
   border-radius:999px;
-  background:
-    radial-gradient(circle at 35% 30%,
-      rgba(255,255,255,.14),
-      rgba(0,0,0,.35) 45%,
-      rgba(0,0,0,.88) 100%);
+  box-sizing:border-box;
+  background:transparent;
+  border:var(--speakerRingWidth,2px) solid rgba(255,72,165,.78);
   box-shadow:
-    inset 0 0 0 2px rgba(255,255,255,.06),
-    inset 0 0 10px rgba(0,0,0,.55);
-  transform: scale(calc(1 + (var(--bassKick, 0) * .10)));
-  transition: transform 55ms linear, filter 55ms linear;
+    inset 0 0 var(--speakerOuterInsetGlow,7px) rgba(255,46,150,.48),
+    0 0 var(--speakerOuterGlow,5px) rgba(255,71,170,.72);
+  transform:none;
+  transition:border-width 48ms linear,box-shadow 48ms linear;
 }
 
 .bubble-btn .ring.flip .face.woofer::after{
   content:"";
   position:absolute;
-  inset: 14px;
+  inset: 25%;
   border-radius:999px;
 
-  /* Cone + grille + subtle swirl */
+  /* Pink voice-coil ring and cone: this is the part that pushes outward. */
   background:
     radial-gradient(circle at 50% 50%,
-      rgba(255,255,255,.26) 0 12%,
-      rgba(0,0,0,.55) 12% 28%,
-      rgba(0,0,0,.92) 28% 100%),
+      rgba(255,238,250,.98) 0 9%,
+      rgba(255,105,188,.96) 10% 25%,
+      rgba(104,19,80,.92) 27% 43%,
+      rgba(5,3,10,.98) 47% 100%),
     repeating-radial-gradient(circle,
       rgba(255,255,255,.06) 0 1px,
       rgba(0,0,0,0) 1px 4px),
@@ -744,12 +743,13 @@ body.music-on canvas#game{
       rgba(0,0,0,0));
 
   box-shadow:
-    inset 0 0 0 1px rgba(255,138,192,.10),
-    inset 0 0 18px rgba(0,0,0,.65);
+    inset 0 0 0 2px rgba(255,161,214,.60),
+    inset 0 0 14px rgba(0,0,0,.72),
+    0 0 var(--speakerInnerGlow,5px) rgba(255,67,170,.82);
 
-  transform: scale(calc(1 + (var(--bassKick, 0) * .30)));
-  filter:brightness(calc(1 + (var(--bassKick, 0) * .58)))
-         drop-shadow(0 0 calc(3px + (var(--bassKick, 0) * 9px)) rgba(255,88,175,.74));
+  transform:scale(var(--speakerConeScale,1));
+  filter:brightness(var(--speakerConeBrightness,1))
+         drop-shadow(0 0 var(--speakerConeGlow,3px) rgba(255,88,175,.74));
   transition: transform 55ms linear, filter 55ms linear;
 
 }
@@ -771,9 +771,12 @@ body.speaker-boom .bubble-btn .ring.flip .face.woofer{
 }
 body.music-on .bubble-btn .ring.flip,
 body.speaker-boom .bubble-btn .ring.flip{
-  transform:translateZ(0);
-  filter:brightness(calc(1 + (var(--bassKick, 0) * .42)))
-         drop-shadow(0 0 calc(8px + (var(--bassKick, 0) * 22px)) rgba(255,59,155,.72));
+  transform:translate(
+    var(--speakerShakeX,0px),
+    var(--speakerShakeY,0px)
+  ) rotate(var(--speakerShakeAngle,0deg));
+  filter:brightness(var(--speakerBodyBrightness,1))
+         drop-shadow(0 0 var(--speakerBodyGlow,8px) rgba(255,59,155,.72));
   transition:filter 55ms linear;
   will-change:transform,filter;
 }
@@ -786,6 +789,26 @@ body.speaker-boom .bubble-btn .ring.flip .face.woofer{
     0 0 14px rgba(255,59,155,.55),
     0 0 28px rgba(79,225,255,.25);
 }
+
+@keyframes speakerCabinetBeat{
+  0%,35%,100%{transform:translate(0,0) rotate(0deg)}
+  8%{transform:translate(-1.6px,-.8px) rotate(-.65deg)}
+  15%{transform:translate(1.8px,.65px) rotate(.72deg)}
+  23%{transform:translate(-.65px,0) rotate(-.24deg)}
+}
+@keyframes speakerOuterRingBeat{
+  0%,35%,100%{border-width:2px;box-shadow:inset 0 0 7px rgba(255,46,150,.48),0 0 5px rgba(255,71,170,.72)}
+  12%{border-width:5px;box-shadow:inset 0 0 20px rgba(255,46,150,.72),0 0 17px rgba(255,71,170,.95)}
+  24%{border-width:2.7px;box-shadow:inset 0 0 10px rgba(255,46,150,.58),0 0 8px rgba(255,71,170,.82)}
+}
+@keyframes speakerInnerRingBeat{
+  0%,35%,100%{transform:scale(1);filter:brightness(1) drop-shadow(0 0 3px rgba(255,88,175,.74))}
+  12%{transform:scale(1.36);filter:brightness(1.58) drop-shadow(0 0 14px rgba(255,88,175,.96))}
+  24%{transform:scale(1.08);filter:brightness(1.16) drop-shadow(0 0 6px rgba(255,88,175,.82))}
+}
+body.music-on .bubble-btn .ring.flip{animation:speakerCabinetBeat .52s linear infinite}
+body.music-on .bubble-btn .ring.flip .face.woofer::before{animation:speakerOuterRingBeat .52s ease-out infinite}
+body.music-on .bubble-btn .ring.flip .face.woofer::after{animation:speakerInnerRingBeat .52s ease-out infinite}
 
 /* small status dot on the Music bubble (still useful) */
 .bubble-btn .ring.flip .dot-indicator{
@@ -2681,6 +2704,24 @@ let __speakerBoomToken = 0;
 let __bassData = null;
 let __lastAudioVizAt = 0;
 
+function paintSpeakerVisual(kick=0){
+  const value=clamp(Number(kick)||0,0,1.35);
+  const root=document.documentElement.style;
+  root.setProperty('--bassKick',String(value));
+  root.setProperty('--speakerRingWidth',`${2+value*3}px`);
+  root.setProperty('--speakerOuterInsetGlow',`${7+value*13}px`);
+  root.setProperty('--speakerOuterGlow',`${5+value*12}px`);
+  root.setProperty('--speakerInnerGlow',`${5+value*12}px`);
+  root.setProperty('--speakerConeScale',String(1+value*.40));
+  root.setProperty('--speakerConeBrightness',String(1+value*.58));
+  root.setProperty('--speakerConeGlow',`${3+value*9}px`);
+  root.setProperty('--speakerShakeX',`${value*1.8}px`);
+  root.setProperty('--speakerShakeY',`${value*-1.15}px`);
+  root.setProperty('--speakerShakeAngle',`${value*.55}deg`);
+  root.setProperty('--speakerBodyBrightness',String(1+value*.42));
+  root.setProperty('--speakerBodyGlow',`${8+value*22}px`);
+}
+
 function triggerSpeakerBoom(strength = 1, duration = 420){
   if(!effectsEnabled()) return;
   const punch = clamp(strength, .2, 1.35);
@@ -2714,17 +2755,26 @@ function updateAudioViz(){
   if(vizNow - __lastAudioVizAt < 32) return;
   __lastAudioVizAt = vizNow;
 
-  if(pulseActive && bassAnalyser){
-    if(!__bassData || __bassData.length !== bassAnalyser.frequencyBinCount){
-      __bassData = new Uint8Array(bassAnalyser.frequencyBinCount);
+  if(pulseActive){
+    let bassN=0;
+    if(bassAnalyser){
+      if(!__bassData || __bassData.length !== bassAnalyser.frequencyBinCount){
+        __bassData = new Uint8Array(bassAnalyser.frequencyBinCount);
+      }
+      const b = __bassData;
+      bassAnalyser.getByteFrequencyData(b);
+      const lowBins = Math.min(16, b.length);
+      let low = 0;
+      for(let i=0;i<lowBins;i++) low += b[i];
+      low /= lowBins;
+      bassN = Math.pow(clamp(low / 255,0,1), .58);
     }
-    const b = __bassData;
-    bassAnalyser.getByteFrequencyData(b);
-    const lowBins = Math.min(16, b.length);
-    let low = 0;
-    for(let i=0;i<lowBins;i++) low += b[i];
-    low /= lowBins;
-    const bassN = Math.pow(clamp(low / 255,0,1), .58);
+    // Some mobile WebKit/Firefox combinations expose the playing media but
+    // return zero-filled analyser data. Keep a visible beat-synced fallback so
+    // the speaker hardware never appears frozen while music is active.
+    const beatPhase=((Number(music.currentTime)||0)/.52)%1;
+    const beatFallback=Math.pow(1-Math.min(1,beatPhase/.26),2)*.82;
+    bassN=Math.max(bassN,beatFallback*(bassN<.04?1:.42));
     __bassKick *= .70;
     if(bassN > __bassKick) __bassKick = bassN;
   }else{
@@ -2735,7 +2785,7 @@ function updateAudioViz(){
   __effectKick *= vizNow < __speakerBoomUntil ? .82 : .58;
   if(__effectKick < .008) __effectKick = 0;
   const visibleKick = Math.min(1.35, Math.max(__bassKick * 1.28, __effectKick));
-  document.documentElement.style.setProperty('--bassKick', String(visibleKick));
+  paintSpeakerVisual(visibleKick);
 }
 
     // =========================
