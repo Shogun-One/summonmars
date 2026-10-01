@@ -3545,6 +3545,7 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
     const WEAPONS = { single:{}, cross:{}, back:{}, dog:{}, laser:{} };
     let weaponMode = "single";
     const weaponLevels = { standard:0, cross:0, back:0, dog:0, laser:0 };
+    let weaponOfferIndex = 0;
     function setWeaponMode(mode){ weaponMode = mode; }
 
     // Upgrade/drop order. Pickups expose the first missing step, preventing an
@@ -3564,8 +3565,9 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
     ];
     const maxWeaponLevel = mode => mode === 'laser' ? 3 : 2;
     function nextProgressiveWeaponPickupKind(){
-      const next=WEAPON_PROGRESSION.find(step=>(weaponLevels[step.mode]||0)<step.level);
-      if(next) return next.kind;
+      if(weaponOfferIndex < WEAPON_PROGRESSION.length){
+        return WEAPON_PROGRESSION[weaponOfferIndex++].kind;
+      }
       return WEAPON_PROGRESSION[Math.floor(Math.random()*WEAPON_PROGRESSION.length)].kind;
     }
 
@@ -3699,7 +3701,7 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
         level:Math.max(1,level|0),score:Math.max(0,score|0),lives:clamp(lives|0,1,MAX_LIVES),
         hits:clamp(hits|0,0,MAX_HITS-1),bossKills:Math.max(0,bossKills|0),
         killsThisLevel:Math.max(0,killsThisLevel|0),missileAmmo:Math.max(0,missileAmmo|0),
-        weaponMode,weaponLevels:{...weaponLevels},savedAt:Date.now()
+        weaponMode,weaponLevels:{...weaponLevels},weaponOfferIndex,savedAt:Date.now()
       }));
     }
 
@@ -4320,6 +4322,24 @@ function updateBosses(dt){
       spawnPickup('missile', x, y);
     }
 
+    function ensureWeaponOfferCadence(lvl){
+      // Levels 2–9 provide enough guaranteed offer slots to show every tier
+      // before the second boss arrives at level 10. Random asteroid rewards
+      // can advance this schedule sooner, but never expose later tiers first.
+      if(lvl < 2 || lvl >= 10 || weaponOfferIndex >= WEAPON_PROGRESSION.length) return;
+      const target=Math.min(WEAPON_PROGRESSION.length,Math.ceil(((lvl-1)/8)*WEAPON_PROGRESSION.length));
+      while(weaponOfferIndex < target){
+        const slot=weaponOfferIndex;
+        const kind=nextProgressiveWeaponPickupKind();
+        // Two tiers occasionally need to appear during the same level to fit
+        // the full progression before boss two. Keep those offers separated
+        // so neither pickup hides behind the other.
+        const x=width*(slot%2===0?.38:.62);
+        const y=height*(.38+(slot%3)*.12);
+        spawnPickup(kind,x,y);
+      }
+    }
+
     function startGracePeriod(){
       awaitingLaunchInput = false;
       preStartTimer = PRESTART_MS;
@@ -4382,6 +4402,8 @@ function updateBosses(dt){
 
       const minEnemies = clamp(Math.floor(d.enemyCap * 0.55), 1, 4);
       while(enemies.length < minEnemies) spawnEnemy();
+
+      if(!opts.skipWeaponCadence) ensureWeaponOfferCadence(level);
 
       const BOSS_INTERVAL = 5;
       if (level % BOSS_INTERVAL === 0) {
@@ -4453,6 +4475,7 @@ function updateBosses(dt){
 
       setWeaponMode("single");
       for(const mode of Object.keys(weaponLevels)) weaponLevels[mode] = 0;
+      weaponOfferIndex = 0;
       updateWeaponStatusOverlay();
 
       const d = difficulty();
@@ -4489,7 +4512,7 @@ function updateBosses(dt){
     function restoreCampaignProgress(saved){
       resetRun(true);
       const targetLevel=Math.max(1,Number(saved?.level)||1);
-      beginLevel(targetLevel);
+      beginLevel(targetLevel,{skipWeaponCadence:true});
       if(saved){
         score=Math.max(0,Number(saved.score)||0);
         lives=clamp(Number(saved.lives)||MAX_LIVES,1,MAX_LIVES);
@@ -4498,6 +4521,7 @@ function updateBosses(dt){
         killsThisLevel=clamp(Number(saved.killsThisLevel)||0,0,Math.max(0,levelProgressGoal(targetLevel)-1));
         missileAmmo=clamp(Number(saved.missileAmmo)||0,0,missileAmmoCapacity());
         for(const mode of Object.keys(weaponLevels)) weaponLevels[mode]=clamp(Number(saved.weaponLevels?.[mode])||0,0,maxWeaponLevel(mode));
+        weaponOfferIndex=clamp(Number(saved.weaponOfferIndex) || WEAPON_PROGRESSION.filter(step=>(weaponLevels[step.mode]||0)>=step.level).length,0,WEAPON_PROGRESSION.length);
         weaponMode=Object.hasOwn(WEAPONS,saved.weaponMode)?saved.weaponMode:'single';
         if(weaponMode!=='single' && weaponLevels[weaponMode]<=0) autoEquipBestCollectedWeapon();
       }
@@ -4508,6 +4532,7 @@ function updateBosses(dt){
       updateHitUI();
       updateMissileUI();
       updateWeaponStatusOverlay();
+      ensureWeaponOfferCadence(targetLevel);
       campaignSessionStarted=true;
       saveCampaignProgress();
     }
@@ -4588,6 +4613,7 @@ function updateBosses(dt){
     let pauseMenuSelection = 0;
     let pauseDirectionSelection = 0;
     let pauseControllerIndex = 0;
+    let pauseControllerDetailIndex = 0;
     let audioSettingsSelection = 0;
     let inventorySelection = 0;
     let inventoryScrollY = 0;
@@ -4622,9 +4648,12 @@ function updateBosses(dt){
     }
 
     function controllerTypeRects(){
-      if(width<600) return [0,1,2].map(i=>({x:45,y:88+i*82,w:width-90,h:66})).concat({x:90,y:340,w:width-180,h:60});
-      const gap=18,w=(width-100-gap*2)/3,y=height*.30;
-      return [0,1,2].map(i=>({x:50+i*(w+gap),y,w,h:125})).concat({x:width/2-170,y:y+145,w:340,h:60});
+      if(width<600){
+        const back={x:90,y:72,w:width-180,h:52};
+        return [back,...[0,1,2].map(i=>({x:45,y:136+i*72,w:width-90,h:60}))];
+      }
+      const gap=18,w=(width-100-gap*2)/3,y=155;
+      return [{x:width/2-170,y:82,w:340,h:52},...[0,1,2].map(i=>({x:50+i*(w+gap),y,w,h:125}))];
     }
 
     function pauseMenuNavigate(dx,dy=0){
@@ -4636,10 +4665,10 @@ function updateBosses(dt){
       }else if(pauseMenuView === 'directions') pauseDirectionSelection=spatialSelection(directionActionRects(),pauseDirectionSelection,dx,dy);
       else if(pauseMenuView === 'controllerTypes') pauseControllerIndex=spatialSelection(controllerTypeRects(),pauseControllerIndex,dx,dy);
       else if(pauseMenuView === 'audioSettings'){
-        if(dx && audioSettingsSelection<4){
-          if(audioSettingsSelection===0) cycleMusicTrack(dx>0?1:-1);
-          else if(audioSettingsSelection===1) toggleMusicPlayMode();
-          else adjustAudioVolume(audioSettingsSelection===2?'music':'effects',dx>0?1:-1);
+        if(dx && audioSettingsSelection>0){
+          if(audioSettingsSelection===1) cycleMusicTrack(dx>0?1:-1);
+          else if(audioSettingsSelection===2) toggleMusicPlayMode();
+          else adjustAudioVolume(audioSettingsSelection===3?'music':'effects',dx>0?1:-1);
         }else if(dy) audioSettingsSelection=spatialSelection(audioSettingsRects(),audioSettingsSelection,0,dy);
       }
     }
@@ -4656,11 +4685,11 @@ function updateBosses(dt){
         else if(pauseMenuSelection === 4){ pauseMenuView='audioSettings'; audioSettingsSelection=0; }
         else if(pauseMenuSelection === 5) cycleDifficulty(false);
         else if(pauseMenuSelection === 6){ pauseMenuView = 'directions'; pauseDirectionSelection = 0; }
-        else if(pauseMenuSelection === 7) pauseMenuView = 'controllerTypes';
+        else if(pauseMenuSelection === 7){ pauseMenuView = 'controllerTypes'; pauseControllerIndex=0; }
         else closeGameWindow();
       }else if(pauseMenuView === 'inventory'){
-        if(inventorySelection === STORE_ITEMS.length){ pauseMenuView='root'; return; }
-        const item=STORE_ITEMS[inventorySelection];
+        if(inventorySelection === 0){ pauseMenuView='root'; return; }
+        const item=STORE_ITEMS[inventorySelection-1];
         if(ownedStoreItems.has(item.id)){
           if(item.type === 'upgrade') showGameAlert('MISSILE BAY 21 OWNED','sound-on');
           else{
@@ -4680,38 +4709,31 @@ function updateBosses(dt){
           showGameAlert(`${item.name} UNLOCKED`,'sound-on');
         }else showGameAlert(`NEED ${item.price-storeCredits} MORE POINTS`,'sound-off');
       }else if(pauseMenuView === 'controllerTypes'){
-        if(pauseControllerIndex === 3) pauseMenuView = 'root';
-        else pauseMenuView = 'controllerDetail';
+        if(pauseControllerIndex === 0) pauseMenuView = 'root';
+        else{
+          pauseControllerDetailIndex=pauseControllerIndex-1;
+          pauseMenuView = 'controllerDetail';
+        }
       }else if(pauseMenuView === 'directions'){
-        if(pauseDirectionSelection === 0) setPaused(false);
-        else pauseMenuView = 'root';
+        pauseMenuView = 'root';
       }else if(pauseMenuView === 'controllerDetail'){
         pauseMenuView = 'controllerTypes';
       }else if(pauseMenuView === 'audioSettings'){
-        if(audioSettingsSelection===0) cycleMusicTrack(1);
-        else if(audioSettingsSelection===1) toggleMusicPlayMode();
-        else if(audioSettingsSelection===2) adjustAudioVolume('music',1);
-        else if(audioSettingsSelection===3) adjustAudioVolume('effects',1);
-        else pauseMenuView='root';
+        if(audioSettingsSelection===0) pauseMenuView='root';
+        else if(audioSettingsSelection===1) cycleMusicTrack(1);
+        else if(audioSettingsSelection===2) toggleMusicPlayMode();
+        else if(audioSettingsSelection===3) adjustAudioVolume('music',1);
+        else adjustAudioVolume('effects',1);
       }else{
         pauseMenuView = 'root';
       }
     }
 
     function directionActionRects(){
-      if(width<600) return [
-        {x:90,y:350,w:width-180,h:44},
-        {x:90,y:400,w:width-180,h:44}
-      ];
+      if(width<600) return [{x:90,y:400,w:width-180,h:44}];
       const w=Math.min(340,width*.38),x=(width-w)/2;
-      if(height<620) return [
-        {x,y:350,w,h:42},
-        {x,y:402,w,h:42}
-      ];
-      return [
-        {x,y:height-142,w,h:42},
-        {x,y:height-90,w,h:42}
-      ];
+      if(height<620) return [{x,y:height-50,w,h:42}];
+      return [{x,y:height-90,w,h:42}];
     }
 
     function rootMenuRects(){
@@ -4758,9 +4780,9 @@ function updateBosses(dt){
       return [
         {x,y:top,w,h},
         {x,y:top+h+gap,w,h},
-        {x,y:top+2*(h+gap),w:splitW,h},
-        {x:x+splitW+splitGap,y:top+2*(h+gap),w:splitW,h},
-        {x,y:top+3*(h+gap),w,h}
+        {x,y:top+2*(h+gap),w,h},
+        {x,y:top+3*(h+gap),w:splitW,h},
+        {x:x+splitW+splitGap,y:top+3*(h+gap),w:splitW,h}
       ];
     }
 
@@ -4770,20 +4792,23 @@ function updateBosses(dt){
       const w=(width-margin*2-gap*(cols-1))/cols;
       const top=height<500?74:(width<600?84:100);
       const h=width<600?72:80;
-      return [...STORE_ITEMS,{id:'back'}].map((_,i)=>({x:margin+(i%cols)*(w+gap),y:top+Math.floor(i/cols)*(h+gap)-inventoryScrollY,w,h}));
+      const backW=Math.min(width-2*margin,width<600?width-2*margin:340);
+      const back={x:(width-backW)/2,y:top-inventoryScrollY,w:backW,h};
+      const items=STORE_ITEMS.map((_,i)=>({x:margin+(i%cols)*(w+gap),y:top+(h+gap)+Math.floor(i/cols)*(h+gap)-inventoryScrollY,w,h}));
+      return [back,...items];
     }
 
     function inventoryMaxScroll(){
       const cols=width<600?2:3,gap=width<600?8:12,h=width<600?72:80;
       const top=height<500?74:(width<600?84:100),bottom=height-10;
-      const rows=Math.ceil((STORE_ITEMS.length+1)/cols);
+      const rows=1+Math.ceil(STORE_ITEMS.length/cols);
       return Math.max(0,rows*(h+gap)-gap-(bottom-top));
     }
 
     function ensureInventorySelectionVisible(){
       const cols=width<600?2:3,gap=width<600?8:12,h=width<600?72:80;
       const top=height<500?74:(width<600?84:100),bottom=height-10;
-      const row=Math.floor(inventorySelection/cols);
+      const row=inventorySelection===0?0:1+Math.floor((inventorySelection-1)/cols);
       const itemTop=top+row*(h+gap)-inventoryScrollY,itemBottom=itemTop+h;
       if(itemTop<top) inventoryScrollY-=top-itemTop;
       else if(itemBottom>bottom) inventoryScrollY+=itemBottom-bottom;
@@ -4819,19 +4844,9 @@ function updateBosses(dt){
         audioSettingsSelection=index;
         pauseMenuSelect();
       }else if(pauseMenuView==='controllerTypes'){
-        if(compact){
-          if(y>=88&&y<=318) pauseControllerIndex=Math.floor((y-88)/82);
-          else if(y>=340&&y<=400) pauseControllerIndex=3;
-          else return;
-        }else{
-          const gap=18,w=(width-100-gap*2)/3,top=height*.30;
-          if(y>=top&&y<=top+125){
-            const index=Math.floor((x-50)/(w+gap));
-            if(index<0||index>2) return;
-            pauseControllerIndex=index;
-          }else if(y>=top+145&&y<=top+205) pauseControllerIndex=3;
-          else return;
-        }
+        const index=controllerTypeRects().findIndex(item=>x>=item.x&&x<=item.x+item.w&&y>=item.y&&y<=item.y+item.h);
+        if(index<0) return;
+        pauseControllerIndex=index;
         pauseMenuSelect();
       }else{
         pauseMenuSelect();
@@ -7517,7 +7532,7 @@ if (flashTimer > 0) {
 
       ctx.fillStyle='rgba(255,231,255,.98)';
       ctx.font=`900 ${titleSize}px Orbitron, system-ui`;
-      const titles={root:'PAUSE MENU',inventory:'INVENTORY + POINTS STORE',audioSettings:'MUSIC + AUDIO',directions:'DIRECTIONS',controllerTypes:'CONTROLLER TYPE',controllerDetail:['XBOX CONTROLS','PLAYSTATION CONTROLS','KEYBOARD CONTROLS'][pauseControllerIndex]};
+      const titles={root:'PAUSE MENU',inventory:'INVENTORY + POINTS STORE',audioSettings:'MUSIC + AUDIO',directions:'DIRECTIONS',controllerTypes:'CONTROLLER TYPE',controllerDetail:['XBOX CONTROLS','PLAYSTATION CONTROLS','KEYBOARD CONTROLS'][pauseControllerDetailIndex]};
       ctx.fillText(titles[pauseMenuView],width/2,compact?45:55);
 
       const card=(x,y,w,h,selected,title,description)=>{
@@ -7562,11 +7577,11 @@ if (flashTimer > 0) {
       }else if(pauseMenuView==='audioSettings'){
         const rects=audioSettingsRects();
         const settings=[
+          ['GO BACK','Return to Pause Menu'],
           [`SONG: ${MUSIC_TRACKS[musicTrackIndex].name}`,'Left / Right or Select to change'],
           [musicPlayMode==='alternate'?'ALTERNATE SONGS':'REPEAT SONG',musicPlayMode==='alternate'?'Automatically plays the next song':'Repeats the selected song'],
           [`MUSIC VOLUME: ${musicVolume}/100`,'Adjusts in increments of 10'],
-          [`EFFECTS VOLUME: ${effectsVolume}/100`,'Adjusts in increments of 10'],
-          ['GO BACK','Return to Pause Menu']
+          [`EFFECTS VOLUME: ${effectsVolume}/100`,'Adjusts in increments of 10']
         ];
         rects.forEach((rect,i)=>card(rect.x,rect.y,rect.w,rect.h,audioSettingsSelection===i,...settings[i]));
       }else if(pauseMenuView==='inventory'){
@@ -7575,12 +7590,15 @@ if (flashTimer > 0) {
         const rects=inventoryRects();
         const inventoryTop=height<500?74:(width<600?84:100);
         ctx.save();ctx.beginPath();ctx.rect(0,inventoryTop-2,width,height-inventoryTop+2);ctx.clip();
+        const back=rects[0];
+        actionCard(back,inventorySelection===0,'GO BACK');
         STORE_ITEMS.forEach((item,i)=>{
+          const selectionIndex=i+1;
           const owned=ownedStoreItems.has(item.id);
           const equipped=item.type!=='upgrade'&&equippedStore[item.type]===item.id;
           const status=equipped?'EQUIPPED':owned?'OWNED':`${item.price.toLocaleString()} PTS`;
-          card(rects[i].x,rects[i].y,rects[i].w,rects[i].h,inventorySelection===i,'','');
-          const r=rects[i];
+          card(rects[selectionIndex].x,rects[selectionIndex].y,rects[selectionIndex].w,rects[selectionIndex].h,inventorySelection===selectionIndex,'','');
+          const r=rects[selectionIndex];
           const transparentShipImg=item.type==='ship'?(detailedShipImgs[item.id]||shipImg):null;
           const useAtlas2=Number.isInteger(inventoryAtlas2Cell[item.id]);
           const atlasIndex=useAtlas2?inventoryAtlas2Cell[item.id]:inventoryAtlasCell[item.id];
@@ -7599,7 +7617,7 @@ if (flashTimer > 0) {
             ctx.restore();
             const textX=artX+thumb+(r.x+r.w-artX-thumb)/2;
             const titleSize=compact?(item.name.length>15?9:11):(item.name.length>18?11:13);
-            ctx.fillStyle=inventorySelection===i?'#7dffbc':'#fff';ctx.font=`900 ${titleSize}px Orbitron`;
+            ctx.fillStyle=inventorySelection===selectionIndex?'#7dffbc':'#fff';ctx.font=`900 ${titleSize}px Orbitron`;
             ctx.fillText(item.name,textX,r.y+r.h*.39);
             ctx.fillStyle=equipped?'#7dffbc':'rgba(255,255,255,.9)';ctx.font=`800 ${compact?12:11}px Share Tech Mono`;
             ctx.fillText(status,textX,r.y+r.h*.70);
@@ -7609,14 +7627,12 @@ if (flashTimer > 0) {
             ctx.drawImage(atlasImg,crop.sx,crop.sy,crop.size,crop.size,artX,artY,thumb,thumb);ctx.restore();
             const textX=artX+thumb+(r.x+r.w-artX-thumb)/2;
             const titleSize=compact?(item.name.length>15?9:11):(item.name.length>18?11:13);
-            ctx.fillStyle=inventorySelection===i?'#7dffbc':'#fff';ctx.font=`900 ${titleSize}px Orbitron`;
+            ctx.fillStyle=inventorySelection===selectionIndex?'#7dffbc':'#fff';ctx.font=`900 ${titleSize}px Orbitron`;
             ctx.fillText(item.name,textX,r.y+r.h*.39);
             ctx.fillStyle=equipped?'#7dffbc':'rgba(255,255,255,.9)';ctx.font=`800 ${compact?12:11}px Share Tech Mono`;
             ctx.fillText(status,textX,r.y+r.h*.70);
           }
         });
-        const back=rects[STORE_ITEMS.length];
-        actionCard(back,inventorySelection===STORE_ITEMS.length,'GO BACK');
         ctx.restore();
         ctx.fillStyle='rgba(125,255,188,.9)';ctx.font='900 15px system-ui';
         if(inventoryScrollY>1) ctx.fillText('▲',width-14,inventoryTop+8);
@@ -7688,24 +7704,17 @@ if (flashTimer > 0) {
         }
         ctx.textAlign='center';
         const actions=directionActionRects();
-        actionCard(actions[0],pauseDirectionSelection===0,'PAUSE / RESUME');
-        actionCard(actions[1],pauseDirectionSelection===1,'GO BACK');
+        actionCard(actions[0],pauseDirectionSelection===0,'GO BACK');
       }else if(pauseMenuView==='controllerTypes'){
         const names=['XBOX','PLAYSTATION','KEYBOARD'];
-        if(compact){
-          names.forEach((name,i)=>card(45,88+i*82,width-90,66,pauseControllerIndex===i,name,'Select to view mapping'));
-          card(90,340,width-180,60,pauseControllerIndex===3,'GO BACK','Return to Pause Menu');
-        }
-        else{
-          const gap=18,w=(width-100-gap*2)/3,y=height*.30;
-          names.forEach((name,i)=>card(50+i*(w+gap),y,w,125,pauseControllerIndex===i,name,'Select to view mapping'));
-          card(width/2-170,y+145,340,60,pauseControllerIndex===3,'GO BACK','Return to Pause Menu');
-        }
+        const rects=controllerTypeRects();
+        card(rects[0].x,rects[0].y,rects[0].w,rects[0].h,pauseControllerIndex===0,'GO BACK','Return to Pause Menu');
+        names.forEach((name,i)=>{const r=rects[i+1];card(r.x,r.y,r.w,r.h,pauseControllerIndex===i+1,name,'Select to view mapping');});
       }else{
-        drawControllerDiagram(pauseControllerIndex,width/2,compact?180:190,compact?.9:1);
-        const maps=pauseControllerIndex===0?[
+        drawControllerDiagram(pauseControllerDetailIndex,width/2,compact?180:190,compact?.9:1);
+        const maps=pauseControllerDetailIndex===0?[
           'A: Fire / Select','B: Change Weapon','X: Missiles','Y: Sound','Start: Pause • Hold Fullscreen','Select: Reset','Sticks / D-Pad: Steer'
-        ]:pauseControllerIndex===1?[
+        ]:pauseControllerDetailIndex===1?[
           'Cross: Fire / Select','Circle: Change Weapon','Square: Missiles','Triangle: Sound','Start: Pause • Hold Fullscreen','Select: Reset','Sticks / D-Pad: Steer'
         ]:[
           'Space / Enter: Fire / Select','Left Alt: Missiles','B: Change Weapon','Arrow Keys / WASD: Steer','P: Pause / Resume','M: Cycle Sound • R: Reset Game'
