@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#071917" />
+  <meta name="description" content="Verbia prototype — trace a constellation of letters and discover words." />
+  <title>Verbia — Word Discovery Prototype</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --ink: #f7f4df;
+      --muted: #a7c7bd;
+      --deep: #04100f;
+      --panel: rgba(8, 31, 28, 0.82);
+      --mint: #75f5c7;
+      --gold: #ffd978;
+      --coral: #ff896f;
+      --line: rgba(117, 245, 199, 0.22);
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      min-height: 100%;
+      margin: 0;
+      overscroll-behavior: none;
+    }
+
+    body {
+      min-height: 100svh;
+      overflow-x: hidden;
+      color: var(--ink);
+      font-family: Inter, ui-rounded, "SF Pro Rounded", system-ui, sans-serif;
+      background:
+        radial-gradient(circle at 18% 12%, rgba(62, 178, 143, 0.24), transparent 30%),
+        radial-gradient(circle at 84% 26%, rgba(255, 217, 120, 0.12), transparent 28%),
+        linear-gradient(155deg, #092722 0%, var(--deep) 56%, #071818 100%);
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.45;
+      background-image:
+        radial-gradient(circle, rgba(255,255,255,.55) 0 1px, transparent 1.4px),
+        radial-gradient(circle, rgba(117,245,199,.4) 0 1px, transparent 1.4px);
+      background-position: 0 0, 31px 47px;
+      background-size: 83px 83px, 127px 127px;
+      mask-image: linear-gradient(to bottom, black, transparent 76%);
+    }
+
+    button { font: inherit; }
+
+    .app {
+      position: relative;
+      width: min(100%, 540px);
+      min-height: 100svh;
+      margin: 0 auto;
+      padding: max(20px, env(safe-area-inset-top)) 18px max(22px, env(safe-area-inset-bottom));
+      display: grid;
+      grid-template-rows: auto auto minmax(365px, 1fr) auto;
+      gap: 14px;
+    }
+
+    header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .eyebrow {
+      margin: 0 0 2px;
+      color: var(--mint);
+      font-size: .68rem;
+      font-weight: 800;
+      letter-spacing: .24em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(2.5rem, 12vw, 4rem);
+      font-weight: 500;
+      letter-spacing: -.055em;
+      line-height: .9;
+      text-shadow: 0 0 28px rgba(117,245,199,.22);
+    }
+
+    .level-mark {
+      min-width: 64px;
+      color: var(--muted);
+      text-align: right;
+      font-size: .72rem;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+
+    .level-mark strong {
+      display: block;
+      color: var(--gold);
+      font-family: Georgia, serif;
+      font-size: 1.35rem;
+      letter-spacing: 0;
+    }
+
+    .progress-card {
+      padding: 12px 14px;
+      border: 1px solid rgba(117,245,199,.18);
+      border-radius: 18px;
+      background: rgba(2, 16, 14, .46);
+      box-shadow: inset 0 1px rgba(255,255,255,.04);
+      backdrop-filter: blur(12px);
+    }
+
+    .progress-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      color: var(--muted);
+      font-size: .76rem;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .progress-row strong { color: var(--ink); }
+
+    .progress-track {
+      height: 5px;
+      margin-top: 9px;
+      overflow: hidden;
+      border-radius: 99px;
+      background: rgba(255,255,255,.09);
+    }
+
+    .progress-fill {
+      width: 0;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--mint), var(--gold));
+      box-shadow: 0 0 14px var(--mint);
+      transition: width .45s ease;
+    }
+
+    .playfield {
+      position: relative;
+      min-height: 365px;
+      overflow: hidden;
+      border: 1px solid rgba(117,245,199,.2);
+      border-radius: 30px;
+      background:
+        radial-gradient(circle at 50% 46%, rgba(39, 105, 89, .18), transparent 44%),
+        linear-gradient(rgba(5, 24, 21, .78), rgba(3, 14, 13, .9));
+      box-shadow: 0 24px 70px rgba(0,0,0,.38), inset 0 1px rgba(255,255,255,.05);
+      touch-action: none;
+    }
+
+    .playfield::after {
+      content: "";
+      position: absolute;
+      inset: 13px;
+      pointer-events: none;
+      border: 1px solid rgba(117,245,199,.06);
+      border-radius: 23px;
+    }
+
+    .word-display {
+      position: absolute;
+      z-index: 5;
+      top: 22px;
+      left: 50%;
+      width: calc(100% - 36px);
+      min-height: 50px;
+      transform: translateX(-50%);
+      display: grid;
+      place-items: center;
+      color: var(--ink);
+      font-family: Georgia, serif;
+      font-size: clamp(1.7rem, 8vw, 2.4rem);
+      letter-spacing: .14em;
+      text-align: center;
+      text-indent: .14em;
+      text-shadow: 0 0 18px rgba(117,245,199,.45);
+    }
+
+    .word-display[data-empty="true"] {
+      color: var(--muted);
+      font-family: inherit;
+      font-size: .72rem;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      text-shadow: none;
+    }
+
+    #paths {
+      position: absolute;
+      z-index: 1;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    .path-glow, .path-line {
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .path-glow { stroke: rgba(117,245,199,.18); stroke-width: 15; }
+    .path-line { stroke: var(--mint); stroke-width: 4; filter: drop-shadow(0 0 5px var(--mint)); }
+
+    .letter-node {
+      position: absolute;
+      z-index: 3;
+      width: clamp(60px, 17vw, 76px);
+      aspect-ratio: 1;
+      transform: translate(-50%, -50%);
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(255,255,255,.27);
+      border-radius: 50%;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 34% 27%, rgba(255,255,255,.23), transparent 24%),
+        radial-gradient(circle, #174b3f, #09251f 70%);
+      box-shadow:
+        0 0 0 7px rgba(117,245,199,.045),
+        0 10px 28px rgba(0,0,0,.34),
+        inset 0 0 15px rgba(117,245,199,.12);
+      font-family: Georgia, serif;
+      font-size: clamp(1.6rem, 8vw, 2.15rem);
+      cursor: pointer;
+      transition: transform .14s ease, border-color .14s ease, box-shadow .14s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .letter-node.selected {
+      transform: translate(-50%, -50%) scale(1.09);
+      border-color: var(--gold);
+      color: #07130f;
+      background: radial-gradient(circle at 34% 27%, #fff8ce, var(--gold) 68%, #ddaf4b);
+      box-shadow: 0 0 0 8px rgba(255,217,120,.09), 0 0 28px rgba(255,217,120,.45);
+    }
+
+    .letter-node:focus-visible { outline: 3px solid var(--gold); outline-offset: 4px; }
+
+    .hint {
+      position: absolute;
+      z-index: 2;
+      bottom: 17px;
+      left: 50%;
+      margin: 0;
+      transform: translateX(-50%);
+      color: rgba(167,199,189,.75);
+      font-size: .68rem;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .lower-panel {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+    }
+
+    .discoveries {
+      min-width: 0;
+      padding: 12px 14px;
+      border: 1px solid rgba(117,245,199,.15);
+      border-radius: 18px;
+      background: var(--panel);
+    }
+
+    .discoveries h2 {
+      margin: 0 0 7px;
+      color: var(--muted);
+      font-size: .68rem;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+    }
+
+    .word-list {
+      min-height: 22px;
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .word-list::-webkit-scrollbar { display: none; }
+
+    .found-word {
+      flex: 0 0 auto;
+      padding: 5px 9px;
+      border-radius: 99px;
+      color: #082019;
+      background: var(--mint);
+      font-size: .7rem;
+      font-weight: 850;
+      letter-spacing: .07em;
+    }
+
+    .empty-list { color: rgba(167,199,189,.65); font-size: .74rem; }
+
+    .control {
+      min-width: 82px;
+      padding: 0 12px;
+      border: 1px solid rgba(255,217,120,.28);
+      border-radius: 18px;
+      color: var(--gold);
+      background: rgba(255,217,120,.07);
+      font-size: .69rem;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+
+    .control:active { transform: scale(.97); }
+    .control:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+    .toast {
+      position: fixed;
+      z-index: 20;
+      top: max(18px, env(safe-area-inset-top));
+      left: 50%;
+      max-width: calc(100% - 36px);
+      padding: 10px 16px;
+      border: 1px solid rgba(117,245,199,.35);
+      border-radius: 99px;
+      color: #072019;
+      background: var(--mint);
+      box-shadow: 0 12px 38px rgba(0,0,0,.38);
+      font-size: .76rem;
+      font-weight: 850;
+      letter-spacing: .04em;
+      text-align: center;
+      opacity: 0;
+      pointer-events: none;
+      transform: translate(-50%, -18px);
+      transition: opacity .2s ease, transform .2s ease;
+    }
+
+    .toast.show { opacity: 1; transform: translate(-50%, 0); }
+    .toast.error { border-color: rgba(255,137,111,.4); background: var(--coral); }
+
+    @media (min-height: 760px) {
+      .app { grid-template-rows: auto auto minmax(430px, 1fr) auto; }
+      .playfield { min-height: 430px; }
+    }
+
+    @media (max-height: 680px) {
+      .app { padding-top: 10px; padding-bottom: 10px; gap: 9px; grid-template-rows: auto auto minmax(330px, 1fr) auto; }
+      h1 { font-size: 2.35rem; }
+      .playfield { min-height: 330px; }
+      .progress-card { padding-block: 9px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header>
+      <div>
+        <p class="eyebrow">A world made of words</p>
+        <h1>Verbia</h1>
+      </div>
+      <div class="level-mark">Board<strong>01</strong></div>
+    </header>
+
+    <section class="progress-card" aria-label="Board progress">
+      <div class="progress-row">
+        <span>Discovery</span>
+        <strong><span id="foundCount">0</span> / <span id="totalCount">12</span></strong>
+        <span id="boardState">Find 6 to clear</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    </section>
+
+    <section class="playfield" id="playfield" aria-label="Letter constellation. Drag through letters to form a word.">
+      <div class="word-display" id="wordDisplay" data-empty="true" aria-live="polite">Trace the constellation</div>
+      <svg id="paths" aria-hidden="true">
+        <polyline class="path-glow" id="pathGlow" points=""></polyline>
+        <polyline class="path-line" id="pathLine" points=""></polyline>
+      </svg>
+      <button class="letter-node" style="left:50%; top:31%" data-letter="S" aria-label="Letter S">S</button>
+      <button class="letter-node" style="left:24%; top:48%" data-letter="T" aria-label="Letter T">T</button>
+      <button class="letter-node" style="left:76%; top:48%" data-letter="R" aria-label="Letter R">R</button>
+      <button class="letter-node" style="left:31%; top:73%" data-letter="E" aria-label="Letter E">E</button>
+      <button class="letter-node" style="left:69%; top:73%" data-letter="M" aria-label="Letter M">M</button>
+      <button class="letter-node" style="left:50%; top:57%" data-letter="A" aria-label="Letter A">A</button>
+      <p class="hint">Touch • trace • release</p>
+    </section>
+
+    <section class="lower-panel">
+      <div class="discoveries">
+        <h2>Discovered words</h2>
+        <div class="word-list" id="wordList"><span class="empty-list">Your discoveries will appear here.</span></div>
+      </div>
+      <button class="control" id="resetButton" type="button">Reset board</button>
+    </section>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    (() => {
+      const validWords = new Set([
+        "ARM", "ART", "ATE", "EAR", "EAT", "ERA", "MAT", "RAM", "RAT", "SAT", "SEA", "SET",
+        "STAR", "RATE", "TEAM", "MATE", "MEAT", "TAME", "SEAM", "SAME", "REST", "MARE",
+        "STEAM", "STREAM", "MASTER", "TAMER"
+      ]);
+      const boardWords = ["STAR", "RATE", "TEAM", "MATE", "MEAT", "TAME", "SEAM", "SAME", "REST", "STEAM", "STREAM", "MASTER"];
+      const clearAt = 6;
+      const storageKey = "verbia-prototype-board-01";
+      const playfield = document.querySelector("#playfield");
+      const nodes = [...document.querySelectorAll(".letter-node")];
+      const wordDisplay = document.querySelector("#wordDisplay");
+      const pathLine = document.querySelector("#pathLine");
+      const pathGlow = document.querySelector("#pathGlow");
+      const foundCount = document.querySelector("#foundCount");
+      const totalCount = document.querySelector("#totalCount");
+      const progressFill = document.querySelector("#progressFill");
+      const boardState = document.querySelector("#boardState");
+      const wordList = document.querySelector("#wordList");
+      const toast = document.querySelector("#toast");
+      const resetButton = document.querySelector("#resetButton");
+
+      let tracing = false;
+      let pointerId = null;
+      let selected = [];
+      let pointer = null;
+      let toastTimer;
+      let found = loadProgress();
+
+      totalCount.textContent = boardWords.length;
+      renderProgress();
+
+      playfield.addEventListener("pointerdown", event => {
+        const node = event.target.closest(".letter-node");
+        if (!node || tracing) return;
+        event.preventDefault();
+        tracing = true;
+        pointerId = event.pointerId;
+        playfield.setPointerCapture?.(pointerId);
+        selectNode(node);
+        updatePointer(event);
+      });
+
+      playfield.addEventListener("pointermove", event => {
+        if (!tracing || event.pointerId !== pointerId) return;
+        event.preventDefault();
+        updatePointer(event);
+        const hovered = document.elementFromPoint(event.clientX, event.clientY)?.closest(".letter-node");
+        if (hovered && playfield.contains(hovered)) selectNode(hovered);
+        drawPath();
+      });
+
+      playfield.addEventListener("pointerup", finishTrace);
+      playfield.addEventListener("pointercancel", finishTrace);
+      playfield.addEventListener("lostpointercapture", event => {
+        if (tracing && event.pointerId === pointerId) finishTrace(event);
+      });
+
+      nodes.forEach(node => {
+        node.addEventListener("keydown", event => {
+          if (event.key !== "Enter" && event.key !== " ") return;
+          event.preventDefault();
+          if (!selected.includes(node)) selectNode(node);
+          else submitWord();
+        });
+      });
+
+      resetButton.addEventListener("click", () => {
+        found = [];
+        localStorage.removeItem(storageKey);
+        resetTrace();
+        renderProgress();
+        showToast("Board progress reset");
+      });
+
+      window.addEventListener("resize", drawPath);
+
+      function selectNode(node) {
+        if (selected.includes(node)) return;
+        selected.push(node);
+        node.classList.add("selected");
+        navigator.vibrate?.(12);
+        renderWord();
+        drawPath();
+      }
+
+      function updatePointer(event) {
+        const box = playfield.getBoundingClientRect();
+        pointer = { x: event.clientX - box.left, y: event.clientY - box.top };
+      }
+
+      function nodeCenter(node) {
+        const fieldBox = playfield.getBoundingClientRect();
+        const box = node.getBoundingClientRect();
+        return { x: box.left + box.width / 2 - fieldBox.left, y: box.top + box.height / 2 - fieldBox.top };
+      }
+
+      function drawPath() {
+        const points = selected.map(nodeCenter);
+        if (tracing && pointer) points.push(pointer);
+        const value = points.map(point => `${point.x},${point.y}`).join(" ");
+        pathLine.setAttribute("points", value);
+        pathGlow.setAttribute("points", value);
+      }
+
+      function renderWord() {
+        const word = selected.map(node => node.dataset.letter).join("");
+        wordDisplay.textContent = word || "Trace the constellation";
+        wordDisplay.dataset.empty = String(!word);
+      }
+
+      function finishTrace(event) {
+        if (!tracing || (event.pointerId != null && event.pointerId !== pointerId)) return;
+        tracing = false;
+        pointer = null;
+        submitWord();
+      }
+
+      function submitWord() {
+        const word = selected.map(node => node.dataset.letter).join("");
+        if (word.length < 3) {
+          if (word) showToast("Words need at least 3 letters", true);
+        } else if (!validWords.has(word)) {
+          showToast(`${word} is not on this prototype board`, true);
+        } else if (found.includes(word)) {
+          showToast(`${word} was already discovered`);
+        } else {
+          found.push(word);
+          found.sort((a, b) => a.length - b.length || a.localeCompare(b));
+          localStorage.setItem(storageKey, JSON.stringify(found));
+          const isBoardWord = boardWords.includes(word);
+          showToast(isBoardWord ? `${word} discovered` : `${word} added as a bonus word`);
+          navigator.vibrate?.([25, 35, 25]);
+          renderProgress();
+        }
+        window.setTimeout(resetTrace, 160);
+      }
+
+      function resetTrace() {
+        tracing = false;
+        pointerId = null;
+        pointer = null;
+        selected.forEach(node => node.classList.remove("selected"));
+        selected = [];
+        renderWord();
+        drawPath();
+      }
+
+      function loadProgress() {
+        try {
+          const saved = JSON.parse(localStorage.getItem(storageKey) || "[]");
+          return Array.isArray(saved) ? saved.filter(word => validWords.has(word)) : [];
+        } catch {
+          return [];
+        }
+      }
+
+      function renderProgress() {
+        const boardFound = found.filter(word => boardWords.includes(word));
+        const amount = boardFound.length;
+        foundCount.textContent = amount;
+        progressFill.style.width = `${Math.min(100, amount / boardWords.length * 100)}%`;
+        boardState.textContent = amount === boardWords.length
+          ? "Mastered"
+          : amount >= clearAt
+            ? "Board cleared"
+            : `Find ${clearAt - amount} to clear`;
+
+        wordList.replaceChildren();
+        if (!found.length) {
+          const empty = document.createElement("span");
+          empty.className = "empty-list";
+          empty.textContent = "Your discoveries will appear here.";
+          wordList.append(empty);
+          return;
+        }
+        found.forEach(word => {
+          const item = document.createElement("span");
+          item.className = "found-word";
+          item.textContent = word;
+          wordList.append(item);
+        });
+        wordList.scrollLeft = wordList.scrollWidth;
+      }
+
+      function showToast(message, isError = false) {
+        window.clearTimeout(toastTimer);
+        toast.textContent = message;
+        toast.classList.toggle("error", isError);
+        toast.classList.add("show");
+        toastTimer = window.setTimeout(() => toast.classList.remove("show"), 1700);
+      }
+    })();
+  </script>
+</body>
+</html>
