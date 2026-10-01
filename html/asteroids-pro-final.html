@@ -790,26 +790,6 @@ body.speaker-boom .bubble-btn .ring.flip .face.woofer{
     0 0 28px rgba(79,225,255,.25);
 }
 
-@keyframes speakerCabinetBeat{
-  0%,35%,100%{transform:translate(0,0) rotate(0deg)}
-  8%{transform:translate(-1.6px,-.8px) rotate(-.65deg)}
-  15%{transform:translate(1.8px,.65px) rotate(.72deg)}
-  23%{transform:translate(-.65px,0) rotate(-.24deg)}
-}
-@keyframes speakerOuterRingBeat{
-  0%,35%,100%{border-width:2px;box-shadow:inset 0 0 7px rgba(255,46,150,.48),0 0 5px rgba(255,71,170,.72)}
-  12%{border-width:5px;box-shadow:inset 0 0 20px rgba(255,46,150,.72),0 0 17px rgba(255,71,170,.95)}
-  24%{border-width:2.7px;box-shadow:inset 0 0 10px rgba(255,46,150,.58),0 0 8px rgba(255,71,170,.82)}
-}
-@keyframes speakerInnerRingBeat{
-  0%,35%,100%{transform:scale(1);filter:brightness(1) drop-shadow(0 0 3px rgba(255,88,175,.74))}
-  12%{transform:scale(1.36);filter:brightness(1.58) drop-shadow(0 0 14px rgba(255,88,175,.96))}
-  24%{transform:scale(1.08);filter:brightness(1.16) drop-shadow(0 0 6px rgba(255,88,175,.82))}
-}
-body.music-on .bubble-btn .ring.flip{animation:speakerCabinetBeat .52s linear infinite}
-body.music-on .bubble-btn .ring.flip .face.woofer::before{animation:speakerOuterRingBeat .52s ease-out infinite}
-body.music-on .bubble-btn .ring.flip .face.woofer::after{animation:speakerInnerRingBeat .52s ease-out infinite}
-
 /* small status dot on the Music bubble (still useful) */
 .bubble-btn .ring.flip .dot-indicator{
   position:absolute;
@@ -2664,8 +2644,8 @@ function setupAudioAnalyzer(){
     bassFilter.Q.value = 0.7;
 
     bassAnalyser = audioCtx.createAnalyser();
-    bassAnalyser.fftSize = 256;
-    bassAnalyser.smoothingTimeConstant = 0.75;
+    bassAnalyser.fftSize = 1024;
+    bassAnalyser.smoothingTimeConstant = 0.35;
 
     sourceNode = audioCtx.createMediaElementSource(music);
 
@@ -2701,6 +2681,8 @@ let __effectKick = 0;
 let __speakerBoomUntil = 0;
 let __speakerBoomToken = 0;
 let __bassData = null;
+let __bassWave = null;
+let __bassAverage = .035;
 let __lastAudioVizAt = 0;
 
 function paintSpeakerVisual(kick=0){
@@ -2760,24 +2742,36 @@ function updateAudioViz(){
       if(!__bassData || __bassData.length !== bassAnalyser.frequencyBinCount){
         __bassData = new Uint8Array(bassAnalyser.frequencyBinCount);
       }
+      if(!__bassWave || __bassWave.length !== bassAnalyser.fftSize){
+        __bassWave = new Uint8Array(bassAnalyser.fftSize);
+      }
       const b = __bassData;
       bassAnalyser.getByteFrequencyData(b);
-      const lowBins = Math.min(16, b.length);
+      bassAnalyser.getByteTimeDomainData(__bassWave);
+      // The low-pass node feeds this analyser, so these bins and the waveform
+      // represent actual bass energy from the selected song—not a timer.
+      const lowBins = Math.min(7, b.length);
       let low = 0;
-      for(let i=0;i<lowBins;i++) low += b[i];
-      low /= lowBins;
-      bassN = Math.pow(clamp(low / 255,0,1), .58);
+      for(let i=1;i<lowBins;i++) low += b[i];
+      low /= Math.max(1,lowBins-1);
+      let sumSquares=0;
+      for(let i=0;i<__bassWave.length;i++){
+        const sample=(__bassWave[i]-128)/128;
+        sumSquares+=sample*sample;
+      }
+      const rms=Math.sqrt(sumSquares/__bassWave.length);
+      const bassEnergy=Math.max(low/255,rms*2.15);
+      __bassAverage += (bassEnergy-__bassAverage) * (bassEnergy<__bassAverage ? .045 : .012);
+      const threshold=__bassAverage*1.10+.006;
+      const transient=Math.max(0,bassEnergy-__bassPrev);
+      bassN=clamp((bassEnergy-threshold)/Math.max(.025,__bassAverage*.55)+transient*4.5,0,1);
+      __bassPrev=bassEnergy;
     }
-    // Some mobile WebKit/Firefox combinations expose the playing media but
-    // return zero-filled analyser data. Keep a visible beat-synced fallback so
-    // the speaker hardware never appears frozen while music is active.
-    const beatPhase=((Number(music.currentTime)||0)/.52)%1;
-    const beatFallback=Math.pow(1-Math.min(1,beatPhase/.26),2)*.82;
-    bassN=Math.max(bassN,beatFallback*(bassN<.04?1:.42));
-    __bassKick *= .70;
+    __bassKick *= .74;
     if(bassN > __bassKick) __bassKick = bassN;
   }else{
     __bassPrev = 0;
+    __bassAverage = .035;
     __bassKick *= .64;
   }
 
@@ -5480,7 +5474,9 @@ mobilePauseBtn?.addEventListener('click', (e) => {
         spawnExplosion(ship.x + rand(-10,10), ship.y + rand(-10,10), 1.1, 'player');
         playExplosionSound('player');
         playDefeatYell('player');
-        addShake(7, 520);
+        // Every lost life gets a clearly visible shake, but remains softer
+        // and shorter than the final GAME OVER collapse below.
+        addShake(9.5, 680);
 
         triggerBoomFlash(260);
 
