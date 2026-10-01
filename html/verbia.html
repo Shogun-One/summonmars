@@ -565,8 +565,12 @@
     }
 
     .toast.show { opacity: 1; transform: translate(-50%, 0); }
-    .toast.error { border-color: rgba(255,137,111,.4); background: var(--coral); }
-    .toast.duplicate { color:#fff; border-color:#ff8589; background:#d92732; box-shadow:0 12px 38px rgba(90,0,7,.55),0 0 18px rgba(255,52,62,.38); }
+    .toast.success,.toast.bonus { color:#052116; border-color:#7dffc0; background:#38d98c; box-shadow:0 12px 38px rgba(0,68,42,.5),0 0 18px rgba(56,217,140,.35); }
+    .toast.error { color:#fff; border-color:#ff8589; background:#d92732; box-shadow:0 12px 38px rgba(90,0,7,.55),0 0 18px rgba(255,52,62,.38); }
+    .toast.duplicate { color:#251900; border-color:#ffe68a; background:#f5c451; box-shadow:0 12px 38px rgba(91,62,0,.48),0 0 18px rgba(245,196,81,.38); }
+    .toast.bonus { display:flex; align-items:center; gap:10px; padding-block:8px; }
+    .toast.bonus::before { content:"★"; flex:0 0 auto; color:#ffe779; font-size:2.15rem; line-height:.8; -webkit-text-stroke:1px rgba(80,49,0,.5); filter:drop-shadow(0 0 7px rgba(255,225,92,.9)); animation:bonusStar .55s cubic-bezier(.2,.9,.25,1.35) both; }
+    @keyframes bonusStar { from{opacity:0;transform:scale(.25) rotate(-35deg)} to{opacity:1;transform:scale(1) rotate(0)} }
 
     .splash-screen { position:fixed; z-index:70; inset:0; display:grid; place-items:center; overflow:hidden; color:#fff; background:#020b0d; isolation:isolate; }
     .splash-screen[hidden] { display:none; }
@@ -1081,7 +1085,7 @@
           progress.boards[boardIndex] = found;
           saveProgress();
           const isGoal = board.goals.includes(word);
-          showToast(isGoal ? `${word} • stage word +10` : `${word} • bonus word +5`);
+          showToast(isGoal ? `${word} • stage word +10` : `${word} • bonus word +5`, isGoal ? "success" : "bonus");
           navigator.vibrate?.([22,32,22]);
           renderProgress();
         }
@@ -1345,8 +1349,10 @@
         toast.textContent = message;
         toast.classList.toggle("error", kind === true || kind === "error");
         toast.classList.toggle("duplicate", kind === "duplicate");
+        toast.classList.toggle("success", kind === "success");
+        toast.classList.toggle("bonus", kind === "bonus");
         toast.classList.add("show");
-        toastTimer = window.setTimeout(() => toast.classList.remove("show"), kind === "duplicate" ? 2400 : 1900);
+        toastTimer = window.setTimeout(() => toast.classList.remove("show"), kind === "duplicate" || kind === "bonus" ? 2400 : 1900);
       }
     })();
   </script>
