@@ -2314,7 +2314,6 @@ document.querySelectorAll('img[data-asset]').forEach((img) => {
     // Boss incoming sting
     const bossSting = new Audio(A('mp3/boss-sting.mp3'));
     bossSting.preload = 'auto';
-    bossSting.volume = 0.60;
 
     // Micro screen shake (canvas)
     let shakeT = 0;
@@ -2330,11 +2329,53 @@ document.querySelectorAll('img[data-asset]').forEach((img) => {
     music.loop = true;
     music.preload = 'auto';
 
-    const SOUND_MODES = ['full','effects','off'];
+    const SOUND_MODES = ['full','music','effects','off'];
     let soundMode = localStorage.getItem('asteroidSoundMode');
     if(!SOUND_MODES.includes(soundMode)) soundMode = 'full';
-    const musicEnabled = () => soundMode === 'full';
-    const effectsEnabled = () => soundMode !== 'off';
+    const musicEnabled = () => soundMode === 'full' || soundMode === 'music';
+    const effectsEnabled = () => soundMode === 'full' || soundMode === 'effects';
+    const MUSIC_TRACKS = [
+      {name:'NEON PURSUIT',start:0,end:89},
+      {name:'VOID RUNNER',start:89,end:179},
+      {name:'FINAL DRIFT',start:179,end:268.5}
+    ];
+    let musicTrackIndex = clamp(Number(localStorage.getItem('asteroidMusicTrack') || 0),0,MUSIC_TRACKS.length-1);
+    let musicVolume = clamp(Math.round(Number(localStorage.getItem('asteroidMusicVolume') || 80)/10)*10,0,100);
+    let effectsVolume = clamp(Math.round(Number(localStorage.getItem('asteroidEffectsVolume') || 80)/10)*10,0,100);
+    const musicVolumeScale = () => musicVolume/100;
+    const effectsVolumeScale = () => effectsVolume/100;
+    function applyMusicVolume(duck=1){ music.volume=clamp(musicVolumeScale()*duck,0,1); }
+    function applyEffectsVolume(){ bossSting.volume=.60*effectsVolumeScale(); }
+    applyMusicVolume();
+    applyEffectsVolume();
+    music.addEventListener('timeupdate',()=>{
+      const track=MUSIC_TRACKS[musicTrackIndex];
+      if(music.currentTime>=track.end || music.currentTime<track.start-.25) music.currentTime=track.start;
+    });
+    function cycleMusicTrack(direction=1){
+      musicTrackIndex=(musicTrackIndex+direction+MUSIC_TRACKS.length)%MUSIC_TRACKS.length;
+      localStorage.setItem('asteroidMusicTrack',String(musicTrackIndex));
+      music.currentTime=MUSIC_TRACKS[musicTrackIndex].start;
+      if(musicEnabled() && defaultSoundStarted) music.play().catch(()=>{});
+      showGameAlert(`SONG: ${MUSIC_TRACKS[musicTrackIndex].name}`,'sound-on');
+    }
+    function adjustAudioVolume(kind,direction=1){
+      if(kind==='music'){
+        musicVolume=musicVolume+direction*10;
+        if(musicVolume>100) musicVolume=0;
+        if(musicVolume<0) musicVolume=100;
+        localStorage.setItem('asteroidMusicVolume',String(musicVolume));
+        applyMusicVolume();
+        showGameAlert(`MUSIC VOLUME ${musicVolume}/100`,'sound-on');
+      }else{
+        effectsVolume=effectsVolume+direction*10;
+        if(effectsVolume>100) effectsVolume=0;
+        if(effectsVolume<0) effectsVolume=100;
+        localStorage.setItem('asteroidEffectsVolume',String(effectsVolume));
+        applyEffectsVolume();
+        showGameAlert(`EFFECTS VOLUME ${effectsVolume}/100`,'sound-on');
+      }
+    }
     let defaultSoundStarted = false;
     function setMusicUI(on){
   musicBtn.classList.toggle('on', on);
@@ -2353,12 +2394,13 @@ document.querySelectorAll('img[data-asset]').forEach((img) => {
     setMusicUI(false);
 
     async function startDefaultSound(){
-      if(defaultSoundStarted || !effectsEnabled()) return;
+      if(defaultSoundStarted || (!musicEnabled() && !effectsEnabled())) return;
       try{
         setupAudioAnalyzer();
         if(audioCtx && audioCtx.state === 'suspended') await audioCtx.resume();
         if(musicEnabled()){
-          music.volume = 0.75;
+          music.currentTime = Math.max(music.currentTime,MUSIC_TRACKS[musicTrackIndex].start);
+          applyMusicVolume();
           await music.play();
           if(!musicEnabled()){ music.pause(); return; }
           pulseActive = true;
@@ -2569,12 +2611,14 @@ async function setSoundMode(nextMode, announce = true){
       soundMode = nextMode;
       localStorage.setItem('asteroidSoundMode', soundMode);
       try{
-        if(effectsEnabled()){
+        if(effectsEnabled() || musicEnabled()){
           setupAudioAnalyzer();
           if(audioCtx && audioCtx.state === 'suspended') await audioCtx.resume();
         }
         if(musicEnabled()){
-          music.volume = 0.75;
+          const track=MUSIC_TRACKS[musicTrackIndex];
+          if(music.currentTime<track.start || music.currentTime>=track.end) music.currentTime=track.start;
+          applyMusicVolume();
           await music.play();
           pulseActive = true;
           defaultSoundStarted = true;
@@ -2590,7 +2634,7 @@ async function setSoundMode(nextMode, announce = true){
           }
         }
         if(announce){
-          const label = soundMode === 'full' ? 'MUSIC + EFFECTS' : soundMode === 'effects' ? 'EFFECTS ONLY' : 'SOUND OFF';
+          const label = soundMode === 'full' ? 'MUSIC + EFFECTS' : soundMode === 'music' ? 'MUSIC ONLY' : soundMode === 'effects' ? 'EFFECTS ONLY' : 'SOUND OFF';
           showGameAlert(label, soundMode === 'off' ? 'sound-off' : 'sound-on');
         }
       }catch(err){
@@ -2623,14 +2667,14 @@ async function setSoundMode(nextMode, announce = true){
 
         // Briefly duck the soundtrack so the blast is unmistakable in combat.
         if(!music.paused){
-          music.volume = isBoss ? 0.22 : isPlayer ? 0.32 : 0.50;
+          applyMusicVolume(isBoss ? .29 : isPlayer ? .43 : .67);
           setTimeout(() => {
-            if(musicEnabled() && !music.paused) music.volume = 0.75;
+            if(musicEnabled() && !music.paused) applyMusicVolume();
           }, isBoss ? 1450 : isPlayer ? 900 : 360);
         }
 
         const output = audioCtx.createGain();
-        output.gain.setValueAtTime(volume, now);
+        output.gain.setValueAtTime(Math.max(.001,volume*effectsVolumeScale()), now);
         output.gain.exponentialRampToValueAtTime(0.001, now + duration);
         output.connect(audioCtx.destination);
 
@@ -2707,7 +2751,7 @@ async function setSoundMode(nextMode, announce = true){
         whistleFilter.frequency.value = 1150;
         whistleFilter.Q.value = 2.8;
         whistleGain.gain.setValueAtTime(0.001, now);
-        whistleGain.gain.linearRampToValueAtTime(0.16, now + 0.025);
+        whistleGain.gain.linearRampToValueAtTime(Math.max(.001,.16*effectsVolumeScale()), now + 0.025);
         whistleGain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
 
         whistle.connect(whistleFilter).connect(whistleGain).connect(audioCtx.destination);
@@ -3996,6 +4040,7 @@ function updateBosses(dt){
     let pauseMenuSelection = 0;
     let pauseDirectionSelection = 0;
     let pauseControllerIndex = 0;
+    let audioSettingsSelection = 0;
     let inventorySelection = 0;
     let inventoryScrollY = 0;
     let pauseMenuNavLatch = false;
@@ -4033,6 +4078,12 @@ function updateBosses(dt){
         ensureInventorySelectionVisible();
       }else if(pauseMenuView === 'directions') pauseDirectionSelection=spatialSelection(directionActionRects(),pauseDirectionSelection,dx,dy);
       else if(pauseMenuView === 'controllerTypes') pauseControllerIndex=spatialSelection(controllerTypeRects(),pauseControllerIndex,dx,dy);
+      else if(pauseMenuView === 'audioSettings'){
+        if(dx && audioSettingsSelection<3){
+          if(audioSettingsSelection===0) cycleMusicTrack(dx>0?1:-1);
+          else adjustAudioVolume(audioSettingsSelection===1?'music':'effects',dx>0?1:-1);
+        }else if(dy) audioSettingsSelection=spatialSelection(audioSettingsRects(),audioSettingsSelection,0,dy);
+      }
     }
 
     function pauseMenuSelect(){
@@ -4043,10 +4094,11 @@ function updateBosses(dt){
           softRestart();
           showGameAlert('NEW GAME', 'sound-on');
         }else if(pauseMenuSelection === 2){ pauseMenuView = 'inventory'; inventorySelection = 0; inventoryScrollY=0; }
-        else if(pauseMenuSelection === 3){ pauseMenuView = 'directions'; pauseDirectionSelection = 0; }
-        else if(pauseMenuSelection === 4) pauseMenuView = 'controllerTypes';
-        else if(pauseMenuSelection === 5) cycleSoundMode();
-        else if(pauseMenuSelection === 6) cycleDifficulty(false);
+        else if(pauseMenuSelection === 3) cycleSoundMode();
+        else if(pauseMenuSelection === 4){ pauseMenuView='audioSettings'; audioSettingsSelection=0; }
+        else if(pauseMenuSelection === 5) cycleDifficulty(false);
+        else if(pauseMenuSelection === 6){ pauseMenuView = 'directions'; pauseDirectionSelection = 0; }
+        else if(pauseMenuSelection === 7) pauseMenuView = 'controllerTypes';
         else closeGameWindow();
       }else if(pauseMenuView === 'inventory'){
         if(inventorySelection === STORE_ITEMS.length){ pauseMenuView='root'; return; }
@@ -4077,6 +4129,11 @@ function updateBosses(dt){
         else pauseMenuView = 'root';
       }else if(pauseMenuView === 'controllerDetail'){
         pauseMenuView = 'controllerTypes';
+      }else if(pauseMenuView === 'audioSettings'){
+        if(audioSettingsSelection===0) cycleMusicTrack(1);
+        else if(audioSettingsSelection===1) adjustAudioVolume('music',1);
+        else if(audioSettingsSelection===2) adjustAudioVolume('effects',1);
+        else pauseMenuView='root';
       }else{
         pauseMenuView = 'root';
       }
@@ -4109,7 +4166,8 @@ function updateBosses(dt){
         const splitGap=8,splitW=(w-splitGap)/2;
         return [
           {x,y:top,w:splitW,h}, {x:x+splitW+splitGap,y:top,w:splitW,h},
-          {x,y:top+h+gap,w,h}, {x,y:top+2*(h+gap),w,h},
+          {x,y:top+h+gap,w,h},
+          {x,y:top+2*(h+gap),w:splitW,h}, {x:x+splitW+splitGap,y:top+2*(h+gap),w:splitW,h},
           {x,y:top+3*(h+gap),w,h}, {x,y:top+4*(h+gap),w,h},
           {x,y:top+5*(h+gap),w,h}, {x,y:top+6*(h+gap),w,h}
         ];
@@ -4125,10 +4183,19 @@ function updateBosses(dt){
       return [
         {x:margin,y:top,w:splitW,h}, {x:margin+splitW+splitGap,y:top,w:splitW,h},
         {x:rightX,y:top,w,h},
-        {x:margin,y:top+h+gapY,w,h}, {x:rightX,y:top+h+gapY,w,h},
-        {x:margin,y:top+2*(h+gapY),w,h}, {x:rightX,y:top+2*(h+gapY),w,h},
+        {x:rightX,y:top+h+gapY,w:splitW,h}, {x:rightX+splitW+splitGap,y:top+h+gapY,w:splitW,h},
+        {x:rightX,y:top+2*(h+gapY),w,h},
+        {x:margin,y:top+h+gapY,w,h}, {x:margin,y:top+2*(h+gapY),w,h},
         {x:width/2-120,y:exitY,w:240,h:exitH}
       ];
+    }
+
+    function audioSettingsRects(){
+      const x=width<600?35:width*.18,w=width<600?width-70:width*.64;
+      const top=width<600?82:100,gap=width<600?10:14;
+      const available=height-top-34-gap*3;
+      const h=Math.min(width<600?82:92,Math.max(48,available/4));
+      return [0,1,2,3].map(i=>({x,y:top+i*(h+gap),w,h}));
     }
 
     function inventoryRects(){
@@ -4179,6 +4246,11 @@ function updateBosses(dt){
         const index=buttons.findIndex(rect=>x>=rect.x&&x<=rect.x+rect.w&&y>=rect.y&&y<=rect.y+rect.h);
         if(index<0) return;
         pauseDirectionSelection=index;
+        pauseMenuSelect();
+      }else if(pauseMenuView==='audioSettings'){
+        const index=audioSettingsRects().findIndex(item=>x>=item.x&&x<=item.x+item.w&&y>=item.y&&y<=item.y+item.h);
+        if(index<0) return;
+        audioSettingsSelection=index;
         pauseMenuSelect();
       }else if(pauseMenuView==='controllerTypes'){
         if(compact){
@@ -6821,7 +6893,7 @@ if (flashTimer > 0) {
 
       ctx.fillStyle='rgba(255,231,255,.98)';
       ctx.font=`900 ${titleSize}px Orbitron, system-ui`;
-      const titles={root:'PAUSE MENU',inventory:'INVENTORY + POINTS STORE',directions:'DIRECTIONS',controllerTypes:'CONTROLLER TYPE',controllerDetail:['XBOX CONTROLS','PLAYSTATION CONTROLS','KEYBOARD CONTROLS'][pauseControllerIndex]};
+      const titles={root:'PAUSE MENU',inventory:'INVENTORY + POINTS STORE',audioSettings:'MUSIC + AUDIO',directions:'DIRECTIONS',controllerTypes:'CONTROLLER TYPE',controllerDetail:['XBOX CONTROLS','PLAYSTATION CONTROLS','KEYBOARD CONTROLS'][pauseControllerIndex]};
       ctx.fillText(titles[pauseMenuView],width/2,compact?45:55);
 
       const card=(x,y,w,h,selected,title,description)=>{
@@ -6829,11 +6901,12 @@ if (flashTimer > 0) {
         ctx.strokeStyle=selected?'#7dffbc':'rgba(255,94,130,.48)';
         ctx.lineWidth=selected?3:1.5;ctx.shadowColor=selected?'rgba(80,255,165,.65)':'transparent';ctx.shadowBlur=selected?14:0;
         roundRect(ctx,x,y,w,h,14,true,true);ctx.shadowBlur=0;
-        const titleSize=compact?(title.length>24?13:title.length>18?15:17):(title.length>25?14:16);
+        const narrow=compact&&w<210;
+        const titleSize=narrow?(title.length>14?10:12):compact?(title.length>24?13:title.length>18?15:17):(title.length>25?14:16);
         ctx.fillStyle=selected?'#7dffbc':'#fff0fa';ctx.font=`900 ${titleSize}px Orbitron`;
         ctx.fillText(title,x+w/2,y+(h<50?h*.5:h*.38));
         if(description && h>=50){
-          ctx.fillStyle='rgba(228,228,255,.76)';ctx.font=`${compact?16:12}px system-ui`;
+          ctx.fillStyle='rgba(228,228,255,.76)';ctx.font=`${narrow?11:compact?14:12}px system-ui`;
           ctx.fillText(description,x+w/2,y+h*.68);
         }
       };
@@ -6849,18 +6922,28 @@ if (flashTimer > 0) {
       };
 
       if(pauseMenuView==='root'){
-        const soundLabel = soundMode === 'full' ? 'MUSIC + EFFECTS' : soundMode === 'effects' ? 'EFFECTS ONLY' : 'SOUND OFF';
+        const soundLabel = soundMode === 'full' ? 'MUSIC + EFFECTS' : soundMode === 'music' ? 'MUSIC ONLY' : soundMode === 'effects' ? 'EFFECTS ONLY' : 'SOUND OFF';
         const entries=[
           ['RESUME','Continue'],
           ['RESET','New run'],
           ['INVENTORY','Ships • Pilots • Scenes • Upgrades'],
+          ['SOUND',soundLabel],
+          ['SONG / VOLUME',`${MUSIC_TRACKS[musicTrackIndex].name} • ${musicVolume}/${effectsVolume}`],
+          [`DIFFICULTY: ${DIFF_PRESETS[diffIndex].name.toUpperCase()}`,'Select to change difficulty'],
           ['DIRECTIONS','All gameplay and menu controls'],
           ['CONTROLLER TYPE','Xbox • PlayStation • Keyboard'],
-          [`SOUND: ${soundLabel}`,'Select to change audio mode'],
-          [`DIFFICULTY: ${DIFF_PRESETS[diffIndex].name.toUpperCase()}`,'Select to change difficulty'],
           ['EXIT GAME','']
         ];
         rootMenuRects().forEach((rect,i)=>card(rect.x,rect.y,rect.w,rect.h,pauseMenuSelection===i,...entries[i]));
+      }else if(pauseMenuView==='audioSettings'){
+        const rects=audioSettingsRects();
+        const settings=[
+          [`SONG: ${MUSIC_TRACKS[musicTrackIndex].name}`,'Left / Right or Select to change'],
+          [`MUSIC VOLUME: ${musicVolume}/100`,'Adjusts in increments of 10'],
+          [`EFFECTS VOLUME: ${effectsVolume}/100`,'Adjusts in increments of 10'],
+          ['GO BACK','Return to Pause Menu']
+        ];
+        rects.forEach((rect,i)=>card(rect.x,rect.y,rect.w,rect.h,audioSettingsSelection===i,...settings[i]));
       }else if(pauseMenuView==='inventory'){
         ctx.fillStyle='#ffd75d';ctx.font=`800 ${compact?14:16}px Share Tech Mono`;
         ctx.fillText(`AVAILABLE POINTS: ${storeCredits.toLocaleString()}`,width/2,compact?67:82);
@@ -6919,7 +7002,7 @@ if (flashTimer > 0) {
           ['FIRE / SELECT','Touch joystick • Space / Enter • A / Cross'],
           ['MISSILES','Small bottom-left stamp • Left Alt • X / Square'],
           ['CHANGE WEAPON','Smaller bottom-right stamp • B / Circle'],
-          ['SOUND','Pause Menu sound box • M • Y / Triangle'],
+          ['SOUND','Pause Menu Sound / Song + Volume boxes • M • Y / Triangle'],
           ['PAUSE / MENU','Tap PAUSE stamp • Tap menu boxes • P / Start'],
           ['TOUCH / FULLSCREEN','Touch controls hide with gamepad • Hold Start'],
           ['RESET / DIFFICULTY','Pause Menu boxes • R for reset']
@@ -6928,7 +7011,7 @@ if (flashTimer > 0) {
           ['FIRE / SELECT','Touch joystick • Space / Enter • A / Cross'],
           ['MISSILES','Small bottom-left stamp • Left Alt • X / Square'],
           ['CHANGE WEAPON','Smaller bottom-right stamp • B / Circle'],
-          ['SOUND','Pause Menu sound box • M • Y / Triangle'],
+          ['SOUND','Pause Menu Sound / Song + Volume boxes • M • Y / Triangle'],
           ['PAUSE / MENU','Tap PAUSE stamp • Tap menu boxes • P / Start'],
           ['TOUCH / FULLSCREEN','Touch controls auto-hide with gamepad • Hold Start'],
           ['RESET / DIFFICULTY','Pause Menu boxes • R for reset']
@@ -6947,7 +7030,7 @@ if (flashTimer > 0) {
             ['FIRE / SELECT','Touch joystick • Space/Enter • A/Cross'],
             ['MISSILES','Small bottom-left stamp • Left Alt • X/Square'],
             ['CHANGE WEAPON','Smaller bottom-right stamp • B/Circle'],
-            ['SOUND','Pause Menu box • M • Y/Triangle'],
+            ['SOUND','Pause Sound / Song + Volume boxes • M • Y/Triangle'],
             ['PAUSE / MENU','PAUSE stamp • Tap boxes • P/Start'],
             ['TOUCH / FULLSCREEN','Auto-hides with controller • Hold Start'],
             ['RESET / DIFFICULTY','Pause Menu boxes • R for reset']
