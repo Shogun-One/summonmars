@@ -618,18 +618,18 @@
     .toast.bonus::before { content:"★"; flex:0 0 auto; color:#ffe779; font-size:2.15rem; line-height:.8; -webkit-text-stroke:1px rgba(80,49,0,.5); filter:drop-shadow(0 0 7px rgba(255,225,92,.9)); animation:bonusStar .55s cubic-bezier(.2,.9,.25,1.35) both; }
     @keyframes bonusStar { from{opacity:0;transform:scale(.25) rotate(-35deg)} to{opacity:1;transform:scale(1) rotate(0)} }
 
-    .splash-screen { position:fixed; z-index:70; inset:0; display:grid; place-items:center; overflow:hidden; color:#fff; background:#020b0d; isolation:isolate; }
+    .splash-screen { position:fixed; z-index:70; inset:0; display:grid; place-items:start center; overflow:hidden; color:#fff; background:#020b0d; isolation:isolate; }
     .splash-screen[hidden] { display:none; }
-    .splash-screen::before { content:""; position:absolute; z-index:-2; inset:-14%; background:radial-gradient(circle at 22% 30%,rgba(117,245,199,.42),transparent 25%),radial-gradient(circle at 74% 66%,rgba(214,146,255,.36),transparent 28%),conic-gradient(from 210deg at 50% 50%,#02090c,#0b3732,#130c27,#02090c); animation:verbiaDrift 3s cubic-bezier(.18,.72,.22,1) both; }
-    .splash-screen::after { content:""; position:absolute; z-index:-1; inset:0; background-image:radial-gradient(circle,rgba(255,255,255,.9) 0 1px,transparent 1.5px),radial-gradient(circle,rgba(117,245,199,.65) 0 1px,transparent 1.5px); background-size:87px 87px,131px 131px; background-position:0 0,37px 19px; opacity:.55; animation:starSweep 3s linear both; }
-    .splash-content { padding:24px; text-align:center; }
+    .splash-screen::before { content:""; position:absolute; z-index:-2; inset:-3%; background-image:url('/images/verbia/splash-word-explorer-v1.png'); background-size:cover; background-position:center 42%; filter:saturate(1.08) brightness(.84); animation:splashScene 3s cubic-bezier(.18,.72,.22,1) both; }
+    .splash-screen::after { content:""; position:absolute; z-index:-1; inset:0; background:radial-gradient(ellipse 62% 25% at 50% 13%,rgba(1,7,15,.74),rgba(1,7,15,.38) 48%,transparent 78%),linear-gradient(to bottom,rgba(1,6,13,.48) 0,rgba(1,6,13,.12) 34%,transparent 52%,rgba(1,5,9,.18) 100%); animation:splashVeil 3s ease both; }
+    .splash-content { width:100%; margin-top:max(7svh,calc(env(safe-area-inset-top) + 24px)); padding:24px; text-align:center; }
     .splash-title { margin:0; color:#f8fff4; font:500 clamp(3.5rem,18vw,8rem)/.9 Georgia,serif; letter-spacing:-.055em; text-shadow:0 0 16px var(--mint),0 0 48px color-mix(in srgb,var(--mint) 60%,transparent); opacity:0; animation:verbiaTitle .6s .2s cubic-bezier(.2,.85,.25,1.2) forwards; }
     .splash-byline { margin:18px 0 0; color:var(--gold); font-size:clamp(.72rem,2.6vw,1rem); font-weight:850; letter-spacing:.3em; text-transform:uppercase; opacity:0; animation:verbiaLine .5s .9s ease forwards; }
     .splash-tagline { margin:14px 0 0; color:var(--mint); font-size:clamp(.68rem,2.5vw,.95rem); font-weight:750; letter-spacing:.22em; text-transform:uppercase; opacity:0; animation:verbiaLine .5s 1.55s ease forwards; }
     .splash-progress { position:absolute; left:50%; bottom:max(30px,env(safe-area-inset-bottom)); width:min(340px,68vw); height:3px; translate:-50% 0; overflow:hidden; border-radius:99px; background:rgba(255,255,255,.12); }
     .splash-progress::after { content:""; display:block; width:100%; height:100%; transform-origin:left; background:linear-gradient(90deg,var(--mint),var(--gold)); box-shadow:0 0 15px var(--mint); animation:splashProgress 3s linear both; }
-    @keyframes verbiaDrift { 0%{transform:scale(1.2) rotate(-4deg);filter:brightness(.45) saturate(.8)} 55%{filter:brightness(1.08) saturate(1.25)} 100%{transform:scale(1.03) rotate(2deg);filter:brightness(.78)} }
-    @keyframes starSweep { from{transform:translateY(45px)} to{transform:translateY(-65px)} }
+    @keyframes splashScene { 0%{transform:scale(1.1);filter:saturate(.82) brightness(.46) blur(5px)} 42%{filter:saturate(1.08) brightness(.84) blur(0)} 100%{transform:scale(1.025) translateY(-.8%);filter:saturate(1.12) brightness(.78)} }
+    @keyframes splashVeil { 0%{opacity:.92} 50%{opacity:1} 100%{opacity:.82} }
     @keyframes verbiaTitle { from{opacity:0;transform:scale(.68);filter:blur(14px)} to{opacity:1;transform:scale(1);filter:blur(0)} }
     @keyframes verbiaLine { from{opacity:0;transform:translateY(12px);filter:blur(7px)} to{opacity:1;transform:translateY(0);filter:blur(0)} }
     @keyframes splashProgress { from{transform:scaleX(0)} to{transform:scaleX(1)} }
