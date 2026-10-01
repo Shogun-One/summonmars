@@ -1,0 +1,28 @@
+{
+  "id": "/html/asteroids-pro-final.html",
+  "name": "Asteroid Drift",
+  "short_name": "Asteroid Drift",
+  "description": "A full-screen space combat arcade game.",
+  "start_url": "/html/asteroids-pro-final.html?source=installed-app",
+  "scope": "/html/",
+  "display": "fullscreen",
+  "display_override": ["fullscreen", "standalone"],
+  "orientation": "any",
+  "background_color": "#080711",
+  "theme_color": "#080711",
+  "categories": ["games", "entertainment"],
+  "icons": [
+    {
+      "src": "/images/asteroids/app-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/images/asteroids/app-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -4,6 +4,13 @@
   <meta charset="UTF-8" />
   <title>Asteroid Drift - Summon Mars Arcade</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=overlays-content" />
+  <meta name="theme-color" content="#080711" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Asteroid Drift" />
+  <link rel="manifest" href="/asteroid-drift.webmanifest" />
+  <link rel="apple-touch-icon" href="/images/asteroids/app-icon-192.png" />
   <script src="https://cdn.busuanzi.cc/busuanzi/3.6.9/busuanzi.min.js" defer></script>
 
   <!-- Spacey + readable HUD fonts -->
@@ -2537,7 +2544,7 @@ document.querySelectorAll('img[data-asset]').forEach((img) => {
       const request = el.requestFullscreen || el.webkitRequestFullscreen || el.msRequestFullscreen;
       if(!request) return false;
       try{
-        await request.call(el);
+        await request.call(el, { navigationUI:'hide' });
         return Boolean(fullscreenElement());
       }catch{
         return false;
@@ -2584,7 +2591,14 @@ document.querySelectorAll('img[data-asset]').forEach((img) => {
     // game has entered fullscreen, an intentional exit is respected.
     let autoFullscreenPending = true;
     let fullscreenRequestInFlight = false;
+    let fullscreenRequestPromise = null;
     let launchFlowComplete = false;
+    let launchCommitInFlight = false;
+    function installedAppMode(){
+      return navigator.standalone === true ||
+        window.matchMedia('(display-mode: fullscreen)').matches ||
+        window.matchMedia('(display-mode: standalone)').matches;
+    }
     function syncViewportAfterFullscreen(){
       // Mobile browsers report two or three intermediate viewport sizes while
       // the keyboard closes and fullscreen settles. Refresh at each stable
@@ -2602,19 +2616,27 @@ document.querySelectorAll('img[data-asset]').forEach((img) => {
       setTimeout(refresh,900);
       setTimeout(refresh,1400);
     }
+    function startFullscreenRequest(){
+      if(fullscreenElement() || installedAppMode()) return Promise.resolve(true);
+      if(fullscreenRequestPromise) return fullscreenRequestPromise;
+      fullscreenRequestInFlight = true;
+      fullscreenRequestPromise = enterFullscreen().then((entered)=>{
+        if(entered) autoFullscreenPending = false;
+        return entered;
+      }).finally(()=>{
+        fullscreenRequestInFlight = false;
+        fullscreenRequestPromise = null;
+        syncViewportAfterFullscreen();
+      });
+      return fullscreenRequestPromise;
+    }
     async function requestLaunchFullscreen(event){
-      if(!autoFullscreenPending || fullscreenRequestInFlight) return;
+      if((!autoFullscreenPending && !fullscreenElement()) || fullscreenRequestInFlight) return fullscreenRequestPromise;
       // Password focus/typing opens the mobile keyboard. Do not enter
       // fullscreen from those gestures; the gate explicitly requests it on
       // submit after blurring the field.
       if(event?.target?.closest?.('#previewGate')) return;
-      fullscreenRequestInFlight = true;
-      try{
-        if(await enterFullscreen()) autoFullscreenPending = false;
-      }finally{
-        fullscreenRequestInFlight = false;
-        syncViewportAfterFullscreen();
-      }
+      return startFullscreenRequest();
     }
     // Request fullscreen directly from the trusted password-form submission,
     // before its handler blurs the input/keyboard. Mobile Firefox and iOS can
@@ -4692,14 +4714,27 @@ function updateBosses(dt){
       saveCampaignProgress();
     }
 
-    function beginLaunchTransition(){
+    async function beginLaunchTransition(commitLaunch){
+      if(launchCommitInFlight) return;
+      launchCommitInFlight = true;
       launchFlowComplete = false;
       lockLaunchViewport();
-      if(!fullscreenElement()) autoFullscreenPending = true;
-      requestLaunchFullscreen();
+      autoFullscreenPending = !fullscreenElement() && !installedAppMode();
+      const attempt = fullscreenElement() || installedAppMode()
+        ? Promise.resolve(true)
+        : (fullscreenRequestPromise || startFullscreenRequest());
+      await Promise.race([
+        attempt,
+        new Promise(resolve=>setTimeout(()=>resolve(false),900))
+      ]);
       syncViewportAfterFullscreen();
+      await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+      commitLaunch();
       releaseLaunchViewportAfterSettle();
-      setTimeout(()=>{ launchFlowComplete = true; },1600);
+      setTimeout(()=>{
+        launchFlowComplete = true;
+        launchCommitInFlight = false;
+      },1600);
     }
 
     function resetAllPersistentProgressInPlace(){
@@ -4738,14 +4773,16 @@ function updateBosses(dt){
     continueGameBtn.addEventListener('click',()=>{
       const saved=readCampaignProgress();
       if(!saved) return;
-      beginLaunchTransition();
-      launchChoiceEl.hidden=true;
-      restoreCampaignProgress(saved);
+      beginLaunchTransition(()=>{
+        launchChoiceEl.hidden=true;
+        restoreCampaignProgress(saved);
+      });
     });
     newGameBtn.addEventListener('click',()=>{
-      beginLaunchTransition();
-      resetAllPersistentProgressInPlace();
-      startFreshCampaignAfterReset();
+      beginLaunchTransition(()=>{
+        resetAllPersistentProgressInPlace();
+        startFreshCampaignAfterReset();
+      });
     });
 
     function handleGameUnlocked(){
@@ -8126,6 +8163,9 @@ if (flashTimer > 0) {
     resetRun(true);
     beginLevel(1);
     if(!document.getElementById('previewGate')) setTimeout(handleGameUnlocked,0);
+    if('serviceWorker' in navigator && (location.protocol==='https:' || location.hostname==='127.0.0.1' || location.hostname==='localhost')){
+      window.addEventListener('load',()=>navigator.serviceWorker.register('/asteroid-drift-sw.js',{scope:'/html/'}).catch(()=>{}),{once:true});
+    }
     requestAnimationFrame(loop);
   </script>
 
