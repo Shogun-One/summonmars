@@ -62,10 +62,14 @@
       mask-image: linear-gradient(to bottom, black, transparent 76%);
     }
 
+    .space-backdrop { position:fixed; z-index:0; inset:0; width:100%; height:100%; pointer-events:none; opacity:0; transition:opacity 1.2s ease; }
+    .space-backdrop.active { opacity:.88; }
+
     button { font: inherit; }
 
     .app {
       position: relative;
+      z-index: 1;
       width: min(100%, 540px);
       min-height: 100svh;
       margin: 0 auto;
@@ -217,6 +221,13 @@
     .board-tools { position:absolute; z-index:8; top:14px; left:15px; display:flex; align-items:center; gap:7px; }
     .avatar-badge { width:52px; height:52px; padding:0; overflow:hidden; border:1px solid color-mix(in srgb, var(--mint) 45%, transparent); border-radius:16px 7px 16px 7px; background:rgba(0,0,0,.24); box-shadow:0 0 18px color-mix(in srgb, var(--mint) 18%, transparent); cursor:pointer; }
     .pause-button { width:35px; height:35px; border:1px solid rgba(255,255,255,.14); border-radius:10px 4px 10px 4px; color:var(--ink); background:rgba(0,0,0,.25); font-weight:900; cursor:pointer; }
+    .level-chip { min-width:50px; padding:7px 8px; border:1px solid color-mix(in srgb, var(--mint) 30%, transparent); border-radius:5px 11px 5px 11px; color:var(--mint); background:rgba(0,0,0,.28); font-size:.61rem; font-weight:900; letter-spacing:.08em; text-align:center; }
+    .avatar-art { width:100%; height:100%; background-image:url('/images/verbia/avatar-roster-v1.png'); background-size:300% 300%; background-repeat:no-repeat; background-position:var(--avatar-x) var(--avatar-y); }
+    .avatar-choice .avatar-art { width:60px; height:60px; margin:auto; border-radius:14px 6px 14px 6px; box-shadow:0 8px 18px rgba(0,0,0,.3); }
+    #themeChoices { grid-template-columns:repeat(2, minmax(0, 1fr)); }
+    #themeChoices .choice-button { min-height:82px; align-items:flex-start; text-align:left; }
+    .choice-button small { display:block; margin-top:4px; color:var(--muted); font-size:.57rem; font-weight:650; line-height:1.35; text-transform:none; letter-spacing:.02em; }
+    .theme-swatch { width:100%; height:25px; border-radius:9px 3px 9px 3px; background:radial-gradient(circle at 70% 30%, white 0 1px, transparent 2px), linear-gradient(120deg, color-mix(in srgb, var(--swatch) 28%, #02070d), var(--swatch)); box-shadow:inset 0 1px rgba(255,255,255,.25), 0 0 14px color-mix(in srgb, var(--swatch) 30%, transparent); }
 
     .shuffle-button {
       position: absolute;
@@ -638,6 +649,7 @@
     </div>
   </section>
 
+  <canvas class="space-backdrop" id="spaceBackdrop" aria-hidden="true"></canvas>
   <main class="app">
     <header>
       <div class="brand">
@@ -660,6 +672,7 @@
       <div class="board-tools">
         <button class="avatar-badge" id="avatarBadge" type="button" aria-label="Open player and game menu"></button>
         <button class="pause-button" id="pauseButton" type="button" aria-label="Pause and open game menu">Ⅱ</button>
+        <span class="level-chip" id="levelChip">LVL-1</span>
       </div>
       <div class="word-display" id="wordDisplay" data-empty="true" aria-live="polite"></div>
       <button class="shuffle-button" id="shuffleButton" type="button" aria-label="Shuffle letter positions">↝ Shuffle</button>
@@ -700,11 +713,11 @@
       <div class="menu-section">
         <h3>Cosmic color</h3>
         <div class="choice-grid" id="themeChoices">
-          <button class="choice-button" type="button" data-theme-choice="emerald"><span class="theme-swatch" style="--swatch:#75f5c7"></span>Emerald</button>
-          <button class="choice-button" type="button" data-theme-choice="cosmic-red"><span class="theme-swatch" style="--swatch:#ff7772"></span>Cosmic red</button>
-          <button class="choice-button" type="button" data-theme-choice="nebula-blue"><span class="theme-swatch" style="--swatch:#67d9ff"></span>Nebula blue</button>
-          <button class="choice-button" type="button" data-theme-choice="solar-yellow"><span class="theme-swatch" style="--swatch:#ffd75f"></span>Solar yellow</button>
-          <button class="choice-button" type="button" data-theme-choice="violet-drift"><span class="theme-swatch" style="--swatch:#d692ff"></span>Violet drift</button>
+          <button class="choice-button" type="button" data-theme-choice="emerald"><span class="theme-swatch" style="--swatch:#75f5c7"></span>Emerald<small>Ancient green worlds and luminous mint trails.</small></button>
+          <button class="choice-button" type="button" data-theme-choice="cosmic-red"><span class="theme-swatch" style="--swatch:#ff7772"></span>Cosmic red<small>Crimson nebulae with warm solar flare accents.</small></button>
+          <button class="choice-button" type="button" data-theme-choice="nebula-blue"><span class="theme-swatch" style="--swatch:#67d9ff"></span>Nebula blue<small>Deep sapphire space and electric cyan stars.</small></button>
+          <button class="choice-button" type="button" data-theme-choice="solar-yellow"><span class="theme-swatch" style="--swatch:#ffd75f"></span>Solar yellow<small>Golden horizons and ember-orange discoveries.</small></button>
+          <button class="choice-button" type="button" data-theme-choice="violet-drift"><span class="theme-swatch" style="--swatch:#d692ff"></span>Violet drift<small>Royal violet clouds with rose starlight.</small></button>
         </div>
       </div>
       <div class="menu-section">
@@ -749,65 +762,22 @@
     </section>
   </div>
 
+  <script src="verbia-lexicon.js"></script>
   <script>
     window.VERBIA_V2 = true;
     (() => {
-      const boards = [
-        {
-          letters: "MASTER", clearAt: 10,
-          goals: ["ARTS","MASTER","MATES","MEATS","RATE","RATES","REST","SAME","SEAM","SMART","STAR","STARE","STEAM","STREAM","TAME","TEAM","TEAMS","TEARS"],
-          accepted: ["ARE","ARM","ARMS","ART","ARTS","ASTER","ATE","EAR","EARS","EAST","EAT","EATS","ERA","ERAS","MARE","MARES","MASTER","MAST","MAT","MATE","MATES","MATS","MEAT","MEATS","MESA","META","RAM","RAMS","RAT","RATE","RATES","RATS","REST","SAME","SAT","SEA","SEAM","SEAT","SET","SMART","SMEAR","STAR","STARE","STEAM","STEM","STREAM","TAME","TAMER","TAMERS","TASER","TEAM","TEAMS","TEAR","TEARS","TERM","TERMS","TRAM","TRAMS","TSAR"]
-        },
-        {
-          letters: "GARDEN", clearAt: 9,
-          goals: ["AGED","ANGER","DARE","DANGER","DEAR","DRAG","EARN","GARDEN","GEAR","GRADE","GRAND","NEAR","RAGE","RANGE","RANGED","READ"],
-          accepted: ["AGE","AGED","AND","ANGER","ARE","DANGER","DARE","DARN","DEAN","DEAR","DEN","DRAG","EAR","EARN","END","ERA","GARDEN","GEAR","GRADE","GRAD","GRAND","NAG","NEAR","NERD","RAG","RAGE","RAN","RAND","RANGE","RANGED","READ","RED","RAGED"]
-        },
-        {
-          letters: "PLANET", clearAt: 10,
-          goals: ["LATE","LEAN","LEAP","LEAPT","NEAT","PALE","PANEL","PENAL","PETAL","PLAN","PLANE","PLANET","PLANT","PLATE","PLEA","TALE","TAPE"],
-          accepted: ["ALE","ANT","APE","ATE","LANE","LATE","LEAN","LEAP","LEAPT","LENT","NAP","NEAT","NET","PALE","PAL","PAN","PANEL","PANT","PAT","PEA","PEN","PENAL","PET","PETAL","PLAN","PLANE","PLANET","PLANT","PLATE","PLEA","TALE","TAN","TAP","TAPE","TEA","TEN"]
-        },
-        {
-          letters: "CLOVER", clearAt: 6,
-          goals: ["CLOVER","CORE","COVE","COVER","LORE","LOVE","LOVER","OVER","ROLE","VOLE"],
-          accepted: ["CLOVER","CORE","COVE","COVER","ECO","LORE","LOVE","LOVER","ORE","ORC","OVER","REV","ROE","ROLE","VOLE"]
-        },
-        {
-          letters: "FRIEND", clearAt: 10,
-          goals: ["DINE","DINER","DIRE","FEND","FERN","FIEND","FIND","FINDER","FINE","FINED","FINER","FIRE","FIRED","FRIED","FRIEND","INFER","REIN","RIDE"],
-          accepted: ["DEN","DIE","DIN","DINE","DINER","DIRE","END","FED","FEND","FERN","FIEND","FIN","FIND","FINDER","FINE","FINED","FINER","FIR","FIRE","FIRED","FRIED","FRIEND","INFER","NERD","RED","REF","REIN","RID","RIDE","RIFE"]
-        },
-        {
-          letters: "ORANGE", clearAt: 8,
-          goals: ["ANGER","EARN","GEAR","GONE","GONER","GORE","GROAN","NEAR","OGRE","ORANGE","ORGAN","RAGE","RANGE"],
-          accepted: ["AGE","AGO","ANGER","ARE","EAR","EARN","EGO","ERA","GEAR","GONE","GONER","GORE","GROAN","NAG","NEAR","NOR","OGRE","ONE","ORANGE","ORE","ORGAN","RAGE","RAN","RANGE","ROE"]
-        }
-      ];
-
-      const layouts = {
-        smile: [[10,35],[24,52],[41,65],[59,65],[76,52],[90,35]],
-        frown: [[10,65],[24,48],[41,35],[59,35],[76,48],[90,65]],
-        triangle: [[50,28],[72,43],[88,69],[50,73],[12,69],[28,43]]
-      };
-      const layoutLinks = {
-        smile: [[0,1],[1,2],[2,3],[3,4],[4,5]],
-        frown: [[0,1],[1,2],[2,3],[3,4],[4,5]],
-        triangle: [[0,1],[1,2],[2,3],[3,4],[4,5],[5,0]]
-      };
+      const boards = [];
+      const lexicon = [...new Set((window.VERBIA_LEXICON || []).map(word => word.toUpperCase()))];
+      const lexiconByLength = lexicon.reduce((groups, word) => ((groups[word.length] ||= []).push(word), groups), {});
       const tilts = [-8,5,11,-5,7,-11];
-      const storageKey = "verbia-progress-v2";
+      const storageKey = "verbia-progress-v3";
       const settingsKey = "verbia-settings-v1";
       const avatars = [
-        {id:"amara",name:"Amara",skin:"#6f3f2b",hair:"#17110f",shirt:"#75f5c7",hairStyle:"curl"},
-        {id:"luca",name:"Luca",skin:"#d7a06f",hair:"#4a2d1c",shirt:"#67d9ff",hairStyle:"short"},
-        {id:"mei",name:"Mei",skin:"#e1b07e",hair:"#17171b",shirt:"#d692ff",hairStyle:"long"},
-        {id:"asha",name:"Asha",skin:"#9a6042",hair:"#5a251e",shirt:"#ffc36b",hairStyle:"wrap"},
-        {id:"diego",name:"Diego",skin:"#b8754d",hair:"#241812",shirt:"#ff7772",hairStyle:"short"},
-        {id:"noor",name:"Noor",skin:"#c98e67",hair:"#191318",shirt:"#8ea8ff",hairStyle:"long"},
-        {id:"kai",name:"Kai",skin:"#8d573b",hair:"#111a20",shirt:"#6ee0ba",hairStyle:"short"},
-        {id:"zoe",name:"Zoe",skin:"#f0c59f",hair:"#9a4d28",shirt:"#ff93c9",hairStyle:"curl"},
-        {id:"rx7",name:"RX-7",skin:"#71858e",hair:"#344b57",shirt:"#67d9ff",hairStyle:"robot",robot:true}
+        {id:"elena",name:"Elena",index:0}, {id:"malik",name:"Malik",index:1},
+        {id:"mei",name:"Mei",index:2}, {id:"luca",name:"Luca",index:3},
+        {id:"asha",name:"Asha",index:4}, {id:"finn",name:"Finn",index:5},
+        {id:"amara",name:"Amara",index:6}, {id:"kai",name:"Kai",index:7},
+        {id:"rx7",name:"RX-7",index:8}
       ];
       const playfield = document.querySelector("#playfield");
       const letterNodes = document.querySelector("#letterNodes");
@@ -835,6 +805,8 @@
       const toast = document.querySelector("#toast");
       const avatarBadge = document.querySelector("#avatarBadge");
       const pauseButton = document.querySelector("#pauseButton");
+      const levelChip = document.querySelector("#levelChip");
+      const spaceBackdrop = document.querySelector("#spaceBackdrop");
       const menuOverlay = document.querySelector("#menuOverlay");
       const resumeButton = document.querySelector("#resumeButton");
       const themeChoices = document.querySelector("#themeChoices");
@@ -851,7 +823,7 @@
 
       let progress = loadProgress();
       let settings = loadSettings();
-      let boardIndex = Math.min(progress.current || 0, boards.length - 1);
+      let boardIndex = Math.max(0, (progress.currentLevel || 1) - 1);
       let nodes = [];
       let tracing = false;
       let pointerId = null;
@@ -860,6 +832,8 @@
       let activeTab = "goals";
       let toastTimer;
       let hasStarted = false;
+
+      ensureBoard(boardIndex + 1);
 
       renderAvatarChoices();
       applySettings(false);
@@ -940,11 +914,14 @@
 
       newGameButton.addEventListener("click", () => {
         localStorage.removeItem(storageKey);
+        localStorage.removeItem("verbia-progress-v2");
         localStorage.removeItem(settingsKey);
         localStorage.removeItem("verbia-prototype-board-01");
-        progress = { current:0, boards:{} };
+        progress = freshProgress();
         settings = { theme:"emerald", layout:"smile", shape:"shard", avatar:"amara" };
         boardIndex = 0;
+        boards.length = 0;
+        ensureBoard(1);
         hasStarted = false;
         saveProgress();
         applySettings(true);
@@ -954,11 +931,12 @@
       });
 
       nextButton.addEventListener("click", () => {
-        boardIndex = (boardIndex + 1) % boards.length;
-        progress.current = boardIndex;
+        boardIndex += 1;
+        progress.currentLevel = boardIndex + 1;
+        ensureBoard(boardIndex + 1);
         saveProgress();
         renderBoard();
-        showToast(boardIndex ? `Board ${String(boardIndex + 1).padStart(2,"0")} opened` : "Back to Board 01");
+        showToast(`Level ${boardIndex + 1} opened`);
       });
 
       shuffleButton.addEventListener("click", () => {
@@ -986,17 +964,17 @@
         showToast("This board was reset");
       });
 
-      window.addEventListener("resize", () => { drawConstellation(); drawPath(); });
+      window.addEventListener("resize", () => { drawConstellation(); drawPath(); renderMilestoneBackground(boardIndex + 1); });
 
       function renderBoard() {
         resetTrace();
-        const board = boards[boardIndex];
-        const layout = layouts[settings.layout] || layouts.smile;
+        const board = ensureBoard(boardIndex + 1);
+        const layout = layoutFor(board.letters.length, settings.layout);
         boardNumber.textContent = String(boardIndex + 1).padStart(2, "0");
+        levelChip.textContent = `LVL-${boardIndex + 1}`;
+        renderMilestoneBackground(boardIndex + 1);
         letterNodes.replaceChildren();
-        const sourceLetters = [...board.letters];
-        const step = sourceLetters.length % 2 ? 3 : 5;
-        const displayLetters = sourceLetters.map((_, index) => sourceLetters[(index * step + 2) % sourceLetters.length]);
+        const displayLetters = scrambleLetters(board);
         displayLetters.forEach((letter, index) => {
           const node = document.createElement("button");
           node.className = "letter-node";
@@ -1004,7 +982,7 @@
           node.dataset.letter = letter;
           node.style.left = `${layout[index][0]}%`;
           node.style.top = `${layout[index][1]}%`;
-          node.style.setProperty("--tilt", `${tilts[index]}deg`);
+          node.style.setProperty("--tilt", `${tilts[index % tilts.length]}deg`);
           node.textContent = letter;
           node.setAttribute("aria-label", `Letter ${letter}`);
           node.addEventListener("keydown", event => {
@@ -1015,8 +993,166 @@
           letterNodes.append(node);
         });
         nodes = [...letterNodes.querySelectorAll(".letter-node")];
-        nextButton.textContent = boardIndex === boards.length - 1 ? "Return to Board 01" : "Continue";
+        nextButton.textContent = "Continue";
         requestAnimationFrame(() => { drawConstellation(); renderProgress(); });
+      }
+
+      function freshProgress() {
+        return { currentLevel:1, boards:{}, levelBoards:{}, signatures:[], seed:Math.floor(Math.random() * 2147483647) || 9173 };
+      }
+
+      function letterCountForLevel(level) {
+        if (level === 1) return 3;
+        if (level <= 7) return 4;
+        if (level <= 10) return 5;
+        if (level <= 13) return 6;
+        if (level <= 16) return 7;
+        return [5,6,7,4,6,7,5,7,6,7][(level - 17) % 10];
+      }
+
+      function ensureBoard(level) {
+        const index = level - 1;
+        if (!progress.levelBoards) progress.levelBoards = {};
+        if (!progress.signatures) progress.signatures = [];
+        if (!progress.levelBoards[index]) {
+          progress.levelBoards[index] = generateBoard(level);
+          progress.signatures.push(progress.levelBoards[index].signature);
+          saveProgress();
+        }
+        boards[index] = progress.levelBoards[index];
+        return boards[index];
+      }
+
+      function generateBoard(level) {
+        const count = letterCountForLevel(level);
+        const used = new Set(progress.signatures || []);
+        const guidedAnchors = ["ATE","RATE","NOTE","CARE","STAR","TEAM","PINE","PLANT","HEART","STONE","GARDEN","PLANET","FRIEND","ORANGES","PLANETS","FRIENDS"];
+        if (guidedAnchors[level - 1]) return buildBoard(guidedAnchors[level - 1], level);
+        const allCandidates = lexiconByLength[count] || [];
+        const candidates = allCandidates.slice(0, Math.min(allCandidates.length, 1200 + level * 18));
+        const start = hashNumber(`${progress.seed}:${level}`) % Math.max(1, candidates.length);
+        const minimum = {3:3,4:5,5:8,6:11,7:14}[count];
+        let fallback = null;
+        for (let step = 0; step < candidates.length; step++) {
+          const anchor = candidates[(start + step) % candidates.length];
+          const signature = [...anchor].sort().join("");
+          if (used.has(signature)) continue;
+          const board = buildBoard(anchor, level);
+          fallback ||= board;
+          const fullLengthWords = board.accepted.filter(word => word.length === count);
+          if (board.accepted.length >= minimum && fullLengthWords.length >= 2) return board;
+        }
+        if (fallback) return fallback;
+        throw new Error("Verbia could not generate a fresh letter constellation.");
+      }
+
+      function buildBoard(anchor, level) {
+        const letters = anchor.toUpperCase();
+        const accepted = lexicon.filter(word => word.length <= letters.length && canBuildWord(word, letters));
+        const target = Math.min(24, Math.max(3, 2 + letters.length * 2 + Math.floor(level / 7)));
+        const fullLength = accepted.filter(word => word.length === letters.length);
+        const shorter = accepted.filter(word => word.length < letters.length);
+        const goals = [...new Set([anchor.toUpperCase(), ...fullLength.slice(0, Math.ceil(target / 3)), ...shorter])].slice(0, target);
+        const clearRatio = level <= 3 ? .5 : level <= 10 ? .58 : .66;
+        return { letters, signature:[...letters].sort().join(""), clearAt:Math.max(1, Math.ceil(goals.length * clearRatio)), goals, accepted };
+      }
+
+      function canBuildWord(word, letters) {
+        const remaining = [...letters];
+        return [...word].every(letter => {
+          const index = remaining.indexOf(letter);
+          if (index < 0) return false;
+          remaining.splice(index, 1);
+          return true;
+        });
+      }
+
+      function hashNumber(value) {
+        let hash = 2166136261;
+        for (const character of value) hash = Math.imul(hash ^ character.charCodeAt(0), 16777619);
+        return hash >>> 0;
+      }
+
+      function scrambleLetters(board) {
+        const original = [...board.letters];
+        let seed = hashNumber(`${progress.seed}:${boardIndex}:opening`);
+        for (let attempt = 0; attempt < 50; attempt++) {
+          const result = [...original];
+          for (let index = result.length - 1; index > 0; index--) {
+            seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0;
+            const swap = seed % (index + 1);
+            [result[index], result[swap]] = [result[swap], result[index]];
+          }
+          if (!board.accepted.includes(result.join(""))) return result;
+        }
+        return original.reverse();
+      }
+
+      function layoutFor(count, type) {
+        if (type !== "triangle") {
+          return Array.from({length:count}, (_, index) => {
+            const t = count === 1 ? .5 : index / (count - 1);
+            const arc = Math.sin(Math.PI * t) * 30;
+            return [12 + t * 76, type === "frown" ? 66 - arc : 34 + arc];
+          });
+        }
+        const corners = [[50,27],[88,68],[12,68]];
+        return Array.from({length:count}, (_, index) => {
+          const distance = index / count * 3;
+          const side = Math.floor(distance) % 3;
+          const t = distance - Math.floor(distance);
+          const a = corners[side], b = corners[(side + 1) % 3];
+          return [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t];
+        });
+      }
+
+      function renderMilestoneBackground(level) {
+        const ctx = spaceBackdrop.getContext("2d");
+        const ratio = Math.min(2, window.devicePixelRatio || 1);
+        const width = window.innerWidth, height = window.innerHeight;
+        spaceBackdrop.width = width * ratio; spaceBackdrop.height = height * ratio;
+        spaceBackdrop.style.width = `${width}px`; spaceBackdrop.style.height = `${height}px`;
+        ctx.setTransform(ratio,0,0,ratio,0,0); ctx.clearRect(0,0,width,height);
+        spaceBackdrop.classList.toggle("active", level > 10);
+        if (level <= 10) return;
+        const chapter = Math.floor((level - 1) / 10);
+        let seed = hashNumber(`verbia-space-${chapter}`);
+        const random = () => ((seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0) / 4294967296);
+        const hue = (chapter * 67 + 195) % 360;
+        const sky = ctx.createLinearGradient(0,0,width,height);
+        sky.addColorStop(0, `hsl(${hue} 72% 7%)`); sky.addColorStop(1, `hsl(${(hue + 80) % 360} 65% 2%)`);
+        ctx.fillStyle = sky; ctx.fillRect(0,0,width,height);
+        for (let i=0;i<180;i++) {
+          const x=random()*width,y=random()*height,r=random()*1.6+.25;
+          ctx.fillStyle=`hsla(${(hue+random()*100)%360} 85% ${70+random()*25}% / ${.25+random()*.7})`;
+          ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();
+        }
+        for (let i=0;i<4;i++) {
+          const x=random()*width,y=random()*height,r=Math.max(width,height)*(.18+random()*.22);
+          const glow=ctx.createRadialGradient(x,y,0,x,y,r);
+          glow.addColorStop(0,`hsla(${(hue+i*43)%360} 90% 62% / .17)`); glow.addColorStop(1,"transparent");
+          ctx.fillStyle=glow;ctx.fillRect(x-r,y-r,r*2,r*2);
+        }
+        const motif = chapter % 5;
+        if (motif === 1 || motif === 4) drawPlanet(ctx,width*.76,height*.25,Math.min(width,height)*.13,hue, motif === 4);
+        if (motif === 2 || motif === 4) {
+          drawPlanet(ctx,width*.23,height*.28,Math.min(width,height)*.085,hue+70,false);
+          drawPlanet(ctx,width*.72,height*.65,Math.min(width,height)*.05,hue+150,false);
+        }
+        if (motif === 3) drawGalaxy(ctx,width*.5,height*.38,Math.min(width,height)*.3,hue);
+      }
+
+      function drawPlanet(ctx,x,y,r,hue,rings) {
+        const glow=ctx.createRadialGradient(x-r*.3,y-r*.4,r*.1,x,y,r);
+        glow.addColorStop(0,`hsl(${hue%360} 85% 74%)`);glow.addColorStop(.55,`hsl(${(hue+35)%360} 68% 38%)`);glow.addColorStop(1,"#03050b");
+        if (rings) { ctx.strokeStyle=`hsla(${hue%360} 90% 80% / .55)`;ctx.lineWidth=r*.13;ctx.beginPath();ctx.ellipse(x,y,r*1.8,r*.42,-.28,0,Math.PI*2);ctx.stroke(); }
+        ctx.fillStyle=glow;ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();
+      }
+
+      function drawGalaxy(ctx,x,y,r,hue) {
+        ctx.save();ctx.translate(x,y);ctx.rotate(-.35);
+        for(let arm=0;arm<3;arm++) for(let i=0;i<90;i++) { const t=i/90*Math.PI*3+arm*Math.PI*2/3; const d=r*i/90; ctx.fillStyle=`hsla(${(hue+i)%360} 90% 78% / ${1-i/110})`;ctx.beginPath();ctx.arc(Math.cos(t)*d,Math.sin(t)*d*.35,1.4,0,Math.PI*2);ctx.fill(); }
+        ctx.restore();
       }
 
       function selectNode(node) {
@@ -1042,7 +1178,9 @@
       function drawConstellation() {
         if (!nodes.length) return;
         constellationLines.replaceChildren();
-        (layoutLinks[settings.layout] || layoutLinks.smile).forEach(([a,b]) => {
+        const links = Array.from({length: Math.max(0, nodes.length - 1)}, (_, index) => [index, index + 1]);
+        if (settings.layout === "triangle" && nodes.length > 2) links.push([nodes.length - 1, 0]);
+        links.forEach(([a,b]) => {
           if (!nodes[a] || !nodes[b]) return;
           const start = nodeCenter(nodes[a]);
           const end = nodeCenter(nodes[b]);
@@ -1227,7 +1365,7 @@
         continueGameButton.setAttribute("aria-disabled", String(!saved));
         const totalWords = Object.values(progress.boards || {}).reduce((total, words) => total + (Array.isArray(words) ? words.length : 0), 0);
         continueGameMeta.textContent = saved
-          ? `Resume Board ${String(boardIndex + 1).padStart(2,"0")} • ${totalWords} words discovered`
+          ? `Resume Level ${boardIndex + 1} • ${totalWords} words discovered`
           : "No saved Verbia profile yet";
         (saved ? continueGameButton : newGameButton).focus();
       }
@@ -1235,7 +1373,7 @@
       function hasSavedGame() {
         try {
           const saved = JSON.parse(localStorage.getItem(storageKey) || "null");
-          return Boolean(saved && saved.boards);
+          return Boolean(saved && saved.boards && saved.levelBoards);
         } catch { return false; }
       }
 
@@ -1330,17 +1468,10 @@
 
       function createPortrait(avatar) {
         const portrait = document.createElement("div");
-        portrait.className = `avatar-portrait${avatar.robot ? " robot" : ""}`;
-        portrait.dataset.hair = avatar.hairStyle;
-        portrait.style.setProperty("--skin", avatar.skin);
-        portrait.style.setProperty("--hair", avatar.hair);
-        portrait.style.setProperty("--shirt", avatar.shirt);
+        portrait.className = "avatar-art";
+        portrait.style.setProperty("--avatar-x", `${(avatar.index % 3) * 50}%`);
+        portrait.style.setProperty("--avatar-y", `${Math.floor(avatar.index / 3) * 50}%`);
         portrait.setAttribute("aria-hidden", "true");
-        ["body","neck","head","hair"].forEach(part => {
-          const element = document.createElement("span");
-          element.className = part;
-          portrait.append(element);
-        });
         return portrait;
       }
 
@@ -1348,6 +1479,7 @@
         document.documentElement.dataset.theme = settings.theme;
         playfield.dataset.shape = settings.shape;
         const avatar = avatars.find(item => item.id === settings.avatar) || avatars[0];
+        settings.avatar = avatar.id;
         avatarBadge.replaceChildren(createPortrait(avatar));
         avatarBadge.setAttribute("aria-label", `${avatar.name} selected. Open player and game menu`);
         document.querySelectorAll("[data-theme-choice]").forEach(button => button.classList.toggle("selected", button.dataset.themeChoice === settings.theme));
@@ -1369,10 +1501,9 @@
       function loadProgress() {
         try {
           const saved = JSON.parse(localStorage.getItem(storageKey) || "null");
-          if (saved?.boards) return saved;
-          const legacy = JSON.parse(localStorage.getItem("verbia-prototype-board-01") || "[]");
-          return { current: 0, boards: { 0: Array.isArray(legacy) ? legacy.filter(word => boards[0].accepted.includes(word)) : [] } };
-        } catch { return { current: 0, boards: {} }; }
+          if (saved?.boards && saved?.levelBoards) return saved;
+          return freshProgress();
+        } catch { return freshProgress(); }
       }
 
       function saveProgress() { localStorage.setItem(storageKey, JSON.stringify(progress)); }
