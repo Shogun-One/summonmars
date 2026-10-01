@@ -248,6 +248,8 @@
     }
 
     .shuffle-button:active { transform: scale(.96); }
+    .hint-button { position:absolute; z-index:7; right:17px; top:58px; min-width:72px; padding:7px 9px; border:1px solid color-mix(in srgb,var(--mint) 28%,transparent); border-radius:5px 12px 5px 12px; color:var(--mint); background:rgba(0,0,0,.25); font-size:.61rem; font-weight:850; letter-spacing:.06em; text-transform:uppercase; cursor:pointer; }
+    .hint-button:disabled { opacity:.42; cursor:not-allowed; }
 
     #paths {
       position: absolute;
@@ -455,6 +457,37 @@
 
     .control.primary.show { display: block; }
 
+    .daily-bubble { position:fixed; z-index:22; right:max(16px,env(safe-area-inset-right)); top:44%; width:68px; height:68px; border:2px solid var(--gold); border-radius:50%; color:#221500; background:radial-gradient(circle at 35% 28%,#fff4a8,var(--gold) 44%,#df792e); box-shadow:0 0 0 7px rgba(255,217,120,.09),0 12px 30px rgba(0,0,0,.45); font-size:1.5rem; cursor:pointer; animation:dailyFloat 2.2s ease-in-out infinite; }
+    .daily-bubble[hidden] { display:none; }
+    .daily-bubble small { display:block; font-size:.48rem; font-weight:950; letter-spacing:.06em; text-transform:uppercase; }
+    @keyframes dailyFloat { 50% { transform:translateY(-8px) rotate(4deg); box-shadow:0 0 0 11px rgba(255,217,120,0),0 16px 35px rgba(0,0,0,.42); } }
+
+    .reward-overlay { position:fixed; z-index:80; inset:0; display:grid; place-items:center; padding:18px; background:rgba(1,5,10,.88); backdrop-filter:blur(15px); opacity:0; pointer-events:none; transition:opacity .2s ease; }
+    .reward-overlay.open { opacity:1; pointer-events:auto; }
+    .reward-panel { width:min(100%,430px); padding:22px; border:1px solid color-mix(in srgb,var(--gold) 38%,transparent); border-radius:28px 10px 28px 10px; text-align:center; background:linear-gradient(155deg,#122b2b,#070b17); box-shadow:0 30px 90px rgba(0,0,0,.65); }
+    .reward-panel h2 { margin:0; font:500 2rem Georgia,serif; }
+    .reward-panel>p { margin:7px 0 16px; color:var(--muted); font-size:.72rem; }
+    .reward-wheel-wrap { position:relative; width:260px; height:260px; margin:0 auto 15px; }
+    .reward-pointer { position:absolute; z-index:4; left:50%; top:-10px; translate:-50% 0; color:#fff1a3; font-size:2rem; filter:drop-shadow(0 2px 5px #000); }
+    .reward-dart { position:absolute; z-index:5; left:50%; top:-65px; translate:-50% 0; font-size:2.2rem; opacity:0; }
+    .reward-dart.fired { animation:dartThrow .55s cubic-bezier(.2,.8,.25,1) forwards; }
+    @keyframes dartThrow { 0%{opacity:1;transform:translateY(-75px) scale(1.4)} 85%,100%{opacity:1;transform:translateY(82px) scale(.82)} }
+    .reward-wheel { position:absolute; inset:8px; border:8px solid #efe2a1; border-radius:50%; background:conic-gradient(#ed6d5f 0 60deg,#61cfaa 60deg 120deg,#678cf1 120deg 180deg,#f3bf45 180deg 240deg,#b46fdb 240deg 300deg,#e89551 300deg); box-shadow:0 0 30px rgba(255,217,120,.28),inset 0 0 25px rgba(0,0,0,.35); }
+    .reward-wheel.spinning { animation:wheelSpin 2.3s linear infinite; }
+    @keyframes wheelSpin { to { transform:rotate(360deg); } }
+    .wheel-label { position:absolute; left:50%; top:50%; width:76px; margin:-10px 0 0 -38px; color:white; font-size:.62rem; font-weight:950; text-shadow:0 1px 3px #000; transform:rotate(var(--angle)) translateY(-84px) rotate(var(--back)); }
+    .power-label { display:flex; justify-content:space-between; color:var(--muted); font-size:.58rem; font-weight:850; letter-spacing:.09em; text-transform:uppercase; }
+    .power-meter { height:22px; margin:6px 0 12px; padding:3px; overflow:hidden; border:1px solid rgba(255,255,255,.16); border-radius:99px; background:#090e13; cursor:crosshair; }
+    .power-fill { width:15%; height:100%; border-radius:inherit; background:linear-gradient(90deg,#5cd79e,#f5d85f,#f06155); box-shadow:0 0 14px currentColor; }
+    .reward-fire { width:100%; padding:13px; border:0; border-radius:14px 5px 14px 5px; color:#172000; background:linear-gradient(135deg,var(--gold),#ff8c5f); font-weight:950; letter-spacing:.1em; text-transform:uppercase; cursor:pointer; }
+    .reward-fire:disabled { opacity:.55; cursor:not-allowed; }
+    .reward-result { min-height:24px; margin:12px 0 0; color:var(--gold); font-weight:900; }
+    .wallet-card { display:flex; justify-content:space-between; gap:12px; padding:12px; border:1px solid rgba(255,217,120,.18); border-radius:13px 5px 13px 5px; background:rgba(255,217,120,.055); color:var(--muted); font-size:.68rem; }
+    .wallet-card strong { display:block; color:var(--gold); font-size:1rem; }
+    .store-preview { display:grid; grid-template-columns:repeat(3,1fr); gap:7px; }
+    .store-item { padding:9px 4px; border:1px solid rgba(255,255,255,.1); border-radius:11px 4px; color:var(--muted); background:rgba(255,255,255,.035); font-size:.58rem; }
+    .store-item strong { display:block; margin-top:4px; color:var(--gold); }
+
     .shelf-arrow { position:absolute; right:13px; top:50%; width:28px; height:28px; display:grid; place-items:center; translate:0 -50%; border:1px solid rgba(255,255,255,.13); border-radius:50%; color:var(--gold); font-size:1rem; transition:transform .22s ease; }
     .discoveries { position:relative; padding-right:48px; }
     .discoveries[aria-expanded="true"] .shelf-arrow { transform:rotate(180deg); animation:shelfPulse 1.15s ease-in-out infinite; }
@@ -650,6 +683,7 @@
   </section>
 
   <canvas class="space-backdrop" id="spaceBackdrop" aria-hidden="true"></canvas>
+  <button class="daily-bubble" id="dailyBubble" type="button" hidden aria-label="Play today's daily dart reward">🎯<small>Daily</small></button>
   <main class="app">
     <header>
       <div class="brand">
@@ -676,6 +710,7 @@
       </div>
       <div class="word-display" id="wordDisplay" data-empty="true" aria-live="polite"></div>
       <button class="shuffle-button" id="shuffleButton" type="button" aria-label="Shuffle letter positions">↝ Shuffle</button>
+      <button class="hint-button" id="hintButton" type="button">Hint · <span id="hintCount">3</span></button>
       <div class="toast" id="toast" role="status" aria-live="assertive"></div>
       <svg id="paths" aria-hidden="true">
         <g id="constellationLines"></g>
@@ -741,7 +776,33 @@
         <h3>Choose your explorer</h3>
         <div class="avatar-grid" id="avatarChoices"></div>
       </div>
+      <div class="menu-section">
+        <h3>Explorer wallet</h3>
+        <div class="wallet-card"><span>Discovery points<strong id="walletPoints">0</strong></span><span>Daily hints<strong id="walletHints">3 / 3</strong></span></div>
+      </div>
+      <div class="menu-section">
+        <h3>Coming reward shop</h3>
+        <div class="store-preview"><div class="store-item">Comet trail<strong>250 pts</strong></div><div class="store-item">Moon pet<strong>600 pts</strong></div><div class="store-item">Nova jacket<strong>900 pts</strong></div></div>
+      </div>
       <button class="menu-action" id="resumeButton" type="button">Begin journey</button>
+    </section>
+  </div>
+
+  <div class="reward-overlay" id="rewardOverlay" aria-hidden="true">
+    <section class="reward-panel" role="dialog" aria-modal="true" aria-labelledby="rewardTitle">
+      <h2 id="rewardTitle">Daily Orbit</h2>
+      <p>Tap the cycling power meter to throw your dart at the spinning reward world.</p>
+      <div class="reward-wheel-wrap">
+        <span class="reward-pointer" aria-hidden="true">▼</span><span class="reward-dart" id="rewardDart" aria-hidden="true">🎯</span>
+        <div class="reward-wheel spinning" id="rewardWheel">
+          <span class="wheel-label" style="--angle:30deg;--back:-30deg">Hints ×3</span><span class="wheel-label" style="--angle:90deg;--back:-90deg">200 pts</span><span class="wheel-label" style="--angle:150deg;--back:-150deg">50 pts</span><span class="wheel-label" style="--angle:210deg;--back:-210deg">Hint ×1</span><span class="wheel-label" style="--angle:270deg;--back:-270deg">100 pts</span><span class="wheel-label" style="--angle:330deg;--back:-330deg">25 pts</span>
+        </div>
+      </div>
+      <div class="power-label"><span>Weak</span><span>Throw power</span><span>Strong</span></div>
+      <div class="power-meter" id="powerMeter" role="button" tabindex="0" aria-label="Throw dart at current power"><div class="power-fill" id="powerFill"></div></div>
+      <button class="reward-fire" id="rewardFire" type="button">Throw dart</button>
+      <p class="reward-result" id="rewardResult" aria-live="polite"></p>
+      <button class="close-button" id="closeReward" type="button" aria-label="Close daily reward">✕</button>
     </section>
   </div>
 
@@ -797,6 +858,8 @@
       const bonusSummary = document.querySelector("#bonusSummary");
       const discoveriesButton = document.querySelector("#discoveriesButton");
       const shuffleButton = document.querySelector("#shuffleButton");
+      const hintButton = document.querySelector("#hintButton");
+      const hintCount = document.querySelector("#hintCount");
       const nextButton = document.querySelector("#nextButton");
       const resetButton = document.querySelector("#resetButton");
       const backdrop = document.querySelector("#discoveryBackdrop");
@@ -822,6 +885,17 @@
       const newGameButton = document.querySelector("#newGameButton");
       const discoveryShelf = document.querySelector("#discoveryShelf");
       const discoveryShelfContent = document.querySelector("#discoveryShelfContent");
+      const dailyBubble = document.querySelector("#dailyBubble");
+      const rewardOverlay = document.querySelector("#rewardOverlay");
+      const rewardWheel = document.querySelector("#rewardWheel");
+      const rewardDart = document.querySelector("#rewardDart");
+      const rewardFire = document.querySelector("#rewardFire");
+      const rewardResult = document.querySelector("#rewardResult");
+      const closeReward = document.querySelector("#closeReward");
+      const powerMeter = document.querySelector("#powerMeter");
+      const powerFill = document.querySelector("#powerFill");
+      const walletPoints = document.querySelector("#walletPoints");
+      const walletHints = document.querySelector("#walletHints");
 
       let profileExists = storedProfileExists();
       let progress = loadProgress();
@@ -835,12 +909,15 @@
       let activeTab = "goals";
       let toastTimer;
       let hasStarted = false;
+      let powerValue = 0;
+      let powerFrame = 0;
 
       ensureBoard(boardIndex + 1);
 
       renderAvatarChoices();
       applySettings(false);
       renderBoard();
+      refreshDailyState();
       showOpeningSplash();
 
       playfield.addEventListener("pointerdown", event => {
@@ -870,6 +947,9 @@
       });
 
       discoveriesButton.addEventListener("click", toggleDiscoveryShelf);
+      document.addEventListener("pointerdown", event => {
+        if (discoveryShelf.classList.contains("open") && !discoveryShelf.contains(event.target) && !discoveriesButton.contains(event.target)) closeDiscoveryShelf();
+      });
       closeDiscoveries.addEventListener("click", closeSheet);
       backdrop.addEventListener("click", event => { if (event.target === backdrop) closeSheet(); });
       document.addEventListener("keydown", event => { if (event.key === "Escape") closeSheet(); });
@@ -878,6 +958,12 @@
       pauseButton.addEventListener("click", openMenu);
       avatarBadge.addEventListener("click", openMenu);
       resumeButton.addEventListener("click", closeMenu);
+      hintButton.addEventListener("click", useHint);
+      dailyBubble.addEventListener("click", openDailyReward);
+      rewardFire.addEventListener("click", throwDailyDart);
+      powerMeter.addEventListener("click", throwDailyDart);
+      powerMeter.addEventListener("keydown", event => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); throwDailyDart(); } });
+      closeReward.addEventListener("click", closeDailyReward);
 
       themeChoices.addEventListener("click", event => {
         const choice = event.target.closest("[data-theme-choice]");
@@ -928,6 +1014,7 @@
         ensureBoard(1);
         hasStarted = false;
         saveProgress();
+        refreshDailyState();
         applySettings(true);
         closeDiscoveryShelf();
         launchOverlay.hidden = true;
@@ -1002,7 +1089,7 @@
       }
 
       function freshProgress(profileCreated = false) {
-        return { profileCreated, currentLevel:1, boards:{}, levelBoards:{}, signatures:[], seed:Math.floor(Math.random() * 2147483647) || 9173 };
+        return { profileCreated, currentLevel:1, boards:{}, levelBoards:{}, signatures:[], points:0, hints:{date:todayKey(),count:3}, dailyRewardDate:"", seed:Math.floor(Math.random() * 2147483647) || 9173 };
       }
 
       function letterCountForLevel(level) {
@@ -1022,8 +1109,11 @@
           progress.levelBoards[index] = generateBoard(level);
           progress.signatures.push(progress.levelBoards[index].signature);
           if (profileExists) saveProgress();
-        } else if (progress.levelBoards[index].dictionaryVersion !== 2) {
-          progress.levelBoards[index] = buildBoard(progress.levelBoards[index].letters, level);
+        } else if (progress.levelBoards[index].designVersion !== 4) {
+          const oldSignature = progress.levelBoards[index].signature;
+          progress.signatures = progress.signatures.filter(signature => signature !== oldSignature);
+          progress.levelBoards[index] = generateBoard(level);
+          progress.signatures.push(progress.levelBoards[index].signature);
           if (profileExists) saveProgress();
         }
         boards[index] = progress.levelBoards[index];
@@ -1033,12 +1123,13 @@
       function generateBoard(level) {
         const count = letterCountForLevel(level);
         const used = new Set(progress.signatures || []);
-        const guidedAnchors = ["ATE","RATE","NOTE","CARE","STAR","TEAM","PINE","PLANT","HEART","STONE","GARDEN","PLANET","FRIEND","ORANGES","PLANETS","FRIENDS"];
+        const guidedAnchors = ["ATE","BIRD","MUSH","DEAL","STOP","MANY","LIFE","PLANT","CHIME","SWORD","PLANET","BRIGHT","COMEDY","HUSBAND","PROJECT","FLAMING"];
         if (guidedAnchors[level - 1]) return buildBoard(guidedAnchors[level - 1], level);
         const allCandidates = lexiconByLength[count] || [];
         const candidates = allCandidates.slice(0, Math.min(allCandidates.length, 1200 + level * 18));
         const start = hashNumber(`${progress.seed}:${level}`) % Math.max(1, candidates.length);
         const minimum = {3:3,4:5,5:8,6:11,7:14}[count];
+        const previousLetters = progress.levelBoards[level - 2]?.letters || "";
         let fallback = null;
         for (let step = 0; step < candidates.length; step++) {
           const anchor = candidates[(start + step) % candidates.length];
@@ -1047,7 +1138,7 @@
           const board = buildBoard(anchor, level);
           fallback ||= board;
           const fullLengthWords = board.accepted.filter(word => word.length === count);
-          if (board.accepted.length >= minimum && fullLengthWords.length >= 2) return board;
+          if (board.accepted.length >= minimum && fullLengthWords.length >= 2 && sharedLetterCount(anchor, previousLetters) <= 1) return board;
         }
         if (fallback) return fallback;
         throw new Error("Verbia could not generate a fresh letter constellation.");
@@ -1061,7 +1152,12 @@
         const shorter = accepted.filter(word => word.length < letters.length);
         const goals = [...new Set([anchor.toUpperCase(), ...fullLength.slice(0, Math.ceil(target / 3)), ...shorter])].slice(0, target);
         const clearRatio = level <= 3 ? .5 : level <= 10 ? .58 : .66;
-        return { dictionaryVersion:2, letters, signature:[...letters].sort().join(""), clearAt:Math.max(1, Math.ceil(goals.length * clearRatio)), goals, accepted };
+        return { designVersion:4, dictionaryVersion:2, letters, signature:[...letters].sort().join(""), clearAt:Math.max(1, Math.ceil(goals.length * clearRatio)), goals, accepted };
+      }
+
+      function sharedLetterCount(left, right) {
+        const rightLetters = new Set(right);
+        return [...new Set(left)].filter(letter => rightLetters.has(letter)).length;
       }
 
       function canBuildWord(word, letters) {
@@ -1236,9 +1332,11 @@
           progress.boards[boardIndex] = found;
           saveProgress();
           const isGoal = board.goals.includes(word);
+          progress.points = (progress.points || 0) + (isGoal ? 10 : 5);
           showToast(isGoal ? `${word} • stage word +10` : `${word} • bonus word +5`, isGoal ? "success" : "bonus");
           navigator.vibrate?.([22,32,22]);
           renderProgress();
+          renderWallet();
         }
         window.setTimeout(resetTrace, 140);
       }
@@ -1411,6 +1509,114 @@
         discoveryShelf.classList.remove("open");
         discoveryShelf.setAttribute("aria-hidden", "true");
         discoveriesButton.setAttribute("aria-expanded", "false");
+      }
+
+      function todayKey() {
+        const now = new Date();
+        return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2,"0")}-${String(now.getDate()).padStart(2,"0")}`;
+      }
+
+      function refreshDailyState() {
+        const today = todayKey();
+        let changed = false;
+        if (!progress.hints || progress.hints.date !== today) {
+          progress.hints = {date:today,count:Math.max(3, progress.hints?.count || 0)};
+          changed = true;
+        }
+        if (!Number.isFinite(progress.points)) progress.points = 0;
+        dailyBubble.hidden = !profileExists || progress.dailyRewardDate === today;
+        renderWallet();
+        if (changed && profileExists) saveProgress();
+      }
+
+      function renderWallet() {
+        const availableHints = progress.hints?.count ?? 3;
+        hintCount.textContent = availableHints;
+        hintButton.disabled = availableHints < 1;
+        walletPoints.textContent = progress.points || 0;
+        walletHints.textContent = `${availableHints} available`;
+      }
+
+      function useHint() {
+        refreshDailyState();
+        if ((progress.hints?.count || 0) < 1) {
+          showToast("Your three daily hints return tomorrow", "duplicate");
+          return;
+        }
+        const board = boards[boardIndex];
+        const found = getFound();
+        const candidates = board.goals.filter(word => !found.includes(word));
+        if (!candidates.length) {
+          showToast("Every stage word is already revealed", "duplicate");
+          return;
+        }
+        const word = candidates[hashNumber(`${todayKey()}:${boardIndex}:${progress.hints.count}`) % candidates.length];
+        progress.hints.count -= 1;
+        saveProgress();
+        renderWallet();
+        showToast(`Hint • ${word.length} letters • starts with ${word[0]}`, "success");
+      }
+
+      function openDailyReward() {
+        if (!profileExists || progress.dailyRewardDate === todayKey()) return;
+        closeDiscoveryShelf();
+        rewardResult.textContent = "";
+        rewardFire.disabled = false;
+        rewardFire.textContent = "Throw dart";
+        rewardDart.classList.remove("fired");
+        rewardWheel.classList.add("spinning");
+        rewardWheel.style.transform = "";
+        rewardOverlay.classList.add("open");
+        rewardOverlay.setAttribute("aria-hidden", "false");
+        animatePowerMeter();
+        rewardFire.focus();
+      }
+
+      function animatePowerMeter() {
+        cancelAnimationFrame(powerFrame);
+        const start = performance.now();
+        const tick = now => {
+          if (!rewardOverlay.classList.contains("open") || rewardFire.disabled) return;
+          powerValue = (Math.sin((now - start) / 360) + 1) / 2;
+          powerFill.style.width = `${12 + powerValue * 88}%`;
+          powerFrame = requestAnimationFrame(tick);
+        };
+        powerFrame = requestAnimationFrame(tick);
+      }
+
+      function throwDailyDart() {
+        if (!rewardOverlay.classList.contains("open") || rewardFire.disabled || progress.dailyRewardDate === todayKey()) return;
+        rewardFire.disabled = true;
+        cancelAnimationFrame(powerFrame);
+        const prizes = [
+          {label:"3 extra hints",hints:3}, {label:"200 points",points:200},
+          {label:"50 points",points:50}, {label:"1 extra hint",hints:1},
+          {label:"100 points",points:100}, {label:"25 points",points:25}
+        ];
+        const timing = Math.floor((performance.now() / 383) % 6);
+        const prizeIndex = (timing + Math.floor(powerValue * 6)) % prizes.length;
+        const prize = prizes[prizeIndex];
+        rewardWheel.classList.remove("spinning");
+        rewardWheel.style.transform = `rotate(${720 + (5 - prizeIndex) * 60}deg)`;
+        rewardDart.classList.add("fired");
+        progress.points = (progress.points || 0) + (prize.points || 0);
+        progress.hints.count += prize.hints || 0;
+        progress.dailyRewardDate = todayKey();
+        saveProgress();
+        dailyBubble.hidden = true;
+        window.setTimeout(() => {
+          rewardResult.textContent = `Bullseye! You won ${prize.label}.`;
+          rewardFire.textContent = "Prize collected";
+          renderWallet();
+          navigator.vibrate?.([35,30,60]);
+        }, 560);
+      }
+
+      function closeDailyReward() {
+        cancelAnimationFrame(powerFrame);
+        rewardOverlay.classList.remove("open");
+        rewardOverlay.setAttribute("aria-hidden", "true");
+        if (!dailyBubble.hidden) dailyBubble.focus();
       }
 
       function renderDiscoveryShelf() {
