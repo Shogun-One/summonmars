@@ -127,8 +127,7 @@
     /* impact FX overlay (soft damage flash) */
     #impactFx{
       position:fixed;
-      inset:0;
-      z-index:1; /* between bgfx (0) and content (2+) */
+      z-index:20;
       pointer-events:none;
       opacity:0;
       transition: opacity 140ms ease;
@@ -140,13 +139,29 @@
     }
     #impactFx.active{ opacity:1; }
     #impactFx.glass{
-      background-image:
-        radial-gradient(circle at 50% 42%, rgba(255,255,255,.10), rgba(255,59,130,.055) 34%, rgba(0,0,0,0) 68%);
+      border:1px solid rgba(220,245,255,.36);
+      border-radius:18px;
+      background-image:radial-gradient(circle at 50% 42%,rgba(255,255,255,.08),rgba(255,59,130,.045) 38%,rgba(0,0,0,0) 70%);
+      box-shadow:inset 0 0 34px rgba(205,238,255,.22),inset 0 0 70px rgba(255,59,130,.10);
     }
+    #impactFx svg{display:none;width:100%;height:100%;overflow:visible}
+    #impactFx.glass svg{display:block}
+    #impactFx.glass path{fill:none;stroke:rgba(225,247,255,.80);stroke-width:1.35;vector-effect:non-scaling-stroke;filter:drop-shadow(0 0 2px rgba(106,215,255,.82))}
     #impactFx.boomflash{
       background-image: radial-gradient(circle at 50% 45%, rgba(255,59,130,.22), rgba(0,0,0,0) 60%);
       mix-blend-mode: screen;
+      inset:0;
     }
+
+    .launch-choice{position:fixed;inset:0;z-index:2147483646;display:grid;place-items:center;padding:24px;color:#ffeaff;background:rgba(5,4,12,.88);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);font-family:'Share Tech Mono',monospace}
+    .launch-choice[hidden]{display:none}
+    .launch-choice__panel{width:min(470px,100%);padding:clamp(24px,6vw,42px);text-align:center;border:1px solid rgba(255,84,190,.48);border-radius:22px;background:rgba(8,7,17,.94);box-shadow:0 0 42px rgba(255,51,180,.22)}
+    .launch-choice h2{margin:0 0 8px;color:#f58bd6;font:800 clamp(22px,6vw,31px)/1.15 'Orbitron',sans-serif;letter-spacing:.08em}
+    .launch-choice p{margin:0 0 20px;color:#cbbfd5}
+    .launch-choice button{display:block;width:100%;min-height:58px;margin-top:12px;padding:10px;border:1px solid rgba(255,85,189,.72);border-radius:13px;color:#fff0fa;background:#120b1d;font:800 clamp(15px,4vw,18px) 'Orbitron',sans-serif;cursor:pointer}
+    .launch-choice button:first-of-type{border-color:#7dffbc;box-shadow:0 0 18px rgba(80,255,165,.20)}
+    .launch-choice button:focus-visible,.launch-choice button:hover{outline:none;color:#7dffbc;box-shadow:0 0 20px rgba(80,255,165,.38)}
+    .launch-choice small{display:block;margin-top:5px;color:#bcb1c8;font:600 13px 'Share Tech Mono',monospace}
 
     .wrapper{
       position:relative;
@@ -2055,7 +2070,24 @@ footer{
 <body>
   <section id="previewGate" class="preview-gate" aria-labelledby="previewGateTitle"><form id="previewGateForm" class="preview-gate__panel"><h1 id="previewGateTitle">ASTEROID DRIFT</h1><p>Private playtest build</p><label for="previewPassword">Enter playtest password</label><input id="previewPassword" name="password" type="password" autocomplete="current-password" autocapitalize="none" spellcheck="false" required autofocus><button type="submit">UNLOCK GAME</button><p id="previewGateError" class="preview-gate__error" role="alert" aria-live="polite"></p></form></section>
   <canvas id="bgfx" aria-hidden="true"></canvas>
-  <div id="impactFx" aria-hidden="true"></div>
+  <div id="impactFx" aria-hidden="true">
+    <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M0 13 L8 18 L3 25 L15 29 L9 38 M8 18 L17 12 M3 25 L1 34"/>
+      <path d="M100 17 L92 22 L97 31 L84 35 L91 44 M92 22 L83 15 M97 31 L99 39"/>
+      <path d="M0 72 L10 67 L6 59 L18 54 M10 67 L17 74 L24 70 M6 59 L1 51"/>
+      <path d="M100 78 L90 72 L94 64 L82 58 M90 72 L82 80 L74 76 M94 64 L99 55"/>
+      <path d="M23 0 L27 9 L22 15 L31 22 M27 9 L35 5"/>
+      <path d="M76 100 L72 91 L78 84 L68 77 M72 91 L64 95"/>
+    </svg>
+  </div>
+  <section id="launchChoice" class="launch-choice" aria-labelledby="launchChoiceTitle" hidden>
+    <div class="launch-choice__panel">
+      <h2 id="launchChoiceTitle">ASTEROID DRIFT</h2>
+      <p>Choose how to launch.</p>
+      <button id="continueGameBtn" type="button">CONTINUE GAME<small id="continueGameMeta">Resume saved progress</small></button>
+      <button id="newGameBtn" type="button">NEW GAME<small>Reset all progress, points, and collections</small></button>
+    </div>
+  </section>
 
   <button id="controllerConfigBtn" class="controller-config-btn" type="button"
           aria-haspopup="dialog" aria-controls="controllerDialog">🎮 No controller</button>
@@ -2233,8 +2265,20 @@ document.querySelectorAll('img[data-asset]').forEach((img) => {
     const impactFxEl = document.getElementById('impactFx');
     let impactTimeout = null;
 
+    function positionImpactGlass(){
+      const gameCanvas=document.getElementById('game');
+      if(!impactFxEl || !gameCanvas) return;
+      const rect=gameCanvas.getBoundingClientRect();
+      impactFxEl.style.inset='auto';
+      impactFxEl.style.left=`${rect.left}px`;
+      impactFxEl.style.top=`${rect.top}px`;
+      impactFxEl.style.width=`${rect.width}px`;
+      impactFxEl.style.height=`${rect.height}px`;
+    }
+
     function triggerImpactGlass(ms=1200){
       if(!impactFxEl) return;
+      positionImpactGlass();
       impactFxEl.classList.remove('boomflash');
       impactFxEl.classList.add('glass','active');
       clearTimeout(impactTimeout);
@@ -2245,6 +2289,8 @@ document.querySelectorAll('img[data-asset]').forEach((img) => {
 
     function triggerBoomFlash(ms=160){
       if(!impactFxEl) return;
+      impactFxEl.style.inset='0';
+      impactFxEl.style.left=impactFxEl.style.top=impactFxEl.style.width=impactFxEl.style.height='';
       impactFxEl.classList.remove('glass');
       impactFxEl.classList.add('boomflash','active');
       clearTimeout(impactTimeout);
@@ -2427,6 +2473,10 @@ document.querySelectorAll('img[data-asset]').forEach((img) => {
     const joystickEl = document.getElementById('joystick');
     const stickEl = joystickEl ? joystickEl.querySelector('.stick') : null;
     const mobilePauseBtn = document.getElementById('mobilePauseBtn');
+    const launchChoiceEl = document.getElementById('launchChoice');
+    const continueGameBtn = document.getElementById('continueGameBtn');
+    const continueGameMetaEl = document.getElementById('continueGameMeta');
+    const newGameBtn = document.getElementById('newGameBtn');
 
     let width = canvas.width;
     let height = canvas.height;
@@ -2567,7 +2617,7 @@ document.querySelectorAll('img[data-asset]').forEach((img) => {
     }
     music.src = A(MUSIC_TRACKS[musicTrackIndex].src);
     music.loop = musicPlayMode === 'repeat';
-    let musicVolume = clamp(Math.round(Number(localStorage.getItem('asteroidMusicVolume') || 80)/10)*10,0,100);
+    let musicVolume = clamp(Math.round(Number(localStorage.getItem('asteroidMusicVolume') || 50)/10)*10,0,100);
     let effectsVolume = clamp(Math.round(Number(localStorage.getItem('asteroidEffectsVolume') || 80)/10)*10,0,100);
     const musicVolumeScale = () => musicVolume/100;
     const effectsVolumeScale = () => effectsVolume/100;
@@ -3042,7 +3092,8 @@ async function setSoundMode(nextMode, announce = true){
           utterance.rate=clamp(rate,.45,2);
           utterance.volume=clamp(volume*effectsVolumeScale()*echoScale,0,1);
           const voices=window.speechSynthesis.getVoices();
-          const english=voices.find(voice=>/^en[-_]/i.test(voice.lang));
+          const english=voices.find(voice=>/^en[-_]/i.test(voice.lang)&&/(natural|premium|enhanced|samantha|google|ava|aria)/i.test(voice.name))
+            || voices.find(voice=>/^en[-_]/i.test(voice.lang));
           if(english) utterance.voice=english;
           window.speechSynthesis.speak(utterance);
         }catch{}
@@ -3086,7 +3137,7 @@ async function setSoundMode(nextMode, announce = true){
 
         thud.start(now); thud.stop(now+.20);
         alarm.start(now); alarm.stop(now+.16);
-        speakCombatVocal('Uhh!',{pitch:.68,rate:1.42,volume:.92});
+        speakCombatVocal('Ugh!',{pitch:1.02,rate:1.18,volume:1});
         triggerSpeakerBoom(.48,190);
         setTimeout(()=>{
           for(const node of [thud,alarm,thudGain,alarmGain,filter,output]) try{ node.disconnect(); }catch{}
@@ -3095,82 +3146,17 @@ async function setSoundMode(nextMode, announce = true){
     }
 
     function playDefeatYell(kind='player'){
-      if(!effectsEnabled() || !audioCtx) return;
-      try{
-        if(audioCtx.state === 'suspended') audioCtx.resume().catch(()=>{});
-        const now = audioCtx.currentTime;
-        const isBoss = kind === 'boss';
-        const duration = isBoss ? 1.08 : .48;
-        const voice = audioCtx.createOscillator();
-        const body = audioCtx.createOscillator();
-        const voiceGain = audioCtx.createGain();
-        const directFilter = audioCtx.createBiquadFilter();
-        const directGain = audioCtx.createGain();
-        const master = audioCtx.createGain();
-        const compressor = audioCtx.createDynamicsCompressor();
-        const formants = isBoss ? [560,920,1760] : [760,1180,2380];
-
-        voice.type='sawtooth';
-        body.type='triangle';
-        voice.frequency.setValueAtTime(isBoss ? 132 : 255,now);
-        voice.frequency.exponentialRampToValueAtTime(isBoss ? 54 : 138,now+duration);
-        body.frequency.setValueAtTime(isBoss ? 66 : 128,now);
-        body.frequency.exponentialRampToValueAtTime(isBoss ? 29 : 72,now+duration);
-        voiceGain.gain.setValueAtTime(.001,now);
-        voiceGain.gain.linearRampToValueAtTime(1,now+.045);
-        voiceGain.gain.setValueAtTime(1,now+duration*.42);
-        voiceGain.gain.exponentialRampToValueAtTime(.001,now+duration);
-        master.gain.setValueAtTime(Math.max(.001,(isBoss ? .76 : .58)*effectsVolumeScale()),now);
-        compressor.threshold.value=-20;
-        compressor.ratio.value=7;
-        compressor.attack.value=.006;
-        compressor.release.value=.16;
-        compressor.connect(master).connect(audioCtx.destination);
-
-        const filters=[];
-        for(const [index,frequency] of formants.entries()){
-          const filter=audioCtx.createBiquadFilter();
-          const gain=audioCtx.createGain();
-          filter.type='bandpass';
-          filter.frequency.value=frequency;
-          filter.Q.value=isBoss ? 3.8 : 5.2;
-          gain.gain.value=[1,.68,.32][index];
-          voice.connect(filter).connect(gain).connect(voiceGain);
-          filters.push(filter,gain);
-        }
-        directFilter.type='lowpass';
-        directFilter.frequency.value=isBoss?1450:2100;
-        directFilter.Q.value=.8;
-        directGain.gain.value=isBoss ? .34 : .25;
-        voice.connect(directFilter).connect(directGain).connect(voiceGain);
-        body.connect(voiceGain);
-        voiceGain.connect(compressor);
-
-        const echoes=[];
-        if(isBoss){
-          for(const [delayTime,level] of [[.24,.34],[.47,.18]]){
-            const delay=audioCtx.createDelay(1);
-            const echoGain=audioCtx.createGain();
-            delay.delayTime.value=delayTime;
-            echoGain.gain.value=level;
-            voiceGain.connect(delay).connect(echoGain).connect(compressor);
-            echoes.push(delay,echoGain);
-          }
-        }
-
-        voice.start(now); body.start(now);
-        voice.stop(now+duration); body.stop(now+duration);
-        speakCombatVocal('Aaah!',{
-          pitch:isBoss ? .32 : .86,
-          rate:isBoss ? .55 : .82,
-          volume:1,
-          echo:isBoss
-        });
-        triggerSpeakerBoom(isBoss ? 1.25 : .96,isBoss ? 1120 : 500);
-        setTimeout(()=>{
-          for(const node of [voice,body,voiceGain,directFilter,directGain,compressor,master,...filters,...echoes]) try{ node.disconnect(); }catch{}
-        },(duration + (isBoss ? .65 : .18))*1000);
-      }catch(err){ console.warn('Defeat yell failed:',err); }
+      if(!effectsEnabled()) return;
+      const isBoss=kind==='boss';
+      // Keep the blast synthesis inside playExplosionSound(). The vocal must
+      // come from a human voice; oscillator "formants" sounded like a horn.
+      speakCombatVocal(isBoss?'Aaaaah!':'Aaah!',{
+        pitch:isBoss?.72:1.08,
+        rate:isBoss?.62:.90,
+        volume:1,
+        echo:isBoss
+      });
+      triggerSpeakerBoom(isBoss?1.25:.96,isBoss?1120:500);
     }
 
     function playMissileWhistle(){
@@ -3603,6 +3589,12 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
       return weaponAutoRank(weaponMode);
     }
 
+    function autoEquipBestCollectedWeapon(){
+      const candidates=['single','back','cross','dog'];
+      weaponMode=candidates.reduce((best,mode)=>weaponAutoRank(mode)>weaponAutoRank(best)?mode:best,'single');
+      return weaponMode;
+    }
+
     function weaponDisplayName(mode){
       if(mode === 'single' || mode === 'standard' || mode === 'dual'){
         if(weaponLevels.standard >= 2) return 'QUAD FIRE';
@@ -3631,19 +3623,23 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
       if(!Object.hasOwn(weaponLevels, mode)) return;
 
       const currentLevel = weaponLevels[mode];
+      const pickupMode = mode === 'standard' ? 'single' : mode;
       if(currentLevel < 2){
         weaponLevels[mode] = currentLevel + 1;
-        const pickupMode = mode === 'standard' ? 'single' : mode;
-        const shouldAutoEquip = pickupMode === weaponMode || weaponAutoRank(mode) > equippedWeaponAutoRank();
-        if(shouldAutoEquip) weaponMode = pickupMode;
+        autoEquipBestCollectedWeapon();
+        const didAutoEquip = weaponMode === pickupMode;
         const status = currentLevel === 0 ? ' COLLECTED' : ' UPGRADED';
-        const stored = shouldAutoEquip ? '' : ' — STORED';
+        const stored = didAutoEquip ? '' : ' — STORED';
         showGameAlert(weaponDisplayName(mode) + status + stored, 'sound-on');
       }else{
+        // Re-evaluate even a max-tier duplicate. This also repairs an older
+        // saved run that was left on Standard despite owning a stronger gun.
+        autoEquipBestCollectedWeapon();
         awardScore(45); // 5 pickup points above + 45 = 50-point duplicate bonus
         showGameAlert(weaponDisplayName(mode) + ' BONUS +50', 'sound-on');
       }
       updateWeaponStatusOverlay();
+      saveCampaignProgress();
     }
 
     function loseWeaponEnhancements(){
@@ -3686,6 +3682,26 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
     const CONTINUE_COST = 2000;
     let gameOverSelection = 'restart';
     let gameOverConfirmLatch = false;
+    const CAMPAIGN_SAVE_KEY='asteroidCampaignProgressV1';
+    const NEW_GAME_PENDING_KEY='asteroid-new-game-pending';
+    let campaignSessionStarted=false;
+
+    function readCampaignProgress(){
+      try{
+        const saved=JSON.parse(localStorage.getItem(CAMPAIGN_SAVE_KEY)||'null');
+        return saved&&Number.isFinite(saved.level)?saved:null;
+      }catch{return null;}
+    }
+
+    function saveCampaignProgress(){
+      if(!campaignSessionStarted) return;
+      localStorage.setItem(CAMPAIGN_SAVE_KEY,JSON.stringify({
+        level:Math.max(1,level|0),score:Math.max(0,score|0),lives:clamp(lives|0,1,MAX_LIVES),
+        hits:clamp(hits|0,0,MAX_HITS-1),bossKills:Math.max(0,bossKills|0),
+        killsThisLevel:Math.max(0,killsThisLevel|0),missileAmmo:Math.max(0,missileAmmo|0),
+        weaponMode,weaponLevels:{...weaponLevels},savedAt:Date.now()
+      }));
+    }
 
     let preStartTimer = 0;
     const PRESTART_MS = 2200;
@@ -4317,7 +4333,7 @@ function updateBosses(dt){
     }
 
     function beginLaunchFromInput(){
-      if(!awaitingLaunchInput || paused || gameOver || !launchInputActive()) return false;
+      if(!launchChoiceEl.hidden || !awaitingLaunchInput || paused || gameOver || !launchInputActive()) return false;
       preStartIsInitial = true;
       startGracePeriod();
       startDefaultSound();
@@ -4335,6 +4351,7 @@ function updateBosses(dt){
         bestEl.textContent = bestScore;
         localStorage.setItem('asteroidBest', String(bestScore));
       }
+      saveCampaignProgress();
     }
 
     function addLevelProgress(points){
@@ -4386,6 +4403,7 @@ function updateBosses(dt){
         preStartTimer = 0;
         running = false;
       }
+      saveCampaignProgress();
     }
 
     function resetRun(keepBest = true){
@@ -4465,6 +4483,68 @@ function updateBosses(dt){
       setMusicUI(false);
       document.documentElement.style.setProperty('--bassKick','0');
     }
+
+    function restoreCampaignProgress(saved){
+      resetRun(true);
+      const targetLevel=Math.max(1,Number(saved?.level)||1);
+      beginLevel(targetLevel);
+      if(saved){
+        score=Math.max(0,Number(saved.score)||0);
+        lives=clamp(Number(saved.lives)||MAX_LIVES,1,MAX_LIVES);
+        hits=clamp(Number(saved.hits)||0,0,MAX_HITS-1);
+        bossKills=Math.max(0,Number(saved.bossKills)||0);
+        killsThisLevel=clamp(Number(saved.killsThisLevel)||0,0,Math.max(0,levelProgressGoal(targetLevel)-1));
+        missileAmmo=clamp(Number(saved.missileAmmo)||0,0,missileAmmoCapacity());
+        for(const mode of Object.keys(weaponLevels)) weaponLevels[mode]=clamp(Number(saved.weaponLevels?.[mode])||0,0,2);
+        weaponMode=Object.hasOwn(WEAPONS,saved.weaponMode)?saved.weaponMode:'single';
+        if(weaponMode!=='single' && weaponLevels[weaponMode]<=0) autoEquipBestCollectedWeapon();
+      }
+      scoreEl.textContent=score.toLocaleString();
+      livesEl.textContent=lives;
+      bossKillsEl.textContent=bossKills;
+      toNextEl.textContent=killsThisLevel;
+      updateHitUI();
+      updateMissileUI();
+      updateWeaponStatusOverlay();
+      campaignSessionStarted=true;
+      saveCampaignProgress();
+    }
+
+    function showLaunchChoice(){
+      const saved=readCampaignProgress();
+      running=false;
+      launchChoiceEl.hidden=false;
+      continueGameMetaEl.textContent=saved
+        ? `Resume Level ${Math.max(1,saved.level|0)} • ${storeCredits.toLocaleString()} points • ${Math.max(0,ownedStoreItems.size-3)} unlocks`
+        : 'Begin at Level 1 with current saved collections';
+      requestAnimationFrame(()=>continueGameBtn.focus());
+    }
+
+    function startFreshCampaignAfterReset(){
+      launchChoiceEl.hidden=true;
+      campaignSessionStarted=true;
+      resetRun(false);
+      beginLevel(1);
+      saveCampaignProgress();
+    }
+
+    continueGameBtn.addEventListener('click',()=>{
+      launchChoiceEl.hidden=true;
+      restoreCampaignProgress(readCampaignProgress());
+    });
+    newGameBtn.addEventListener('click',()=>{
+      for(const key of Object.keys(localStorage)) if(key.startsWith('asteroid')) localStorage.removeItem(key);
+      sessionStorage.setItem(NEW_GAME_PENDING_KEY,'1');
+      location.reload();
+    });
+
+    function handleGameUnlocked(){
+      if(sessionStorage.getItem(NEW_GAME_PENDING_KEY)==='1'){
+        sessionStorage.removeItem(NEW_GAME_PENDING_KEY);
+        startFreshCampaignAfterReset();
+      }else showLaunchChoice();
+    }
+    document.addEventListener('asteroid-gate-unlocked',handleGameUnlocked,{once:true});
 
     function softRestart(){
       resetRun(true);
@@ -4670,9 +4750,16 @@ function updateBosses(dt){
     function audioSettingsRects(){
       const x=width<600?35:width*.18,w=width<600?width-70:width*.64;
       const top=width<600?82:100,gap=width<600?10:14;
-      const available=height-top-34-gap*4;
-      const h=Math.min(width<600?72:82,Math.max(42,available/5));
-      return [0,1,2,3,4].map(i=>({x,y:top+i*(h+gap),w,h}));
+      const available=height-top-34-gap*3;
+      const h=Math.min(width<600?76:86,Math.max(44,available/4));
+      const splitGap=width<600?8:12,splitW=(w-splitGap)/2;
+      return [
+        {x,y:top,w,h},
+        {x,y:top+h+gap,w,h},
+        {x,y:top+2*(h+gap),w:splitW,h},
+        {x:x+splitW+splitGap,y:top+2*(h+gap),w:splitW,h},
+        {x,y:top+3*(h+gap),w,h}
+      ];
     }
 
     function inventoryRects(){
@@ -5342,6 +5429,7 @@ mobilePauseBtn?.addEventListener('click', (e) => {
       });
       missileAmmo--;
       updateMissileUI();
+      saveCampaignProgress();
       playMissileWhistle();
       addShake(1.5, 110);
     }
@@ -5546,6 +5634,7 @@ mobilePauseBtn?.addEventListener('click', (e) => {
       } else {
         ship.invuln = 900;
       }
+      saveCampaignProgress();
     }
 
     // =========================
@@ -5977,6 +6066,7 @@ mobilePauseBtn?.addEventListener('click', (e) => {
           }else if(p.mode){
             collectWeaponPickup(p.mode);
           }
+          saveCampaignProgress();
         }
       }
 
@@ -7763,6 +7853,7 @@ if (flashTimer > 0) {
 
     resetRun(true);
     beginLevel(1);
+    if(!document.getElementById('previewGate')) setTimeout(handleGameUnlocked,0);
     requestAnimationFrame(loop);
   </script>
 
