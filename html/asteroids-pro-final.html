@@ -3178,6 +3178,7 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
 
     let levelUpTimer = 0;
     let bossIncomingTimer = 0;
+    const BOSS_INCOMING_MS = 1800;
 
     let lastTime = 0;
     let shootCooldown = 0;
@@ -3188,10 +3189,19 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
       "boss-01.png","boss-02.png","boss-03.png","boss-04.png","boss-05.png",
       "boss-06.png","boss-07.png","boss-08.png","boss-09.png","boss-10.png"
     ];
-    const BOSS_PATTERN_NAMES = [
-      'Drift Hunter','Crimson Strafe','Lance Charger','Orbit Reaper','Figure-Eight Phantom',
-      'Surge Warden','Spiral Nova','Zigzag Marauder','Predictive Interceptor','Corkscrew Berserker'
+    const BOSS_PROFILES = [
+      {name:'The Grim',movement:'Crescent Sweep',special:'Grave Scythes',specialEvery:3},
+      {name:'Scarlet Wraith',movement:'Jagged Lanes',special:'Meteor Curtain',specialEvery:4},
+      {name:'Iron Lance',movement:'Triangle Circuit',special:'Rail Lance',specialEvery:3},
+      {name:'Orbital Widow',movement:'Player Orbit',special:'Web Ring',specialEvery:3},
+      {name:'Gemini Shade',movement:'Figure Eight',special:'Twin Wave',specialEvery:4},
+      {name:'Rift Warden',movement:'Box Patrol',special:'Hunter Mines',specialEvery:3},
+      {name:'Spiral Tyrant',movement:'Breathing Spiral',special:'Nova Spiral',specialEvery:3},
+      {name:'Jagged Maw',movement:'Sawtooth Rush',special:'Crossfire Stair',specialEvery:4},
+      {name:'The Seer',movement:'Predictive Cutoff',special:'Fate Seekers',specialEvery:3},
+      {name:'Nova Butcher',movement:'Dive Corkscrew',special:'Nova Massacre',specialEvery:3}
     ];
+    const BOSS_PATTERN_NAMES = BOSS_PROFILES.map(profile => profile.name);
     const bossImgs = bossFiles.map(fn => {
       const img = new Image();
       img.decoding = "async";
@@ -3428,6 +3438,7 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
       hpMax: baseHp,
       img,
       type,
+      profile:BOSS_PROFILES[type],
       t: 0,
       shootTimer: openingFireInterval * rand(.90,1.08),
       rhythm,
@@ -3459,69 +3470,81 @@ function updateBosses(dt){
   for (const b of bosses){
     b.turn += dts * (1.25 + b.type * 0.11);
 
-    const dx = ship.x - b.x;
-    const dy = ship.y - b.y;
-    const dist = Math.hypot(dx, dy) || 1;
-    let tx = dx / dist;
-    let ty = dy / dist;
+    const phase = b.turn;
+    const triWave = value => (2 / Math.PI) * Math.asin(Math.sin(value));
+    let targetX = width * .5;
+    let targetY = height * .28;
 
-    // Every boss family owns a recognizable full-arena movement pattern.
+    // Each identity follows a deterministic arena path. These are target
+    // tracks, not variations of the same pursuit steering, so players can
+    // recognize and learn each boss on a rematch.
     switch(b.type){
-      case 0: // drifting hunter
-        tx = tx*.52 + Math.cos(b.turn)*.48;
-        ty = ty*.52 + Math.sin(b.turn)*.48;
+      case 0: // The Grim: broad crescent sweeps across the upper arena.
+        targetX = width*.5 + Math.sin(phase*.72)*width*.38;
+        targetY = height*.24 + Math.cos(phase*1.44)*height*.13;
         break;
-      case 1: // wide strafing sweeps
-        tx = Math.cos(b.turn*1.35);
-        ty = Math.sin(b.turn*.72)*.72 + ty*.28;
+      case 1: // Scarlet Wraith: hard jagged lane changes.
+        targetX = width*.5 + triWave(phase*1.18)*width*.40;
+        targetY = height*(.20 + .13*(1+Math.sign(Math.sin(phase*.59))));
         break;
-      case 2: // direct charger with a sideways feint
-        tx = tx*.82 + (-dy/dist)*Math.sin(b.turn*2.1)*.38;
-        ty = ty*.82 + ( dx/dist)*Math.sin(b.turn*2.1)*.38;
+      case 2: { // Iron Lance: repeats a three-corner triangle circuit.
+        const points=[[width*.5,70],[width-72,height*.58],[72,height*.78]];
+        const progress=((phase*.28)%3+3)%3;
+        const index=Math.floor(progress),mix=progress-index;
+        const a=points[index],c=points[(index+1)%3];
+        targetX=a[0]+(c[0]-a[0])*mix;
+        targetY=a[1]+(c[1]-a[1])*mix;
         break;
-      case 3: // orbit the player
-        tx = tx*.28 + (-dy/dist)*.92;
-        ty = ty*.28 + ( dx/dist)*.92;
+      }
+      case 3: { // Orbital Widow: circles the player's current position.
+        const radius=Math.min(width,height)*.27;
+        targetX=clamp(ship.x+Math.cos(phase*.82)*radius,64,width-64);
+        targetY=clamp(ship.y+Math.sin(phase*.82)*radius,64,height-64);
         break;
-      case 4: // arena-wide figure eight
-        tx = ((width*.5 + Math.sin(b.turn)*width*.36) - b.x) / width;
-        ty = ((height*.5 + Math.sin(b.turn*2)*height*.34) - b.y) / height;
+      }
+      case 4: // Gemini Shade: unmistakable arena-wide figure eight.
+        targetX=width*.5+Math.sin(phase*.74)*width*.37;
+        targetY=height*.48+Math.sin(phase*1.48)*height*.29;
         break;
-      case 5: // alternating pursuit and retreat
-        const surge = Math.sin(b.turn*1.7) > -.15 ? 1 : -0.72;
-        tx = tx*surge + Math.cos(b.turn*.8)*.35;
-        ty = ty*surge + Math.sin(b.turn*.8)*.35;
+      case 5: { // Rift Warden: patrols a rectangular perimeter.
+        const p=((phase*.24)%4+4)%4;
+        if(p<1){targetX=70+(width-140)*p;targetY=78;}
+        else if(p<2){targetX=width-70;targetY=78+(height-156)*(p-1);}
+        else if(p<3){targetX=width-70-(width-140)*(p-2);targetY=height-78;}
+        else{targetX=70;targetY=height-78-(height-156)*(p-3);}
         break;
-      case 6: // tightening spiral around arena center
-        tx = ((width*.5 + Math.cos(b.turn)*width*.31) - b.x) / width;
-        ty = ((height*.5 + Math.sin(b.turn)*height*.39) - b.y) / height;
+      }
+      case 6: { // Spiral Tyrant: a breathing spiral around center.
+        const radius=Math.min(width,height)*(.15+.17*(.5+.5*Math.sin(phase*.19)));
+        targetX=width*.5+Math.cos(phase*.88)*radius;
+        targetY=height*.46+Math.sin(phase*.88)*radius*1.18;
         break;
-      case 7: // erratic zig-zag hunter
-        tx = tx*.62 + Math.sign(Math.sin(b.turn*3.2))*.56;
-        ty = ty*.62 + Math.sign(Math.cos(b.turn*2.4))*.46;
+      }
+      case 7: // Jagged Maw: sharp sawtooth rushes top-to-bottom.
+        targetX=width*.5+triWave(phase*1.55)*width*.41;
+        targetY=height*.48+triWave(phase*.53+1.7)*height*.34;
         break;
-      case 8: // predictive interceptor, aiming ahead of the ship
-        const leadX = clamp(ship.x + ship.vx*42, 0, width);
-        const leadY = clamp(ship.y + ship.vy*42, 0, height);
-        const leadDist = Math.hypot(leadX-b.x, leadY-b.y) || 1;
-        tx = (leadX-b.x)/leadDist;
-        ty = (leadY-b.y)/leadDist;
+      case 8: // The Seer: calmly cuts off the ship's predicted route.
+        targetX=clamp(ship.x+ship.vx*76+Math.cos(phase*.43)*90,64,width-64);
+        targetY=clamp(ship.y+ship.vy*76+Math.sin(phase*.43)*90,64,height-64);
         break;
-      default: // berserker: aggressive pursuit with a violent corkscrew
-        tx = tx*.88 + Math.cos(b.turn*4.1)*.38;
-        ty = ty*.88 + Math.sin(b.turn*4.1)*.38;
+      default: { // Nova Butcher: repeated dive-and-corkscrew attack runs.
+        const cycle=((phase*.34)%(Math.PI*2)+Math.PI*2)%(Math.PI*2);
+        const diving=Math.sin(cycle)>-.15;
+        targetX=diving?clamp(ship.x+Math.cos(phase*3.4)*120,64,width-64):width*.5;
+        targetY=diving?clamp(ship.y-80+Math.sin(phase*3.4)*90,64,height-64):82;
+      }
     }
 
-    const accel = Math.min(128, (50 + b.type*6 + level*.22) * bossAggro);
-    b.vx += tx * accel * dts;
-    b.vy += ty * accel * dts;
-
-    const maxSpd = Math.min(218, (104 + b.type*10 + level*.42) * (0.82 + bossAggro*.18));
-    const sp = Math.hypot(b.vx, b.vy) || 1;
-    if (sp > maxSpd){
-      b.vx = (b.vx / sp) * maxSpd;
-      b.vy = (b.vy / sp) * maxSpd;
-    }
+    const maxSpd=Math.min(238,(112+b.type*9+level*.42)*(0.84+bossAggro*.16));
+    const response=1.45+b.type*.045;
+    let desiredVx=(targetX-b.x)*response;
+    let desiredVy=(targetY-b.y)*response;
+    const desiredSpeed=Math.hypot(desiredVx,desiredVy)||1;
+    if(desiredSpeed>maxSpd){desiredVx=desiredVx/desiredSpeed*maxSpd;desiredVy=desiredVy/desiredSpeed*maxSpd;}
+    const steering=clamp(dts*(2.4+b.type*.08),0,1);
+    b.vx+=(desiredVx-b.vx)*steering;
+    b.vy+=(desiredVy-b.vy)*steering;
 
     b.x += b.vx * dts;
     b.y += b.vy * dts;
@@ -3548,75 +3571,95 @@ function updateBosses(dt){
         nextEnemyTauntAt = tauntNow + rand(5400, 7200);
       }
 
-      const aimed = (sx,sy,tx,ty,spd) => {
+      const bossBullet = (sx,sy,vx,vy,options={}) => {
+        enemyBullets.push({x:sx,y:sy,vx,vy,life:options.life||4200,r:options.r||4,kind:'boss',age:0,...options});
+      };
+      const aimed = (sx,sy,tx,ty,spd,options={}) => {
         const dx = tx-sx, dy = ty-sy;
         const dist = Math.hypot(dx,dy) || 1;
-        enemyBullets.push({ x:sx,y:sy, vx:(dx/dist)*spd, vy:(dy/dist)*spd, life:3800, r:4.2, kind:"boss" });
+        bossBullet(sx,sy,(dx/dist)*spd,(dy/dist)*spd,{r:4.2,...options});
       };
 
       const t = b.type;
       const extraShots = d.extraBossShots;
       b.attackStep = (b.attackStep || 0) + 1;
-      if(t === 0){
-        const baseAng = Math.atan2(ship.y-b.y, ship.x-b.x);
-        const wing = 2 + extraShots;
+      const baseAng=Math.atan2(ship.y-b.y,ship.x-b.x);
+      const normalSpread=(offset,mult=1)=>bossBullet(b.x,b.y+b.r*.18,Math.cos(baseAng+offset)*speed*mult,Math.sin(baseAng+offset)*speed*mult,{life:3800,r:3.7});
+
+      // Every cycle includes a readable standard volley.
+      if(t===0){normalSpread(-.09);normalSpread(.09);}
+      else if(t===1){normalSpread((b.attackStep%2?-.18:.18));normalSpread(0,.92);}
+      else if(t===2) aimed(b.x,b.y,ship.x+ship.vx*38,ship.y+ship.vy*38,speed*1.12);
+      else if(t===3){normalSpread(-.14);normalSpread(.14);}
+      else if(t===4){normalSpread(-.22);normalSpread(.22);}
+      else if(t===5){normalSpread(-.12);normalSpread(0);normalSpread(.12);}
+      else if(t===6) aimed(b.x,b.y,ship.x,ship.y,speed*.96);
+      else if(t===7){normalSpread(-.28);normalSpread(0,1.05);normalSpread(.28);}
+      else if(t===8) aimed(b.x,b.y,ship.x+ship.vx*62,ship.y+ship.vy*62,speed*1.15);
+      else aimed(b.x,b.y,ship.x,ship.y,speed*1.26,{r:4.8});
+
+      const specialEvery=b.profile?.specialEvery||3;
+      if(b.attackStep%specialEvery!==0) return;
+
+      // Specials intentionally use different geometry and projectile behavior.
+      if(t===0){ // Grave Scythes: mirrored curving blades.
+        const wing=3+extraShots;
         for(let k=-wing;k<=wing;k++){
-          const ang = baseAng + k*(.14 - extraShots*.012);
-          enemyBullets.push({x:b.x,y:b.y+b.r*.25,vx:Math.cos(ang)*speed,vy:Math.sin(ang)*speed,life:3800,r:3.8,kind:'boss'});
+          const ang=baseAng+k*.15;
+          bossBullet(b.x,b.y,Math.cos(ang)*speed*.94,Math.sin(ang)*speed*.94,{behavior:'curve',curve:(k<0?-1:1)*(.62+Math.abs(k)*.05),r:4.4});
         }
-        if(b.attackStep % 2 === 0){
-          aimed(b.x, b.y, ship.x+ship.vx*32, ship.y+ship.vy*32, speed*1.14);
+      }else if(t===1){ // Meteor Curtain: vertical wall with a learnable gap.
+        const lanes=8+extraShots,gapLane=clamp(Math.floor(ship.x/(width/lanes)),0,lanes-1);
+        for(let lane=0;lane<lanes;lane++){
+          if(lane===gapLane) continue;
+          const x=(lane+.5)*width/lanes;
+          bossBullet(x,18,Math.sin(lane)*.18,speed*.72,{life:5200,r:4.6});
         }
-      } else if(t === 1){
-        const baseAng = Math.atan2(ship.y - b.y, ship.x - b.x);
-        const spread = 0.22;
-        for(let k=-(2+extraShots);k<=2+extraShots;k++){
-          const ang = baseAng + k*spread;
-          enemyBullets.push({ x:b.x,y:b.y+b.r*0.2, vx:Math.cos(ang)*speed, vy:Math.sin(ang)*speed, life:3600, r:3.8, kind:"boss" });
-        }
-      } else if(t === 2){
-        const leadX = ship.x + ship.vx*34;
-        const leadY = ship.y + ship.vy*34;
-        aimed(b.x, b.y, leadX, leadY, speed*1.12);
-        aimed(b.x-18, b.y, ship.x, ship.y, speed*.94);
-        aimed(b.x+18, b.y, ship.x, ship.y, speed*.94);
-      } else if(t === 3 || t === 6){
-        const count = t === 3 ? 8 : 12;
-        const spin = b.turn * (t === 3 ? .45 : .85);
+      }else if(t===2){ // Rail Lance: three speeds on one predictive line.
+        const tx=ship.x+ship.vx*74,ty=ship.y+ship.vy*74;
+        aimed(b.x,b.y,tx,ty,speed*1.55,{r:5.2,life:3000});
+        aimed(b.x,b.y,tx,ty,speed*1.15,{r:4.4});
+        aimed(b.x,b.y,tx,ty,speed*.82,{r:3.8,life:4800});
+      }else if(t===3){ // Web Ring: rotating ring bends around the player.
+        const count=10+extraShots*2;
         for(let k=0;k<count;k++){
-          const ang = spin + k*(Math.PI*2/count);
-          enemyBullets.push({x:b.x,y:b.y,vx:Math.cos(ang)*speed*.82,vy:Math.sin(ang)*speed*.82,life:4200,r:3.7,kind:'boss'});
+          const ang=b.turn*.4+k*Math.PI*2/count;
+          bossBullet(b.x,b.y,Math.cos(ang)*speed*.78,Math.sin(ang)*speed*.78,{behavior:'curve',curve:(k%2?-.34:.34),r:3.8,life:5000});
         }
-      } else if(t === 4){
-        const baseAng = Math.atan2(ship.y-b.y, ship.x-b.x);
-        for(let k=-3;k<=3;k+=2){
-          const ang = baseAng + k*.17;
-          enemyBullets.push({x:b.x,y:b.y,vx:Math.cos(ang)*speed,vy:Math.sin(ang)*speed,life:3800,r:4,kind:'boss'});
+      }else if(t===4){ // Twin Wave: two sinusoidal crossing streams.
+        for(const side of [-1,1]) for(let k=0;k<3+extraShots;k++){
+          const ang=baseAng+side*(.16+k*.12);
+          bossBullet(b.x,b.y,Math.cos(ang)*speed,Math.sin(ang)*speed,{behavior:'wave',wavePhase:side*k,curve:side*.8,r:3.9});
         }
-      } else if(t === 5){
-        const baseAng = Math.atan2(ship.y-b.y, ship.x-b.x);
-        for(let k=-3;k<=3;k++){
-          const ang = baseAng + k*.12;
-          enemyBullets.push({x:b.x,y:b.y,vx:Math.cos(ang)*speed*(1-Math.abs(k)*.035),vy:Math.sin(ang)*speed*(1-Math.abs(k)*.035),life:3500,r:3.6,kind:'boss'});
+      }else if(t===5){ // Hunter Mines: pause, then lock onto the player.
+        for(let k=0;k<4+extraShots;k++){
+          const ang=k*Math.PI*2/(4+extraShots);
+          bossBullet(b.x,b.y,Math.cos(ang)*speed*.22,Math.sin(ang)*speed*.22,{behavior:'mine',trigger:780,homeSpeed:speed*.92,r:5.4,life:5600});
         }
-      } else if(t === 7){
-        const baseAng = Math.atan2(ship.y-b.y, ship.x-b.x);
-        for(let k=-2;k<=2;k++){
-          const ang = baseAng + k*.34 + Math.sin(b.turn)*.18;
-          enemyBullets.push({x:b.x,y:b.y,vx:Math.cos(ang)*speed*1.06,vy:Math.sin(ang)*speed*1.06,life:3600,r:3.5,kind:'boss'});
+      }else if(t===6){ // Nova Spiral: every projectile curls the same direction.
+        const count=12+extraShots*2;
+        for(let k=0;k<count;k++){
+          const ang=b.turn+k*Math.PI*2/count;
+          bossBullet(b.x,b.y,Math.cos(ang)*speed*.70,Math.sin(ang)*speed*.70,{behavior:'curve',curve:.72,r:3.7,life:5400});
         }
-      } else if(t === 8){
-        aimed(b.x, b.y, ship.x+ship.vx*55, ship.y+ship.vy*55, speed*1.22);
-        aimed(b.x, b.y, ship.x-ship.vx*18, ship.y-ship.vy*18, speed*.92);
-      } else if(t === 9){
-        const baseAng = Math.atan2(ship.y-b.y, ship.x-b.x);
-        for(let k=0;k<10;k++){
-          const ang = b.turn*.7 + k*Math.PI/5;
-          enemyBullets.push({x:b.x,y:b.y,vx:Math.cos(ang)*speed*.9,vy:Math.sin(ang)*speed*.9,life:4200,r:3.8,kind:'boss'});
+      }else if(t===7){ // Crossfire Stair: alternating side-entry staircase.
+        const fromLeft=b.attackStep%2===0;
+        for(let k=0;k<6+extraShots;k++){
+          const y=70+k*(height-140)/(5+extraShots);
+          bossBullet(fromLeft?18:width-18,y,(fromLeft?1:-1)*speed*.86,(k%2?1:-1)*.32,{life:5200,r:4.1});
         }
-        aimed(b.x, b.y, ship.x, ship.y, speed*1.3);
-      } else {
-        aimed(b.x, b.y+b.r*0.25, ship.x, ship.y, speed);
+      }else if(t===8){ // Fate Seekers: drift first, then redirect once.
+        for(let k=-2-extraShots;k<=2+extraShots;k++){
+          const ang=baseAng+k*.24;
+          bossBullet(b.x,b.y,Math.cos(ang)*speed*.48,Math.sin(ang)*speed*.48,{behavior:'seeker',trigger:680,homeSpeed:speed*1.02,r:4.5,life:5200});
+        }
+      }else{ // Nova Massacre: dense radial nova plus one heavy aimed core.
+        const count=16+extraShots*2;
+        for(let k=0;k<count;k++){
+          const ang=b.turn*.7+k*Math.PI*2/count;
+          bossBullet(b.x,b.y,Math.cos(ang)*speed*.86,Math.sin(ang)*speed*.86,{r:4,life:4800});
+        }
+        aimed(b.x,b.y,ship.x+ship.vx*45,ship.y+ship.vy*45,speed*1.42,{r:5.5,life:3200});
       }
     }
 
@@ -3767,7 +3810,7 @@ function updateBosses(dt){
         toNextEl.textContent = '—';
         toNextMaxEl.textContent = 'BOSS';
         spawnBossPackForLevel(level);
-        bossIncomingTimer = 1100;
+        bossIncomingTimer = BOSS_INCOMING_MS;
         bossIncomingDidSting = false;
       } else {
         bosses = [];
@@ -5209,7 +5252,7 @@ mobilePauseBtn?.addEventListener('click', (e) => {
       for(const b of bosses){
         b.t += dt;
 
-        b.shootTimer -= dt;
+        if(bossIncomingTimer <= 0) b.shootTimer -= dt;
         // Boss one gets a readable opening cadence. Later bosses accelerate on
         // a shallow curve rather than jumping immediately into rapid fire.
         const shootBase = clamp(
@@ -5217,7 +5260,7 @@ mobilePauseBtn?.addEventListener('click', (e) => {
           650,
           2400
         );
-        if(b.shootTimer <= 0 && ship.exploding === 0){
+        if(bossIncomingTimer <= 0 && b.shootTimer <= 0 && ship.exploding === 0){
           fireBossShot(b);
           const hpRatio = b.hp / b.hpMax;
           b.shootTimer = shootBase * (0.72 + hpRatio*0.38);
@@ -5228,6 +5271,25 @@ mobilePauseBtn?.addEventListener('click', (e) => {
 
       for(let i=enemyBullets.length-1;i>=0;i--){
         const eb = enemyBullets[i];
+        eb.age = (eb.age || 0) + dt;
+        if(eb.behavior === 'curve'){
+          const turn=(eb.curve||0)*dt/1000;
+          const cos=Math.cos(turn),sin=Math.sin(turn),vx=eb.vx,vy=eb.vy;
+          eb.vx=vx*cos-vy*sin;eb.vy=vx*sin+vy*cos;
+        }else if(eb.behavior === 'wave'){
+          const turn=Math.sin(eb.age*.012+(eb.wavePhase||0))*(eb.curve||0)*dt/1000;
+          const cos=Math.cos(turn),sin=Math.sin(turn),vx=eb.vx,vy=eb.vy;
+          eb.vx=vx*cos-vy*sin;eb.vy=vx*sin+vy*cos;
+        }else if(eb.behavior === 'mine' && !eb.retargeted){
+          eb.vx*=.985;eb.vy*=.985;
+          if(eb.age >= (eb.trigger||780)){
+            const dx=ship.x-eb.x,dy=ship.y-eb.y,dist=Math.hypot(dx,dy)||1,spd=eb.homeSpeed||3;
+            eb.vx=dx/dist*spd;eb.vy=dy/dist*spd;eb.retargeted=true;
+          }
+        }else if(eb.behavior === 'seeker' && !eb.retargeted && eb.age >= (eb.trigger||680)){
+          const dx=ship.x+ship.vx*26-eb.x,dy=ship.y+ship.vy*26-eb.y,dist=Math.hypot(dx,dy)||1,spd=eb.homeSpeed||3;
+          eb.vx=dx/dist*spd;eb.vy=dy/dist*spd;eb.retargeted=true;
+        }
         eb.x += eb.vx;
         eb.y += eb.vy;
         eb.life -= dt;
@@ -6247,7 +6309,7 @@ if (flashTimer > 0) {
           ctx.fill();
         }
 
-        if(b.tauntLife && b.tauntLife > 0){
+        if(b.tauntLife && b.tauntLife > 0 && bossIncomingTimer <= 0){
           const msg = b.taunt;
           ctx.font = '13px system-ui';
           const pad = 9;
@@ -6428,7 +6490,7 @@ if (flashTimer > 0) {
     }
 
     function drawLevelUp(){
-      if(levelUpTimer <= 0 || gameOver) return;
+      if(levelUpTimer <= 0 || gameOver || bossIncomingTimer > 0) return;
 
       ctx.save();
       const t = clamp(levelUpTimer / 900, 0, 1);
@@ -6472,7 +6534,7 @@ if (flashTimer > 0) {
       }
 
       ctx.save();
-      const t = clamp(bossIncomingTimer / 1100, 0, 1);
+      const t = clamp(bossIncomingTimer / BOSS_INCOMING_MS, 0, 1);
       const a = clamp(0.25 + (1-t)*0.25, 0.18, 0.60);
 
       const g = ctx.createRadialGradient(width/2, height/2, 10, width/2, height/2, 280);
@@ -6484,18 +6546,41 @@ if (flashTimer > 0) {
       ctx.textAlign='center';
       ctx.textBaseline='middle';
 
+      const cardW=Math.min(width-34,560),cardH=118,cardX=(width-cardW)/2,cardY=height/2-cardH/2;
+      ctx.fillStyle='rgba(5,2,12,.78)';
+      ctx.strokeStyle='rgba(255,59,130,.72)';
+      ctx.lineWidth=2;
+      roundRect(ctx,cardX,cardY,cardW,cardH,18,true,true);
+
       ctx.fillStyle = `rgba(255,231,255,0.96)`;
-      ctx.font='900 42px Orbitron, system-ui';
+      ctx.font=`900 ${width<600?28:38}px Orbitron, system-ui`;
       ctx.shadowColor = 'rgba(255,42,42,0.55)';
       ctx.shadowBlur = 18;
-      ctx.fillText('INCOMING BOSS', width/2, height/2 - 8);
+      ctx.fillText('INCOMING BOSS', width/2, height/2 - 24);
 
       ctx.shadowBlur = 0;
-      ctx.fillStyle = 'rgba(228,228,255,0.84)';
-      ctx.font='12px system-ui';
-      const bossNumber = ((Math.floor(level/5)-1) % bossImgs.length) + 1;
-      ctx.fillText(`Boss ${bossNumber} of ${bossImgs.length}: ${BOSS_PATTERN_NAMES[bossNumber-1]}`, width/2, height/2 + 30);
+      ctx.fillStyle = '#ff8ac0';
+      ctx.font=`900 ${width<600?21:27}px Orbitron, system-ui`;
+      const bossType=bosses[0]?.type??((Math.floor(level/5)-1)%bossImgs.length);
+      const bossName=BOSS_PROFILES[bossType]?.name||'Unknown Terror';
+      ctx.fillText(`“${bossName}”`, width/2, height/2 + 27);
 
+      ctx.restore();
+    }
+
+    function drawLevelBadge(){
+      if(paused || gameOver) return;
+      ctx.save();
+      const label=`LVL-${level}`;
+      ctx.font='900 12px Share Tech Mono, monospace';
+      const badgeW=Math.max(54,ctx.measureText(label).width+18);
+      ctx.fillStyle='rgba(5,2,12,.68)';
+      ctx.strokeStyle='rgba(255,138,192,.48)';
+      ctx.lineWidth=1.2;
+      roundRect(ctx,10,10,badgeW,25,12,true,true);
+      ctx.fillStyle='rgba(255,231,255,.94)';
+      ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.fillText(label,10+badgeW/2,22.5);
       ctx.restore();
     }
 
@@ -6919,6 +7004,7 @@ if (flashTimer > 0) {
       if (shakeT > 0) ctx.restore();
 
       drawDamageFlash();
+      drawLevelBadge();
       drawLevelUp();
       drawBossIncoming();
 
