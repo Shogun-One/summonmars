@@ -1874,6 +1874,148 @@ body.game-paused .control-deck .touchpad-plate{
   body.game-paused .mobile-pause-stamp{ display:none !important; }
 }
 
+/* Compact landscape phones: preserve vertical room by moving the stamp deck
+   into safe left/right thumb rails. The arena occupies the protected center;
+   joystick and pause remain reachable along the lower edge. */
+@media (orientation:landscape) and (max-height:600px) and (max-width:1200px){
+  html,
+  body{
+    width:100%;
+    height:var(--visual-height,100dvh);
+    min-height:var(--visual-height,100dvh);
+    overflow:hidden;
+  }
+  body{
+    padding-top:max(env(safe-area-inset-top), 4px);
+    padding-right:env(safe-area-inset-right);
+    padding-bottom:env(safe-area-inset-bottom);
+    padding-left:env(safe-area-inset-left);
+  }
+  .wrapper{
+    --landscape-rail:clamp(92px,12vw,116px);
+    width:100%;
+    height:100%;
+    max-height:none;
+    padding:2px var(--landscape-rail) 0;
+    gap:3px;
+  }
+  h1{
+    max-width:100%;
+    font-size:clamp(1rem,3vw,1.35rem);
+    line-height:1.05;
+  }
+  .hud{
+    width:100%;
+    max-width:none;
+    gap:3px;
+    margin-top:0;
+    font-size:clamp(.7rem,1.55vw,.86rem);
+  }
+  .hud .pill{ padding:.2rem .42rem; }
+  .hud-pilot-portrait{
+    width:38px;
+    height:38px;
+    margin:-9px 5px -9px -4px;
+  }
+  .game-shell{
+    flex:1 1 auto;
+    min-height:0;
+    width:100%;
+    max-width:none;
+  }
+  canvas#game{
+    width:100%;
+    max-width:none;
+    height:100%;
+    min-height:0;
+    max-height:none;
+    aspect-ratio:auto;
+  }
+  .controller-config-btn{
+    top:calc(6px + env(safe-area-inset-top));
+    right:calc(8px + env(safe-area-inset-right));
+  }
+  .control-deck{
+    position:fixed;
+    inset:0;
+    width:100%;
+    max-width:none;
+    height:var(--visual-height,100dvh);
+    min-height:0;
+    margin:0;
+    display:block;
+    pointer-events:none;
+    z-index:22;
+  }
+  .control-deck .bubble-btn{
+    position:absolute !important;
+    width:clamp(58px,17vh,78px) !important;
+    height:clamp(58px,17vh,78px) !important;
+    margin:0 !important;
+    pointer-events:auto;
+    transform:none !important;
+  }
+  .control-deck #pauseBtn{
+    left:calc(env(safe-area-inset-left) + clamp(8px,2vw,18px)) !important;
+    top:28% !important;
+  }
+  .control-deck #reset-btn{
+    left:calc(env(safe-area-inset-left) + clamp(22px,3.4vw,38px)) !important;
+    top:auto !important;
+    bottom:12% !important;
+    width:clamp(46px,12vh,56px) !important;
+    height:clamp(46px,12vh,56px) !important;
+  }
+  .control-deck #heatBtn{
+    right:calc(env(safe-area-inset-right) + clamp(8px,2vw,18px)) !important;
+    left:auto !important;
+    top:28% !important;
+  }
+  .control-deck #musicBtn{
+    right:calc(env(safe-area-inset-right) + clamp(22px,3.4vw,38px)) !important;
+    left:auto !important;
+    top:auto !important;
+    bottom:12% !important;
+    width:clamp(46px,12vh,56px) !important;
+    height:clamp(46px,12vh,56px) !important;
+  }
+  .control-deck .mobile-touchpad{
+    position:absolute !important;
+    left:50% !important;
+    right:auto !important;
+    top:auto !important;
+    bottom:calc(env(safe-area-inset-bottom) + 4px) !important;
+    width:clamp(98px,28vh,122px) !important;
+    height:clamp(98px,28vh,122px) !important;
+    margin:0 !important;
+    display:flex;
+    pointer-events:auto;
+    transform:translateX(-50%) !important;
+  }
+  .control-deck .touchpad-plate{
+    width:100% !important;
+    height:100% !important;
+  }
+  .mobile-pause-stamp{
+    position:absolute;
+    left:calc(50% - clamp(49px,14vh,61px) - 50px) !important;
+    top:auto !important;
+    bottom:calc(env(safe-area-inset-bottom) + 16px) !important;
+    width:44px;
+    height:44px;
+    pointer-events:auto;
+  }
+  body.controller-connected .control-deck .mobile-touchpad,
+  body.controller-connected .mobile-pause-stamp{ display:none !important; }
+  body.game-paused .control-deck .bubble-btn,
+  body.game-paused .control-deck .missile-reserve{
+    opacity:0;
+    pointer-events:none;
+  }
+  body.game-paused .control-deck .mobile-touchpad,
+  body.game-paused .mobile-pause-stamp{ display:none !important; }
+}
+
 /* Instruction/legal text is part of the pause presentation only. */
 .controls,
 .security-banner,
