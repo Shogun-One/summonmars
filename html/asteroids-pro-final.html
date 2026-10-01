@@ -1744,10 +1744,28 @@ body.touchpad-off .control-deck .mobile-touchpad{ display:none !important; }
 @media (max-width:520px) and (pointer:coarse){
   body{ overflow:hidden; }
   .wrapper{
-    --mobile-console-width:min(480px, calc(100vw - 8px), calc((var(--visual-height, 100dvh) - 310px) * .75));
-    width:max(286px,var(--mobile-console-width));
+    --mobile-console-width:min(480px, calc(100vw - 8px - env(safe-area-inset-left) - env(safe-area-inset-right)));
+    width:var(--mobile-console-width);
   }
-  canvas#game{ width:100%; }
+  canvas#game{
+    width:100%;
+    height:var(--phone-arena-height, auto);
+    aspect-ratio:auto;
+  }
+}
+
+/* Keep phone headers below sensor housings. Real iPhones provide the safe-area
+   inset; device emulators often do not, so retain a modest fallback. */
+@media (max-width:520px){
+  body{
+    padding-top:max(env(safe-area-inset-top), 38px);
+    padding-right:env(safe-area-inset-right);
+    padding-bottom:env(safe-area-inset-bottom);
+    padding-left:env(safe-area-inset-left);
+  }
+  .controller-config-btn{
+    top:max(calc(10px + env(safe-area-inset-top)), 44px);
+  }
 }
 
 /* The reserve counter is a live gameplay control, but pause menus need the
@@ -3057,12 +3075,37 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
     let missileAmmo = 0;
     let lastMissileReserveAmmo = 0;
 
+    function fitPhoneArenaToViewport(){
+      if(!window.matchMedia('(max-width:520px)').matches){
+        canvas.style.removeProperty('--phone-arena-height');
+        return;
+      }
+
+      const viewportHeight = window.visualViewport?.height || window.innerHeight;
+      const shellTop = canvas.closest('.game-shell')?.getBoundingClientRect().top || 0;
+      const deck = document.querySelector('.control-deck');
+      const deckStyle = deck ? getComputedStyle(deck) : null;
+      const deckHeight = deck?.getBoundingClientRect().height || 0;
+      const deckMarginTop = Number.parseFloat(deckStyle?.marginTop || '0') || 0;
+      const bodyStyle = getComputedStyle(document.body);
+      const safeBottom = Number.parseFloat(bodyStyle.paddingBottom || '0') || 0;
+
+      // The deck overlaps the lower edge of the arena by its negative margin.
+      // Reserve only the part that actually follows the arena, then let the
+      // playfield consume every remaining safe pixel.
+      const deckFootprint = Math.max(0, deckHeight + deckMarginTop);
+      const availableHeight = Math.floor(viewportHeight - shellTop - deckFootprint - safeBottom - 4);
+      const arenaHeight = Math.max(260, Math.min(720, availableHeight));
+      canvas.style.setProperty('--phone-arena-height', `${arenaHeight}px`);
+    }
+
     function resizeGameArenaForViewport(){
+      fitPhoneArenaToViewport();
       const shouldBeWide = window.matchMedia('(min-width:600px)').matches;
       const displayRect = canvas.getBoundingClientRect();
-      const targetHeight = shouldBeWide ? 500 : 640;
       const displayRatio = displayRect.height > 0 ? displayRect.width / displayRect.height : 1.92;
-      const targetWidth = shouldBeWide ? Math.round(targetHeight * displayRatio) : 480;
+      const targetWidth = shouldBeWide ? Math.round(500 * displayRatio) : 480;
+      const targetHeight = shouldBeWide ? 500 : Math.round(targetWidth / Math.max(.45, displayRatio));
       if(canvas.width === targetWidth && canvas.height === targetHeight) return;
 
       const oldWidth = width;
