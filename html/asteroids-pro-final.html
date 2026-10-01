@@ -718,8 +718,8 @@ body.music-on canvas#game{
   box-shadow:
     inset 0 0 0 2px rgba(255,255,255,.06),
     inset 0 0 10px rgba(0,0,0,.55);
-  transform: scale(calc(1 + (var(--bassKick, 0) * 1.05)));
-  transition: transform 60ms linear;
+  transform: scale(calc(1 + (var(--bassKick, 0) * .10)));
+  transition: transform 55ms linear, filter 55ms linear;
 }
 
 .bubble-btn .ring.flip .face.woofer::after{
@@ -747,8 +747,10 @@ body.music-on canvas#game{
     inset 0 0 0 1px rgba(255,138,192,.10),
     inset 0 0 18px rgba(0,0,0,.65);
 
-  transform: scale(calc(1 + (var(--bassKick, 0) * 1.75)));
-  transition: transform 60ms linear;
+  transform: scale(calc(1 + (var(--bassKick, 0) * .30)));
+  filter:brightness(calc(1 + (var(--bassKick, 0) * .58)))
+         drop-shadow(0 0 calc(3px + (var(--bassKick, 0) * 9px)) rgba(255,88,175,.74));
+  transition: transform 55ms linear, filter 55ms linear;
 
 }
 
@@ -769,11 +771,11 @@ body.speaker-boom .bubble-btn .ring.flip .face.woofer{
 }
 body.music-on .bubble-btn .ring.flip,
 body.speaker-boom .bubble-btn .ring.flip{
-  transform:scale(calc(1 + (var(--bassKick, 0) * 0.42)));
+  transform:translateZ(0);
   filter:brightness(calc(1 + (var(--bassKick, 0) * .42)))
          drop-shadow(0 0 calc(8px + (var(--bassKick, 0) * 22px)) rgba(255,59,155,.72));
-  transition:transform 55ms linear;
-  will-change:transform;
+  transition:filter 55ms linear;
+  will-change:transform,filter;
 }
 
 body.music-on .bubble-btn .ring.flip .face.woofer,
@@ -2690,11 +2692,11 @@ function triggerSpeakerBoom(strength = 1, duration = 420){
     const twist = (index % 2 ? -1 : 1) * (1.2 + punch * 1.8);
     try{
       ring.animate([
-        { transform:'scale(1)', offset:0 },
-        { transform:`translate(${twist}px,${-punch*2.2}px) rotate(${twist}deg) scale(${1+punch*.28})`, offset:.18 },
-        { transform:`translate(${-twist*.65}px,${punch*1.4}px) rotate(${-twist*.65}deg) scale(${1+punch*.12})`, offset:.42 },
-        { transform:`translate(${twist*.28}px,0) rotate(${twist*.2}deg) scale(${1+punch*.05})`, offset:.68 },
-        { transform:'scale(1)', offset:1 }
+        { transform:'translate(0,0) rotate(0deg)', offset:0 },
+        { transform:`translate(${twist}px,${-punch*2.2}px) rotate(${twist}deg)`, offset:.18 },
+        { transform:`translate(${-twist*.65}px,${punch*1.4}px) rotate(${-twist*.65}deg)`, offset:.42 },
+        { transform:`translate(${twist*.28}px,0) rotate(${twist*.2}deg)`, offset:.68 },
+        { transform:'translate(0,0) rotate(0deg)', offset:1 }
       ], { duration, easing:'cubic-bezier(.2,.8,.25,1)' });
     }catch{}
   });
