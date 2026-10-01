@@ -2993,6 +2993,7 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
     let enemies = [];
     let enemyBullets = [];
     let bosses = [];
+    let friendlyCourier = null;
     let particles = [];
     let shockwaves = [];
     let pickups = [];
@@ -3040,6 +3041,12 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
         gameOverWreck.y *= scaleY;
         gameOverWreck.vx *= scaleX;
         gameOverWreck.vy *= scaleY;
+      }
+      if(friendlyCourier){
+        friendlyCourier.x *= scaleX;
+        friendlyCourier.y *= scaleY;
+        friendlyCourier.vx *= scaleX;
+        friendlyCourier.vy *= scaleY;
       }
     }
 
@@ -3122,8 +3129,8 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
         const stored = shouldAutoEquip ? '' : ' — STORED';
         showGameAlert(weaponDisplayName(mode) + status + stored, 'sound-on');
       }else{
-        awardScore(85); // 15 pickup points above + 85 = 100-point duplicate bonus
-        showGameAlert(weaponDisplayName(mode) + ' BONUS +100', 'sound-on');
+        awardScore(45); // 5 pickup points above + 45 = 50-point duplicate bonus
+        showGameAlert(weaponDisplayName(mode) + ' BONUS +50', 'sound-on');
       }
       updateWeaponStatusOverlay();
     }
@@ -3347,6 +3354,21 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
       };
     }
 
+    // Each defeated boss retires the previous enemy population and introduces
+    // a visually and behaviorally distinct generation for the next sector.
+    const ENEMY_GENERATIONS = [
+      [0,1,2,3,4], // opening red fighter wing
+      [5],         // segmented centipedes
+      [6],         // crystalline shard hunters
+      [7],         // orbital organisms
+      [8],         // three-member mite swarms
+      [9],         // hostile stranded suits
+      [10],        // void jellyfish
+      [11],        // rotating blade drones
+      [12],        // plasma wraiths
+      [13]         // armored scarab entities
+    ];
+
     function spawnEnemy(){
       const edge = Math.floor(Math.random()*4);
       const pad = 40;
@@ -3368,25 +3390,26 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
         18
       );
 
-      const availableVariants = [0,1,2,3,4];
-      if(level >= 3) availableVariants.push(6); // crystalline shard
-      if(level >= 4) availableVariants.push(7); // orbital organism
-      if(level >= 5) availableVariants.push(5); // segmented centipede
+      const generation = clamp(bossKills, 0, ENEMY_GENERATIONS.length - 1);
+      const availableVariants = ENEMY_GENERATIONS[generation];
       const variant = availableVariants[Math.floor(Math.random() * availableVariants.length)];
+      const generationRadius = [16,18,19,18,14,22,21,19,18,25][generation];
 
       enemies.push({
         x,y,
-        r: (shouter ? 18 : 16) * sizeScale,
+        r: (shouter ? generationRadius + 2 : generationRadius) * sizeScale,
         vx: rand(-1.1, 1.1) * d.enemyMoveScale,
         vy: rand(-0.9, 1.2) * d.enemyMoveScale,
         hp: enemyHp,
         hpMax: enemyHp,
         shouter,
         persistentHunter: Math.random() < 0.30,
+        generation,
         variant,
-        widthScale: variant === 5 ? rand(0.72, 0.88) : rand(0.86, 1.16),
-        lengthScale: variant === 5 ? rand(1.22, 1.48) : rand(0.90, 1.14),
+        widthScale: variant === 5 ? rand(0.72, 0.88) : variant === 9 ? rand(.58,.72) : rand(0.86, 1.16),
+        lengthScale: variant === 5 ? rand(1.22, 1.48) : variant === 9 ? rand(1.25,1.48) : rand(0.90, 1.14),
         heading: rand(0, Math.PI * 2),
+        motionPhase: rand(0, Math.PI * 2),
         enginePhase: rand(0, Math.PI * 2),
         taunt: TAUNTS[Math.floor(Math.random()*TAUNTS.length)],
         tauntLife: 0,
@@ -3691,7 +3714,7 @@ function updateBosses(dt){
     }
 
     function spawnPickup(kind, originX = null, originY = null){
-      const r = kind === "missile" ? 24 : kind === "life" ? 22 : 20;
+      const r = kind === "missile" ? 24 : (kind === "life" || kind === "healthPack") ? 22 : 20;
       const pad = r + 8;
       let x,y;
       const revealedFromAsteroid = Number.isFinite(originX) && Number.isFinite(originY);
@@ -3716,9 +3739,34 @@ function updateBosses(dt){
       if(kind === "dog"){ label = "Dog Mode"; mode = "dog"; }
       if(kind === "life"){ label = "1-UP"; icon = "life"; }
       if(kind === "missile"){ label = "MISSILE ×3"; icon = "missile"; }
+      if(kind === "healthPack"){ label = "FULL REPAIR"; icon = "health"; }
 
-      const revealLife = 3000;
+      const revealLife = kind === 'healthPack' ? 6500 : 3000;
       pickups.push({ kind, mode, label, icon, x,y, vx: Math.cos(ang)*spd, vy: Math.sin(ang)*spd, r, life: revealLife, maxLife: revealLife, bob: rand(0, Math.PI*2) });
+    }
+
+    function spawnFriendlyCourier(){
+      friendlyCourier = {
+        x: -70,
+        y: clamp(height * .30 + rand(-55,55), 75, height - 90),
+        vx: Math.max(2.2, width / 260),
+        vy: rand(-.08,.08),
+        phase: rand(0,Math.PI*2),
+        dropped: false
+      };
+      showGameAlert('FRIENDLY SUPPORT INBOUND', 'sound-on');
+    }
+
+    function updateFriendlyCourier(dt){
+      if(!friendlyCourier) return;
+      const c = friendlyCourier;
+      c.x += c.vx * dt / 16.67;
+      c.y += c.vy * dt / 16.67 + Math.sin(performance.now()/260 + c.phase) * .08;
+      if(!c.dropped && c.x >= width * .48){
+        c.dropped = true;
+        spawnPickup('healthPack', c.x, c.y + 22);
+      }
+      if(c.x > width + 90) friendlyCourier = null;
     }
 
     function maybeDropAsteroidReward(x,y){
@@ -3796,6 +3844,7 @@ function updateBosses(dt){
 
       const d = difficulty();
       if(opts && opts.levelUp){
+        awardScore(300);
         for(const a of asteroids){ a.vx *= movementRatio; a.vy *= movementRatio; }
         for(const en of enemies){ en.vx *= movementRatio; en.vy *= movementRatio; }
       }
@@ -3860,6 +3909,7 @@ function updateBosses(dt){
       asteroids = [];
       enemies = [];
       bosses = [];
+      friendlyCourier = null;
       particles = [];
       shockwaves = [];
       pickups = [];
@@ -4484,6 +4534,14 @@ function updateBosses(dt){
       const configuring = controllerDialog.open;
       gamepadState.fire = !configuring && gamepadConfig.fire.some((index) => currentButtons[index]);
       if(!configuring){
+        if(paused){
+          let navigated=false;
+          if(buttonEdge(14,currentButtons)){pauseMenuNavigate(-1,0);navigated=true;}
+          else if(buttonEdge(15,currentButtons)){pauseMenuNavigate(1,0);navigated=true;}
+          else if(buttonEdge(12,currentButtons)){pauseMenuNavigate(0,-1);navigated=true;}
+          else if(buttonEdge(13,currentButtons)){pauseMenuNavigate(0,1);navigated=true;}
+          if(navigated) pauseMenuNavLatch=true;
+        }
         if(paused && gamepadConfig.fire.some(index => buttonEdge(index,currentButtons))){
           pauseMenuSelect();
         }
@@ -5074,6 +5132,15 @@ mobilePauseBtn?.addEventListener('click', (e) => {
 
       pollGamepad();
 
+      // Pause menus must remain navigable even before the initial launch
+      // prompt has been dismissed (common in controller emulators/tests).
+      if(paused){
+        updatePauseMenuNavigation();
+        updateParticles(dt);
+        updatePickups(dt);
+        return;
+      }
+
       if(awaitingLaunchInput){
         beginLaunchFromInput();
         return;
@@ -5099,13 +5166,6 @@ mobilePauseBtn?.addEventListener('click', (e) => {
 
       if (flashTimer > 0) flashTimer -= dt;
       if (flashTimer < 0) flashTimer = 0;
-
-      if(paused){
-        updatePauseMenuNavigation();
-        updateParticles(dt);
-        updatePickups(dt);
-        return;
-      }
 
       if(preStartTimer > 0){
         preStartTimer -= dt;
@@ -5208,15 +5268,46 @@ mobilePauseBtn?.addEventListener('click', (e) => {
       for(const en of enemies){
         en.x += en.vx;
         en.y += en.vy;
+        en.motionPhase += dt * .001;
 
         const dx = ship.x - en.x;
         const dy = ship.y - en.y;
         const dist = Math.hypot(dx,dy) || 1;
         const pursuit = (en.persistentHunter ? 0.024 : 0.013) * d.enemyMoveScale;
-        en.vx += (dx/dist) * pursuit;
-        en.vy += (dy/dist) * pursuit;
+        let moveX = dx/dist;
+        let moveY = dy/dist;
+        let speedScale = 1;
+        const sideX = -moveY, sideY = moveX;
+        // Every post-boss generation has a learnable movement signature.
+        if(en.generation === 1){ // centipede: serpentine approach
+          const wave = Math.sin(en.motionPhase*4 + en.enginePhase)*.82;
+          moveX += sideX*wave; moveY += sideY*wave;
+        }else if(en.generation === 2){ // shards: fast direct lunges
+          speedScale=1.13;
+        }else if(en.generation === 3){ // orbitals: circle the player
+          moveX=moveX*.40+sideX*.95; moveY=moveY*.40+sideY*.95;
+        }else if(en.generation === 4){ // mites: twitching flock
+          const jitter=Math.sin(en.motionPhase*11+en.enginePhase)*1.05;
+          moveX+=sideX*jitter; moveY+=sideY*jitter; speedScale=1.08;
+        }else if(en.generation === 5){ // suits: measured side-strafing
+          const strafe=Math.sign(Math.sin(en.motionPhase*1.8+en.enginePhase))*.72;
+          moveX=moveX*.55+sideX*strafe; moveY=moveY*.55+sideY*strafe; speedScale=.82;
+        }else if(en.generation === 6){ // jellyfish: slow pulse-and-drift
+          const pulse=.35+Math.max(0,Math.sin(en.motionPhase*3.2));
+          moveX*=pulse; moveY*=pulse; speedScale=.80;
+        }else if(en.generation === 7){ // blades: sharp zig-zag
+          const zig=Math.sin(en.motionPhase*6)>0?1:-1;
+          moveX=moveX*.62+sideX*zig*.92; moveY=moveY*.62+sideY*zig*.92; speedScale=1.16;
+        }else if(en.generation === 8){ // wraiths: flowing spiral
+          const spiral=Math.sin(en.motionPhase*2.5+en.enginePhase);
+          moveX=moveX*.45+sideX*spiral; moveY=moveY*.45+sideY*spiral; speedScale=1.10;
+        }else if(en.generation >= 9){ // scarabs: slow armored pressure
+          speedScale=.72;
+        }
+        en.vx += moveX * pursuit;
+        en.vy += moveY * pursuit;
 
-        const enemyMaxSpeed = (en.persistentHunter ? 2.45 : 2.25) * d.enemyMoveScale;
+        const enemyMaxSpeed = (en.persistentHunter ? 2.45 : 2.25) * d.enemyMoveScale * speedScale;
         en.vx = clamp(en.vx, -enemyMaxSpeed, enemyMaxSpeed);
         en.vy = clamp(en.vy, -enemyMaxSpeed, enemyMaxSpeed);
 
@@ -5299,6 +5390,7 @@ mobilePauseBtn?.addEventListener('click', (e) => {
       }
 
       updatePickups(dt);
+      updateFriendlyCourier(dt);
       updateParticles(dt);
 
       // Pickups are collected by flying over them (ship collision)
@@ -5307,16 +5399,20 @@ mobilePauseBtn?.addEventListener('click', (e) => {
         if(ship.exploding === 0 && Math.hypot(ship.x - p.x, ship.y - p.y) < ship.radius + p.r){
           pickups.splice(i,1);
           spawnPickupBurst(p.x, p.y);
-          awardScore(15);
+          awardScore(5);
 
-          if(p.kind === "life"){
+          if(p.kind === "healthPack"){
+            hits = 0;
+            updateHitUI();
+            showGameAlert('FULL REPAIR — 10/10', 'sound-on');
+          }else if(p.kind === "life"){
             lives = clamp(lives + 1, 0, MAX_LIVES);
             livesEl.textContent = lives;
           }else if(p.kind === "missile"){
             const missileCapacity = missileAmmoCapacity();
             if(missileAmmo >= missileCapacity){
-              awardScore(85); // 15 pickup points above + 85 = 100-point full-ammo bonus
-              showGameAlert('MISSILE STOCK FULL — BONUS +100', 'sound-on');
+              awardScore(45); // 5 pickup points above + 45 = 50-point full-ammo bonus
+              showGameAlert('MISSILE STOCK FULL — BONUS +50', 'sound-on');
             }else{
               const missilesAdded = Math.min(3, missileCapacity - missileAmmo);
               missileAmmo += missilesAdded;
@@ -5342,7 +5438,7 @@ mobilePauseBtn?.addEventListener('click', (e) => {
             maybeDropAsteroidReward(a.x, a.y);
             asteroids.splice(i,1);
 
-            awardScore(10);
+            awardScore(2);
             spawnAsteroid(true);
             addLevelProgress(10);
             break outerA;
@@ -5360,9 +5456,9 @@ mobilePauseBtn?.addEventListener('click', (e) => {
 
             if(en.hp <= 0){
               enemies.splice(i,1);
-              const enemyValue = en.shouter ? 35 : 20;
-              awardScore(enemyValue);
-              addLevelProgress(enemyValue);
+              const enemyProgress = en.shouter ? 35 : 20;
+              awardScore(en.shouter ? 8 : 5);
+              addLevelProgress(enemyProgress);
               maybeDropEnemyMissileReward(en.x, en.y);
               spawnExplosion(en.x, en.y, en.shouter ? 1.65 : 1.25, 'enemy');
               playExplosionSound('enemy');
@@ -5399,11 +5495,14 @@ mobilePauseBtn?.addEventListener('click', (e) => {
               addShake(12, 850);
               triggerBoomFlash(420);
               bosses.splice(i,1);
-              awardScore(250 + Math.floor(level*8));
+              awardScore(700);
 
               if(bosses.length === 0){
                 bossKills++;
                 bossKillsEl.textContent = bossKills;
+                enemies = [];
+                enemyBullets = [];
+                spawnFriendlyCourier();
                 beginLevel(level + 1, { levelUp:true });
               }
             }
@@ -5913,6 +6012,15 @@ if (flashTimer > 0) {
             ctx.restore();
           }
           ctx.restore();
+        }else if(p.icon === "health"){
+          ctx.shadowColor = 'rgba(80,255,165,.95)';
+          ctx.shadowBlur = 12;
+          ctx.fillStyle = '#72ffb2';
+          ctx.strokeStyle = '#eafff3';
+          ctx.lineWidth = 1.5;
+          roundRect(ctx,-5,-14,10,28,3,true,true);
+          roundRect(ctx,-14,-5,28,10,3,true,true);
+          ctx.shadowBlur = 0;
         }else if(p.icon === "fire"){
           const ok = firepowerImg && firepowerImg.complete && firepowerImg.naturalWidth > 0;
           if(ok){
@@ -6187,7 +6295,7 @@ if (flashTimer > 0) {
           ctx.lineTo(-r*.36, r*.22);
           ctx.lineTo(-r*1.08, -r*.18);
           ctx.lineTo(-r*.30, -r*.48);
-        }else{
+        }else if(en.variant === 7){
           // Orbital organism: a rotating ring-beast rather than a conventional hull.
           for(let k=0;k<8;k++){
             const a = k*Math.PI/4;
@@ -6196,6 +6304,50 @@ if (flashTimer > 0) {
             ctx.lineTo(Math.sin(a)*outer, -Math.cos(a)*outer);
             ctx.lineTo(Math.sin(a+Math.PI/8)*inner, -Math.cos(a+Math.PI/8)*inner);
           }
+        }else if(en.variant === 8){
+          // Mite swarm: three tiny attackers fly and take damage as one unit.
+          for(const [mx,my,s] of [[0,-.64,.56],[-.62,.36,.48],[.62,.36,.48]]){
+            ctx.moveTo(mx*r, (my-.55*s)*r);
+            ctx.lineTo((mx+.52*s)*r,(my+.42*s)*r);
+            ctx.lineTo(mx*r,(my+.18*s)*r);
+            ctx.lineTo((mx-.52*s)*r,(my+.42*s)*r);
+            ctx.closePath();
+          }
+        }else if(en.variant === 9){
+          // Hostile space-suit drifter: helmet, torso, arms and boot jets.
+          ctx.moveTo(-r*.36,-r*.92); ctx.quadraticCurveTo(0,-r*1.25,r*.36,-r*.92);
+          ctx.lineTo(r*.42,-r*.48); ctx.lineTo(r*.92,-r*.18); ctx.lineTo(r*.72,r*.18);
+          ctx.lineTo(r*.42,0); ctx.lineTo(r*.34,r*.92); ctx.lineTo(0,r*.58);
+          ctx.lineTo(-r*.34,r*.92); ctx.lineTo(-r*.42,0); ctx.lineTo(-r*.72,r*.18);
+          ctx.lineTo(-r*.92,-r*.18); ctx.lineTo(-r*.42,-r*.48);
+        }else if(en.variant === 10){
+          // Void jellyfish: armored bell with multiple trailing tendrils.
+          ctx.moveTo(-r*.92,-r*.10); ctx.quadraticCurveTo(-r*.72,-r*1.12,0,-r*1.25);
+          ctx.quadraticCurveTo(r*.72,-r*1.12,r*.92,-r*.10);
+          ctx.lineTo(r*.55,r*.24); ctx.lineTo(r*.72,r*1.08); ctx.lineTo(r*.28,r*.46);
+          ctx.lineTo(0,r*1.18); ctx.lineTo(-r*.28,r*.46); ctx.lineTo(-r*.72,r*1.08); ctx.lineTo(-r*.55,r*.24);
+        }else if(en.variant === 11){
+          // Blade drone: rotating saw geometry with a small central core.
+          for(let k=0;k<12;k++){
+            const a=k*Math.PI/6, rr=k%2?r*.42:r*1.25;
+            ctx.lineTo(Math.sin(a)*rr,-Math.cos(a)*rr);
+          }
+        }else if(en.variant === 12){
+          // Plasma wraith: asymmetric spectral flame silhouette.
+          ctx.moveTo(0,-r*1.3); ctx.quadraticCurveTo(r*.38,-r*.72,r*.88,-r*.62);
+          ctx.quadraticCurveTo(r*.52,-r*.16,r*1.02,r*.20);
+          ctx.quadraticCurveTo(r*.46,r*.28,r*.56,r*1.14);
+          ctx.quadraticCurveTo(0,r*.66,-r*.40,r*1.08);
+          ctx.quadraticCurveTo(-r*.38,r*.34,-r*.94,r*.12);
+          ctx.quadraticCurveTo(-r*.54,-r*.30,-r*.78,-r*.80);
+          ctx.quadraticCurveTo(-r*.28,-r*.70,0,-r*1.3);
+        }else{
+          // Final scarab caste: broad plated shell and crushing mandibles.
+          ctx.moveTo(0,-r*1.18); ctx.lineTo(r*.52,-r*.78); ctx.lineTo(r*1.02,-r*.82);
+          ctx.lineTo(r*.74,-r*.24); ctx.lineTo(r*1.18,r*.34); ctx.lineTo(r*.60,r*.26);
+          ctx.lineTo(r*.78,r*.98); ctx.lineTo(r*.18,r*.62); ctx.lineTo(0,r*1.04);
+          ctx.lineTo(-r*.18,r*.62); ctx.lineTo(-r*.78,r*.98); ctx.lineTo(-r*.60,r*.26);
+          ctx.lineTo(-r*1.18,r*.34); ctx.lineTo(-r*.74,-r*.24); ctx.lineTo(-r*1.02,-r*.82); ctx.lineTo(-r*.52,-r*.78);
         }
         ctx.closePath();
         ctx.fill();
@@ -6203,6 +6355,7 @@ if (flashTimer > 0) {
         ctx.shadowBlur = 0;
 
         // Armored center spine and illuminated hostile cockpit.
+        if(en.variant !== 8){
         ctx.fillStyle = 'rgba(75,78,92,.72)';
         ctx.strokeStyle = 'rgba(255,80,80,.48)';
         ctx.lineWidth = 1;
@@ -6240,6 +6393,7 @@ if (flashTimer > 0) {
           ctx.arc(side*r*.58, r*.18, Math.max(1.3, r*.08), 0, Math.PI*2);
           ctx.fill();
         }
+        }
 
         ctx.restore();
 
@@ -6267,6 +6421,31 @@ if (flashTimer > 0) {
 
         ctx.restore();
       }
+    }
+
+    function drawFriendlyCourier(){
+      if(!friendlyCourier) return;
+      const c=friendlyCourier;
+      ctx.save();
+      ctx.translate(c.x,c.y);
+      ctx.shadowColor='rgba(80,255,180,.9)';
+      ctx.shadowBlur=14;
+      const hull=ctx.createLinearGradient(-34,-16,34,16);
+      hull.addColorStop(0,'#15475a'); hull.addColorStop(.5,'#dfffea'); hull.addColorStop(1,'#176b58');
+      ctx.fillStyle=hull; ctx.strokeStyle='#72ffb2'; ctx.lineWidth=2;
+      ctx.beginPath();
+      ctx.moveTo(38,0); ctx.lineTo(10,-13); ctx.lineTo(-12,-10); ctx.lineTo(-32,-22);
+      ctx.lineTo(-24,-3); ctx.lineTo(-38,0); ctx.lineTo(-24,3); ctx.lineTo(-32,22);
+      ctx.lineTo(-12,10); ctx.lineTo(10,13); ctx.closePath(); ctx.fill(); ctx.stroke();
+      ctx.shadowBlur=0;
+      ctx.fillStyle='#72ffb2';
+      ctx.fillRect(-2,-7,5,14); ctx.fillRect(-7,-2,14,5);
+      ctx.fillStyle='rgba(120,230,255,.9)';
+      ctx.beginPath(); ctx.ellipse(13,0,9,6,0,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle='rgba(80,255,180,.95)';
+      ctx.font='700 9px Share Tech Mono,monospace';ctx.textAlign='center';
+      ctx.fillText('ALLY',0,-29);
+      ctx.restore();
     }
 
     function drawBosses(){
@@ -6514,7 +6693,7 @@ if (flashTimer > 0) {
       ctx.shadowBlur = 0;
       ctx.fillStyle = 'rgba(228,228,255,0.82)';
       ctx.font='12px system-ui';
-      ctx.fillText('No countdown. No mercy.', width/2, height/2 + 30);
+      ctx.fillText('LEVEL BONUS +300 • No countdown.', width/2, height/2 + 30);
 
       ctx.restore();
     }
@@ -6993,6 +7172,7 @@ if (flashTimer > 0) {
       drawAsteroids();
       drawEnemies();
       drawBosses();
+      drawFriendlyCourier();
       drawPickups();
       drawEnemyBullets();
       drawBullets();
