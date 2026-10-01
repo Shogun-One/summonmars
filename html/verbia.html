@@ -347,6 +347,8 @@
     .avatar-grid { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:8px; }
     .avatar-choice { padding:5px 3px 6px; border:1px solid rgba(255,255,255,.2); border-radius:13px 5px 13px 5px; color:var(--surface-text); background:rgba(255,255,255,.075); font-size:.61rem; font-weight:850; cursor:pointer; }
     .avatar-choice.selected { color:var(--ink); border-color:var(--gold); box-shadow:0 0 16px color-mix(in srgb,var(--gold) 20%,transparent); }
+    .avatar-cost { display:block; min-height:9px; margin-top:2px; color:var(--surface-muted); font-size:.5rem; font-weight:750; letter-spacing:.03em; }
+    .avatar-choice.selected .avatar-cost { color:color-mix(in srgb,var(--gold) 70%,white); }
     .menu-action { width:100%; margin-top:22px; padding:13px; border:0; border-radius:15px 6px 15px 6px; color:#07130f; background:linear-gradient(135deg,var(--mint),var(--gold)); font-size:.78rem; font-weight:900; letter-spacing:.12em; text-transform:uppercase; cursor:pointer; }
 
     .avatar-portrait { --skin:#8d5a3c; --hair:#15120f; --shirt:var(--mint); position:relative; width:100%; height:100%; overflow:hidden; background:radial-gradient(circle at 50% 32%,color-mix(in srgb,var(--shirt) 24%,transparent),transparent 58%); }
@@ -875,11 +877,12 @@
       const storageKey = "verbia-progress-v3";
       const settingsKey = "verbia-settings-v1";
       const avatars = [
+        {id:"rx7",name:"RX-7",index:8},
+        {id:"nova",name:"Nova",src:"../images/verbia/avatar-nova-v1.png"},
         {id:"elena",name:"Elena",index:0}, {id:"malik",name:"Malik",index:1},
         {id:"mei",name:"Mei",index:2}, {id:"luca",name:"Luca",index:3},
         {id:"asha",name:"Asha",index:4}, {id:"finn",name:"Finn",index:5},
-        {id:"amara",name:"Amara",index:6}, {id:"kai",name:"Kai",index:7},
-        {id:"rx7",name:"RX-7",index:8}
+        {id:"amara",name:"Amara",index:6}, {id:"kai",name:"Kai",index:7}
       ];
       const playfield = document.querySelector("#playfield");
       const letterNodes = document.querySelector("#letterNodes");
@@ -1070,7 +1073,7 @@
         localStorage.removeItem("verbia-prototype-board-01");
         progress = freshProgress(true);
         profileExists = true;
-        settings = { theme:"emerald", layout:"smile", shape:"shard", avatar:"amara" };
+        settings = { theme:"emerald", layout:"smile", shape:"shard", avatar:"rx7", avatarDefaultVersion:2 };
         boardIndex = 0;
         boards.length = 0;
         ensureBoard(1);
@@ -1804,7 +1807,10 @@
           button.append(createPortrait(avatar));
           const label = document.createElement("span");
           label.textContent = avatar.name;
-          button.append(label);
+          const cost = document.createElement("small");
+          cost.className = "avatar-cost";
+          cost.setAttribute("aria-hidden", "true");
+          button.append(label, cost);
           avatarChoices.append(button);
         });
       }
@@ -1812,8 +1818,14 @@
       function createPortrait(avatar) {
         const portrait = document.createElement("div");
         portrait.className = "avatar-art";
-        portrait.style.setProperty("--avatar-x", `${(avatar.index % 3) * 50}%`);
-        portrait.style.setProperty("--avatar-y", `${Math.floor(avatar.index / 3) * 50}%`);
+        if (avatar.src) {
+          portrait.style.backgroundImage = `url('${avatar.src}')`;
+          portrait.style.backgroundSize = "cover";
+          portrait.style.backgroundPosition = "center";
+        } else {
+          portrait.style.setProperty("--avatar-x", `${(avatar.index % 3) * 50}%`);
+          portrait.style.setProperty("--avatar-y", `${Math.floor(avatar.index / 3) * 50}%`);
+        }
         portrait.setAttribute("aria-hidden", "true");
         return portrait;
       }
@@ -1835,8 +1847,10 @@
 
       function loadSettings() {
         try {
-          return { theme:"emerald", layout:"smile", shape:"shard", avatar:"amara", ...JSON.parse(localStorage.getItem(settingsKey) || "{}") };
-        } catch { return { theme:"emerald", layout:"smile", shape:"shard", avatar:"amara" }; }
+          const saved = JSON.parse(localStorage.getItem(settingsKey) || "{}");
+          if (!saved.avatarDefaultVersion) saved.avatar = "rx7";
+          return { theme:"emerald", layout:"smile", shape:"shard", avatar:"rx7", ...saved, avatarDefaultVersion:2 };
+        } catch { return { theme:"emerald", layout:"smile", shape:"shard", avatar:"rx7", avatarDefaultVersion:2 }; }
       }
 
       function saveSettings() { localStorage.setItem(settingsKey, JSON.stringify(settings)); }
