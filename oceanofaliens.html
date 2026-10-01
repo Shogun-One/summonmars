@@ -3633,7 +3633,10 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
     ];
     let storeCredits = Math.max(0, Number(localStorage.getItem(storageKey('StoreCredits')) || 0));
     function syncPointsBalanceUI(){
-      scoreEl.textContent = score.toLocaleString();
+      // The star is the spendable lifetime balance, not the score earned only
+      // during the current run. This keeps Continue and inventory purchases in
+      // sync with the number the player sees in the HUD.
+      scoreEl.textContent = storeCredits.toLocaleString();
     }
     syncPointsBalanceUI();
     let ownedStoreItems;
@@ -4025,6 +4028,12 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
         weaponMode,weaponLevels:{...weaponLevels},weaponOfferIndex,savedAt:Date.now()
       }));
     }
+    // Capture the latest resumable state before a refresh, tab close, or
+    // mobile browser suspension—not only when the next scoring event occurs.
+    window.addEventListener('pagehide',saveCampaignProgress);
+    document.addEventListener('visibilitychange',()=>{
+      if(document.hidden) saveCampaignProgress();
+    });
 
     let preStartTimer = 0;
     const PRESTART_MS = 2200;
@@ -4834,6 +4843,10 @@ function updateBosses(dt){
     }
 
     function restoreCampaignProgress(saved){
+      // Disable saving while the clean playfield and target level are rebuilt.
+      // Otherwise a future save hook inside either setup function could replace
+      // the real Continue data with the temporary level-one defaults.
+      campaignSessionStarted=false;
       resetRun(true);
       const targetLevel=Math.max(1,Number(saved?.level)||1);
       beginLevel(targetLevel,{skipWeaponCadence:true});
@@ -4849,7 +4862,7 @@ function updateBosses(dt){
         weaponMode=Object.hasOwn(WEAPONS,saved.weaponMode)?saved.weaponMode:'single';
         if(weaponMode!=='single' && weaponLevels[weaponMode]<=0) autoEquipBestCollectedWeapon();
       }
-      scoreEl.textContent=score.toLocaleString();
+      syncPointsBalanceUI();
       livesEl.textContent=lives;
       bossKillsEl.textContent=bossKills;
       toNextEl.textContent=killsThisLevel;
@@ -5026,6 +5039,7 @@ function updateBosses(dt){
       preStartIsInitial = false;
       startGracePeriod();
       showGameAlert('CONTINUE: 5 LIVES', 'sound-on');
+      saveCampaignProgress();
     }
 
     function confirmGameOverChoice(){
@@ -5152,6 +5166,7 @@ function updateBosses(dt){
           ownedStoreItems.add(item.id);
           if(item.type !== 'upgrade') equippedStore[item.type]=item.id;
           saveInventory();
+          saveCampaignProgress();
           updatePilotPortrait();
           updateMissileUI();
           showGameAlert(`${item.name} UNLOCKED`,'sound-on');
