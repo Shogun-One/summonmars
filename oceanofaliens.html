@@ -1600,19 +1600,36 @@ body.touchpad-off .control-deck .mobile-touchpad{ display:none !important; }
   top:calc(10px + env(safe-area-inset-top));
   right:10px;
   z-index:80;
-  border:1px solid rgba(255,138,192,.55);
+  display:grid;
+  place-items:center;
+  width:44px;
+  height:38px;
+  overflow:visible;
+  border:1px solid rgba(255,78,112,.9);
   border-radius:999px;
-  padding:.48rem .72rem;
+  padding:0;
   color:var(--hud);
   background:rgba(5,2,10,.78);
-  box-shadow:0 0 16px rgba(255,59,130,.22);
-  font:700 .72rem 'Share Tech Mono', ui-monospace, monospace;
+  box-shadow:0 0 16px rgba(255,45,92,.4);
+  font:700 1.15rem/1 system-ui,sans-serif;
   cursor:pointer;
+}
+.controller-config-btn::after{
+  content:"";
+  position:absolute;
+  width:27px;
+  height:3px;
+  border-radius:99px;
+  background:#ff315f;
+  box-shadow:0 0 6px rgba(255,49,95,.9);
+  transform:rotate(-42deg);
+  pointer-events:none;
 }
 .controller-config-btn.connected{
   border-color:#61ffb2;
   box-shadow:0 0 18px rgba(97,255,178,.35);
 }
+.controller-config-btn.connected::after{display:none}
 .controller-dialog{
   width:min(440px, calc(100vw - 24px));
   max-height:min(700px, calc(100dvh - 24px));
@@ -1657,11 +1674,6 @@ body.touchpad-off .control-deck .mobile-touchpad{ display:none !important; }
     width:42px;
     height:42px;
     padding:0;
-    overflow:hidden;
-    font-size:0;
-  }
-  .controller-config-btn::before{
-    content:'🎮';
     font-size:1.15rem;
   }
 }
@@ -2111,7 +2123,8 @@ footer{
   </section>
 
   <button id="controllerConfigBtn" class="controller-config-btn" type="button"
-          aria-haspopup="dialog" aria-controls="controllerDialog">🎮 No controller</button>
+          aria-label="Controller disconnected" title="Controller disconnected"
+          aria-haspopup="dialog" aria-controls="controllerDialog"><span aria-hidden="true">🎮</span></button>
   <dialog id="controllerDialog" class="controller-dialog">
     <h2>Controller Configuration</h2>
     <p id="controllerStatus" class="controller-status">No controller connected</p>
@@ -3223,46 +3236,70 @@ async function setSoundMode(nextMode, announce = true){
     }
 
     let combatVocalGeneration=0;
+    let combatVoiceCatalog=[];
+    const activeCombatUtterances=new Set();
+    function refreshCombatVoices(){
+      if(!('speechSynthesis' in window)) return;
+      combatVoiceCatalog=window.speechSynthesis.getVoices().filter(voice=>/^en(?:[-_]|$)/i.test(voice.lang));
+    }
+    refreshCombatVoices();
+    if('speechSynthesis' in window) window.speechSynthesis.addEventListener?.('voiceschanged',refreshCombatVoices);
+    function chooseCombatVoice(profile){
+      refreshCombatVoices();
+      const wantsFemale=profile==='female';
+      const malePattern=/(male|david|mark|guy|alex|daniel|james|thomas|aaron|fred|ralph|george|lee|ryan|arthur|oliver|fred|uk english male)/i;
+      const femalePattern=/(female|samantha|ava|aria|zira|victoria|karen|moira|susan|joanna|serena|salli|joey|kendra|kimberly)/i;
+      const scored=combatVoiceCatalog.map(voice=>{
+        let score=0;
+        if((wantsFemale?femalePattern:malePattern).test(voice.name)) score+=12;
+        if((wantsFemale?malePattern:femalePattern).test(voice.name)) score-=12;
+        if(/google|microsoft|apple|natural|enhanced|premium/i.test(voice.name)) score+=3;
+        if(/^en-US$/i.test(voice.lang)) score+=2;
+        if(voice.default) score+=1;
+        return {voice,score};
+      }).sort((a,b)=>b.score-a.score);
+      return scored[0]?.voice || null;
+    }
     function speakCombatVocal(text,{pitch=1,rate=1,volume=1,echo=false,profile='female',replace=false}={}){
       if(!effectsEnabled() || !('speechSynthesis' in window) || typeof SpeechSynthesisUtterance==='undefined') return;
       if(replace){
         combatVocalGeneration++;
         try{ window.speechSynthesis.cancel(); }catch{}
+        activeCombatUtterances.clear();
       }
       const generation=combatVocalGeneration;
       const makeUtterance=(utteranceText,echoScale=1,echoPitch=pitch)=>{
         const utterance=new SpeechSynthesisUtterance(utteranceText);
         utterance.lang='en-US';
         utterance.pitch=clamp(echoPitch,.1,2);
-        utterance.rate=clamp(rate,.45,2);
+        utterance.rate=clamp(rate,.55,2);
         utterance.volume=clamp(volume*effectsVolumeScale()*echoScale,0,1);
-        const voices=window.speechSynthesis.getVoices();
-        const englishVoices=voices.filter(voice=>/^en[-_]/i.test(voice.lang));
-        const malePattern=/(male|david|mark|guy|alex|daniel|james|thomas|aaron|fred|ralph|george|lee|ryan)/i;
-        const femalePattern=/(female|samantha|ava|aria|zira|victoria|karen|moira|susan|joanna|serena)/i;
-        const preferredPattern=profile==='female'?femalePattern:malePattern;
-        const english=englishVoices.find(voice=>preferredPattern.test(voice.name))
-          || englishVoices.find(voice=>profile==='female'?!malePattern.test(voice.name):!femalePattern.test(voice.name))
-          || englishVoices[0];
-        if(english) utterance.voice=english;
+        const voice=chooseCombatVoice(profile);
+        if(voice) utterance.voice=voice;
         return utterance;
       };
       const speakUtterance=(utterance,delay=0)=>setTimeout(()=>{
         if(!effectsEnabled()) return;
         if(generation!==combatVocalGeneration) return;
         try{
+          activeCombatUtterances.add(utterance);
+          const release=()=>activeCombatUtterances.delete(utterance);
+          utterance.addEventListener?.('end',release,{once:true});
+          utterance.addEventListener?.('error',release,{once:true});
           window.speechSynthesis.speak(utterance);
         }catch{}
       },delay);
       const lead=makeUtterance(text);
       if(echo){
-        // Chain the repeats from the actual end of each spoken line. Timed
-        // calls could be swallowed by mobile speech engines while the lead
-        // yell was still speaking, which made the requested echo disappear.
-        const echoOne=makeUtterance(text,.48,pitch*.76);
-        const echoTwo=makeUtterance(text,.24,pitch*.58);
-        lead.onend=()=>speakUtterance(echoOne,120);
-        echoOne.onend=()=>speakUtterance(echoTwo,135);
+        // Queue the full tail immediately. Mobile speech engines commonly
+        // suspend timers/onend callbacks as GAME OVER appears, but preserve
+        // their own utterance queue.
+        const echoOne=makeUtterance(`... ${text}`,.64,pitch*.82);
+        const echoTwo=makeUtterance(`... ${text}`,.38,pitch*.68);
+        speakUtterance(lead);
+        speakUtterance(echoOne,35);
+        speakUtterance(echoTwo,70);
+        return;
       }
       speakUtterance(lead);
     }
@@ -3303,10 +3340,10 @@ async function setSoundMode(nextMode, announce = true){
         thud.start(now); thud.stop(now+.20);
         alarm.start(now); alarm.stop(now+.16);
         const profile=selectedPilotVoiceProfile();
-        speakCombatVocal(profile==='female'?'Ugh!':'Hrrugh!',{
+        speakCombatVocal(profile==='female'?'Ugh!':'Urgh!',{
           profile,
-          pitch:profile==='female'?1.02:.58,
-          rate:profile==='female'?1.18:.82,
+          pitch:profile==='female'?1.08:.42,
+          rate:profile==='female'?1.08:.72,
           volume:1
         });
         triggerSpeakerBoom(.48,190);
@@ -3323,13 +3360,13 @@ async function setSoundMode(nextMode, announce = true){
       const isFemale=profile==='female';
       // Keep the blast synthesis inside playExplosionSound(). The vocal must
       // come from a human voice; oscillator "formants" sounded like a horn.
-      speakCombatVocal(isBoss?'Rrraaaaagh!':isFemale?'Aaah!':'Aaaarrgh!',{
+      speakCombatVocal(isBoss?'Nooo... Raaagh!':isFemale?'Aah! No!':'Aargh!',{
         profile,
-        pitch:isBoss?.30:isFemale?1.08:.54,
-        rate:isBoss?.50:isFemale?.90:.72,
+        pitch:isBoss?.26:isFemale?1.12:.38,
+        rate:isBoss?.58:isFemale?.88:.68,
         volume:1,
         echo:isBoss||final,
-        replace:final
+        replace:isBoss||final
       });
       triggerSpeakerBoom(isBoss?1.25:.96,isBoss?1120:500);
       if(final){
@@ -5444,8 +5481,9 @@ function updateBosses(dt){
     }
 
     function updateControllerStatus(){
-      const label = gamepadState.connected ? '🎮 Controller connected' : '🎮 No controller';
-      controllerConfigBtn.textContent = label;
+      const label = gamepadState.connected ? 'Controller connected' : 'Controller disconnected';
+      controllerConfigBtn.setAttribute('aria-label',label);
+      controllerConfigBtn.title=label;
       controllerConfigBtn.classList.toggle('connected', gamepadState.connected);
       controllerStatus.textContent = gamepadState.connected
         ? `Connected: ${gamepadState.id || 'Game controller'}`
@@ -5566,15 +5604,32 @@ function updateBosses(dt){
       // the simulation is stopped or a stick is still returning to center.
       if(gameOver){
         const previousChoice=gameOverSelection;
-        const towardRestart=buttonEdge(12,currentButtons)||buttonEdge(14,currentButtons);
-        const towardContinue=buttonEdge(13,currentButtons)||buttonEdge(15,currentButtons);
+        const towardRestart=currentButtons[12]||currentButtons[14];
+        const towardContinue=currentButtons[13]||currentButtons[15];
         const dominantAxis=Math.abs(stick.x)>=Math.abs(stick.y)?stick.x:stick.y;
-        const axisDirection=Math.abs(dominantAxis)>.55?Math.sign(dominantAxis):0;
-        if(towardRestart || (axisDirection<0 && !gameOverAxisLatch)) gameOverSelection='restart';
-        else if((towardContinue || (axisDirection>0 && !gameOverAxisLatch)) && storeCredits>=CONTINUE_COST) gameOverSelection='continue';
-        gameOverAxisLatch=axisDirection;
-        const confirmPressed=gamepadConfig.fire.some(index=>buttonEdge(index,currentButtons));
-        if(confirmPressed) confirmGameOverChoice();
+        const navDirection=towardRestart?-1:towardContinue?1:Math.abs(dominantAxis)>.55?Math.sign(dominantAxis):0;
+        if(navDirection && !gameOverAxisLatch){
+          if(navDirection<0) gameOverSelection='restart';
+          else if(storeCredits>=CONTINUE_COST) gameOverSelection='continue';
+        }
+        gameOverAxisLatch=navDirection;
+
+        // Always accept standard A/Cross (button 0) as well as every custom
+        // fire binding. Require a full release after the death animation so a
+        // held fire button cannot instantly restart, then confirm on the next
+        // deliberate press even if a browser/emulator misses the edge frame.
+        const confirmIndexes=[...new Set([0,...gamepadConfig.fire])];
+        const confirmHeld=confirmIndexes.some(index=>Boolean(currentButtons[index]));
+        if(gameOverConfirmLatch){
+          if(!confirmHeld) gameOverConfirmLatch=false;
+        }else if(confirmHeld){
+          gameOverConfirmLatch=true;
+          confirmGameOverChoice();
+        }
+        if(buttonEdge(gamepadConfig.reset,currentButtons)){
+          gameOverSelection='restart';
+          confirmGameOverChoice();
+        }
         if(previousChoice!==gameOverSelection) try{ navigator.vibrate?.(12); }catch{}
         gamepadState.x=0;
         gamepadState.y=0;
@@ -6068,7 +6123,7 @@ mobilePauseBtn?.addEventListener('pointerdown', (e) => {
           addShake(14, 1100);
           spawnExplosion(ship.x, ship.y, 3.1, 'player');
           gameOverSelection = 'restart';
-          gameOverConfirmLatch = gamepadState.fire;
+          gameOverConfirmLatch = true;
           gameOverAxisLatch = 0;
           gameOver = true;
           running = false;
