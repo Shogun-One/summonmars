@@ -2535,7 +2535,7 @@ document.querySelectorAll('img[data-asset]').forEach((img) => {
     let bossIncomingDidSting = false;
 
     window.__marsMusic = music;
-    music.loop = true;
+    music.loop = false;
     music.preload = 'auto';
 
     const SOUND_MODES = ['full','music','effects','off'];
@@ -2544,13 +2544,25 @@ document.querySelectorAll('img[data-asset]').forEach((img) => {
     const musicEnabled = () => soundMode === 'full' || soundMode === 'music';
     const effectsEnabled = () => soundMode === 'full' || soundMode === 'effects';
     const MUSIC_TRACKS = [
+      {name:'RACE TO MARS',src:'mp3/race-to-mars.mp3'},
       {name:'DESTRUCTIVE ENERGY',src:'mp3/asteroids-track.mp3'},
       {name:'WAKE UP MY MIND 1',src:'mp3/wake-up-my-mind-1.mp3'},
-      {name:'RACE TO MARS',src:'mp3/race-to-mars.mp3'},
       {name:'WHERE THE STARS ASCEND',src:'mp3/where-the-stars-ascend.mp3'}
     ];
-    let musicTrackIndex = clamp(Number(localStorage.getItem('asteroidMusicTrack') || 0),0,MUSIC_TRACKS.length-1);
+    const MUSIC_PLAY_MODES = ['alternate','repeat'];
+    let musicPlayMode = localStorage.getItem('asteroidMusicPlayMode');
+    if(!MUSIC_PLAY_MODES.includes(musicPlayMode)) musicPlayMode = 'alternate';
+    const MUSIC_ORDER_VERSION = 'race-first-v1';
+    const savedMusicOrderVersion = localStorage.getItem('asteroidMusicOrderVersion');
+    let musicTrackIndex = savedMusicOrderVersion===MUSIC_ORDER_VERSION
+      ? clamp(Number(localStorage.getItem('asteroidMusicTrack') || 0),0,MUSIC_TRACKS.length-1)
+      : 0;
+    if(savedMusicOrderVersion!==MUSIC_ORDER_VERSION){
+      localStorage.setItem('asteroidMusicTrack','0');
+      localStorage.setItem('asteroidMusicOrderVersion',MUSIC_ORDER_VERSION);
+    }
     music.src = A(MUSIC_TRACKS[musicTrackIndex].src);
+    music.loop = musicPlayMode === 'repeat';
     let musicVolume = clamp(Math.round(Number(localStorage.getItem('asteroidMusicVolume') || 80)/10)*10,0,100);
     let effectsVolume = clamp(Math.round(Number(localStorage.getItem('asteroidEffectsVolume') || 80)/10)*10,0,100);
     const musicVolumeScale = () => musicVolume/100;
@@ -2559,15 +2571,25 @@ document.querySelectorAll('img[data-asset]').forEach((img) => {
     function applyEffectsVolume(){ bossSting.volume=.60*effectsVolumeScale(); }
     applyMusicVolume();
     applyEffectsVolume();
-    function cycleMusicTrack(direction=1){
+    function cycleMusicTrack(direction=1,announce=true){
       musicTrackIndex=(musicTrackIndex+direction+MUSIC_TRACKS.length)%MUSIC_TRACKS.length;
       localStorage.setItem('asteroidMusicTrack',String(musicTrackIndex));
       music.pause();
       music.src=A(MUSIC_TRACKS[musicTrackIndex].src);
+      music.loop=musicPlayMode==='repeat';
       music.currentTime=0;
       if(musicEnabled() && defaultSoundStarted) music.play().catch(()=>{});
-      showGameAlert(`SONG: ${MUSIC_TRACKS[musicTrackIndex].name}`,'sound-on');
+      if(announce) showGameAlert(`SONG: ${MUSIC_TRACKS[musicTrackIndex].name}`,'sound-on');
     }
+    function toggleMusicPlayMode(){
+      musicPlayMode=musicPlayMode==='alternate'?'repeat':'alternate';
+      localStorage.setItem('asteroidMusicPlayMode',musicPlayMode);
+      music.loop=musicPlayMode==='repeat';
+      showGameAlert(musicPlayMode==='alternate'?'ALTERNATE SONGS':'REPEAT SONG','sound-on');
+    }
+    music.addEventListener('ended',()=>{
+      if(musicPlayMode==='alternate') cycleMusicTrack(1,false);
+    });
     function adjustAudioVolume(kind,direction=1){
       if(kind==='music'){
         musicVolume=musicVolume+direction*10;
@@ -4528,9 +4550,10 @@ function updateBosses(dt){
       }else if(pauseMenuView === 'directions') pauseDirectionSelection=spatialSelection(directionActionRects(),pauseDirectionSelection,dx,dy);
       else if(pauseMenuView === 'controllerTypes') pauseControllerIndex=spatialSelection(controllerTypeRects(),pauseControllerIndex,dx,dy);
       else if(pauseMenuView === 'audioSettings'){
-        if(dx && audioSettingsSelection<3){
+        if(dx && audioSettingsSelection<4){
           if(audioSettingsSelection===0) cycleMusicTrack(dx>0?1:-1);
-          else adjustAudioVolume(audioSettingsSelection===1?'music':'effects',dx>0?1:-1);
+          else if(audioSettingsSelection===1) toggleMusicPlayMode();
+          else adjustAudioVolume(audioSettingsSelection===2?'music':'effects',dx>0?1:-1);
         }else if(dy) audioSettingsSelection=spatialSelection(audioSettingsRects(),audioSettingsSelection,0,dy);
       }
     }
@@ -4580,8 +4603,9 @@ function updateBosses(dt){
         pauseMenuView = 'controllerTypes';
       }else if(pauseMenuView === 'audioSettings'){
         if(audioSettingsSelection===0) cycleMusicTrack(1);
-        else if(audioSettingsSelection===1) adjustAudioVolume('music',1);
-        else if(audioSettingsSelection===2) adjustAudioVolume('effects',1);
+        else if(audioSettingsSelection===1) toggleMusicPlayMode();
+        else if(audioSettingsSelection===2) adjustAudioVolume('music',1);
+        else if(audioSettingsSelection===3) adjustAudioVolume('effects',1);
         else pauseMenuView='root';
       }else{
         pauseMenuView = 'root';
@@ -4642,9 +4666,9 @@ function updateBosses(dt){
     function audioSettingsRects(){
       const x=width<600?35:width*.18,w=width<600?width-70:width*.64;
       const top=width<600?82:100,gap=width<600?10:14;
-      const available=height-top-34-gap*3;
-      const h=Math.min(width<600?82:92,Math.max(48,available/4));
-      return [0,1,2,3].map(i=>({x,y:top+i*(h+gap),w,h}));
+      const available=height-top-34-gap*4;
+      const h=Math.min(width<600?72:82,Math.max(42,available/5));
+      return [0,1,2,3,4].map(i=>({x,y:top+i*(h+gap),w,h}));
     }
 
     function inventoryRects(){
@@ -7393,6 +7417,7 @@ if (flashTimer > 0) {
         const rects=audioSettingsRects();
         const settings=[
           [`SONG: ${MUSIC_TRACKS[musicTrackIndex].name}`,'Left / Right or Select to change'],
+          [musicPlayMode==='alternate'?'ALTERNATE SONGS':'REPEAT SONG',musicPlayMode==='alternate'?'Automatically plays the next song':'Repeats the selected song'],
           [`MUSIC VOLUME: ${musicVolume}/100`,'Adjusts in increments of 10'],
           [`EFFECTS VOLUME: ${effectsVolume}/100`,'Adjusts in increments of 10'],
           ['GO BACK','Return to Pause Menu']
