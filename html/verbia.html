@@ -870,8 +870,9 @@
     (() => {
       const boards = [];
       const commonThreeLetterWords = new Set(`ACE ACT ADD ADO AGE AGO AHA AID AIM AIR ALE ALL AND ANT ANY APE APT ARC ARE ARM ART ASH ASK ATE AWE AWL BAD BAG BAN BAR BAT BAY BED BEE BEG BET BID BIG BIN BIT BOA BOB BOG BOW BOX BOY BRA BUN BUS BUT BUY BYE CAB CAN CAP CAR CAT COB COD COP COT COW CRY CUB CUE CUP CUT DAD DAM DAY DEN DEW DID DIE DIG DIM DIN DIP DOE DOG DOT DRY DUE DUG DUO DYE EAR EAT EEL EGG ELF ELK ELM EMU END EON ERA ERR EVE EWE EYE FAD FAN FAR FAT FED FEE FEW FIG FIN FIR FIT FIX FLY FOE FOG FOR FOX FRY FUN FUR GAG GAP GAS GEL GEM GET GIG GIN GOB GOD GUM GUN GUT GUY HAD HAM HAS HAT HAY HEM HEN HER HEW HEX HID HIM HIP HIS HIT HOG HOP HOT HOW HUB HUG HUM HUT ICE ILL IMP INK INN ION IRE ITS IVY JAB JAM JAR JAW JET JIG JOB JOG JOY JUT KEY KID KIN KIT LAB LAD LAG LAP LAW LAY LED LEG LET LID LIE LIP LIT LOG LOT LOW LYE MAD MAN MAP MAT MAY MEN MET MIX MOB MOM MOP MOW MUD MUG MUM NAP NET NEW NIL NOD NOR NOT NOW NUN NUT OAK OAR ODD ODE OFF OIL OLD ONE OPT ORB ORE OWL OWN PAD PAL PAN PAR PAT PAW PAY PEA PEG PEN PET PEW PIE PIG PIN PIT PLY POD POP POT PRO PRY PUB PUN PUP PUT RAG RAM RAN RAP RAT RAW RAY RED RIB RID RIG RIP ROB ROD ROE ROT ROW RUB RUE RUG RUM RUN RYE SAD SAG SAP SAT SAW SAY SEA SEE SET SEW SHE SHY SIN SIP SIR SIT SIX SKI SKY SOB SOD SON SOW SPA SPY SUB SUE SUM SUN TAB TAN TAP TAR TAX TEA TEE TEN THE THY TIE TIN TIP TOE TON TOO TOP TOY TRY TUB TUG TWO URN USE VAN VAT VET VIA VIE VOW WAD WAR WAS WAX WAY WEB WED WEE WET WHO WHY WIG WIN WIT WOE WOK WON WOW WRY YAK YAM YAP YAW YEN YES YET YOU ZIP ZOO`.split(" "));
+      const extendedThreeLetterWords = new Set(`AFT AIL AUK AVE AWN AXE AYE BAH BIB BIZ BOO BOP BUD BUG BUM CAW COG COO COY CUD CUR DAB DEE DUB DUD DUN EBB EFT EGO EKE ELD ERE ERG FLU FOB FOP FRO GAB GAD GAR GEE GNU HAG HAW HOB HOC HOE HOI HOY HUE HUH ICY IRK JAG JOT JUG KEG LEA LOB LOP LUG MAW MEW MID MOO MOT NAB NAG NIB NIP NIT OAF OAT OFT OVA OWE PAP PEP PER PIP POX PUG RIM RUT SAC SAX SIB SIC SLY SOL SOP SOY TAD TAG TAT TIC TIL TOG TOR TOT TOW TUN UGH VEE VEX VIS VIZ WAG WAH WAN WOO YEA YIN YIP YOW ZAG ZAP ZEN ZIG`.split(" "));
       const lexicon = [...new Set((window.VERBIA_LEXICON || []).map(word => word.toUpperCase()))]
-        .filter(word => word.length !== 3 || commonThreeLetterWords.has(word));
+        .filter(word => word.length !== 3 || commonThreeLetterWords.has(word) || extendedThreeLetterWords.has(word));
       const lexiconByLength = lexicon.reduce((groups, word) => ((groups[word.length] ||= []).push(word), groups), {});
       const tilts = [-8,5,11,-5,7,-11];
       const storageKey = "verbia-progress-v3";
@@ -1178,6 +1179,11 @@
           progress.levelBoards[index] = generateBoard(level);
           progress.signatures.push(progress.levelBoards[index].signature);
           if (profileExists) saveProgress();
+        } else if (progress.levelBoards[index].dictionaryVersion !== 4) {
+          const board = progress.levelBoards[index];
+          board.accepted = lexicon.filter(word => word.length <= board.letters.length && canBuildWord(word, board.letters));
+          board.dictionaryVersion = 4;
+          if (profileExists) saveProgress();
         }
         boards[index] = progress.levelBoards[index];
         return boards[index];
@@ -1215,7 +1221,7 @@
         const shorter = accepted.filter(word => word.length < letters.length);
         const goals = [...new Set([anchor.toUpperCase(), ...fullLength.slice(0, Math.ceil(target / 3)), ...shorter])].slice(0, target);
         const clearRatio = level <= 3 ? .5 : level <= 10 ? .58 : .66;
-        return { designVersion:5, dictionaryVersion:3, letters, signature:[...letters].sort().join(""), clearAt:Math.max(1, Math.ceil(goals.length * clearRatio)), goals, accepted };
+        return { designVersion:5, dictionaryVersion:4, letters, signature:[...letters].sort().join(""), clearAt:Math.max(1, Math.ceil(goals.length * clearRatio)), goals, accepted };
       }
 
       function sharedLetterCount(left, right) {
@@ -1322,7 +1328,17 @@
       }
 
       function selectNode(node) {
-        if (selected.includes(node)) return;
+        const existingIndex = selected.indexOf(node);
+        if (existingIndex >= 0) {
+          if (existingIndex === selected.length - 2) {
+            const removed = selected.pop();
+            removed.classList.remove("selected");
+            navigator.vibrate?.(6);
+            renderWord();
+            drawPath();
+          }
+          return;
+        }
         selected.push(node);
         node.classList.add("selected");
         navigator.vibrate?.(10);
