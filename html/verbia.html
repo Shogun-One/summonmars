@@ -455,7 +455,10 @@
     .discovery-shelf h3:not(:first-child) { margin-top:16px; }
     .shelf-words { display:flex; flex-wrap:wrap; gap:6px; }
     .shelf-word { padding:6px 9px; border-radius:9px 3px 9px 3px; color:#07130f; background:var(--mint); font-size:.67rem; font-weight:850; letter-spacing:.06em; }
+    .shelf-word.missing { color:color-mix(in srgb,var(--muted) 52%,transparent); border:1px solid rgba(255,255,255,.08); background:rgba(0,0,0,.14); letter-spacing:.12em; }
     .shelf-word.bonus { color:var(--gold); border:1px solid color-mix(in srgb,var(--gold) 35%,transparent); background:rgba(255,255,255,.045); }
+    .shelf-length-group+.shelf-length-group { margin-top:11px; }
+    .shelf-length-label { margin:0 0 6px; color:var(--muted); font-size:.59rem; font-weight:800; letter-spacing:.1em; text-transform:uppercase; }
     .shelf-empty { margin:0; color:var(--muted); font-size:.72rem; }
 
     .sheet-backdrop {
@@ -991,7 +994,10 @@
         const layout = layouts[settings.layout] || layouts.smile;
         boardNumber.textContent = String(boardIndex + 1).padStart(2, "0");
         letterNodes.replaceChildren();
-        [...board.letters].forEach((letter, index) => {
+        const sourceLetters = [...board.letters];
+        const step = sourceLetters.length % 2 ? 3 : 5;
+        const displayLetters = sourceLetters.map((_, index) => sourceLetters[(index * step + 2) % sourceLetters.length]);
+        displayLetters.forEach((letter, index) => {
           const node = document.createElement("button");
           node.className = "letter-node";
           node.type = "button";
@@ -1253,7 +1259,34 @@
         const stageWords = found.filter(word => board.goals.includes(word)).sort((a,b) => a.length - b.length || a.localeCompare(b));
         const bonusWords = found.filter(word => !board.goals.includes(word)).sort((a,b) => a.length - b.length || a.localeCompare(b));
         discoveryShelfContent.replaceChildren();
-        appendShelfGroup("Stage discoveries", stageWords, false);
+        const stageHeading = document.createElement("h3");
+        stageHeading.textContent = `Stage word map • ${stageWords.length} / ${board.goals.length}`;
+        discoveryShelfContent.append(stageHeading);
+        const lengthGroups = board.goals
+          .slice()
+          .sort((a,b) => a.length - b.length || a.localeCompare(b))
+          .reduce((groups, word) => {
+            (groups[word.length] ||= []).push(word);
+            return groups;
+          }, {});
+        Object.entries(lengthGroups).forEach(([length, words]) => {
+          const group = document.createElement("section");
+          group.className = "shelf-length-group";
+          const label = document.createElement("p");
+          label.className = "shelf-length-label";
+          label.textContent = `${length}-letter words • ${words.filter(word => found.includes(word)).length} / ${words.length}`;
+          const list = document.createElement("div");
+          list.className = "shelf-words";
+          words.forEach(word => {
+            const revealed = found.includes(word);
+            const chip = document.createElement("span");
+            chip.className = `shelf-word${revealed ? "" : " missing"}`;
+            chip.textContent = revealed ? word : "•".repeat(word.length);
+            list.append(chip);
+          });
+          group.append(label, list);
+          discoveryShelfContent.append(group);
+        });
         appendShelfGroup("Bonus discoveries", bonusWords, true);
       }
 
