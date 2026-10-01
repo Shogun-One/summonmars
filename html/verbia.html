@@ -611,7 +611,7 @@
     .launch-choice-button+ .launch-choice-button { margin-top:10px; }
     .launch-choice-button small { display:block; margin-top:5px; color:var(--muted); font-size:.62rem; font-weight:650; letter-spacing:.03em; text-transform:none; }
     .launch-choice-button.primary { color:#061713; background:linear-gradient(135deg,var(--mint),var(--gold)); }
-    .launch-choice-button:disabled { opacity:.42; cursor:not-allowed; filter:grayscale(.7); }
+    .launch-choice-button:disabled { opacity:.55; cursor:not-allowed; color:#7e8987; border-color:rgba(150,160,158,.18); background:linear-gradient(135deg,#303837,#1d2423); filter:grayscale(1); box-shadow:none; }
 
     @media (min-height: 760px) {
       .app { grid-template-rows: auto auto minmax(430px, 1fr) auto; }
@@ -767,7 +767,9 @@
     window.VERBIA_V2 = true;
     (() => {
       const boards = [];
-      const lexicon = [...new Set((window.VERBIA_LEXICON || []).map(word => word.toUpperCase()))];
+      const commonThreeLetterWords = new Set(`ACE ACT ADD AGE AGO AID AIM AIR ALE ALL AND ANT ANY APE ARC ARE ARM ART ASH ASK ATE AWE AWL BAD BAG BAN BAR BAT BAY BED BEE BEG BET BID BIG BIN BIT BOB BOG BOW BOX BOY BUN BUS BUT BUY BYE CAB CAN CAP CAR CAT COB COD COP COT COW CRY CUB CUP CUT DAD DAM DAY DEN DEW DID DIE DIG DIM DIN DIP DOG DOT DRY DUE DUG EAR EAT EEL EGG ELF ELK ELM END ERA EWE EYE FAN FAR FAT FED FEE FEW FIG FIN FIR FIT FIX FLY FOG FOR FOX FUN FUR GAP GAS GEM GET GIG GIN GOD GUM GUN GUT GUY HAD HAM HAS HAT HAY HEN HER HID HIM HIP HIS HIT HOG HOP HOT HOW HUB HUG HUM HUT ICE ILL INK INN ION ITS IVY JAB JAM JAR JAW JET JOB JOG JOY KEY KID KIT LAB LAD LAG LAP LAW LAY LED LEG LET LID LIE LIP LOG LOT LOW MAD MAN MAP MAT MAY MEN MET MIX MOB MOP MUD MUG NAP NET NEW NOD NOR NOT NOW NUN NUT OAK OAR ODD OFF OIL OLD ONE OPT ORB ORE OWL OWN PAD PAL PAN PAT PAW PAY PEA PEG PEN PET PIE PIG PIN PIT POD POP POT PRO PUB PUP PUT RAG RAM RAN RAP RAT RAW RAY RED RID RIG RIP ROB ROD ROE ROT ROW RUB RUG RUN SAD SAG SAP SAT SAW SAY SEA SEE SET SEW SHE SHY SIN SIP SIT SIX SKI SKY SON SOW SPA SPY SUB SUN TAB TAN TAP TAR TAX TEA TEN THE TIE TIN TIP TOE TON TOO TOP TOY TRY TUB TUG TWO USE VAN VAT VET VOW WAR WAS WAY WEB WET WHO WHY WIG WIN WIT WOK WON WOW YAK YAM YAP YAW YEN YES YET YOU ZIP ZOO`.split(" "));
+      const lexicon = [...new Set((window.VERBIA_LEXICON || []).map(word => word.toUpperCase()))]
+        .filter(word => word.length !== 3 || commonThreeLetterWords.has(word));
       const lexiconByLength = lexicon.reduce((groups, word) => ((groups[word.length] ||= []).push(word), groups), {});
       const tilts = [-8,5,11,-5,7,-11];
       const storageKey = "verbia-progress-v3";
@@ -821,6 +823,7 @@
       const discoveryShelf = document.querySelector("#discoveryShelf");
       const discoveryShelfContent = document.querySelector("#discoveryShelfContent");
 
+      let profileExists = storedProfileExists();
       let progress = loadProgress();
       let settings = loadSettings();
       let boardIndex = Math.max(0, (progress.currentLevel || 1) - 1);
@@ -918,6 +921,7 @@
         localStorage.removeItem(settingsKey);
         localStorage.removeItem("verbia-prototype-board-01");
         progress = freshProgress();
+        profileExists = true;
         settings = { theme:"emerald", layout:"smile", shape:"shard", avatar:"amara" };
         boardIndex = 0;
         boards.length = 0;
@@ -1017,7 +1021,10 @@
         if (!progress.levelBoards[index]) {
           progress.levelBoards[index] = generateBoard(level);
           progress.signatures.push(progress.levelBoards[index].signature);
-          saveProgress();
+          if (profileExists) saveProgress();
+        } else if (progress.levelBoards[index].dictionaryVersion !== 2) {
+          progress.levelBoards[index] = buildBoard(progress.levelBoards[index].letters, level);
+          if (profileExists) saveProgress();
         }
         boards[index] = progress.levelBoards[index];
         return boards[index];
@@ -1054,7 +1061,7 @@
         const shorter = accepted.filter(word => word.length < letters.length);
         const goals = [...new Set([anchor.toUpperCase(), ...fullLength.slice(0, Math.ceil(target / 3)), ...shorter])].slice(0, target);
         const clearRatio = level <= 3 ? .5 : level <= 10 ? .58 : .66;
-        return { letters, signature:[...letters].sort().join(""), clearAt:Math.max(1, Math.ceil(goals.length * clearRatio)), goals, accepted };
+        return { dictionaryVersion:2, letters, signature:[...letters].sort().join(""), clearAt:Math.max(1, Math.ceil(goals.length * clearRatio)), goals, accepted };
       }
 
       function canBuildWord(word, letters) {
@@ -1222,7 +1229,7 @@
           if (word) showToast("Words need at least 3 letters", true);
         } else if (!accepted.has(word)) {
           showToast(`${word} is not in this board's family-safe dictionary`, true);
-        } else if (found.includes(word)) {
+        } else if (found.some(foundWord => foundWord.toUpperCase() === word)) {
           showToast(`${word} • already discovered`, "duplicate");
         } else {
           found.push(word);
@@ -1244,7 +1251,16 @@
         if (pathLine) drawPath();
       }
 
-      function getFound() { return progress.boards[boardIndex] || []; }
+      function getFound() {
+        const board = boards[boardIndex];
+        const stored = Array.isArray(progress.boards[boardIndex]) ? progress.boards[boardIndex] : [];
+        const valid = [...new Set(stored.map(word => String(word).toUpperCase()).filter(word => board.accepted.includes(word)))];
+        if (valid.length !== stored.length || valid.some((word, index) => word !== stored[index])) {
+          progress.boards[boardIndex] = valid;
+          if (profileExists) saveProgress();
+        }
+        return valid;
+      }
 
       function renderProgress() {
         const board = boards[boardIndex];
@@ -1371,6 +1387,10 @@
       }
 
       function hasSavedGame() {
+        return storedProfileExists();
+      }
+
+      function storedProfileExists() {
         try {
           const saved = JSON.parse(localStorage.getItem(storageKey) || "null");
           return Boolean(saved && saved.boards && saved.levelBoards);
@@ -1506,7 +1526,10 @@
         } catch { return freshProgress(); }
       }
 
-      function saveProgress() { localStorage.setItem(storageKey, JSON.stringify(progress)); }
+      function saveProgress() {
+        profileExists = true;
+        localStorage.setItem(storageKey, JSON.stringify(progress));
+      }
 
       function showToast(message, kind = false) {
         window.clearTimeout(toastTimer);
