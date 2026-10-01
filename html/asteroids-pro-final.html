@@ -2564,11 +2564,13 @@ document.querySelectorAll('img[data-asset]').forEach((img) => {
     const musicEnabled = () => soundMode === 'full' || soundMode === 'music';
     const effectsEnabled = () => soundMode === 'full' || soundMode === 'effects';
     const MUSIC_TRACKS = [
-      {name:'NEON PURSUIT',start:0,end:89},
-      {name:'VOID RUNNER',start:89,end:179},
-      {name:'FINAL DRIFT',start:179,end:268.5}
+      {name:'DESTRUCTIVE ENERGY',src:'mp3/asteroids-track.mp3'},
+      {name:'WAKE UP MY MIND 1',src:'mp3/wake-up-my-mind-1.mp3'},
+      {name:'RACE TO MARS',src:'mp3/race-to-mars.mp3'},
+      {name:'WHERE THE STARS ASCEND',src:'mp3/where-the-stars-ascend.mp3'}
     ];
     let musicTrackIndex = clamp(Number(localStorage.getItem('asteroidMusicTrack') || 0),0,MUSIC_TRACKS.length-1);
+    music.src = A(MUSIC_TRACKS[musicTrackIndex].src);
     let musicVolume = clamp(Math.round(Number(localStorage.getItem('asteroidMusicVolume') || 80)/10)*10,0,100);
     let effectsVolume = clamp(Math.round(Number(localStorage.getItem('asteroidEffectsVolume') || 80)/10)*10,0,100);
     const musicVolumeScale = () => musicVolume/100;
@@ -2577,14 +2579,12 @@ document.querySelectorAll('img[data-asset]').forEach((img) => {
     function applyEffectsVolume(){ bossSting.volume=.60*effectsVolumeScale(); }
     applyMusicVolume();
     applyEffectsVolume();
-    music.addEventListener('timeupdate',()=>{
-      const track=MUSIC_TRACKS[musicTrackIndex];
-      if(music.currentTime>=track.end || music.currentTime<track.start-.25) music.currentTime=track.start;
-    });
     function cycleMusicTrack(direction=1){
       musicTrackIndex=(musicTrackIndex+direction+MUSIC_TRACKS.length)%MUSIC_TRACKS.length;
       localStorage.setItem('asteroidMusicTrack',String(musicTrackIndex));
-      music.currentTime=MUSIC_TRACKS[musicTrackIndex].start;
+      music.pause();
+      music.src=A(MUSIC_TRACKS[musicTrackIndex].src);
+      music.currentTime=0;
       if(musicEnabled() && defaultSoundStarted) music.play().catch(()=>{});
       showGameAlert(`SONG: ${MUSIC_TRACKS[musicTrackIndex].name}`,'sound-on');
     }
@@ -2628,7 +2628,6 @@ document.querySelectorAll('img[data-asset]').forEach((img) => {
         setupAudioAnalyzer();
         if(audioCtx && audioCtx.state === 'suspended') await audioCtx.resume();
         if(musicEnabled()){
-          music.currentTime = Math.max(music.currentTime,MUSIC_TRACKS[musicTrackIndex].start);
           applyMusicVolume();
           await music.play();
           if(!musicEnabled()){ music.pause(); return; }
@@ -2894,8 +2893,6 @@ async function setSoundMode(nextMode, announce = true){
           if(audioCtx && audioCtx.state === 'suspended') await audioCtx.resume();
         }
         if(musicEnabled()){
-          const track=MUSIC_TRACKS[musicTrackIndex];
-          if(music.currentTime<track.start || music.currentTime>=track.end) music.currentTime=track.start;
           applyMusicVolume();
           await music.play();
           pulseActive = true;
