@@ -2748,7 +2748,9 @@ document.querySelectorAll('img[data-asset]').forEach((img) => {
       music.src=A(MUSIC_TRACKS[musicTrackIndex].src);
       music.loop=musicPlayMode==='repeat';
       music.currentTime=0;
-      if(musicEnabled() && defaultSoundStarted) music.play().catch(()=>{});
+      // Selecting a song inside the pause menu must not leak playback through
+      // the pause. The selected track will begin when gameplay resumes.
+      if(musicEnabled() && defaultSoundStarted && !paused && launchChoiceEl.hidden) music.play().catch(()=>{});
       if(announce) showGameAlert(`SONG: ${MUSIC_TRACKS[musicTrackIndex].name}`,'sound-on');
     }
     function toggleMusicPlayMode(){
@@ -2758,7 +2760,7 @@ document.querySelectorAll('img[data-asset]').forEach((img) => {
       showGameAlert(musicPlayMode==='alternate'?'ALTERNATE SONGS':'REPEAT SONG','sound-on');
     }
     music.addEventListener('ended',()=>{
-      if(musicPlayMode==='alternate') cycleMusicTrack(1,false);
+      if(!paused && musicPlayMode==='alternate') cycleMusicTrack(1,false);
     });
     function adjustAudioVolume(kind,direction=1){
       if(kind==='music'){
@@ -3203,31 +3205,49 @@ async function setSoundMode(nextMode, announce = true){
         : 'male';
     }
 
+    let combatVocalGeneration=0;
     function speakCombatVocal(text,{pitch=1,rate=1,volume=1,echo=false,profile='female',replace=false}={}){
       if(!effectsEnabled() || !('speechSynthesis' in window) || typeof SpeechSynthesisUtterance==='undefined') return;
-      if(replace){ try{ window.speechSynthesis.cancel(); }catch{} }
-      const speak=(delay,echoScale=1,echoPitch=pitch)=>setTimeout(()=>{
+      if(replace){
+        combatVocalGeneration++;
+        try{ window.speechSynthesis.cancel(); }catch{}
+      }
+      const generation=combatVocalGeneration;
+      const makeUtterance=(utteranceText,echoScale=1,echoPitch=pitch)=>{
+        const utterance=new SpeechSynthesisUtterance(utteranceText);
+        utterance.lang='en-US';
+        utterance.pitch=clamp(echoPitch,.1,2);
+        utterance.rate=clamp(rate,.45,2);
+        utterance.volume=clamp(volume*effectsVolumeScale()*echoScale,0,1);
+        const voices=window.speechSynthesis.getVoices();
+        const englishVoices=voices.filter(voice=>/^en[-_]/i.test(voice.lang));
+        const malePattern=/(male|david|mark|guy|alex|daniel|james|thomas|aaron|fred|ralph|george|lee|ryan)/i;
+        const femalePattern=/(female|samantha|ava|aria|zira|victoria|karen|moira|susan|joanna|serena)/i;
+        const preferredPattern=profile==='female'?femalePattern:malePattern;
+        const english=englishVoices.find(voice=>preferredPattern.test(voice.name))
+          || englishVoices.find(voice=>profile==='female'?!malePattern.test(voice.name):!femalePattern.test(voice.name))
+          || englishVoices[0];
+        if(english) utterance.voice=english;
+        return utterance;
+      };
+      const speakUtterance=(utterance,delay=0)=>setTimeout(()=>{
         if(!effectsEnabled()) return;
+        if(generation!==combatVocalGeneration) return;
         try{
-          const utterance=new SpeechSynthesisUtterance(text);
-          utterance.lang='en-US';
-          utterance.pitch=clamp(echoPitch,.1,2);
-          utterance.rate=clamp(rate,.45,2);
-          utterance.volume=clamp(volume*effectsVolumeScale()*echoScale,0,1);
-          const voices=window.speechSynthesis.getVoices();
-          const englishVoices=voices.filter(voice=>/^en[-_]/i.test(voice.lang));
-          const malePattern=/(male|david|mark|guy|alex|daniel|james|thomas|aaron|fred|ralph|george|lee|ryan)/i;
-          const femalePattern=/(female|samantha|ava|aria|zira|victoria|karen|moira|susan|joanna|serena)/i;
-          const preferredPattern=profile==='female'?femalePattern:malePattern;
-          const english=englishVoices.find(voice=>preferredPattern.test(voice.name))
-            || englishVoices.find(voice=>profile==='female'?!malePattern.test(voice.name):!femalePattern.test(voice.name))
-            || englishVoices[0];
-          if(english) utterance.voice=english;
           window.speechSynthesis.speak(utterance);
         }catch{}
       },delay);
-      speak(0);
-      if(echo){ speak(430,.42,pitch*.82); speak(760,.22,pitch*.68); }
+      const lead=makeUtterance(text);
+      if(echo){
+        // Chain the repeats from the actual end of each spoken line. Timed
+        // calls could be swallowed by mobile speech engines while the lead
+        // yell was still speaking, which made the requested echo disappear.
+        const echoOne=makeUtterance(text,.48,pitch*.76);
+        const echoTwo=makeUtterance(text,.24,pitch*.58);
+        lead.onend=()=>speakUtterance(echoOne,120);
+        echoOne.onend=()=>speakUtterance(echoTwo,135);
+      }
+      speakUtterance(lead);
     }
 
     function playDamageSound(){
@@ -3301,7 +3321,7 @@ async function setSoundMode(nextMode, announce = true){
           speakCombatVocal(storeCredits>=CONTINUE_COST?'Continue?':'Game Over',{
             profile:'male',pitch:.72,rate:.78,volume:.92
           });
-        },1550);
+        },3000);
       }
     }
 
@@ -3867,6 +3887,7 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
     const CONTINUE_COST = 2000;
     let gameOverSelection = 'restart';
     let gameOverConfirmLatch = false;
+    let gameOverAxisLatch = 0;
     const CAMPAIGN_SAVE_KEY='asteroidCampaignProgressV1';
     const NEW_GAME_PENDING_KEY='asteroid-new-game-pending';
     let campaignSessionStarted=false;
@@ -4631,6 +4652,7 @@ function updateBosses(dt){
       gameOverWreck = null;
       gameOverSelection = 'restart';
       gameOverConfirmLatch = false;
+      gameOverAxisLatch = 0;
 
       ship.x = width/2;
       ship.y = height/2;
@@ -5171,6 +5193,7 @@ function updateBosses(dt){
     }
 
     function setPaused(p){
+      if(p===paused) return;
       paused = p;
       document.body.classList.toggle('game-paused', paused && !gameOver);
       mobilePauseBtn?.setAttribute('aria-label',paused?'Resume game':'Pause game');
@@ -5191,6 +5214,8 @@ function updateBosses(dt){
 
         if(paused){
           setPaused._wasPlaying = (musicEnabled() && music && !music.paused);
+          setPaused._trackIndex = musicTrackIndex;
+          setPaused._resumeTime = Number.isFinite(music.currentTime) ? music.currentTime : 0;
           if(setPaused._wasPlaying){ music.pause(); }
           // Pausing returns the four speaker faces to their illustrated
           // stamps. Only the joystick disappears while the menu is open.
@@ -5200,6 +5225,13 @@ function updateBosses(dt){
           document.documentElement.style.setProperty('--bassKick','0');
         }else{
           if(setPaused._wasPlaying && musicEnabled()){
+            // Preserve the exact song position across pause. If the player
+            // deliberately selected another song while paused, keep that new
+            // selection at its beginning instead of restoring the old track.
+            if(setPaused._trackIndex===musicTrackIndex && Number.isFinite(setPaused._resumeTime)){
+              const duration=Number.isFinite(music.duration)?music.duration:Infinity;
+              music.currentTime=Math.min(setPaused._resumeTime,Math.max(0,duration-.05));
+            }
             music.play().then(()=>setMusicUI(true)).catch(()=>setMusicUI(false));
             pulseActive = true;
           }else{
@@ -5208,6 +5240,7 @@ function updateBosses(dt){
             // keep pulse accurate if music is on but browser blocked autoplay
             pulseActive = musicEnabled() && music && !music.paused;
           }
+          setPaused._wasPlaying = false;
         }
       }catch{}
     }
@@ -5508,6 +5541,28 @@ function updateBosses(dt){
         return;
       }
       launchAxisLatch=0;
+
+      // Game Over is a real controller menu, not gameplay. Handle digital
+      // edges here so A/Cross always activates and the D-pad works even when
+      // the simulation is stopped or a stick is still returning to center.
+      if(gameOver){
+        const previousChoice=gameOverSelection;
+        const towardRestart=buttonEdge(12,currentButtons)||buttonEdge(14,currentButtons);
+        const towardContinue=buttonEdge(13,currentButtons)||buttonEdge(15,currentButtons);
+        const dominantAxis=Math.abs(stick.x)>=Math.abs(stick.y)?stick.x:stick.y;
+        const axisDirection=Math.abs(dominantAxis)>.55?Math.sign(dominantAxis):0;
+        if(towardRestart || (axisDirection<0 && !gameOverAxisLatch)) gameOverSelection='restart';
+        else if((towardContinue || (axisDirection>0 && !gameOverAxisLatch)) && storeCredits>=CONTINUE_COST) gameOverSelection='continue';
+        gameOverAxisLatch=axisDirection;
+        const confirmPressed=gamepadConfig.fire.some(index=>buttonEdge(index,currentButtons));
+        if(confirmPressed) confirmGameOverChoice();
+        if(previousChoice!==gameOverSelection) try{ navigator.vibrate?.(12); }catch{}
+        gamepadState.x=0;
+        gamepadState.y=0;
+        gamepadState.fire=false;
+        gamepadState.previousButtons=currentButtons;
+        return;
+      }
 
       if(suppressLaunchCarryover){
         const fireStillHeld=gamepadConfig.fire.some(index=>currentButtons[index]);
@@ -5995,6 +6050,7 @@ mobilePauseBtn?.addEventListener('pointerdown', (e) => {
           spawnExplosion(ship.x, ship.y, 3.1, 'player');
           gameOverSelection = 'restart';
           gameOverConfirmLatch = gamepadState.fire;
+          gameOverAxisLatch = 0;
           gameOver = true;
           running = false;
           return;
@@ -6164,6 +6220,18 @@ mobilePauseBtn?.addEventListener('pointerdown', (e) => {
         return;
       }
 
+      if(gameOver){
+        if(shakeT>0){
+          shakeT=Math.max(0,shakeT-dt);
+          if(!shakeT) shakeMag=0;
+        }
+        if(flashTimer>0) flashTimer=Math.max(0,flashTimer-dt);
+        updateGameOverWreck(dt);
+        updateParticles(dt);
+        updatePickups(dt);
+        return;
+      }
+
       if(awaitingLaunchInput){
         beginLaunchFromInput();
         return;
@@ -6196,18 +6264,6 @@ mobilePauseBtn?.addEventListener('pointerdown', (e) => {
           preStartTimer = 0;
           running = true;
         }
-        updateParticles(dt);
-        updatePickups(dt);
-        return;
-      }
-
-      if(gameOver){
-        const menuX = Math.abs(gamepadState.x) > Math.abs(joyVec.x) ? gamepadState.x : joyVec.x;
-        if(menuX < -0.32) gameOverSelection = 'restart';
-        else if(menuX > 0.32 && storeCredits >= CONTINUE_COST) gameOverSelection = 'continue';
-        if(gamepadState.fire && !gameOverConfirmLatch) confirmGameOverChoice();
-        gameOverConfirmLatch = gamepadState.fire;
-        updateGameOverWreck(dt);
         updateParticles(dt);
         updatePickups(dt);
         return;
