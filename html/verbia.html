@@ -594,6 +594,7 @@
     .direction-icon { display:grid; place-items:center; width:38px; height:38px; border-radius:50%; color:#071411; background:var(--mint); font-size:1.15rem; }
 
     .inventory-stage { position:relative; height:min(58svh,560px); min-height:440px; margin:14px 0; overflow:hidden; border:1px solid rgba(255,255,255,.13); border-radius:24px 8px; background:radial-gradient(circle at 50% 36%,color-mix(in srgb,var(--mint) 20%,transparent),transparent 34%),linear-gradient(180deg,#0d2730,#070b15 70%); box-shadow:inset 0 0 55px rgba(75,223,255,.08); }
+    .store-showroom-stage { height:min(50svh,480px); min-height:390px; margin-bottom:22px; }
     .inventory-stage::after { content:"FULL-BODY FITTING BAY"; position:absolute; z-index:10; left:50%; top:12px; translate:-50% 0; color:rgba(255,255,255,.42); font-size:.5rem; font-weight:900; letter-spacing:.16em; white-space:nowrap; }
     .persona { --atlas-x:0%;--atlas-y:0%; position:absolute; z-index:2; left:50%; bottom:12px; width:min(76%,330px); height:calc(100% - 40px); transform:translateX(-50%); background-image:url('../images/verbia/explorer-fitting-atlas-v3.png'); background-size:500% 200%; background-position:var(--atlas-x) var(--atlas-y); background-repeat:no-repeat; filter:drop-shadow(0 16px 18px rgba(0,0,0,.45)); }
     .inventory-ship { position:absolute; z-index:1; inset:0; background-repeat:no-repeat; background-size:cover; background-position:center; opacity:.3; filter:saturate(1.15) drop-shadow(0 12px 18px rgba(0,0,0,.65)); }
@@ -981,6 +982,12 @@
       <button class="feature-back" id="shopBack" type="button">← Go back</button>
       <h2 id="shopTitle">Explorer Store</h2>
       <p class="feature-intro"><span id="shopPoints">0</span> discovery points · Unlock complete explorers, companions, ships, and vehicles.</p>
+      <div class="inventory-stage store-showroom-stage" id="shopShowroomStage">
+        <span class="inventory-ship" id="shopShowroomShip" aria-label="Selected ship or vehicle"></span>
+        <div class="persona" id="shopShowroomPersona"></div>
+        <span class="inventory-pet" id="shopShowroomPet" aria-label="Equipped pet"></span>
+        <span class="showroom-explorer-name" id="shopShowroomName" aria-hidden="true"></span>
+      </div>
       <div class="store-section"><h3>Explorers</h3><div class="store-avatar-grid" id="storeAvatarChoices"></div></div>
       <div class="store-section"><h3>Companions</h3><div class="store-preview" id="companionStore"></div></div>
       <div class="store-section"><h3>Ships &amp; vehicles</h3><div class="store-preview" id="shipStore"></div></div>
@@ -1156,6 +1163,11 @@
       const shopOverlay = document.querySelector("#shopOverlay");
       const shopBack = document.querySelector("#shopBack");
       const shopPoints = document.querySelector("#shopPoints");
+      const shopShowroomStage = document.querySelector("#shopShowroomStage");
+      const shopShowroomPersona = document.querySelector("#shopShowroomPersona");
+      const shopShowroomShip = document.querySelector("#shopShowroomShip");
+      const shopShowroomPet = document.querySelector("#shopShowroomPet");
+      const shopShowroomName = document.querySelector("#shopShowroomName");
       const directionsOverlay = document.querySelector("#directionsOverlay");
       const directionsBack = document.querySelector("#directionsBack");
       const configurationOverlay = document.querySelector("#configurationOverlay");
@@ -2125,6 +2137,22 @@
           settings.avatar = "rx7";
           saveSettings();
         }
+        const showroomAvatar = avatars.find(item => item.id === settings.avatar) || avatars[0];
+        const showroomPet = shopItems.find(item => item.id === progress.inventory.equipped.pet && progress.inventory.owned.includes(item.id));
+        const showroomShip = shopItems.find(item => item.id === progress.inventory.equipped.ship && progress.inventory.owned.includes(item.id));
+        shopShowroomStage.dataset.fitProfile = avatarFitProfile(showroomAvatar);
+        shopShowroomStage.style.setProperty("--fit-x", avatarFitOffset(showroomAvatar));
+        applyExplorerBody(shopShowroomPersona, showroomAvatar);
+        shopShowroomPersona.setAttribute("aria-label", `${showroomAvatar.name} full-body explorer`);
+        shopShowroomName.textContent = showroomAvatar.name;
+        shopShowroomPet.textContent = showroomPet ? " " : "";
+        shopShowroomPet.style.removeProperty("background-image");
+        if (showroomPet) applyItemArt(shopShowroomPet, showroomPet);
+        shopShowroomPet.setAttribute("aria-label", showroomPet ? `${showroomPet.name} equipped` : "No companion equipped");
+        shopShowroomShip.textContent = showroomShip ? " " : "";
+        shopShowroomShip.style.removeProperty("background-image");
+        if (showroomShip) applyItemArt(shopShowroomShip, showroomShip);
+        shopShowroomShip.setAttribute("aria-label", showroomShip ? `${showroomShip.name} selected` : "No ship or vehicle selected");
         if (shopPoints) shopPoints.textContent = progress.points || 0;
         storeAvatarChoices.replaceChildren();
         avatars.forEach(avatar => {
