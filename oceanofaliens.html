@@ -8403,7 +8403,7 @@ if (flashTimer > 0) {
             ['TOUCH / FULLSCREEN','Auto-hides with controller • Hold Start'],
             ['RESET / DIFFICULTY','Pause Menu boxes • R for reset']
           ];
-          const margin=Math.max(55,width*.07),columnWidth=(width-margin*2)/2,startY=82,lineH=62;
+          const margin=Math.max(55,width*.07),columnWidth=(width-margin*2)/2,startY=100,lineH=62;
           const drawWrappedValue=(text,x,y,maxWidth)=>{
             const words=text.split(' '),rows=[];
             let row='';
@@ -8422,7 +8422,7 @@ if (flashTimer > 0) {
             drawWrappedValue(value,x,y+18,columnWidth-34);
           });
         }else{
-          const left=Math.max(70,width*.16),startY=88,lineH=43;
+          const left=Math.max(70,width*.16),startY=106,lineH=43;
           lines.forEach(([label,value],i)=>{
             const y=startY+i*lineH;
             ctx.fillStyle='#ff8ac0';ctx.font='800 14px Share Tech Mono';ctx.fillText(label,left,y);
