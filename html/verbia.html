@@ -343,6 +343,7 @@
     .letter-node:focus-visible { outline: 3px solid var(--gold); outline-offset: 4px; }
 
     .playfield[data-shape="circle"] .letter-node { clip-path:circle(49%); border-radius:50%; }
+    .playfield[data-shape="triangle"] .letter-node { clip-path:polygon(50% 1%,100% 88%,82% 100%,18% 100%,0 88%); }
 
     .menu-overlay { position:fixed; z-index:50; inset:0; display:grid; place-items:start center; overflow-y:auto; padding:max(18px,env(safe-area-inset-top)) 16px max(18px,env(safe-area-inset-bottom)); background:rgba(1,7,7,.8); backdrop-filter:blur(18px); opacity:0; pointer-events:none; transition:opacity .22s ease; }
     .menu-overlay.open { opacity:1; pointer-events:auto; }
@@ -791,6 +792,7 @@
         <h2 id="menuTitle">Verbia</h2>
         <p>Create your path through words</p>
       </div>
+      <button class="menu-action" id="resumeButton" type="button">Start journey</button>
       <div class="menu-section">
         <h3>Cosmic color</h3>
         <div class="choice-grid" id="themeChoices">
@@ -806,6 +808,7 @@
         <div class="choice-grid" id="shapeChoices">
           <button class="choice-button" type="button" data-shape-choice="shard">Original shards</button>
           <button class="choice-button" type="button" data-shape-choice="circle">Circles</button>
+          <button class="choice-button" type="button" data-shape-choice="triangle">Triangles</button>
         </div>
       </div>
       <div class="menu-section">
@@ -820,7 +823,6 @@
         <h3>Coming reward shop</h3>
         <div class="store-preview"><div class="store-item">Comet trail<strong>250 pts</strong></div><div class="store-item">Moon pet<strong>600 pts</strong></div><div class="store-item">Nova jacket<strong>900 pts</strong></div></div>
       </div>
-      <button class="menu-action" id="resumeButton" type="button">Begin journey</button>
     </section>
   </div>
 
@@ -1655,7 +1657,7 @@
         closeDiscoveryShelf();
         menuOverlay.classList.add("open");
         menuOverlay.setAttribute("aria-hidden", "false");
-        resumeButton.textContent = hasStarted ? "Resume board" : "Begin journey";
+        resumeButton.textContent = hasStarted ? "Resume game" : "Start journey";
         requestAnimationFrame(() => {
           menuOverlay.scrollTop = 0;
           startMenu.scrollTop = 0;
@@ -1962,7 +1964,7 @@
       }
 
       function applySettings(rerenderBoard) {
-        if (!["shard","circle"].includes(settings.shape)) settings.shape = "shard";
+        if (!["shard","circle","triangle"].includes(settings.shape)) settings.shape = "shard";
         document.documentElement.dataset.theme = settings.theme;
         playfield.dataset.shape = settings.shape;
         const avatar = avatars.find(item => item.id === settings.avatar) || avatars[0];
