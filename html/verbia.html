@@ -227,11 +227,16 @@
       border-radius: 23px;
     }
 
-    .word-display {
+    .trace-feedback-slot {
       position: relative;
       z-index: 10;
       height: 38px;
       margin: -10px 0;
+    }
+
+    .word-display {
+      width: 100%;
+      height: 100%;
       display: grid;
       place-items: center;
       color: var(--ink);
@@ -247,6 +252,8 @@
     .word-display[data-empty="true"] {
       opacity: 0;
     }
+
+    .trace-feedback-slot:has(.toast.show) .word-display { opacity: 0; }
 
     .board-tools { position:absolute; z-index:8; top:19px; left:17px; right:17px; display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:7px; pointer-events:none; }
     .board-control-button { min-width:72px; padding:8px 10px; border:1px solid rgba(255,217,120,.25); border-radius:12px 5px 12px 5px; color:var(--gold); background:rgba(255,217,120,.07); font-size:.62rem; font-weight:850; letter-spacing:.08em; text-transform:uppercase; cursor:pointer; pointer-events:auto; }
@@ -700,12 +707,11 @@
     .toast {
       position: absolute;
       z-index: 12;
-      top: auto;
-      bottom: 8px;
+      top: 50%;
       left: 50%;
       width: max-content;
-      max-width: calc(100% - 138px);
-      padding: 10px 16px;
+      max-width: calc(100% - 20px);
+      padding: 7px 14px;
       border: 1px solid rgba(117,245,199,.35);
       border-radius: 99px;
       color: #072019;
@@ -717,11 +723,11 @@
       text-align: center;
       opacity: 0;
       pointer-events: none;
-      transform: translate(-50%, 8px);
+      transform: translate(-50%, calc(-50% + 5px));
       transition: opacity .2s ease, transform .2s ease;
     }
 
-    .toast.show { opacity: 1; transform: translate(-50%, 0); }
+    .toast.show { opacity: 1; transform: translate(-50%, -50%); }
     .toast.success,.toast.bonus { color:#052116; border-color:#7dffc0; background:#38d98c; box-shadow:0 12px 38px rgba(0,68,42,.5),0 0 18px rgba(56,217,140,.35); }
     .toast.error { color:#fff; border-color:#ff8589; background:#d92732; box-shadow:0 12px 38px rgba(90,0,7,.55),0 0 18px rgba(255,52,62,.38); }
     .toast.duplicate { color:#251900; border-color:#ffe68a; background:#f5c451; box-shadow:0 12px 38px rgba(91,62,0,.48),0 0 18px rgba(245,196,81,.38); }
@@ -829,7 +835,10 @@
       <div class="progress-track"><div class="progress-fill" id="progressFill"></div><span class="progress-threshold" id="progressThreshold" aria-hidden="true"></span></div>
     </section>
 
-    <div class="word-display" id="wordDisplay" data-empty="true" aria-live="polite"></div>
+    <div class="trace-feedback-slot">
+      <div class="word-display" id="wordDisplay" data-empty="true" aria-live="polite"></div>
+      <div class="toast" id="toast" role="status" aria-live="assertive"></div>
+    </div>
 
     <section class="playfield" id="playfield" aria-label="Letter constellation. Drag through letters to form a word.">
       <canvas class="board-backdrop" id="boardBackdrop" aria-hidden="true"></canvas>
@@ -838,7 +847,6 @@
         <button class="board-control-button sound-cycle-button" id="soundCycleButton" type="button" aria-label="Change sound mode">♫ Music + FX</button>
         <button class="board-control-button shuffle-button" id="shuffleButton" type="button" aria-label="Shuffle letter positions">↝ Shuffle</button>
       </div>
-      <div class="toast" id="toast" role="status" aria-live="assertive"></div>
       <div class="effects-layer" id="effectsLayer" aria-hidden="true"></div>
       <svg id="paths" aria-hidden="true">
         <g id="constellationLines"></g>
