@@ -378,6 +378,7 @@
     .menu-action { width:100%; margin-top:22px; padding:13px; border:0; border-radius:15px 6px 15px 6px; color:#07130f; background:linear-gradient(135deg,var(--mint),var(--gold)); font-size:.78rem; font-weight:900; letter-spacing:.12em; text-transform:uppercase; cursor:pointer; }
     .menu-subaction { width:100%; margin-top:8px; padding:11px; border:1px solid color-mix(in srgb,var(--mint) 38%,transparent); border-radius:13px 5px; color:var(--surface-text); background:rgba(117,245,199,.08); font-size:.68rem; font-weight:900; letter-spacing:.1em; text-transform:uppercase; cursor:pointer; }
     .wallet-actions { display:grid; gap:5px; margin-top:7px; }
+    .menu-wallet-section { margin-top:18px; }
     .wallet-actions .menu-subaction { margin-top:0; }
     .explorer-shop-pulse { animation:shopAttention 2.8s ease-in-out infinite; }
     @keyframes shopAttention { 0%,100% { border-color:color-mix(in srgb,var(--mint) 38%,transparent); box-shadow:0 0 0 0 color-mix(in srgb,var(--gold) 0%,transparent); transform:scale(1); } 50% { color:#fff7dc; border-color:var(--gold); box-shadow:0 0 0 4px color-mix(in srgb,var(--gold) 11%,transparent),0 0 18px color-mix(in srgb,var(--gold) 34%,transparent); transform:scale(1.012); } }
@@ -428,6 +429,7 @@
       .menu-preview-pet { height:60px; }
       .menu-preview-name { bottom:9px; font-size:1.25rem; }
       .menu-section { margin-top:8px; }
+      .menu-wallet-section { margin-top:14px; }
       .wallet-card { padding:8px 10px; }
     }
 
@@ -881,7 +883,7 @@
         <span class="menu-preview-pet" id="menuPreviewPet"></span>
         <span class="menu-preview-name" id="menuPreviewName"></span>
       </div>
-      <div class="menu-section">
+      <div class="menu-section menu-wallet-section">
         <h3>Explorer wallet</h3>
         <div class="wallet-card"><span>Discovery points<strong id="walletPoints">0</strong></span><span>Daily hints<strong id="walletHints">3 / 3</strong></span></div>
         <div class="wallet-actions">
