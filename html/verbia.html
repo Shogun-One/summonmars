@@ -230,23 +230,25 @@
     .word-display {
       position: absolute;
       z-index: 5;
-      top: 70px;
+      top: 28px;
       left: 50%;
-      width: calc(100% - 120px);
-      min-height: 52px;
+      width: calc(100% - 86px);
+      height:82px;
       transform:translateX(-50%);
-      display:grid;
-      place-items:center;
+      display:flex;
+      align-items:flex-end;
+      justify-content:center;
+      gap:clamp(5px,2.2vw,13px);
       color: var(--ink);
       font-family: Georgia, serif;
-      font-size:clamp(1.75rem,8vw,2.45rem);
+      font-size:var(--trace-size,clamp(2.8rem,12vw,4rem));
       line-height:1;
-      letter-spacing:.16em;
       text-align: center;
-      text-indent:.16em;
       text-shadow: 0 0 18px rgba(117,245,199,.45);
       pointer-events:none;
     }
+
+    .word-display-letter { display:block; min-width:.68em; transform:translateY(calc(var(--arc-rise,0) * -1px)) rotate(var(--arc-tilt,0deg)); transform-origin:center bottom; }
 
     .word-display[data-empty="true"] {
       opacity: 0;
@@ -1863,8 +1865,20 @@
       }
 
       function renderWord() {
-        const word = selected.map(node => node.dataset.letter).join("");
-        wordDisplay.textContent = word;
+        const letters = selected.map(node => node.dataset.letter);
+        const word = letters.join("");
+        wordDisplay.style.setProperty("--trace-size", letters.length > 4 ? "clamp(1.8rem,7.4vw,2.65rem)" : "clamp(2.8rem,12vw,4rem)");
+        wordDisplay.replaceChildren(...letters.map((letter,index) => {
+          const span = document.createElement("span");
+          const midpoint = (letters.length - 1) / 2;
+          const distance = midpoint ? (index - midpoint) / midpoint : 0;
+          span.className = "word-display-letter";
+          span.textContent = letter;
+          span.style.setProperty("--arc-rise", String(Math.round(7 + 31 * (1 - distance * distance))));
+          span.style.setProperty("--arc-tilt", `${Math.round(distance * 18)}deg`);
+          return span;
+        }));
+        wordDisplay.setAttribute("aria-label", word);
         wordDisplay.dataset.empty = String(!word);
       }
 
