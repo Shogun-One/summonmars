@@ -361,6 +361,9 @@
     .avatar-cost { display:block; min-height:9px; margin-top:2px; color:var(--surface-muted); font-size:.5rem; font-weight:750; letter-spacing:.03em; }
     .avatar-choice.selected .avatar-cost { color:color-mix(in srgb,var(--gold) 70%,white); }
     .menu-action { width:100%; margin-top:22px; padding:13px; border:0; border-radius:15px 6px 15px 6px; color:#07130f; background:linear-gradient(135deg,var(--mint),var(--gold)); font-size:.78rem; font-weight:900; letter-spacing:.12em; text-transform:uppercase; cursor:pointer; }
+    .menu-game-row { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; margin-top:22px; }
+    .menu-game-row .menu-action { margin-top:0; }
+    .menu-new-game { color:var(--surface-text); border:1px solid color-mix(in srgb,var(--mint) 38%,transparent); background:rgba(117,245,199,.08); }
     .menu-subaction { width:100%; margin-top:8px; padding:11px; border:1px solid color-mix(in srgb,var(--mint) 38%,transparent); border-radius:13px 5px; color:var(--surface-text); background:rgba(117,245,199,.08); font-size:.68rem; font-weight:900; letter-spacing:.1em; text-transform:uppercase; cursor:pointer; }
     .menu-settings-row { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:7px; margin-top:8px; }
     .menu-settings-row .menu-subaction { margin-top:0; }
@@ -574,6 +577,12 @@
 
     .feature-overlay { position:fixed; z-index:85; inset:0; display:grid; place-items:start center; overflow-y:auto; padding:max(18px,env(safe-area-inset-top)) 16px max(18px,env(safe-area-inset-bottom)); color:var(--surface-text); background:rgba(1,5,10,.94); backdrop-filter:blur(18px); opacity:0; pointer-events:none; transition:opacity .2s ease; }
     .feature-overlay.open { opacity:1; pointer-events:auto; }
+    #newGameConfirmOverlay { place-items:center; }
+    .feature-panel.confirm-panel { width:min(100%,420px); min-height:0; margin:0; padding:26px 22px; text-align:center; }
+    .confirm-panel h2 { margin:0; }
+    .confirm-panel .feature-intro { margin-bottom:18px; }
+    .confirm-actions { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+    .confirm-actions .menu-action,.confirm-actions .menu-subaction { margin-top:0; }
     .feature-panel { width:min(100%,500px); min-height:min(92svh,820px); padding:18px; border:1px solid color-mix(in srgb,var(--mint) 42%,transparent); border-radius:28px 10px; background:linear-gradient(150deg,#102726,#060b12); box-shadow:0 30px 90px rgba(0,0,0,.7); }
     .feature-back { width:100%; padding:11px; border:1px solid color-mix(in srgb,var(--gold) 42%,transparent); border-radius:13px 5px; color:#171300; background:linear-gradient(135deg,var(--gold),var(--mint)); font-size:.7rem; font-weight:950; letter-spacing:.1em; text-transform:uppercase; cursor:pointer; }
     .feature-panel h2 { margin:18px 0 5px; font:500 2.35rem Georgia,serif; text-align:center; }
@@ -855,7 +864,10 @@
         <h2 id="menuTitle">Verbia</h2>
         <p>Create your path through words</p>
       </div>
-      <button class="menu-action" id="resumeButton" type="button">Start journey</button>
+      <div class="menu-game-row">
+        <button class="menu-action" id="resumeButton" type="button">Start journey</button>
+        <button class="menu-action menu-new-game" id="menuNewGameButton" type="button">New Game</button>
+      </div>
       <div class="menu-settings-row">
         <button class="menu-subaction" id="soundSettingsButton" type="button">Sound Settings</button>
         <button class="menu-subaction" id="configurationButton" type="button">Game Themes</button>
@@ -874,6 +886,17 @@
           <button class="menu-subaction" id="inventoryButton" type="button">Inventory Showroom</button>
           <button class="menu-subaction explorer-shop-pulse" id="shopButton" type="button">Explorer Shop</button>
         </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="feature-overlay" id="newGameConfirmOverlay" aria-hidden="true">
+    <section class="feature-panel confirm-panel" role="alertdialog" aria-modal="true" aria-labelledby="newGameConfirmTitle" aria-describedby="newGameConfirmText">
+      <h2 id="newGameConfirmTitle">Start a new game?</h2>
+      <p class="feature-intro" id="newGameConfirmText">This resets your level, points, unlocked inventory, and selections. RX-7 will return as your only equipped explorer.</p>
+      <div class="confirm-actions">
+        <button class="menu-action" id="cancelNewGameButton" type="button">Keep Playing</button>
+        <button class="menu-subaction" id="confirmNewGameButton" type="button">Confirm Reset</button>
       </div>
     </section>
   </div>
@@ -1087,6 +1110,7 @@
       const menuOverlay = document.querySelector("#menuOverlay");
       const startMenu = document.querySelector("#startMenu");
       const resumeButton = document.querySelector("#resumeButton");
+      const menuNewGameButton = document.querySelector("#menuNewGameButton");
       const inventoryButton = document.querySelector("#inventoryButton");
       const directionsButton = document.querySelector("#directionsButton");
       const shopButton = document.querySelector("#shopButton");
@@ -1102,6 +1126,9 @@
       const continueGameButton = document.querySelector("#continueGameButton");
       const continueGameMeta = document.querySelector("#continueGameMeta");
       const newGameButton = document.querySelector("#newGameButton");
+      const newGameConfirmOverlay = document.querySelector("#newGameConfirmOverlay");
+      const cancelNewGameButton = document.querySelector("#cancelNewGameButton");
+      const confirmNewGameButton = document.querySelector("#confirmNewGameButton");
       const discoveryShelf = document.querySelector("#discoveryShelf");
       const discoveryShelfContent = document.querySelector("#discoveryShelfContent");
       const dailyBubble = document.querySelector("#dailyBubble");
@@ -1254,6 +1281,9 @@
       pauseButton.addEventListener("click", openMenu);
       avatarBadge.addEventListener("click", openMenu);
       resumeButton.addEventListener("click", closeMenu);
+      menuNewGameButton.addEventListener("click", openNewGameConfirmation);
+      cancelNewGameButton.addEventListener("click", closeNewGameConfirmation);
+      confirmNewGameButton.addEventListener("click", startNewGame);
       inventoryButton.addEventListener("click", openInventory);
       directionsButton.addEventListener("click", openDirections);
       shopButton.addEventListener("click", openShop);
@@ -1352,7 +1382,25 @@
       });
 
       newGameButton.addEventListener("click", () => {
+        if (hasSavedGame()) openNewGameConfirmation();
+        else startNewGame();
+      });
+
+      function openNewGameConfirmation() {
+        newGameConfirmOverlay.classList.add("open");
+        newGameConfirmOverlay.setAttribute("aria-hidden", "false");
+        cancelNewGameButton.focus();
+      }
+
+      function closeNewGameConfirmation() {
+        newGameConfirmOverlay.classList.remove("open");
+        newGameConfirmOverlay.setAttribute("aria-hidden", "true");
+        (launchOverlay.hidden ? menuNewGameButton : newGameButton).focus();
+      }
+
+      function startNewGame() {
         enterImmersiveMode();
+        closeNewGameConfirmation();
         localStorage.removeItem(storageKey);
         localStorage.removeItem("verbia-progress-v2");
         localStorage.removeItem(settingsKey);
@@ -1372,7 +1420,7 @@
         closeDiscoveryShelf();
         launchOverlay.hidden = true;
         openMenu();
-      });
+      }
 
       nextButton.addEventListener("click", () => {
         if (boardTransitioning) return;
@@ -1956,7 +2004,7 @@
         requestAnimationFrame(() => {
           menuOverlay.scrollTop = 0;
           startMenu.scrollTop = 0;
-          startMenu.focus({preventScroll:true});
+          resumeButton.focus({preventScroll:true});
         });
       }
 
