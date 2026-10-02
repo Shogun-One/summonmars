@@ -113,7 +113,12 @@
       font-weight: 800;
       letter-spacing: .24em;
       text-transform: uppercase;
+      width:100%;
+      padding-left:.24em;
+      text-align:center;
     }
+
+    .verbia-wordmark .inverted-v { display:inline-block; margin-left:-.035em; transform:translateY(.035em) rotate(180deg); transform-origin:center 52%; }
 
     h1 {
       margin: 0;
@@ -157,7 +162,7 @@
 
     .progress-row {
       display: flex;
-      justify-content: space-between;
+      justify-content: flex-end;
       gap: 10px;
       color: var(--muted);
       font-size: .76rem;
@@ -166,35 +171,19 @@
       text-transform: uppercase;
     }
 
-    .game-avatar { position:absolute; z-index:12; left:-16px; bottom:-2px; width:82px; height:158px; padding:0; overflow:visible; border:0; background:transparent; cursor:pointer; filter:drop-shadow(0 8px 9px rgba(0,0,0,.5)); }
+    .game-avatar { position:absolute; z-index:12; left:-16px; bottom:-14px; width:82px; height:158px; padding:0; overflow:visible; border:0; background:transparent; cursor:pointer; filter:drop-shadow(0 8px 9px rgba(0,0,0,.5)); }
     .game-avatar-base { --atlas-x:0%;--atlas-y:0%; position:absolute; z-index:1; inset:0; background-image:url('../images/verbia/explorer-fitting-atlas-v3.png'); background-size:500% 200%; background-position:var(--atlas-x) var(--atlas-y); background-repeat:no-repeat; }
+    .game-loadout-ship { position:absolute; z-index:2; left:76px; bottom:-14px; width:172px; height:118px; background-repeat:no-repeat; background-size:contain; background-position:center bottom; opacity:.54; filter:brightness(1.12) saturate(1.15) drop-shadow(0 5px 7px rgba(0,0,0,.45)); pointer-events:none; }
+    .game-loadout-pet { position:absolute; z-index:13; left:57px; bottom:-14px; width:66px; height:72px; transform:scale(var(--companion-scale,1)); transform-origin:center bottom; background-repeat:no-repeat; background-size:contain; background-position:center bottom; filter:drop-shadow(0 5px 6px rgba(0,0,0,.48)); pointer-events:none; }
+    .game-loadout-ship:empty,.game-loadout-pet:empty { display:none; }
     .progress-card:has(.game-avatar) .progress-row { padding-left:70px; }
-    .progress-card:has(.game-avatar) .progress-track { margin-left:70px; }
+    .progress-row { position:relative; z-index:25; }
 
     .progress-row strong { color: var(--ink); }
     #boardState.cleared { color:var(--gold); text-shadow:0 0 8px var(--gold),0 0 18px color-mix(in srgb,var(--mint) 68%,transparent); animation:clearedStateGlow 1.2s ease-in-out infinite alternate; }
     @keyframes clearedStateGlow { to{color:#fffbdc;filter:brightness(1.28);text-shadow:0 0 11px #fff,0 0 24px var(--gold),0 0 38px var(--mint)} }
     .score-display { display:flex; align-items:baseline; gap:8px; }
     .score-display strong { color:var(--gold); font-family:Georgia,serif; font-size:1rem; letter-spacing:0; }
-
-    .progress-track {
-      position: relative;
-      height: 5px;
-      margin-top: 9px;
-      border-radius: 99px;
-      background: rgba(255,255,255,.09);
-    }
-
-    .progress-fill {
-      width: 0;
-      height: 100%;
-      border-radius: inherit;
-      background: linear-gradient(90deg, var(--mint), var(--gold));
-      box-shadow: 0 0 14px var(--mint);
-      transition: width .45s ease;
-    }
-
-    .progress-threshold { position:absolute; z-index:2; top:50%; width:3px; height:15px; border-radius:3px; background:#fff8c7; box-shadow:0 0 5px #fff,0 0 12px var(--gold); transform:translate(-50%,-50%); pointer-events:none; }
 
     .playfield {
       position: relative;
@@ -215,10 +204,14 @@
     @keyframes boardFlip { 0%{transform:perspective(1100px) rotateY(0) scale(1);filter:brightness(1)} 47%{transform:perspective(1100px) rotateY(88deg) scale(.94);filter:brightness(.5)} 50%{transform:perspective(1100px) rotateY(-88deg) scale(.94);filter:brightness(.55)} 100%{transform:perspective(1100px) rotateY(0) scale(1);filter:brightness(1)} }
 
     .trace-feedback-slot {
-      position: relative;
-      z-index: 10;
-      height: 38px;
-      margin: -10px 0;
+      position:absolute;
+      z-index:20;
+      top:0;
+      bottom:0;
+      left:clamp(150px,36%,220px);
+      right:76px;
+      height:auto;
+      margin:0;
     }
 
     .word-display {
@@ -228,9 +221,9 @@
       place-items: center;
       color: var(--ink);
       font-family: Georgia, serif;
-      font-size: clamp(1.8rem, 8vw, 2.55rem);
+      font-size: clamp(1.45rem, 5vw, 2rem);
       line-height: 1;
-      letter-spacing: .16em;
+      letter-spacing: .12em;
       text-align: center;
       text-shadow: 0 0 18px rgba(117,245,199,.45);
       pointer-events: none;
@@ -436,6 +429,8 @@
       white-space: nowrap;
     }
 
+    .board-goal { position:absolute; z-index:4; left:50%; bottom:39px; margin:0; translate:-50% 0; color:var(--gold); font-size:.67rem; font-weight:850; letter-spacing:.1em; text-transform:uppercase; white-space:nowrap; text-shadow:0 0 10px color-mix(in srgb,var(--gold) 45%,transparent); }
+
     .discoveries {
       min-width: 0;
       padding: 12px 14px;
@@ -546,6 +541,8 @@
     .reward-fire { width:100%; padding:13px; border:0; border-radius:14px 5px 14px 5px; color:#172000; background:linear-gradient(135deg,var(--gold),#ff8c5f); font-weight:950; letter-spacing:.1em; text-transform:uppercase; cursor:pointer; }
     .reward-fire:disabled { opacity:.55; cursor:not-allowed; }
     .reward-result { min-height:24px; margin:12px 0 0; color:var(--gold); font-weight:900; }
+    #closeReward.reward-ready { color:#071411; border-color:#fff7c7; background:var(--gold); animation:rewardClosePulse .72s ease-in-out infinite alternate; }
+    @keyframes rewardClosePulse { to { color:#fff; background:#ff4f5d; box-shadow:0 0 0 6px rgba(255,79,93,.16),0 0 24px #ff4f5d; transform:scale(1.13); } }
     .previous-overlay { position:fixed; z-index:75; inset:0; display:grid; place-items:center; padding:18px; background:rgba(1,5,10,.86); backdrop-filter:blur(15px); opacity:0; pointer-events:none; transition:opacity .2s ease; }
     .previous-overlay.open { opacity:1; pointer-events:auto; }
     .previous-panel { width:min(100%,430px); padding:22px; color:var(--surface-text); border:1px solid color-mix(in srgb,var(--mint) 38%,transparent); border-radius:28px 10px 28px 10px; background:linear-gradient(155deg,#122b2b,#070b17); box-shadow:0 30px 90px rgba(0,0,0,.65); }
@@ -705,16 +702,17 @@
       top: 50%;
       left: 50%;
       width: max-content;
-      max-width: calc(100% - 20px);
-      padding: 7px 14px;
+      max-width: calc(100% - 4px);
+      padding: 6px 8px;
       border: 1px solid rgba(117,245,199,.35);
       border-radius: 99px;
       color: #072019;
       background: var(--mint);
       box-shadow: 0 12px 38px rgba(0,0,0,.38);
-      font-size: .76rem;
+      font-size: .62rem;
       font-weight: 850;
-      letter-spacing: .04em;
+      letter-spacing: .025em;
+      line-height:1.15;
       text-align: center;
       opacity: 0;
       pointer-events: none;
@@ -789,6 +787,7 @@
 
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; }
+      #closeReward.reward-ready { animation:none; color:#fff; background:#ff4f5d; box-shadow:0 0 0 4px rgba(255,79,93,.16),0 0 18px #ff4f5d; }
     }
   </style>
 </head>
@@ -798,16 +797,16 @@
   </aside>
   <section class="splash-screen" id="splashScreen" aria-label="Verbia opening">
     <div class="splash-content">
-      <h1 class="splash-title">Verbia</h1>
+      <h1 class="splash-title verbia-wordmark" aria-label="Verbia">Verbi<span class="inverted-v" aria-hidden="true">V</span></h1>
       <p class="splash-byline">by Summon Mars</p>
-      <p class="splash-tagline">A world made of words</p>
+      <p class="splash-tagline">World of Words</p>
     </div>
     <div class="splash-progress" aria-hidden="true"></div>
   </section>
 
   <section class="launch-overlay" id="launchOverlay" aria-labelledby="launchTitle" hidden>
     <div class="launch-panel">
-      <h2 id="launchTitle">Verbia</h2>
+      <h2 class="verbia-wordmark" id="launchTitle" aria-label="Verbia">Verbi<span class="inverted-v" aria-hidden="true">V</span></h2>
       <p>Choose how your journey begins.</p>
       <button class="launch-choice-button primary" id="continueGameButton" type="button">Continue<small id="continueGameMeta">Resume your saved word journey</small></button>
       <button class="launch-choice-button" id="newGameButton" type="button">New Game<small>Clear Verbia progress and create a new explorer</small></button>
@@ -820,8 +819,8 @@
   <main class="app">
     <header>
       <div class="brand">
-        <h1>Verbia</h1>
-        <p class="eyebrow">A world made of words</p>
+        <h1 class="verbia-wordmark" aria-label="Verbia">Verbi<span class="inverted-v" aria-hidden="true">V</span></h1>
+        <p class="eyebrow">World of Words</p>
       </div>
       <div class="level-mark">Board<strong id="boardNumber">01</strong></div>
     </header>
@@ -830,17 +829,16 @@
       <button class="game-avatar" id="avatarBadge" type="button" aria-label="Open player and game menu">
         <span class="game-avatar-base" id="gameAvatarBase"></span>
       </button>
+      <span class="game-loadout-pet" id="gameLoadoutPet"></span>
+      <span class="game-loadout-ship" id="gameLoadoutShip"></span>
       <div class="progress-row">
         <span class="score-display">Score <strong id="boardScore">0</strong></span>
-        <span id="boardState">Find 6 to clear</span>
       </div>
-      <div class="progress-track"><div class="progress-fill" id="progressFill"></div><span class="progress-threshold" id="progressThreshold" aria-hidden="true"></span></div>
+      <div class="trace-feedback-slot">
+        <div class="word-display" id="wordDisplay" data-empty="true" aria-live="polite"></div>
+        <div class="toast" id="toast" role="status" aria-live="assertive"></div>
+      </div>
     </section>
-
-    <div class="trace-feedback-slot">
-      <div class="word-display" id="wordDisplay" data-empty="true" aria-live="polite"></div>
-      <div class="toast" id="toast" role="status" aria-live="assertive"></div>
-    </div>
 
     <section class="playfield" id="playfield" aria-label="Letter constellation. Drag through letters to form a word.">
       <canvas class="board-backdrop" id="boardBackdrop" aria-hidden="true"></canvas>
@@ -856,6 +854,7 @@
         <polyline class="path-line" id="pathLine" points=""></polyline>
       </svg>
       <div id="letterNodes"></div>
+      <p class="board-goal" id="boardState">Find 6 to clear</p>
       <p class="hint">Touch • trace • release</p>
       <div class="bubble-tools" aria-label="Board bonuses">
         <button class="hint-button" id="hintButton" type="button" aria-label="Use a hint"><span class="bubble-icon" aria-hidden="true">💡</span><span class="bubble-count" id="hintCount">×3</span></button>
@@ -875,7 +874,7 @@
   <div class="menu-overlay" id="menuOverlay" aria-hidden="true">
     <section class="start-menu" id="startMenu" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="menuTitle">
       <div class="menu-brand">
-        <h2 id="menuTitle">Verbia</h2>
+        <h2 class="verbia-wordmark" id="menuTitle" aria-label="Verbia">Verbi<span class="inverted-v" aria-hidden="true">V</span></h2>
         <p>Create your path through words</p>
       </div>
       <div class="menu-game-row">
@@ -1106,8 +1105,6 @@
       const pathGlow = document.querySelector("#pathGlow");
       const constellationLines = document.querySelector("#constellationLines");
       const boardScore = document.querySelector("#boardScore");
-      const progressFill = document.querySelector("#progressFill");
-      const progressThreshold = document.querySelector("#progressThreshold");
       const boardState = document.querySelector("#boardState");
       const boardNumber = document.querySelector("#boardNumber");
       const shuffleButton = document.querySelector("#shuffleButton");
@@ -1124,6 +1121,8 @@
       const toast = document.querySelector("#toast");
       const avatarBadge = document.querySelector("#avatarBadge");
       const gameAvatarBase = document.querySelector("#gameAvatarBase");
+      const gameLoadoutPet = document.querySelector("#gameLoadoutPet");
+      const gameLoadoutShip = document.querySelector("#gameLoadoutShip");
       const pauseButton = document.querySelector("#pauseButton");
       const starfieldBackdrop = document.querySelector("#starfieldBackdrop");
       const spaceBackdrop = document.querySelector("#spaceBackdrop");
@@ -2123,8 +2122,6 @@
         const amount = goalFound.length;
         const cleared = amount >= board.clearAt;
         boardScore.textContent = progress.points || 0;
-        progressFill.style.width = `${Math.min(100, amount / board.goals.length * 100)}%`;
-        progressThreshold.style.left = `${board.clearAt / board.goals.length * 100}%`;
         boardState.textContent = amount === board.goals.length ? "Mastered" : cleared ? "Board cleared" : `Find ${board.clearAt - amount} to clear`;
         boardState.classList.toggle("cleared", cleared);
         nextButton.disabled = !cleared || boardTransitioning;
@@ -2425,10 +2422,21 @@
       function renderGameAvatar() {
         ensureInventory();
         const avatar = avatars.find(item => item.id === settings.avatar) || avatars[0];
+        const equipped = progress.inventory.equipped;
+        const pet = shopItems.find(item => item.id === equipped.pet && progress.inventory.owned.includes(item.id));
+        const ship = shopItems.find(item => item.id === equipped.ship && progress.inventory.owned.includes(item.id));
         avatarBadge.dataset.fitProfile = avatarFitProfile(avatar);
         avatarBadge.style.setProperty("--fit-x", avatarFitOffset(avatar));
         applyExplorerBody(gameAvatarBase, avatar);
         avatarBadge.setAttribute("aria-label", `${avatar.name}, complete explorer. Open player and game menu`);
+        gameLoadoutPet.textContent = pet ? " " : "";
+        gameLoadoutPet.style.removeProperty("background-image");
+        if (pet) applyItemArt(gameLoadoutPet, pet);
+        gameLoadoutPet.setAttribute("aria-label", pet ? `${pet.name} equipped` : "No companion equipped");
+        gameLoadoutShip.textContent = ship ? " " : "";
+        gameLoadoutShip.style.removeProperty("background-image");
+        if (ship) applyItemArt(gameLoadoutShip, ship);
+        gameLoadoutShip.setAttribute("aria-label", ship ? `${ship.name} selected` : "No ship or vehicle selected");
       }
 
       function unlockAvatar(avatarId) {
@@ -2656,6 +2664,7 @@
       function openDailyReward() {
         if (!profileExists || progress.dailyRewardDate === todayKey()) return;
         closeDiscoveryShelf();
+        closeReward.classList.remove("reward-ready");
         rewardResult.textContent = "";
         rewardFire.disabled = false;
         rewardFire.textContent = "Throw dart";
@@ -2734,6 +2743,7 @@
         window.setTimeout(() => {
           rewardResult.textContent = `Bullseye! You won ${prize.label}.`;
           rewardFire.textContent = "Prize collected";
+          closeReward.classList.add("reward-ready");
           renderWallet();
           vibrate([35,30,60]);
         }, flightDuration + 80);
@@ -2742,6 +2752,7 @@
       function closeDailyReward() {
         cancelAnimationFrame(powerFrame);
         cancelAnimationFrame(wheelFrame);
+        closeReward.classList.remove("reward-ready");
         rewardOverlay.classList.remove("open");
         rewardOverlay.setAttribute("aria-hidden", "true");
         if (!dailyBubble.hidden) dailyBubble.focus();
@@ -3283,7 +3294,6 @@
       const pathGlow = document.querySelector("#pathGlow");
       const foundCount = document.querySelector("#foundCount");
       const totalCount = document.querySelector("#totalCount");
-      const progressFill = document.querySelector("#progressFill");
       const boardState = document.querySelector("#boardState");
       const wordList = document.querySelector("#wordList");
       const toast = document.querySelector("#toast");
@@ -3428,7 +3438,6 @@
         const boardFound = found.filter(word => boardWords.includes(word));
         const amount = boardFound.length;
         foundCount.textContent = amount;
-        progressFill.style.width = `${Math.min(100, amount / boardWords.length * 100)}%`;
         boardState.textContent = amount === boardWords.length
           ? "Mastered"
           : amount >= clearAt
