@@ -660,7 +660,7 @@
     .toast.error { color:#fff; border-color:#ff8589; background:#d92732; box-shadow:0 12px 38px rgba(90,0,7,.55),0 0 18px rgba(255,52,62,.38); }
     .toast.duplicate { color:#251900; border-color:#ffe68a; background:#f5c451; box-shadow:0 12px 38px rgba(91,62,0,.48),0 0 18px rgba(245,196,81,.38); }
     .toast.bonus { display:flex; align-items:center; gap:10px; padding-block:8px; }
-    .toast.bonus::before { content:"★"; flex:0 0 auto; color:#ffe779; font-size:2.15rem; line-height:.8; -webkit-text-stroke:1px rgba(80,49,0,.5); filter:drop-shadow(0 0 7px rgba(255,225,92,.9)); animation:bonusStar .55s cubic-bezier(.2,.9,.25,1.35) both; }
+    .toast.bonus::before { content:"★"; flex:0 0 auto; color:#ffe779; font-size:4.3rem; line-height:.72; -webkit-text-stroke:1px rgba(80,49,0,.5); filter:drop-shadow(0 0 12px rgba(255,225,92,.95)); animation:bonusStar .55s cubic-bezier(.2,.9,.25,1.35) both; }
     @keyframes bonusStar { from{opacity:0;transform:scale(.25) rotate(-35deg)} to{opacity:1;transform:scale(1) rotate(0)} }
 
     .splash-screen { position:fixed; z-index:70; inset:0; display:grid; place-items:start center; overflow:hidden; color:#fff; background:#020b0d; isolation:isolate; }
@@ -973,7 +973,9 @@
       showOpeningSplash();
 
       playfield.addEventListener("pointerdown", event => {
-        const node = event.target.closest(".letter-node");
+        const directNode = event.target.closest(".letter-node");
+        if (!directNode && event.target.closest("button")) return;
+        const node = directNode || traceNodeAtPoint(event.clientX, event.clientY);
         if (!node || tracing) return;
         event.preventDefault();
         tracing = true;
@@ -988,8 +990,7 @@
         if (!tracing || event.pointerId !== pointerId) return;
         event.preventDefault();
         updatePointer(event);
-        const candidate = document.elementFromPoint(event.clientX, event.clientY)?.closest(".letter-node");
-        const hovered = candidate && playfield.contains(candidate) ? candidate : null;
+        const hovered = traceNodeAtPoint(event.clientX, event.clientY);
         handleTraceHover(hovered);
         drawPath();
       });
@@ -1401,6 +1402,23 @@
         navigator.vibrate?.(10);
         renderWord();
         drawPath();
+      }
+
+      function traceNodeAtPoint(clientX, clientY) {
+        let nearest = null;
+        let nearestDistance = Infinity;
+        nodes.forEach(node => {
+          const box = node.getBoundingClientRect();
+          const dx = clientX - (box.left + box.width / 2);
+          const dy = clientY - (box.top + box.height / 2);
+          const distance = Math.hypot(dx, dy);
+          const touchRadius = Math.max(box.width, box.height) * .72;
+          if (distance <= touchRadius && distance < nearestDistance) {
+            nearest = node;
+            nearestDistance = distance;
+          }
+        });
+        return nearest;
       }
 
       function handleTraceHover(node) {
