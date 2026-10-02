@@ -214,15 +214,6 @@
     .playfield.board-flipping { pointer-events:none; backface-visibility:hidden; transform-style:preserve-3d; will-change:transform,filter; animation:boardFlip .82s cubic-bezier(.55,.05,.22,1) both; }
     @keyframes boardFlip { 0%{transform:perspective(1100px) rotateY(0) scale(1);filter:brightness(1)} 47%{transform:perspective(1100px) rotateY(88deg) scale(.94);filter:brightness(.5)} 50%{transform:perspective(1100px) rotateY(-88deg) scale(.94);filter:brightness(.55)} 100%{transform:perspective(1100px) rotateY(0) scale(1);filter:brightness(1)} }
 
-    .playfield::after {
-      content: "";
-      position: absolute;
-      inset: 13px;
-      pointer-events: none;
-      border: 1px solid rgba(117,245,199,.06);
-      border-radius: 23px;
-    }
-
     .trace-feedback-slot {
       position: relative;
       z-index: 10;
@@ -739,8 +730,8 @@
     .toast.bonus { display:flex; align-items:center; gap:10px; padding-block:8px; }
     .toast.bonus::before { content:"★"; flex:0 0 auto; color:#ffe779; font-size:2.85rem; line-height:.72; -webkit-text-stroke:1px rgba(80,49,0,.5); filter:drop-shadow(0 0 10px rgba(255,225,92,.95)); animation:bonusStar .55s cubic-bezier(.2,.9,.25,1.35) both; }
     @keyframes bonusStar { from{opacity:0;transform:scale(.25) rotate(-35deg)} to{opacity:1;transform:scale(1) rotate(0)} }
-    .bonus-flight { position:fixed; z-index:120; left:0; top:0; padding:9px 14px; border:1px solid #fff1a8; border-radius:99px; color:#291c00; background:linear-gradient(135deg,#fff3a5,var(--gold)); box-shadow:0 0 14px #fff4a6,0 0 34px var(--gold),0 10px 24px rgba(0,0,0,.42); font-size:.75rem; font-weight:950; letter-spacing:.08em; pointer-events:none; white-space:nowrap; }
-    .bonus-shelf-heading.arrived,.shelf-word.bonus.arrived { animation:bonusArrival .7s cubic-bezier(.2,.9,.25,1.35); }
+    .word-flight { position:fixed; z-index:120; left:0; top:0; padding:9px 14px; border:1px solid #fff1a8; border-radius:99px; color:#291c00; background:linear-gradient(135deg,#fff3a5,var(--gold)); box-shadow:0 0 14px #fff4a6,0 0 34px var(--gold),0 10px 24px rgba(0,0,0,.42); font-size:.75rem; font-weight:950; letter-spacing:.08em; pointer-events:none; white-space:nowrap; }
+    .stage-shelf-heading.arrived,.bonus-shelf-heading.arrived,.shelf-word.arrived { animation:bonusArrival .7s cubic-bezier(.2,.9,.25,1.35); }
     @keyframes bonusArrival { 0%{filter:brightness(1);transform:scale(1)} 45%{color:#fff8bd;filter:brightness(1.65);text-shadow:0 0 12px var(--gold);transform:scale(1.12)} 100%{filter:brightness(1);transform:scale(1)} }
 
     .portrait-lock { display:none; }
@@ -1246,7 +1237,7 @@
       let hoveredTraceNode = null;
       let backtrackTimer = 0;
       let traceResetTimer = 0;
-      let bonusShelfReturnTimer = 0;
+      let shelfReturnTimer = 0;
       let responsiveRenderFrame = 0;
       let responsiveRenderTimer = 0;
       let starfieldFrame = 0;
@@ -2097,7 +2088,7 @@
           vibrate([22,32,22]);
           renderProgress();
           renderWallet();
-          if (!isGoal) requestAnimationFrame(() => animateBonusWord(word));
+          requestAnimationFrame(() => animateDiscoveredWord(word, !isGoal));
         }
         window.clearTimeout(traceResetTimer);
         traceResetTimer = window.setTimeout(resetTrace, resetDelay);
@@ -2764,6 +2755,7 @@
         const bonusWords = found.filter(word => !board.goals.includes(word)).sort((a,b) => a.length - b.length || a.localeCompare(b));
         discoveryShelfContent.replaceChildren();
         const stageHeading = document.createElement("h3");
+        stageHeading.className = "stage-shelf-heading";
         stageHeading.textContent = `Stage word map • ${stageWords.length} / ${board.goals.length}`;
         discoveryShelfContent.append(stageHeading);
         const lengthGroups = board.goals
@@ -2786,6 +2778,7 @@
             const chip = document.createElement("span");
             chip.className = `shelf-word${revealed ? "" : " missing"}`;
             chip.textContent = revealed ? word : "•".repeat(word.length);
+            if (revealed) chip.dataset.shelfWord = word;
             list.append(chip);
           });
           group.append(label, list);
@@ -2812,24 +2805,26 @@
           const chip = document.createElement("span");
           chip.className = `shelf-word${isBonus ? " bonus" : ""}`;
           chip.textContent = word;
+          chip.dataset.shelfWord = word;
           list.append(chip);
         });
         discoveryShelfContent.append(list);
       }
 
-      function animateBonusWord(word) {
+      function animateDiscoveredWord(word, isBonus) {
         const shelf = document.querySelector(".discovery-shelf");
-        const heading = discoveryShelfContent.querySelector(".bonus-shelf-heading");
-        const chip = [...discoveryShelfContent.querySelectorAll(".shelf-word.bonus")].find(item => item.textContent === word);
-        if (!shelf || !heading) return;
-        window.clearTimeout(bonusShelfReturnTimer);
-        discoveryShelfContent.scrollTo?.({top:discoveryShelfContent.scrollHeight,behavior:"smooth"});
+        const heading = discoveryShelfContent.querySelector(isBonus ? ".bonus-shelf-heading" : ".stage-shelf-heading");
+        const chip = [...discoveryShelfContent.querySelectorAll("[data-shelf-word]")].find(item => item.dataset.shelfWord === word);
+        if (!shelf || !heading || !chip) return;
+        window.clearTimeout(shelfReturnTimer);
+        const targetScroll = Math.max(0,Math.min(discoveryShelfContent.scrollHeight - discoveryShelfContent.clientHeight,chip.offsetTop - discoveryShelfContent.clientHeight / 2));
+        discoveryShelfContent.scrollTop = targetScroll;
         const source = wordDisplay.getBoundingClientRect();
-        const destination = shelf.getBoundingClientRect();
+        const destination = chip.getBoundingClientRect();
         const startX = source.left + source.width / 2;
         const startY = source.top + source.height / 2;
         const endX = destination.left + destination.width / 2;
-        const endY = destination.bottom - 24;
+        const endY = destination.top + destination.height / 2;
         const dx = endX - startX;
         const dy = endY - startY;
         const pulseDestination = () => {
@@ -2841,9 +2836,9 @@
           });
         };
         const returnShelfToTop = () => {
-          bonusShelfReturnTimer = window.setTimeout(() => {
+          shelfReturnTimer = window.setTimeout(() => {
             discoveryShelfContent.scrollTo?.({top:0,behavior:"smooth"});
-            bonusShelfReturnTimer = 0;
+            shelfReturnTimer = 0;
           }, 800);
         };
         if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
@@ -2852,7 +2847,7 @@
           return;
         }
         const token = document.createElement("span");
-        token.className = "bonus-flight";
+        token.className = "word-flight";
         token.textContent = `★ ${word}`;
         token.style.left = `${startX}px`;
         token.style.top = `${startY}px`;
