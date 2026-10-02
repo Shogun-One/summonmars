@@ -1233,6 +1233,7 @@
       let hoveredTraceNode = null;
       let backtrackTimer = 0;
       let traceResetTimer = 0;
+      let bonusShelfReturnTimer = 0;
       let masteryFireworksTimer = 0;
       let fireworksCleanupTimer = 0;
 
@@ -2675,6 +2676,7 @@
         const heading = discoveryShelfContent.querySelector(".bonus-shelf-heading");
         const chip = [...discoveryShelfContent.querySelectorAll(".shelf-word.bonus")].find(item => item.textContent === word);
         if (!shelf || !heading) return;
+        window.clearTimeout(bonusShelfReturnTimer);
         discoveryShelfContent.scrollTo?.({top:discoveryShelfContent.scrollHeight,behavior:"smooth"});
         const source = wordDisplay.getBoundingClientRect();
         const destination = shelf.getBoundingClientRect();
@@ -2692,8 +2694,15 @@
             window.setTimeout(() => element.classList.remove("arrived"), 760);
           });
         };
+        const returnShelfToTop = () => {
+          bonusShelfReturnTimer = window.setTimeout(() => {
+            discoveryShelfContent.scrollTo?.({top:0,behavior:"smooth"});
+            bonusShelfReturnTimer = 0;
+          }, 800);
+        };
         if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
           pulseDestination();
+          returnShelfToTop();
           return;
         }
         const token = document.createElement("span");
@@ -2709,7 +2718,11 @@
           {opacity:1,offset:.86,transform:`translate(calc(-50% + ${dx}px),calc(-50% + ${dy}px)) scale(.9) rotate(3deg)`},
           {opacity:0,transform:`translate(calc(-50% + ${dx}px),calc(-50% + ${dy}px)) scale(.35)`}
         ], {duration:900,easing:"cubic-bezier(.2,.72,.2,1)",fill:"forwards"});
-        flight.finished.then(() => { token.remove(); pulseDestination(); }).catch(() => token.remove());
+        flight.finished.then(() => {
+          token.remove();
+          pulseDestination();
+          returnShelfToTop();
+        }).catch(() => token.remove());
       }
 
       function renderAvatarChoices() {
