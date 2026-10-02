@@ -191,7 +191,7 @@
 
     .playfield {
       position: relative;
-      height: clamp(370px, 47svh, 450px);
+      height: clamp(370px, calc(83svh - 253px), 510px);
       min-height: 365px;
       overflow: hidden;
       border: 1px solid rgba(117,245,199,.2);
@@ -359,13 +359,11 @@
     #themeChoices .theme-swatch { position:relative; display:block; width:100%; height:58px; margin:0 0 8px; overflow:hidden; border-radius:12px 4px 12px 4px; background:radial-gradient(ellipse at 28% 70%,var(--scene-glow),transparent 34%),radial-gradient(ellipse at 76% 16%,color-mix(in srgb,var(--scene-two) 64%,transparent),transparent 40%),linear-gradient(145deg,var(--scene-deep),color-mix(in srgb,var(--swatch) 46%,#02050d)); box-shadow:inset 0 1px rgba(255,255,255,.3),0 0 18px color-mix(in srgb,var(--swatch) 30%,transparent); }
     #themeChoices .theme-swatch::before { content:""; position:absolute; width:28px; height:28px; right:13px; top:12px; border-radius:50%; background:radial-gradient(circle at 34% 28%,#fff,var(--scene-two) 18%,var(--swatch) 58%,#071019 72%); box-shadow:0 0 18px var(--scene-glow); }
     #themeChoices .theme-swatch::after { content:"✦  ·  ✧   ·  ✦"; position:absolute; left:10px; top:9px; color:rgba(255,255,255,.86); font-size:.62rem; letter-spacing:.22em; text-shadow:18px 22px 0 color-mix(in srgb,var(--swatch) 70%,white); }
-    #layoutChoices { grid-template-columns:repeat(2,minmax(0,1fr)); }
+    #layoutChoices { grid-template-columns:1fr; }
     #layoutChoices .choice-button { min-height:86px; }
     .path-preview { position:relative; display:block; width:92px; height:48px; margin:0 auto 7px; border:1px solid rgba(255,255,255,.08); border-radius:12px; background:radial-gradient(circle at 50% 50%,color-mix(in srgb,var(--mint) 12%,transparent),transparent 68%); }
     .path-preview i { position:absolute; width:9px; height:9px; margin:-4.5px; border-radius:50%; background:var(--mint); box-shadow:0 0 9px var(--mint); }
-    .path-preview i:nth-child(1),.path-preview i:nth-child(5){top:10%;}.path-preview i:nth-child(2),.path-preview i:nth-child(4){top:52%;}.path-preview i:nth-child(3){top:86%;}
-    .path-preview.down { transform:scaleY(-1); }
-    .path-preview i:nth-child(1){left:10%;}.path-preview i:nth-child(2){left:29%;}.path-preview i:nth-child(3){left:50%;}.path-preview i:nth-child(4){left:71%;}.path-preview i:nth-child(5){left:90%;}
+    .path-preview i:nth-child(1){left:50%;top:12%;}.path-preview i:nth-child(2){left:87%;top:36%;}.path-preview i:nth-child(3){left:73%;top:84%;}.path-preview i:nth-child(4){left:27%;top:84%;}.path-preview i:nth-child(5){left:13%;top:36%;}
     .avatar-grid { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:8px; }
     .avatar-choice { padding:5px 3px 6px; border:1px solid rgba(255,255,255,.2); border-radius:13px 5px 13px 5px; color:var(--surface-text); background:rgba(255,255,255,.075); font-size:.61rem; font-weight:850; cursor:pointer; }
     .avatar-choice.selected { color:var(--ink); border-color:var(--gold); box-shadow:0 0 16px color-mix(in srgb,var(--gold) 20%,transparent); }
@@ -544,7 +542,7 @@
     .shelf-length-group+.shelf-length-group { margin-top:11px; }
     .shelf-length-label { margin:0 0 6px; color:var(--muted); font-size:.59rem; font-weight:800; letter-spacing:.1em; text-transform:uppercase; }
     .shelf-empty { margin:0; color:var(--muted); font-size:.72rem; }
-    .board-nav-button { position:absolute; z-index:21; bottom:10px; width:42px; height:42px; display:grid; place-items:center; padding:0 0 3px; border:1px solid color-mix(in srgb,var(--mint) 32%,transparent); border-radius:50%; color:var(--mint); background:rgba(3,17,15,.82); box-shadow:inset 0 1px rgba(255,255,255,.08); font:700 1.8rem/1 Georgia,serif; cursor:pointer; transition:opacity .2s ease,filter .2s ease; }
+    .board-nav-button { position:absolute; z-index:21; bottom:58px; width:42px; height:42px; display:grid; place-items:center; padding:0 0 3px; border:1px solid color-mix(in srgb,var(--mint) 32%,transparent); border-radius:50%; color:var(--mint); background:rgba(3,17,15,.82); box-shadow:inset 0 1px rgba(255,255,255,.08); font:700 1.8rem/1 Georgia,serif; cursor:pointer; transition:opacity .2s ease,filter .2s ease; }
     .board-nav-button.previous { left:13px; }
     .board-nav-button.next { right:13px; }
     .board-nav-button:disabled { opacity:.25; cursor:not-allowed; }
@@ -695,14 +693,10 @@
     .launch-choice-button:disabled small { color:#939e9b; }
     .install-note { margin:16px 5px 0 !important; color:var(--surface-muted); font-size:.65rem; font-weight:650 !important; line-height:1.45; }
 
-    @media (min-height: 760px) {
-      .playfield { min-height: 410px; }
-    }
-
     @media (max-height: 680px) {
       .app { padding-top:max(34px,calc(env(safe-area-inset-top) + 14px)); padding-bottom:10px; gap:9px; }
       h1 { font-size: 2.35rem; }
-      .playfield { height:48svh; min-height:330px; }
+      .playfield { height:calc(100svh - 338px); min-height:300px; }
       .progress-card { padding-block: 9px; }
     }
 
@@ -801,8 +795,7 @@
       <div class="menu-section">
         <h3>Letter path</h3>
         <div class="choice-grid" id="layoutChoices">
-          <button class="choice-button" type="button" data-layout-choice="horseshoe-up"><span class="path-preview"><i></i><i></i><i></i><i></i><i></i></span>Horseshoe</button>
-          <button class="choice-button" type="button" data-layout-choice="horseshoe-down"><span class="path-preview down"><i></i><i></i><i></i><i></i><i></i></span>Horseshoe Down</button>
+          <button class="choice-button" type="button" data-layout-choice="oval"><span class="path-preview"><i></i><i></i><i></i><i></i><i></i></span>Orbital Oval</button>
         </div>
       </div>
       <div class="menu-section">
@@ -1082,7 +1075,7 @@
         localStorage.removeItem("verbia-prototype-board-01");
         progress = freshProgress(true);
         profileExists = true;
-        settings = { theme:"emerald", layout:"horseshoe-up", shape:"shard", avatar:"rx7", avatarDefaultVersion:2 };
+        settings = { theme:"emerald", layout:"oval", shape:"shard", avatar:"rx7", avatarDefaultVersion:2 };
         boardIndex = 0;
         boards.length = 0;
         ensureBoard(1);
@@ -1300,15 +1293,14 @@
       }
 
       function layoutFor(count, type) {
-        const upward = {
-          3: [[28,29],[50,62],[72,29]],
-          4: [[25,27],[28,59],[72,59],[75,27]],
-          5: [[24,26],[24,47],[50,65],[76,47],[76,26]],
-          6: [[22,25],[22,45],[36,63],[64,63],[78,45],[78,25]],
-          7: [[20,24],[20,43],[33,61],[50,69],[67,61],[80,43],[80,24]]
-        };
-        const points = upward[count] || upward[7];
-        return points.map(([x,y]) => [x, type === "horseshoe-down" ? 100 - y : y]);
+        const centerX = 50, centerY = 47;
+        const radiusX = count <= 4 ? 31 : 36;
+        const radiusY = count <= 4 ? 20 : 24;
+        const startAngle = -Math.PI / 2;
+        return Array.from({length:count}, (_, index) => {
+          const angle = startAngle + (Math.PI * 2 * index / count);
+          return [centerX + Math.cos(angle) * radiusX, centerY + Math.sin(angle) * radiusY];
+        });
       }
 
       function renderMilestoneBackground(level) {
@@ -1448,7 +1440,7 @@
         if (!nodes.length) return;
         constellationLines.replaceChildren();
         const links = Array.from({length: Math.max(0, nodes.length - 1)}, (_, index) => [index, index + 1]);
-        if (settings.layout === "triangle" && nodes.length > 2) links.push([nodes.length - 1, 0]);
+        if (nodes.length > 2) links.push([nodes.length - 1, 0]);
         links.forEach(([a,b]) => {
           if (!nodes[a] || !nodes[b]) return;
           const start = nodeCenter(nodes[a]);
@@ -1950,9 +1942,7 @@
       }
 
       function applySettings(rerenderBoard) {
-        if (["smile","triangle"].includes(settings.layout)) settings.layout = "horseshoe-up";
-        if (settings.layout === "frown") settings.layout = "horseshoe-down";
-        if (!["horseshoe-up","horseshoe-down"].includes(settings.layout)) settings.layout = "horseshoe-up";
+        if (settings.layout !== "oval") settings.layout = "oval";
         if (!["shard","circle"].includes(settings.shape)) settings.shape = "shard";
         document.documentElement.dataset.theme = settings.theme;
         playfield.dataset.shape = settings.shape;
@@ -1972,8 +1962,8 @@
         try {
           const saved = JSON.parse(localStorage.getItem(settingsKey) || "{}");
           if (!saved.avatarDefaultVersion) saved.avatar = "rx7";
-          return { theme:"emerald", layout:"horseshoe-up", shape:"shard", avatar:"rx7", ...saved, avatarDefaultVersion:2 };
-        } catch { return { theme:"emerald", layout:"horseshoe-up", shape:"shard", avatar:"rx7", avatarDefaultVersion:2 }; }
+          return { theme:"emerald", layout:"oval", shape:"shard", avatar:"rx7", ...saved, avatarDefaultVersion:2 };
+        } catch { return { theme:"emerald", layout:"oval", shape:"shard", avatar:"rx7", avatarDefaultVersion:2 }; }
       }
 
       function saveSettings() { localStorage.setItem(settingsKey, JSON.stringify(settings)); }
