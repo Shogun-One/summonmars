@@ -8385,7 +8385,8 @@ if (flashTimer > 0) {
         ];
         ctx.textAlign='left';
         if(compact){
-          const left=20,startY=62,lineH=36;
+          // Portrait needs a clear title band before the first control row.
+          const left=20,startY=80,lineH=36;
           lines.forEach(([label,value],i)=>{
             const y=startY+i*lineH;
             ctx.fillStyle='#ff8ac0';ctx.font='800 16px Share Tech Mono';ctx.fillText(label,left,y);
