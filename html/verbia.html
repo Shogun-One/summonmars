@@ -171,14 +171,14 @@
 
     .game-avatar { position:absolute; z-index:12; left:4px; bottom:-2px; width:82px; height:158px; padding:0; overflow:visible; border:0; background:transparent; cursor:pointer; filter:drop-shadow(0 8px 9px rgba(0,0,0,.5)); }
     .game-avatar-base { --atlas-x:0%;--atlas-y:0%; position:absolute; z-index:1; inset:0; background-image:url('../images/verbia/explorer-fitting-atlas-v3.png'); background-size:500% 200%; background-position:var(--atlas-x) var(--atlas-y); background-repeat:no-repeat; }
-    .game-avatar-wearable { position:absolute; z-index:3; left:calc(50% + var(--fit-x,0%)); display:none; translate:-50% 0; background-size:contain; background-position:center; background-repeat:no-repeat; pointer-events:none; }
+    .game-avatar-wearable { position:absolute; z-index:3; inset:0; display:none; background-repeat:no-repeat; pointer-events:none; }
     .game-avatar-wearable.visible { display:block; }
-    .game-avatar-wearable.hat { top:var(--hat-top); width:var(--hat-width); height:var(--hat-height); }
-    .game-avatar-wearable.glasses { top:var(--glasses-top); width:var(--glasses-width); height:var(--glasses-height); }
-    .game-avatar-wearable.shirt { top:var(--shirt-top); width:var(--shirt-width); height:var(--shirt-height); }
-    .game-avatar-wearable.pants { top:var(--pants-top); width:var(--pants-width); height:var(--pants-height); }
-    .game-avatar-wearable.outfit { z-index:4; top:var(--outfit-top); width:var(--outfit-width); height:var(--outfit-height); }
-    .game-avatar-wearable.shoes { bottom:var(--shoes-bottom); width:var(--shoes-width); height:var(--shoes-height); }
+    .game-avatar-wearable.hat,.persona-wearable.hat { background-size:var(--hat-size) auto!important; background-position:calc(50% + var(--fit-x)) var(--hat-y)!important; }
+    .game-avatar-wearable.glasses,.persona-wearable.glasses { background-size:var(--glasses-size) auto!important; background-position:calc(50% + var(--fit-x)) var(--glasses-y)!important; }
+    .game-avatar-wearable.shirt,.persona-wearable.shirt { background-size:var(--shirt-size) auto!important; background-position:calc(50% + var(--fit-x)) var(--shirt-y)!important; }
+    .game-avatar-wearable.pants,.persona-wearable.pants { background-size:var(--pants-size) auto!important; background-position:calc(50% + var(--fit-x)) var(--pants-y)!important; }
+    .game-avatar-wearable.outfit,.persona-wearable.outfit { z-index:5; background-size:var(--outfit-size) auto!important; background-position:calc(50% + var(--fit-x)) var(--outfit-y)!important; }
+    .game-avatar-wearable.shoes,.persona-wearable.shoes { background-size:var(--shoes-size) auto!important; background-position:calc(50% + var(--fit-x)) var(--shoes-y)!important; }
     .progress-card:has(.game-avatar) .progress-row { padding-left:70px; }
     .progress-card:has(.game-avatar) .progress-track { margin-left:70px; }
 
@@ -574,18 +574,12 @@
     .inventory-stage { position:relative; height:min(58svh,560px); min-height:440px; margin:14px 0; overflow:hidden; border:1px solid rgba(255,255,255,.13); border-radius:24px 8px; background:radial-gradient(circle at 50% 36%,color-mix(in srgb,var(--mint) 20%,transparent),transparent 34%),linear-gradient(180deg,#0d2730,#070b15 70%); box-shadow:inset 0 0 55px rgba(75,223,255,.08); }
     .inventory-stage::after { content:"FULL-BODY FITTING BAY"; position:absolute; left:14px; top:12px; color:rgba(255,255,255,.42); font-size:.5rem; font-weight:900; letter-spacing:.16em; }
     .persona { --atlas-x:0%;--atlas-y:0%; position:absolute; z-index:2; left:50%; bottom:12px; width:min(76%,330px); height:calc(100% - 40px); transform:translateX(-50%); background-image:url('../images/verbia/explorer-fitting-atlas-v3.png'); background-size:500% 200%; background-position:var(--atlas-x) var(--atlas-y); background-repeat:no-repeat; filter:drop-shadow(0 16px 18px rgba(0,0,0,.45)); }
-    .persona-wearable { position:absolute; z-index:4; left:calc(50% + var(--fit-x,0%)); display:none; translate:-50% 0; background-size:contain; background-position:center; background-repeat:no-repeat; filter:drop-shadow(0 5px 7px rgba(0,0,0,.4)); pointer-events:none; }
+    .persona-wearable { position:absolute; z-index:4; left:50%; bottom:12px; width:min(76%,330px); height:calc(100% - 40px); display:none; translate:-50% 0; background-repeat:no-repeat; filter:drop-shadow(0 5px 7px rgba(0,0,0,.4)); pointer-events:none; }
     .persona-wearable.visible { display:block; }
-    .persona-wearable.hat { top:var(--hat-top); width:var(--hat-width); height:var(--hat-height); }
-    .persona-wearable.glasses { top:var(--glasses-top); width:var(--glasses-width); height:var(--glasses-height); }
-    .persona-wearable.shirt { top:var(--shirt-top); width:var(--shirt-width); height:var(--shirt-height); }
-    .persona-wearable.pants { top:var(--pants-top); width:var(--pants-width); height:var(--pants-height); }
-    .persona-wearable.outfit { z-index:5; top:var(--outfit-top); width:var(--outfit-width); height:var(--outfit-height); }
-    .persona-wearable.shoes { bottom:var(--shoes-bottom); width:var(--shoes-width); height:var(--shoes-height); }
-    .inventory-stage,.game-avatar { --hat-top:4%;--hat-width:31%;--hat-height:18%;--glasses-top:14%;--glasses-width:27%;--glasses-height:10%;--shirt-top:23%;--shirt-width:46%;--shirt-height:39%;--pants-top:50%;--pants-width:36%;--pants-height:40%;--outfit-top:22%;--outfit-width:54%;--outfit-height:72%;--shoes-bottom:0%;--shoes-width:34%;--shoes-height:16%; }
-    .inventory-stage[data-fit-profile="female"],.game-avatar[data-fit-profile="female"] { --hat-width:29%;--glasses-width:25%;--shirt-top:24%;--shirt-width:43%;--pants-top:51%;--pants-width:34%;--outfit-width:51%;--shoes-width:32%; }
-    .inventory-stage[data-fit-profile="male"],.game-avatar[data-fit-profile="male"] { --hat-width:30%;--glasses-width:26%;--shirt-top:23%;--shirt-width:49%;--pants-top:51%;--pants-width:39%;--outfit-width:56%;--shoes-width:35%; }
-    .inventory-stage[data-fit-profile="robot"],.game-avatar[data-fit-profile="robot"] { --hat-top:1%;--hat-width:32%;--glasses-top:13%;--glasses-width:29%;--shirt-top:22%;--shirt-width:45%;--pants-top:49%;--pants-width:42%;--outfit-top:20%;--outfit-width:52%;--shoes-width:44%; }
+    .inventory-stage,.game-avatar { --fit-x:0%;--hat-size:34%;--hat-y:3%;--glasses-size:29%;--glasses-y:15%;--shirt-size:52%;--shirt-y:33%;--pants-size:34%;--pants-y:97%;--outfit-size:64%;--outfit-y:75%;--shoes-size:40%;--shoes-y:100%; }
+    .inventory-stage[data-fit-profile="female"],.game-avatar[data-fit-profile="female"] { --hat-size:31%;--glasses-size:27%;--shirt-size:48%;--pants-size:32%;--outfit-size:60%;--shoes-size:38%; }
+    .inventory-stage[data-fit-profile="male"],.game-avatar[data-fit-profile="male"] { --hat-size:32%;--glasses-size:28%;--shirt-size:56%;--pants-size:37%;--outfit-size:68%;--shoes-size:42%; }
+    .inventory-stage[data-fit-profile="robot"],.game-avatar[data-fit-profile="robot"] { --hat-size:35%;--hat-y:1%;--glasses-size:31%;--glasses-y:13%;--shirt-size:50%;--shirt-y:31%;--pants-size:34%;--pants-y:97%;--outfit-size:64%;--outfit-y:73%;--shoes-size:42%;--shoes-y:100%; }
     .inventory-pet { --pet-x:0%; position:absolute; z-index:7; right:5px; bottom:10px; width:36%; height:34%; background-image:url('../images/verbia/explorer-pets-atlas-v1.png'); background-size:500% 100%; background-position:var(--pet-x) 0; background-repeat:no-repeat; filter:drop-shadow(0 8px 8px rgba(0,0,0,.5)); }
     .inventory-pet:empty { display:none; }
     .inventory-list { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
