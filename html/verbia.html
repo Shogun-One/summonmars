@@ -250,8 +250,11 @@
       opacity: 0;
     }
 
-    .board-tools { position:absolute; z-index:8; top:22px; left:143px; display:flex; align-items:center; gap:7px; }
-    .pause-button { width:35px; height:35px; border:1px solid rgba(255,255,255,.14); border-radius:10px 4px 10px 4px; color:var(--ink); background:rgba(0,0,0,.25); font-weight:900; cursor:pointer; }
+    .board-tools { position:absolute; z-index:8; top:19px; left:17px; right:17px; display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:7px; pointer-events:none; }
+    .board-control-button { min-width:72px; padding:8px 10px; border:1px solid rgba(255,217,120,.25); border-radius:12px 5px 12px 5px; color:var(--gold); background:rgba(255,217,120,.07); font-size:.62rem; font-weight:850; letter-spacing:.08em; text-transform:uppercase; cursor:pointer; pointer-events:auto; }
+    .pause-button { justify-self:start; }
+    .sound-cycle-button { min-width:94px; justify-self:center; }
+    .shuffle-button { justify-self:end; }
     .avatar-art { width:100%; height:100%; background-image:url('/images/verbia/avatar-roster-v1.png'); background-size:300% 300%; background-repeat:no-repeat; background-position:var(--avatar-x) var(--avatar-y); }
     .avatar-choice .avatar-art { width:60px; height:60px; margin:auto; border-radius:14px 6px 14px 6px; box-shadow:0 8px 18px rgba(0,0,0,.3); }
     #themeChoices { grid-template-columns:repeat(2, minmax(0, 1fr)); }
@@ -259,27 +262,9 @@
     .choice-button small { display:block; margin-top:5px; color:var(--surface-muted); font-size:.61rem; font-weight:750; line-height:1.38; text-transform:none; letter-spacing:.02em; }
     .theme-swatch { width:100%; height:25px; border-radius:9px 3px 9px 3px; background:radial-gradient(circle at 70% 30%, white 0 1px, transparent 2px), linear-gradient(120deg, color-mix(in srgb, var(--swatch) 28%, #02070d), var(--swatch)); box-shadow:inset 0 1px rgba(255,255,255,.25), 0 0 14px color-mix(in srgb, var(--swatch) 30%, transparent); }
 
-    .shuffle-button {
-      position: absolute;
-      z-index: 7;
-      right: 17px;
-      top: 19px;
-      min-width: 72px;
-      padding: 8px 10px;
-      border: 1px solid rgba(255,217,120,.25);
-      border-radius: 12px 5px 12px 5px;
-      color: var(--gold);
-      background: rgba(255,217,120,.07);
-      font-size: .62rem;
-      font-weight: 850;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-      cursor: pointer;
-    }
-
-    .shuffle-button:active { transform: scale(.96); }
-    .bubble-tools { position:absolute; z-index:9; top:12px; left:15px; display:flex; gap:8px; }
-    .hint-button,.daily-bubble { position:relative; inset:auto; width:56px; height:56px; padding:0; border:2px solid var(--gold); border-radius:50%; color:#201500; background:radial-gradient(circle at 34% 26%,#fff7b2,var(--gold) 45%,#df7e35); box-shadow:0 0 0 5px rgba(255,217,120,.07),0 9px 22px rgba(0,0,0,.42); font-size:1.28rem; line-height:1; cursor:pointer; animation:bubbleFloat 2.2s ease-in-out infinite; }
+    .board-control-button:active { transform:scale(.96); }
+    .bubble-tools { position:absolute; z-index:9; top:10px; left:10px; right:10px; display:flex; justify-content:space-between; gap:8px; pointer-events:none; }
+    .hint-button,.daily-bubble { position:relative; inset:auto; width:56px; height:56px; padding:0; border:2px solid var(--gold); border-radius:50%; color:#201500; background:radial-gradient(circle at 34% 26%,#fff7b2,var(--gold) 45%,#df7e35); box-shadow:0 0 0 5px rgba(255,217,120,.07),0 9px 22px rgba(0,0,0,.42); font-size:1.28rem; line-height:1; cursor:pointer; animation:bubbleFloat 2.2s ease-in-out infinite; pointer-events:auto; }
     .hint-button { border-color:var(--mint); background:radial-gradient(circle at 34% 26%,#f5fff9,var(--mint) 45%,color-mix(in srgb,var(--mint) 58%,#214f42)); animation-delay:-.7s; }
     .hint-button small,.daily-bubble small { display:block; margin-top:2px; color:#1d1607; font-size:.45rem; font-weight:950; line-height:1; letter-spacing:.045em; text-transform:uppercase; }
     .hint-button:disabled { opacity:.42; cursor:not-allowed; filter:grayscale(.6); animation:none; }
@@ -387,7 +372,7 @@
     @media (prefers-reduced-motion:reduce) { .explorer-shop-pulse { animation:none; border-color:var(--gold); } }
     .settings-bar { display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:end; gap:9px; margin-top:12px; padding:10px; border:1px solid rgba(255,255,255,.14); border-radius:15px 6px 15px 6px; background:rgba(255,255,255,.045); }
     .settings-group>span { display:block; margin:0 0 6px; color:color-mix(in srgb,var(--gold) 78%,white); font-size:.57rem; font-weight:900; letter-spacing:.12em; text-transform:uppercase; }
-    .sound-options { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:5px; }
+    .sound-options { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:5px; }
     .setting-button { min-height:36px; padding:6px 7px; border:1px solid rgba(255,255,255,.18); border-radius:9px 4px 9px 4px; color:var(--surface-muted); background:rgba(255,255,255,.065); font-size:.57rem; font-weight:850; line-height:1.05; cursor:pointer; }
     .setting-button.selected { color:var(--accent-text); border-color:var(--mint); background:var(--mint); box-shadow:0 0 12px color-mix(in srgb,var(--mint) 25%,transparent); }
     .haptic-toggle { min-width:76px; }
@@ -835,14 +820,11 @@
     <section class="playfield" id="playfield" aria-label="Letter constellation. Drag through letters to form a word.">
       <canvas class="board-backdrop" id="boardBackdrop" aria-hidden="true"></canvas>
       <div class="board-tools">
-        <button class="pause-button" id="pauseButton" type="button" aria-label="Pause and open game menu">Ⅱ</button>
+        <button class="board-control-button pause-button" id="pauseButton" type="button" aria-label="Pause and open game menu">Pause</button>
+        <button class="board-control-button sound-cycle-button" id="soundCycleButton" type="button" aria-label="Change sound mode">♫ Music + FX</button>
+        <button class="board-control-button shuffle-button" id="shuffleButton" type="button" aria-label="Shuffle letter positions">↝ Shuffle</button>
       </div>
       <div class="word-display" id="wordDisplay" data-empty="true" aria-live="polite"></div>
-      <button class="shuffle-button" id="shuffleButton" type="button" aria-label="Shuffle letter positions">↝ Shuffle</button>
-      <div class="bubble-tools" aria-label="Board bonuses">
-        <button class="hint-button" id="hintButton" type="button" aria-label="Use a hint">💡<small>Hint · <span id="hintCount">3</span></small></button>
-        <button class="daily-bubble" id="dailyBubble" type="button" hidden aria-label="Play today's daily dart reward">🎯<small>Daily</small></button>
-      </div>
       <div class="toast" id="toast" role="status" aria-live="assertive"></div>
       <div class="effects-layer" id="effectsLayer" aria-hidden="true"></div>
       <svg id="paths" aria-hidden="true">
@@ -859,6 +841,10 @@
     <section class="discovery-dock">
       <aside class="discovery-shelf" id="discoveryShelf" aria-label="Board discoveries">
         <div class="discovery-shelf__inner" id="discoveryShelfContent"></div>
+        <div class="bubble-tools" aria-label="Board bonuses">
+          <button class="hint-button" id="hintButton" type="button" aria-label="Use a hint">💡<small>Hint · <span id="hintCount">3</span></small></button>
+          <button class="daily-bubble" id="dailyBubble" type="button" hidden aria-label="Play today's daily dart reward">🎯<small>Daily</small></button>
+        </div>
       </aside>
     </section>
   </main>
@@ -900,6 +886,7 @@
       <div class="settings-bar" aria-label="Game settings">
         <div class="settings-group"><span>Sound</span><div class="sound-options" id="soundOptions">
           <button class="setting-button" type="button" data-sound-mode="all">Music + FX</button>
+          <button class="setting-button" type="button" data-sound-mode="music">Music only</button>
           <button class="setting-button" type="button" data-sound-mode="effects">FX only</button>
           <button class="setting-button" type="button" data-sound-mode="off">No sound</button>
         </div></div>
@@ -1081,6 +1068,7 @@
       const boardState = document.querySelector("#boardState");
       const boardNumber = document.querySelector("#boardNumber");
       const shuffleButton = document.querySelector("#shuffleButton");
+      const soundCycleButton = document.querySelector("#soundCycleButton");
       const hintButton = document.querySelector("#hintButton");
       const hintCount = document.querySelector("#hintCount");
       const nextButton = document.querySelector("#nextButton");
@@ -1210,7 +1198,7 @@
         screen.orientation.lock("portrait").catch(() => {});
       };
       const startBackgroundMusic = () => {
-        if (backgroundMusicStarted || settings.soundMode !== "all") return;
+        if (backgroundMusicStarted || !["all","music"].includes(settings.soundMode)) return;
         backgroundMusic.play().then(() => {
           backgroundMusicStarted = true;
           document.removeEventListener("pointerdown", startBackgroundMusic);
@@ -1222,7 +1210,7 @@
       document.addEventListener("visibilitychange", () => {
         if (!backgroundMusicStarted) return;
         if (document.hidden) backgroundMusic.pause();
-        else if (settings.soundMode === "all") backgroundMusic.play().catch(() => {});
+        else if (["all","music"].includes(settings.soundMode)) backgroundMusic.play().catch(() => {});
       });
 
       playfield.addEventListener("pointerdown", event => {
@@ -1320,7 +1308,14 @@
         if (!choice) return;
         settings.soundMode = choice.dataset.soundMode;
         applySettings(false);
-        if (settings.soundMode === "all") startBackgroundMusic();
+        if (["all","music"].includes(settings.soundMode)) startBackgroundMusic();
+      });
+
+      soundCycleButton.addEventListener("click", () => {
+        const modes = ["all","music","effects","off"];
+        settings.soundMode = modes[(modes.indexOf(settings.soundMode) + 1) % modes.length];
+        applySettings(false);
+        if (["all","music"].includes(settings.soundMode)) startBackgroundMusic();
       });
 
       hapticToggle.addEventListener("click", () => {
@@ -2627,7 +2622,7 @@
       function applySettings(rerenderBoard) {
         ensureInventory();
         if (!["shard","circle","triangle"].includes(settings.shape)) settings.shape = "shard";
-        if (!["all","effects","off"].includes(settings.soundMode)) settings.soundMode = "all";
+        if (!["all","music","effects","off"].includes(settings.soundMode)) settings.soundMode = "all";
         if (typeof settings.haptics !== "boolean") settings.haptics = true;
         document.documentElement.dataset.theme = settings.theme;
         playfield.dataset.shape = settings.shape;
@@ -2643,9 +2638,12 @@
         hapticToggle.classList.toggle("selected", settings.haptics);
         hapticToggle.setAttribute("aria-pressed", String(settings.haptics));
         hapticToggle.textContent = settings.haptics ? "Vibrate on" : "Vibrate off";
+        const soundLabels = {all:"♫ Music + FX",music:"♫ Music",effects:"♫ FX",off:"♫ Silent"};
+        soundCycleButton.textContent = soundLabels[settings.soundMode];
+        soundCycleButton.setAttribute("aria-label", `Sound mode: ${soundLabels[settings.soundMode].replace("♫ ","")}. Tap to change.`);
         document.querySelectorAll("[data-shape-choice]").forEach(button => button.classList.toggle("selected", button.dataset.shapeChoice === settings.shape));
         document.querySelectorAll("[data-avatar-choice]").forEach(button => button.classList.toggle("selected", button.dataset.avatarChoice === settings.avatar));
-        if (settings.soundMode !== "all") backgroundMusic.pause();
+        if (!["all","music"].includes(settings.soundMode)) backgroundMusic.pause();
         else if (backgroundMusicStarted && !document.hidden) backgroundMusic.play().catch(() => {});
         if (settings.soundMode === "off") {
           boardClearAudio.pause();
@@ -2733,7 +2731,7 @@
       }
 
       function getAudioContext() {
-        if (settings.soundMode === "off") return null;
+        if (!["all","effects"].includes(settings.soundMode)) return null;
         const AudioEngine = window.AudioContext || window.webkitAudioContext;
         if (!AudioEngine) return null;
         audioContext ||= new AudioEngine();
@@ -2842,7 +2840,7 @@
       }
 
       function playRecordedEffect(audio, fallback) {
-        if (settings.soundMode === "off") return;
+        if (!["all","effects"].includes(settings.soundMode)) return;
         try {
           audio.pause();
           audio.currentTime = 0;
