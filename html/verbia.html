@@ -573,7 +573,7 @@
     .persona { --atlas-x:0%;--atlas-y:0%; position:absolute; z-index:2; left:50%; bottom:12px; width:min(76%,330px); height:calc(100% - 40px); transform:translateX(-50%); background-image:url('../images/verbia/explorer-fitting-atlas-v3.png'); background-size:500% 200%; background-position:var(--atlas-x) var(--atlas-y); background-repeat:no-repeat; filter:drop-shadow(0 16px 18px rgba(0,0,0,.45)); }
     .persona-wearable { position:absolute; z-index:4; left:50%; bottom:12px; width:min(76%,330px); height:calc(100% - 40px); display:none; translate:-50% 0; background-repeat:no-repeat; background-size:contain!important; background-position:center bottom!important; filter:drop-shadow(0 5px 7px rgba(0,0,0,.4)); pointer-events:none; }
     .persona-wearable.visible { display:block; }
-    .inventory-pet { --pet-x:0%; position:absolute; z-index:7; right:5px; bottom:10px; width:36%; height:34%; background-image:url('../images/verbia/explorer-pets-atlas-v1.png'); background-size:500% 100%; background-position:var(--pet-x) 0; background-repeat:no-repeat; filter:drop-shadow(0 8px 8px rgba(0,0,0,.5)); }
+    .inventory-pet { --pet-x:0%; position:absolute; z-index:7; right:5px; bottom:10px; width:34%; height:auto; aspect-ratio:3 / 5; background-image:url('../images/verbia/explorer-pets-atlas-v1.png'); background-size:500% 100%; background-position:var(--pet-x) 0; background-repeat:no-repeat; filter:drop-shadow(0 8px 8px rgba(0,0,0,.5)); }
     .inventory-pet:empty { display:none; }
     .inventory-list { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
     .inventory-list > .feature-intro { grid-column:1 / -1; width:100%; }
@@ -2084,9 +2084,7 @@
       }
 
       function avatarFitProfile(avatar) {
-        if (["rx7","nova"].includes(avatar.id)) return "robot";
-        if (["malik","luca","finn","kai","mateo"].includes(avatar.id)) return "male";
-        return "female";
+        return "universal";
       }
 
       function avatarFitOffset(avatar) {
