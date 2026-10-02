@@ -377,6 +377,8 @@
     .avatar-choice.selected .avatar-cost { color:color-mix(in srgb,var(--gold) 70%,white); }
     .menu-action { width:100%; margin-top:22px; padding:13px; border:0; border-radius:15px 6px 15px 6px; color:#07130f; background:linear-gradient(135deg,var(--mint),var(--gold)); font-size:.78rem; font-weight:900; letter-spacing:.12em; text-transform:uppercase; cursor:pointer; }
     .menu-subaction { width:100%; margin-top:8px; padding:11px; border:1px solid color-mix(in srgb,var(--mint) 38%,transparent); border-radius:13px 5px; color:var(--surface-text); background:rgba(117,245,199,.08); font-size:.68rem; font-weight:900; letter-spacing:.1em; text-transform:uppercase; cursor:pointer; }
+    .menu-settings-row { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:7px; margin-top:8px; }
+    .menu-settings-row .menu-subaction { margin-top:0; }
     .wallet-actions { display:grid; gap:5px; margin-top:7px; }
     .menu-wallet-section { margin-top:18px; }
     .wallet-actions .menu-subaction { margin-top:0; }
@@ -389,11 +391,11 @@
     .setting-button { min-height:36px; padding:6px 7px; border:1px solid rgba(255,255,255,.18); border-radius:9px 4px 9px 4px; color:var(--surface-muted); background:rgba(255,255,255,.065); font-size:.57rem; font-weight:850; line-height:1.05; cursor:pointer; }
     .setting-button.selected { color:var(--accent-text); border-color:var(--mint); background:var(--mint); box-shadow:0 0 12px color-mix(in srgb,var(--mint) 25%,transparent); }
     .haptic-toggle { min-width:76px; }
-    .menu-preview { position:relative; height:146px; margin-top:10px; overflow:hidden; border:1px solid color-mix(in srgb,var(--mint) 34%,transparent); border-radius:17px 6px; background:radial-gradient(circle at 52% 38%,color-mix(in srgb,var(--mint) 28%,transparent),transparent 44%),linear-gradient(180deg,#175063,#0b1933 82%); box-shadow:inset 0 0 34px rgba(75,223,255,.13); }
+    .menu-preview { position:relative; height:190px; margin-top:14px; overflow:hidden; border:1px solid color-mix(in srgb,var(--mint) 34%,transparent); border-radius:17px 6px; background:radial-gradient(circle at 52% 38%,color-mix(in srgb,var(--mint) 28%,transparent),transparent 44%),linear-gradient(180deg,#175063,#0b1933 82%); box-shadow:inset 0 0 34px rgba(75,223,255,.13); }
     .menu-preview::before { content:"CURRENT EXPLORER"; position:absolute; z-index:8; left:10px; top:8px; color:rgba(255,255,255,.42); font-size:.45rem; font-weight:900; letter-spacing:.15em; }
     .menu-preview-ship { position:absolute; z-index:1; top:8px; right:0; bottom:8px; width:38%; background-repeat:no-repeat; background-position:right center; background-size:contain; opacity:.5; filter:brightness(1.18) saturate(1.2) drop-shadow(0 5px 8px rgba(0,0,0,.38)); }
-    .menu-preview-persona { position:absolute; z-index:3; left:50%; bottom:3px; width:42%; height:132px; translate:-50% 0; background-repeat:no-repeat; background-position:center bottom; background-size:contain; filter:drop-shadow(0 8px 8px rgba(0,0,0,.5)); }
-    .menu-preview-pet { position:absolute; z-index:5; right:28%; bottom:3px; width:19%; height:78px; transform:scale(var(--companion-scale,1)); transform-origin:center bottom; background-repeat:no-repeat; background-position:center bottom; background-size:contain; filter:drop-shadow(0 5px 6px rgba(0,0,0,.48)); }
+    .menu-preview-persona { position:absolute; z-index:3; left:50%; bottom:3px; width:42%; height:176px; translate:-50% 0; background-repeat:no-repeat; background-position:center bottom; background-size:contain; filter:drop-shadow(0 8px 8px rgba(0,0,0,.5)); }
+    .menu-preview-pet { position:absolute; z-index:5; right:28%; bottom:3px; width:19%; height:102px; transform:scale(var(--companion-scale,1)); transform-origin:center bottom; background-repeat:no-repeat; background-position:center bottom; background-size:contain; filter:drop-shadow(0 5px 6px rgba(0,0,0,.48)); }
     .menu-preview-name { position:absolute; z-index:7; left:12px; top:52%; translate:0 -50%; max-width:34%; color:var(--gold); font-family:"Brush Script MT","Segoe Script","Comic Sans MS",cursive; font-size:1.45rem; font-weight:900; line-height:.8; text-transform:uppercase; rotate:-8deg; text-shadow:0 2px 0 rgba(29,11,0,.9); }
     .menu-preview-ship:empty,.menu-preview-pet:empty { display:none; }
     .configuration-panel { min-height:0; }
@@ -415,7 +417,7 @@
     .avatar-portrait.robot .head::after { width:34%; left:33%; border-color:#20343c; }
     .avatar-choice .avatar-portrait { height:52px; margin-bottom:4px; }
 
-    @media (max-width:420px) { .choice-grid{grid-template-columns:repeat(2,minmax(0,1fr));}.avatar-grid{grid-template-columns:repeat(5,minmax(0,1fr));}.start-menu{padding:15px 13px;}.menu-brand h2{font-size:2.35rem}.menu-action{margin-top:15px}.menu-subaction{padding:9px}.settings-bar{margin-top:9px;padding:8px}.menu-preview{height:136px}.menu-preview-persona{height:123px}.menu-section{margin-top:12px} }
+    @media (max-width:420px) { .choice-grid{grid-template-columns:repeat(2,minmax(0,1fr));}.avatar-grid{grid-template-columns:repeat(5,minmax(0,1fr));}.start-menu{padding:15px 13px;}.menu-brand h2{font-size:2.35rem}.menu-action{margin-top:15px}.menu-subaction{padding:9px}.settings-bar{margin-top:9px;padding:8px}.menu-preview{height:174px}.menu-preview-persona{height:160px}.menu-preview-pet{height:94px}.menu-section{margin-top:12px} }
     @media (max-height:950px) {
       .start-menu { max-height:96svh; padding:13px; }
       .menu-brand h2 { font-size:2.15rem; }
@@ -424,9 +426,9 @@
       .menu-subaction { margin-top:5px; padding:8px; }
       .settings-bar { margin-top:8px; padding:7px; }
       .setting-button { min-height:32px; padding:5px; }
-      .menu-preview { height:108px; margin-top:8px; }
-      .menu-preview-persona { height:98px; }
-      .menu-preview-pet { height:60px; }
+      .menu-preview { height:150px; margin-top:8px; }
+      .menu-preview-persona { height:138px; }
+      .menu-preview-pet { height:82px; }
       .menu-preview-name { font-size:1.25rem; }
       .menu-section { margin-top:8px; }
       .menu-wallet-section { margin-top:14px; }
@@ -612,7 +614,7 @@
     .inventory-item-preview.square-cell { aspect-ratio:1 / 2; }
     .inventory-item strong { display:block; color:var(--surface-text); font-size:.58rem; line-height:1.15; }.inventory-item small { display:block; margin-top:5px; color:var(--gold); font-size:.52rem; line-height:1.3; }
     .inventory-item.equipped { border-color:var(--mint); box-shadow:0 0 14px color-mix(in srgb,var(--mint) 22%,transparent); }
-    .showroom-explorer-name { position:absolute; z-index:12; left:22px; top:20%; max-width:64%; color:var(--gold); font-family:"Brush Script MT","Segoe Script","Comic Sans MS",cursive; font-size:clamp(2rem,8vw,3.8rem); font-weight:900; line-height:.8; letter-spacing:.035em; text-transform:uppercase; rotate:-25deg; text-shadow:0 3px 0 rgba(29,11,0,.9),0 0 12px color-mix(in srgb,var(--gold) 70%,transparent); pointer-events:none; }
+    .showroom-explorer-name { position:absolute; z-index:12; left:20px; bottom:78px; max-width:64%; color:var(--gold); font-family:"Brush Script MT","Segoe Script","Comic Sans MS",cursive; font-size:clamp(2rem,8vw,3.8rem); font-weight:900; line-height:.8; letter-spacing:.035em; text-transform:uppercase; rotate:-11deg; text-shadow:0 3px 0 rgba(29,11,0,.9),0 0 12px color-mix(in srgb,var(--gold) 70%,transparent); pointer-events:none; }
 
     .discovery-dock { position:relative; z-index:4; min-height:0; }
     .discovery-shelf { position:relative; height:clamp(135px,17svh,165px); overflow:hidden; touch-action:pan-y; border:1px solid color-mix(in srgb,var(--mint) 28%,transparent); border-radius:20px 8px 20px 8px; background:linear-gradient(160deg,color-mix(in srgb,var(--panel) 94%,#fff 6%),color-mix(in srgb,var(--deep) 94%,transparent)); box-shadow:0 12px 35px rgba(0,0,0,.28),inset 0 1px rgba(255,255,255,.05); backdrop-filter:blur(13px); }
@@ -868,16 +870,11 @@
         <p>Create your path through words</p>
       </div>
       <button class="menu-action" id="resumeButton" type="button">Start journey</button>
-      <button class="menu-subaction" id="configurationButton" type="button">UI Themes</button>
-      <button class="menu-subaction" id="directionsButton" type="button">Directions</button>
-      <div class="settings-bar" aria-label="Game settings">
-        <div class="settings-group"><span>Sound</span><div class="sound-options" id="soundOptions">
-          <button class="setting-button" type="button" data-sound-mode="all">Music + FX</button>
-          <button class="setting-button" type="button" data-sound-mode="effects">FX only</button>
-          <button class="setting-button" type="button" data-sound-mode="off">No sound</button>
-        </div></div>
-        <div class="settings-group"><span>Haptics</span><button class="setting-button haptic-toggle" id="hapticToggle" type="button" aria-pressed="true">Vibrate on</button></div>
+      <div class="menu-settings-row">
+        <button class="menu-subaction" id="soundSettingsButton" type="button">Sound Settings</button>
+        <button class="menu-subaction" id="configurationButton" type="button">Game Themes</button>
       </div>
+      <button class="menu-subaction" id="directionsButton" type="button">Directions</button>
       <div class="menu-preview" id="menuPreview" aria-label="Current explorer loadout">
         <span class="menu-preview-ship" id="menuPreviewShip"></span>
         <span class="menu-preview-persona" id="menuPreviewPersona"></span>
@@ -895,10 +892,26 @@
     </section>
   </div>
 
+  <div class="feature-overlay" id="soundSettingsOverlay" aria-hidden="true">
+    <section class="feature-panel configuration-panel" role="dialog" aria-modal="true" aria-labelledby="soundSettingsTitle">
+      <button class="feature-back" id="soundSettingsBack" type="button">← Go back</button>
+      <h2 id="soundSettingsTitle">Sound Settings</h2>
+      <p class="feature-intro">Choose how Verbia sounds and feels while you play.</p>
+      <div class="settings-bar" aria-label="Game settings">
+        <div class="settings-group"><span>Sound</span><div class="sound-options" id="soundOptions">
+          <button class="setting-button" type="button" data-sound-mode="all">Music + FX</button>
+          <button class="setting-button" type="button" data-sound-mode="effects">FX only</button>
+          <button class="setting-button" type="button" data-sound-mode="off">No sound</button>
+        </div></div>
+        <div class="settings-group"><span>Haptics</span><button class="setting-button haptic-toggle" id="hapticToggle" type="button" aria-pressed="true">Vibrate on</button></div>
+      </div>
+    </section>
+  </div>
+
   <div class="feature-overlay" id="configurationOverlay" aria-hidden="true">
     <section class="feature-panel configuration-panel" role="dialog" aria-modal="true" aria-labelledby="configurationTitle">
       <button class="feature-back" id="configurationBack" type="button">← Go back</button>
-      <h2 id="configurationTitle">UI Themes</h2>
+      <h2 id="configurationTitle">Game Themes</h2>
       <p class="feature-intro">Choose the look and shape of your Verbia universe.</p>
       <div class="menu-section">
         <h3>Cosmic color</h3>
@@ -1089,6 +1102,7 @@
       const inventoryButton = document.querySelector("#inventoryButton");
       const directionsButton = document.querySelector("#directionsButton");
       const shopButton = document.querySelector("#shopButton");
+      const soundSettingsButton = document.querySelector("#soundSettingsButton");
       const configurationButton = document.querySelector("#configurationButton");
       const themeChoices = document.querySelector("#themeChoices");
       const soundOptions = document.querySelector("#soundOptions");
@@ -1131,6 +1145,8 @@
       const directionsBack = document.querySelector("#directionsBack");
       const configurationOverlay = document.querySelector("#configurationOverlay");
       const configurationBack = document.querySelector("#configurationBack");
+      const soundSettingsOverlay = document.querySelector("#soundSettingsOverlay");
+      const soundSettingsBack = document.querySelector("#soundSettingsBack");
       const inventoryOverlay = document.querySelector("#inventoryOverlay");
       const inventoryBack = document.querySelector("#inventoryBack");
       const inventoryPoints = document.querySelector("#inventoryPoints");
@@ -1253,10 +1269,12 @@
       inventoryButton.addEventListener("click", openInventory);
       directionsButton.addEventListener("click", openDirections);
       shopButton.addEventListener("click", openShop);
+      soundSettingsButton.addEventListener("click", openSoundSettings);
       configurationButton.addEventListener("click", openConfiguration);
       inventoryBack.addEventListener("click", closeInventory);
       directionsBack.addEventListener("click", closeDirections);
       configurationBack.addEventListener("click", closeConfiguration);
+      soundSettingsBack.addEventListener("click", closeSoundSettings);
       shopBack.addEventListener("click", closeShop);
       shopOverlay.addEventListener("click", event => {
         const choice = event.target.closest("[data-shop-item]");
@@ -1354,6 +1372,8 @@
         saveProgress();
         refreshDailyState();
         applySettings(true);
+        renderAvatarChoices();
+        renderInventory();
         closeDiscoveryShelf();
         launchOverlay.hidden = true;
         openMenu();
@@ -2272,6 +2292,19 @@
         configurationOverlay.setAttribute("aria-hidden", "false");
         configurationOverlay.scrollTop = 0;
         configurationBack.focus();
+      }
+
+      function openSoundSettings() {
+        soundSettingsOverlay.classList.add("open");
+        soundSettingsOverlay.setAttribute("aria-hidden", "false");
+        soundSettingsOverlay.scrollTop = 0;
+        soundSettingsBack.focus();
+      }
+
+      function closeSoundSettings() {
+        soundSettingsOverlay.classList.remove("open");
+        soundSettingsOverlay.setAttribute("aria-hidden", "true");
+        soundSettingsButton.focus();
       }
 
       function closeConfiguration() {
