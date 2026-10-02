@@ -889,7 +889,7 @@
         <li><span class="direction-icon">★</span><div><b>Find bonus words</b><p>Valid words outside the stage list earn extra points and fly into Bonus Discoveries.</p></div></li>
         <li><span class="direction-icon">💡</span><div><b>Hints and daily rewards</b><p>Three hints refresh daily. The Daily Orbit dart board can award more hints or discovery points.</p></div></li>
         <li><span class="direction-icon">↻</span><div><b>Shuffle and revisit</b><p>Shuffle letters for a fresh view, or use the left arrow to revisit up to five incomplete cleared boards.</p></div></li>
-        <li><span class="direction-icon">🛍</span><div><b>Customize your explorer</b><p>Spend discovery points in the Explorer Shop, then equip realistic clothing, accessories, and pets in the Inventory Showroom.</p></div></li>
+            <li><span class="direction-icon">🛍</span><div><b>Customize your explorer</b><p>Spend discovery points in the Explorer Shop, then equip complete outfits, accessories, and pets in the Inventory Showroom.</p></div></li>
       </ol>
     </section>
   </div>
@@ -987,14 +987,11 @@
         {id:"mateo",name:"Mateo",portraitAtlas:"hispanic",portraitIndex:1,bodySrc:"../images/verbia/bodies-standard/mateo.png",bodyIndex:1,cost:400}
       ];
       const shopItems = [
-        {id:"standard-field-jacket",name:"Standard Field Jacket",type:"shirt",atlas:"standard",atlasIndex:0,cost:0,standard:true},
-        {id:"standard-field-pants",name:"Standard Field Trousers",type:"pants",atlas:"standard",atlasIndex:1,cost:0,standard:true},
-        {id:"standard-field-boots",name:"Standard Field Boots",type:"shoes",atlas:"standard",atlasIndex:2,cost:0,standard:true},
+        {id:"standard-field-outfit",name:"Standard Field Outfit",type:"outfit",storeGroup:"complete-outfits",atlas:"complete",assetKey:"field-outfit",cost:0,standard:true},
+        {id:"aurora-outfit",name:"Aurora Space Outfit",type:"outfit",storeGroup:"complete-outfits",atlas:"complete",assetKey:"aurora-outfit",cost:720},
+        {id:"executive-outfit",name:"Solar Executive Outfit",type:"outfit",storeGroup:"complete-outfits",atlas:"complete",assetKey:"executive-outfit",cost:640},
         {id:"comet-cap",name:"Comet Cap",type:"hat",storeGroup:"mens-head",atlas:"wearable",atlasIndex:0,cost:180},
         {id:"star-glasses",name:"Star Glasses",type:"glasses",storeGroup:"shared-head",atlas:"wearable",atlasIndex:1,cost:140},
-        {id:"nova-shirt",name:"Nova Jacket",type:"shirt",storeGroup:"womens-tops",atlas:"wearable",atlasIndex:2,cost:240},
-        {id:"orbit-pants",name:"Orbit Pants",type:"pants",storeGroup:"bottoms",atlas:"wearable",atlasIndex:3,cost:280},
-        {id:"moon-boots",name:"Moon Boots",type:"shoes",storeGroup:"footwear",atlas:"wearable",atlasIndex:4,cost:320},
         {id:"pet-dog",name:"Orbit Dog",type:"pet",atlas:"pet",atlasIndex:0,cost:420},
         {id:"pet-cat",name:"Nova Cat",type:"pet",atlas:"pet",atlasIndex:1,cost:450},
         {id:"pet-iguana",name:"Solar Iguana",type:"pet",atlas:"pet",atlasIndex:2,cost:500},
@@ -1004,22 +1001,7 @@
         {id:"holo-angles",name:"Cyan Holo Angles",type:"glasses",storeGroup:"mens-head",atlas:"wardrobe2",atlasCol:1,atlasRow:0,cost:290},
         {id:"starlight-crown",name:"Starlight Crown",type:"hat",storeGroup:"womens-head",atlas:"wardrobe2",atlasCol:2,atlasRow:0,cost:440},
         {id:"cosmic-hood",name:"Cosmic Cable Hood",type:"hat",storeGroup:"womens-head",atlas:"wardrobe2",atlasCol:3,atlasRow:0,cost:330},
-        {id:"star-fedora",name:"Midnight Star Fedora",type:"hat",storeGroup:"mens-head",atlas:"wardrobe2",atlasCol:4,atlasRow:0,cost:300},
-        {id:"eva-suit",name:"Aurora Space Suit",type:"shirt",storeGroup:"mens-tops",atlas:"wardrobe2",atlasCol:0,atlasRow:1,cost:720},
-        {id:"midnight-suit",name:"Midnight Business Suit",type:"shirt",storeGroup:"mens-tops",atlas:"wardrobe2",atlasCol:1,atlasRow:1,cost:610},
-        {id:"violet-coat",name:"Violet Rift Coat",type:"shirt",storeGroup:"womens-tops",atlas:"wardrobe2",atlasCol:2,atlasRow:1,cost:560},
-        {id:"neon-jacket",name:"Neon Street Jacket",type:"shirt",storeGroup:"womens-tops",atlas:"wardrobe2",atlasCol:3,atlasRow:1,cost:520},
-        {id:"burgundy-suit",name:"Solar Executive Suit",type:"shirt",storeGroup:"mens-tops",atlas:"wardrobe2",atlasCol:4,atlasRow:1,cost:640},
-        {id:"aurora-boots",name:"Aurora Space Boots",type:"shoes",storeGroup:"footwear",atlas:"wardrobe2",atlasCol:0,atlasRow:2,cost:390},
-        {id:"formal-shoes",name:"Orbit Formal Shoes",type:"shoes",storeGroup:"footwear",atlas:"wardrobe2",atlasCol:1,atlasRow:2,cost:310},
-        {id:"rift-platforms",name:"Rift Platform Boots",type:"shoes",storeGroup:"footwear",atlas:"wardrobe2",atlasCol:2,atlasRow:2,cost:420},
-        {id:"neon-high-tops",name:"Neon High-Tops",type:"shoes",storeGroup:"footwear",atlas:"wardrobe2",atlasCol:3,atlasRow:2,cost:360},
-        {id:"lunar-field-boots",name:"Lunar Field Boots",type:"shoes",storeGroup:"footwear",atlas:"wardrobe2",atlasCol:4,atlasRow:2,cost:380},
-        {id:"midnight-trousers",name:"Midnight Suit Trousers",type:"pants",storeGroup:"bottoms",atlas:"bottoms",atlasIndex:0,cost:390},
-        {id:"burgundy-trousers",name:"Solar Executive Trousers",type:"pants",storeGroup:"bottoms",atlas:"bottoms",atlasIndex:1,cost:410},
-        {id:"cyber-cargos",name:"Neon Cyber Cargos",type:"pants",storeGroup:"bottoms",atlas:"bottoms",atlasIndex:2,cost:460},
-        {id:"rift-trousers",name:"Asymmetric Rift Pants",type:"pants",storeGroup:"bottoms",atlas:"bottoms",atlasIndex:3,cost:440},
-        {id:"cosmic-dress",name:"Constellation Evening Dress",type:"outfit",storeGroup:"womens-tops",atlas:"bottoms",atlasIndex:4,cost:780}
+        {id:"star-fedora",name:"Midnight Star Fedora",type:"hat",storeGroup:"mens-head",atlas:"wardrobe2",atlasCol:4,atlasRow:0,cost:300}
       ];
       const playfield = document.querySelector("#playfield");
       const letterNodes = document.querySelector("#letterNodes");
@@ -1414,7 +1396,7 @@
       }
 
       function freshProgress(profileCreated = false) {
-        return { profileCreated, currentLevel:1, highestLevel:1, boards:{}, levelBoards:{}, signatures:[], hintHistory:{}, points:0, hints:{date:todayKey(),count:3}, dailyRewardDate:"", inventory:{owned:["standard-field-jacket","standard-field-pants","standard-field-boots"],equipped:{shirt:"standard-field-jacket",pants:"standard-field-pants",shoes:"standard-field-boots"}}, wardrobeBaseVersion:1, unlockedAvatars:["rx7","nova"], seed:Math.floor(Math.random() * 2147483647) || 9173 };
+        return { profileCreated, currentLevel:1, highestLevel:1, boards:{}, levelBoards:{}, signatures:[], hintHistory:{}, points:0, hints:{date:todayKey(),count:3}, dailyRewardDate:"", inventory:{owned:["standard-field-outfit"],equipped:{outfit:"standard-field-outfit"}}, wardrobeBaseVersion:2, unlockedAvatars:["rx7","nova"], seed:Math.floor(Math.random() * 2147483647) || 9173 };
       }
 
       function letterCountForLevel(level) {
@@ -2000,14 +1982,16 @@
         progress.inventory ||= {owned:[],equipped:{}};
         if (!Array.isArray(progress.inventory.owned)) progress.inventory.owned = [];
         progress.inventory.equipped ||= {};
-        if ((progress.wardrobeBaseVersion || 0) < 1) {
-          ["standard-field-jacket","standard-field-pants","standard-field-boots"].forEach(id => {
-            if (!progress.inventory.owned.includes(id)) progress.inventory.owned.push(id);
+        if ((progress.wardrobeBaseVersion || 0) < 2) {
+          const currentIds = new Set(shopItems.map(item => item.id));
+          progress.inventory.owned = progress.inventory.owned.filter(id => currentIds.has(id));
+          if (!progress.inventory.owned.includes("standard-field-outfit")) progress.inventory.owned.push("standard-field-outfit");
+          ["shirt","pants","shoes"].forEach(type => { delete progress.inventory.equipped[type]; });
+          ["hat","glasses","pet"].forEach(type => {
+            if (!currentIds.has(progress.inventory.equipped[type])) delete progress.inventory.equipped[type];
           });
-          progress.inventory.equipped.shirt ||= "standard-field-jacket";
-          progress.inventory.equipped.pants ||= "standard-field-pants";
-          progress.inventory.equipped.shoes ||= "standard-field-boots";
-          progress.wardrobeBaseVersion = 1;
+          progress.inventory.equipped.outfit = "standard-field-outfit";
+          progress.wardrobeBaseVersion = 2;
         }
         if (!Array.isArray(progress.unlockedAvatars)) progress.unlockedAvatars = ["rx7","nova"];
         progress.unlockedAvatars = [...new Set(["rx7","nova",...progress.unlockedAvatars.filter(id => avatars.some(avatar => avatar.id === id))])];
@@ -2031,13 +2015,10 @@
         wardrobeStore.replaceChildren();
         companionStore.replaceChildren();
         const wardrobeGroups = [
-          ["womens-tops","Women's tops & dresses"],
-          ["mens-tops","Men's tops & suits"],
+          ["complete-outfits","Complete outfits"],
           ["womens-head","Women's headwear"],
           ["mens-head","Men's headwear"],
-          ["shared-head","Shared eyewear"],
-          ["bottoms","Pants & bottoms"],
-          ["footwear","Shoes & boots"]
+          ["shared-head","Shared eyewear"]
         ];
         const createStoreItemButton = item => {
           const owned = progress.inventory.owned.includes(item.id);
@@ -2056,7 +2037,7 @@
           return button;
         };
         wardrobeGroups.forEach(([groupId,groupLabel]) => {
-          const items = shopItems.filter(item => !item.standard && item.storeGroup === groupId);
+          const items = shopItems.filter(item => item.storeGroup === groupId);
           if (!items.length) return;
           const heading = document.createElement("h4");
           heading.className = "store-category-label";
@@ -2074,10 +2055,9 @@
           element.style.backgroundPosition = `${item.atlasIndex * 25}% 0`;
           return;
         }
-        const avatar = avatars.find(entry => entry.id === settings.avatar) || avatars[0];
-        const profile = avatarFitProfile(avatar);
+        const folder = item.atlas === "complete" ? "complete" : "universal";
         element.classList.add("fitted-item-art","square-cell");
-        element.style.backgroundImage = `url('../images/verbia/wardrobe-layers/${profile}/${fittedAssetKey(item)}.png')`;
+        element.style.backgroundImage = `url('../images/verbia/wardrobe-layers/${folder}/${fittedAssetKey(item)}.png')`;
         element.style.backgroundSize = "contain";
         element.style.backgroundPosition = "center bottom";
         element.style.backgroundRepeat = "no-repeat";
@@ -2091,11 +2071,16 @@
         return "0%";
       }
 
-      function applyExplorerBody(element, avatar) {
+      function explorerBodySource(avatar, headOnly = false) {
+        if (!avatar.bodySrc || !headOnly) return avatar.bodySrc;
+        return avatar.bodySrc.replace("/bodies-standard/", "/heads-standard/");
+      }
+
+      function applyExplorerBody(element, avatar, headOnly = false) {
         const bodyColumn = avatar.bodyIndex % 5;
         const bodyRow = Math.floor(avatar.bodyIndex / 5);
         if (avatar.bodySrc) {
-          element.style.backgroundImage = `url('${avatar.bodySrc}')`;
+          element.style.backgroundImage = `url('${explorerBodySource(avatar, headOnly)}')`;
           element.style.backgroundSize = "contain";
           element.style.backgroundPosition = "center bottom";
         } else if (avatar.bodyAtlas === "hispanic") {
@@ -2121,6 +2106,7 @@
       }
 
       function fittedAssetKey(item) {
+        if (item.assetKey) return item.assetKey;
         const index = item.atlas === "wardrobe2" ? item.atlasRow * 5 + item.atlasCol : item.atlasIndex;
         return `${item.atlas === "wearable" ? "wearable" : item.atlas}-${index}`;
       }
@@ -2130,7 +2116,7 @@
         const avatar = avatars.find(item => item.id === settings.avatar) || avatars[0];
         avatarBadge.dataset.fitProfile = avatarFitProfile(avatar);
         avatarBadge.style.setProperty("--fit-x", avatarFitOffset(avatar));
-        applyExplorerBody(gameAvatarBase, avatar);
+        applyExplorerBody(gameAvatarBase, avatar, Boolean(progress.inventory.equipped.outfit));
         renderEquippedLayers([[gameAvatarHat,"hat"],[gameAvatarGlasses,"glasses"],[gameAvatarShirt,"shirt"],[gameAvatarPants,"pants"],[gameAvatarOutfit,"outfit"],[gameAvatarShoes,"shoes"]]);
         avatarBadge.setAttribute("aria-label", `${avatar.name}, wearing the current showroom outfit. Open player and game menu`);
       }
@@ -2183,9 +2169,11 @@
         if (!progress.inventory.owned.includes(itemId)) return;
         const item = shopItems.find(entry => entry.id === itemId);
         if (!item) return;
-        if (item.type === "outfit") { progress.inventory.equipped.shirt = null; progress.inventory.equipped.pants = null; }
-        if (item.type === "shirt" || item.type === "pants") progress.inventory.equipped.outfit = null;
-        progress.inventory.equipped[item.type] = progress.inventory.equipped[item.type] === item.id ? null : item.id;
+        if (item.type === "outfit") {
+          progress.inventory.equipped.outfit = item.id;
+        } else {
+          progress.inventory.equipped[item.type] = progress.inventory.equipped[item.type] === item.id ? null : item.id;
+        }
         saveProgress();
         renderInventory();
         vibrate(18);
@@ -2197,9 +2185,9 @@
         const avatar = avatars.find(item => item.id === settings.avatar) || avatars[0];
         inventoryStage.dataset.fitProfile = avatarFitProfile(avatar);
         inventoryStage.style.setProperty("--fit-x", avatarFitOffset(avatar));
-        applyExplorerBody(inventoryPersona, avatar);
-        inventoryPersona.setAttribute("aria-label", `${avatar.name} full-body explorer`);
         const equipped = progress.inventory.equipped;
+        applyExplorerBody(inventoryPersona, avatar, Boolean(equipped.outfit));
+        inventoryPersona.setAttribute("aria-label", `${avatar.name} full-body explorer`);
         const pet = shopItems.find(item => item.id === equipped.pet);
         renderEquippedLayers([[personaHat,"hat"],[personaGlasses,"glasses"],[personaShirt,"shirt"],[personaPants,"pants"],[personaOutfit,"outfit"],[personaShoes,"shoes"]]);
         renderGameAvatar();
@@ -2227,7 +2215,7 @@
           const name = document.createElement("strong");
           name.textContent = item.name;
           const state = document.createElement("small");
-          state.textContent = equippedNow ? "Equipped · tap to remove" : "Tap to equip";
+          state.textContent = equippedNow ? (item.type === "outfit" ? "Equipped" : "Equipped · tap to remove") : "Tap to equip";
           button.append(preview,name,state);
           inventoryList.append(button);
         });
