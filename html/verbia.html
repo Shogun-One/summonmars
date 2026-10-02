@@ -952,6 +952,12 @@
       let wheelLastTime = 0;
       let audioContext = null;
       let applauseNoise = null;
+      const boardClearAudio = new Audio("../mp3/verbia/board-clear-applause.mp3");
+      const boardMasterAudio = new Audio("../mp3/verbia/board-master-hurray.mp3");
+      boardClearAudio.preload = "auto";
+      boardMasterAudio.preload = "auto";
+      boardClearAudio.volume = .72;
+      boardMasterAudio.volume = .78;
       let boardTransitioning = false;
       let hoveredTraceNode = null;
       let backtrackTimer = 0;
@@ -1530,12 +1536,11 @@
           selected.forEach(node => node.classList.add("cosmic-complete"));
           if (justMastered) {
             launchFireworks(true);
-            playWoo();
-            playApplause(1.45);
+            playMasterHurray();
             resetDelay = 420;
           } else if (justCleared) {
             launchFireworks(false);
-            playApplause(1.2);
+            playClearApplause();
             resetDelay = 320;
           } else {
             playApplause(.34);
@@ -2174,7 +2179,26 @@
         });
       }
 
-      function playWoo() {
+      function playRecordedEffect(audio, fallback) {
+        try {
+          audio.pause();
+          audio.currentTime = 0;
+          const playback = audio.play();
+          playback?.catch(fallback);
+        } catch {
+          fallback();
+        }
+      }
+
+      function playClearApplause() {
+        playRecordedEffect(boardClearAudio, () => playApplause(1.2));
+      }
+
+      function playMasterHurray() {
+        playRecordedEffect(boardMasterAudio, () => { playSyntheticWoo(); playApplause(1.45); });
+      }
+
+      function playSyntheticWoo() {
         const context = getAudioContext();
         if (!context) return;
         const now = context.currentTime;
