@@ -178,7 +178,7 @@
     .game-avatar { position:absolute; z-index:12; left:-16px; bottom:-28px; width:114px; height:162px; padding:0; overflow:visible; border:0; background:transparent; cursor:pointer; filter:drop-shadow(0 8px 9px rgba(0,0,0,.5)); }
     .game-avatar-base { --atlas-x:0%;--atlas-y:0%; position:absolute; z-index:1; inset:0; background-image:url('../images/verbia/explorer-fitting-atlas-v3.png'); background-size:500% 200%; background-position:var(--atlas-x) var(--atlas-y); background-repeat:no-repeat; }
     .game-loadout-ship { position:absolute; z-index:2; left:-48px; bottom:-28px; width:165px; height:118px; background-repeat:no-repeat; background-size:contain; background-position:center bottom; opacity:.54; filter:brightness(1.12) saturate(1.15) drop-shadow(0 5px 7px rgba(0,0,0,.45)); pointer-events:none; }
-    .game-loadout-pet { position:absolute; z-index:13; left:82px; bottom:-28px; width:82px; height:92px; transform:scale(var(--companion-scale,1)); transform-origin:center bottom; background-repeat:no-repeat; background-size:contain; background-position:center bottom; filter:drop-shadow(0 5px 6px rgba(0,0,0,.48)); pointer-events:none; }
+    .game-loadout-pet { position:absolute; z-index:13; left:84px; bottom:100%; width:82px; height:92px; transform:scale(var(--companion-scale,1)); transform-origin:center bottom; background-repeat:no-repeat; background-size:contain; background-position:center bottom; filter:drop-shadow(0 5px 6px rgba(0,0,0,.48)); pointer-events:none; }
     .game-loadout-ship:empty,.game-loadout-pet:empty { display:none; }
     .progress-card:has(.game-avatar) .progress-row { padding-left:70px; }
     .progress-row { position:relative; z-index:25; }
@@ -764,7 +764,8 @@
 
     .launch-overlay { position:fixed; z-index:60; inset:0; display:grid; place-items:center; padding:22px; background:radial-gradient(circle at 50% 28%,var(--bg-glow),transparent 38%),linear-gradient(155deg,var(--deep),#020707); backdrop-filter:blur(18px); }
     .launch-overlay[hidden] { display:none; }
-    .launch-panel { width:min(100%,430px); padding:30px 24px; color:var(--surface-text); border:1px solid color-mix(in srgb,var(--mint) 52%,transparent); border-radius:28px 9px 28px 9px; text-align:center; background:rgba(8,12,14,.94); box-shadow:0 30px 90px rgba(0,0,0,.68),inset 0 1px rgba(255,255,255,.09); }
+    .launch-panel { position:relative; width:min(100%,430px); padding:30px 24px; color:var(--surface-text); border:1px solid color-mix(in srgb,var(--mint) 52%,transparent); border-radius:28px 9px 28px 9px; text-align:center; background:rgba(8,12,14,.94); box-shadow:0 30px 90px rgba(0,0,0,.68),inset 0 1px rgba(255,255,255,.09); }
+    .launch-dictionary { position:absolute; z-index:2; top:-84px; right:-18px; width:clamp(145px,43vw,205px); height:auto; pointer-events:none; filter:drop-shadow(0 13px 12px rgba(0,0,0,.58)); transform:rotate(3deg); transform-origin:center bottom; }
     .launch-panel h2 { margin:0; color:#fffaf0; font:500 2.6rem Georgia,serif; text-shadow:0 2px 14px rgba(0,0,0,.6); }
     .launch-panel>p { margin:8px 0 22px; color:var(--surface-muted); font-weight:700; }
     .launch-choice-button { width:100%; padding:14px 12px; border:1px solid rgba(255,255,255,.26); border-radius:15px 6px 15px 6px; color:var(--surface-text); background:rgba(255,255,255,.09); font-size:.8rem; font-weight:950; letter-spacing:.12em; text-transform:uppercase; cursor:pointer; }
@@ -810,6 +811,7 @@
 
   <section class="launch-overlay" id="launchOverlay" aria-labelledby="launchTitle" hidden>
     <div class="launch-panel">
+      <img class="launch-dictionary" src="../images/verbia/menu-open-dictionary.png" alt="" aria-hidden="true" />
       <h2 class="verbia-wordmark" id="launchTitle" aria-label="Verbia"><span class="leading-v" aria-hidden="true">V</span>erbi<span class="inverted-v" aria-hidden="true">V</span></h2>
       <p>Choose how your journey begins.</p>
       <button class="launch-choice-button primary" id="continueGameButton" type="button">Continue<small id="continueGameMeta">Resume your saved word journey</small></button>
@@ -1084,6 +1086,16 @@
         rx7:[883,12], nova:[886,14], elena:[878,12], malik:[874,26], mei:[863,25],
         luca:[886,14], asha:[864,21], finn:[860,27], amara:[877,16], kai:[884,16],
         sofia:[850,24], mateo:[873,18], bigfoot:[723,66], yeti:[788,66], alien:[653,127], kage:[627,128]
+      };
+      const petGameScale = {
+        "pet-dog":.9, "pet-cat":.82, "pet-iguana":.76, "pet-bird":.72, "pet-monkey":.78,
+        "pet-pitbull":.92, "pet-lion":.92, "pet-tiger":.86, "pet-shepherd":.9,
+        "pet-sloth":.76, "pet-poodle":.84, "pet-hawk":.72
+      };
+      const petBottomPadding = {
+        "pet-dog":46, "pet-cat":46, "pet-iguana":91, "pet-bird":76, "pet-monkey":79,
+        "pet-pitbull":50, "pet-lion":53, "pet-tiger":49, "pet-shepherd":57,
+        "pet-sloth":48, "pet-poodle":45, "pet-hawk":84
       };
       const shopItems = [
         {id:"pet-dog",name:"Orbit Dog",type:"pet",asset:"../images/verbia/companions/orbit-dog.png",showroomScale:1.08,cost:420},
@@ -2443,7 +2455,11 @@
         avatarBadge.setAttribute("aria-label", `${avatar.name}, complete explorer. Open player and game menu`);
         gameLoadoutPet.textContent = pet ? " " : "";
         gameLoadoutPet.style.removeProperty("background-image");
-        if (pet) applyItemArt(gameLoadoutPet, pet);
+        if (pet) {
+          applyItemArt(gameLoadoutPet, pet);
+          gameLoadoutPet.style.setProperty("--companion-scale", String(petGameScale[pet.id] || .84));
+          gameLoadoutPet.style.backgroundPosition = `center calc(100% + ${((petBottomPadding[pet.id] || 0) * 82 / 724).toFixed(1)}px)`;
+        }
         gameLoadoutPet.setAttribute("aria-label", pet ? `${pet.name} equipped` : "No companion equipped");
         gameLoadoutShip.textContent = ship ? " " : "";
         gameLoadoutShip.style.removeProperty("background-image");
