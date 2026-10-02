@@ -4129,7 +4129,7 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
         hits:clamp(hits|0,0,MAX_HITS-1),bossKills:Math.max(0,bossKills|0),
         killsThisLevel:Math.max(0,killsThisLevel|0),missileAmmo:Math.max(0,missileAmmo|0),
         weaponMode,weaponLevels:{...weaponLevels},weaponOfferIndex,
-        guidance:{joystickAcknowledged:joystickGuidanceAcknowledged,missileAcknowledged:missileGuidanceAcknowledged,weaponAcknowledged:weaponGuidanceAcknowledged},
+        guidance:{missileAcknowledged:missileGuidanceAcknowledged,weaponAcknowledged:weaponGuidanceAcknowledged},
         savedAt:Date.now()
       }));
     }
@@ -4981,8 +4981,10 @@ function updateBosses(dt){
       updateHitUI();
       updateMissileUI();
       updateWeaponStatusOverlay();
-      joystickGuidanceAcknowledged=Boolean(saved?.guidance?.joystickAcknowledged);
-      setJoystickLaunchGuidance(!joystickGuidanceAcknowledged);
+      // Every newly launched Continue session teaches the touch control again.
+      // Acknowledgement lasts only for the current play session.
+      joystickGuidanceAcknowledged=false;
+      setJoystickLaunchGuidance(true);
       missileGuidanceAcknowledged=Boolean(saved?.guidance?.missileAcknowledged);
       weaponGuidanceAcknowledged=Boolean(saved?.guidance?.weaponAcknowledged);
       if(missileAmmo>0 && !missileGuidanceAcknowledged) pulseFirstUseControl('missile');
