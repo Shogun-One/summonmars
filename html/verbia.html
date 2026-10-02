@@ -573,6 +573,7 @@
     .store-item .shop-icon.fitted-item-art,.inventory-item-preview.fitted-item-art { aspect-ratio:1 / 2; background-size:contain!important; background-position:center bottom!important; }
     .store-item strong { display:block; margin-top:4px; color:var(--gold); }
     .store-item.owned { color:var(--mint); border-color:color-mix(in srgb,var(--mint) 48%,transparent); }
+    .store-item.selected { border-color:var(--gold); box-shadow:0 0 16px color-mix(in srgb,var(--gold) 28%,transparent); }
     .store-item:disabled:not(.owned) { opacity:.52; cursor:not-allowed; }
 
     .feature-overlay { position:fixed; z-index:85; inset:0; display:grid; place-items:start center; overflow-y:auto; padding:max(18px,env(safe-area-inset-top)) 16px max(18px,env(safe-area-inset-bottom)); color:var(--surface-text); background:rgba(1,5,10,.94); backdrop-filter:blur(18px); opacity:0; pointer-events:none; transition:opacity .2s ease; }
@@ -2169,17 +2170,19 @@
         shipStore.replaceChildren();
         const createStoreItemButton = item => {
           const owned = progress.inventory.owned.includes(item.id);
+          const selected = progress.inventory.equipped[item.type] === item.id;
           const button = document.createElement("button");
           button.type = "button";
-          button.className = `store-item${owned ? " owned" : ""}`;
+          button.className = `store-item${owned ? " owned" : ""}${selected ? " selected" : ""}`;
           button.dataset.shopItem = item.id;
           button.disabled = !owned && (progress.points || 0) < item.cost;
+          button.setAttribute("aria-pressed", String(selected));
           const icon = document.createElement("span");
           icon.className = "shop-icon";
           applyItemArt(icon, item);
           const label = document.createTextNode(item.name);
           const price = document.createElement("strong");
-          price.textContent = owned ? "Owned" : `${item.cost} pts`;
+          price.textContent = selected ? "Selected · view" : owned ? "Owned · select" : `${item.cost} pts`;
           button.append(icon,label,price);
           return button;
         };
@@ -2261,8 +2264,13 @@
       function purchaseItem(itemId) {
         ensureInventory();
         const item = shopItems.find(entry => entry.id === itemId);
-        if (!item || progress.inventory.owned.includes(item.id)) {
-          if (item) openInventory();
+        if (!item) return;
+        if (progress.inventory.owned.includes(item.id)) {
+          progress.inventory.equipped[item.type] = item.id;
+          saveProgress();
+          renderShop();
+          renderInventory();
+          vibrate(18);
           return;
         }
         if ((progress.points || 0) < item.cost) return;
