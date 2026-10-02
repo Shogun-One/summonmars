@@ -545,6 +545,8 @@
     .store-preview { display:grid; grid-template-columns:repeat(3,1fr); gap:7px; }
     .store-section+.store-section { margin-top:22px; }
     .store-section h3,.inventory-explorers h3 { margin:0 0 9px; color:color-mix(in srgb,var(--gold) 78%,white); font-size:.7rem; font-weight:900; letter-spacing:.13em; text-transform:uppercase; }
+    .store-category-label { grid-column:1/-1; margin:10px 0 0; padding:8px 10px 6px; border-bottom:1px solid color-mix(in srgb,var(--accent) 32%,transparent); color:color-mix(in srgb,var(--gold) 78%,white); font-size:.64rem; font-weight:900; letter-spacing:.12em; text-align:left; text-transform:uppercase; }
+    .store-category-label:first-child { margin-top:0; }
     .store-avatar-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; }
     .store-item { min-height:76px; padding:9px 4px; border:1px solid rgba(255,255,255,.2); border-radius:11px 4px; color:var(--surface-muted); background:rgba(255,255,255,.075); font-size:.61rem; font-weight:750; cursor:pointer; }
     .store-item .shop-icon { display:block; width:100%; height:auto; aspect-ratio:.6; margin-bottom:5px; background-repeat:no-repeat; }
@@ -987,36 +989,36 @@
         {id:"standard-field-jacket",name:"Standard Field Jacket",type:"shirt",atlas:"standard",atlasIndex:0,cost:0,standard:true},
         {id:"standard-field-pants",name:"Standard Field Trousers",type:"pants",atlas:"standard",atlasIndex:1,cost:0,standard:true},
         {id:"standard-field-boots",name:"Standard Field Boots",type:"shoes",atlas:"standard",atlasIndex:2,cost:0,standard:true},
-        {id:"comet-cap",name:"Comet Cap",type:"hat",atlas:"wearable",atlasIndex:0,cost:180},
-        {id:"star-glasses",name:"Star Glasses",type:"glasses",atlas:"wearable",atlasIndex:1,cost:140},
-        {id:"nova-shirt",name:"Nova Jacket",type:"shirt",atlas:"wearable",atlasIndex:2,cost:240},
-        {id:"orbit-pants",name:"Orbit Pants",type:"pants",atlas:"wearable",atlasIndex:3,cost:280},
-        {id:"moon-boots",name:"Moon Boots",type:"shoes",atlas:"wearable",atlasIndex:4,cost:320},
+        {id:"comet-cap",name:"Comet Cap",type:"hat",storeGroup:"mens-head",atlas:"wearable",atlasIndex:0,cost:180},
+        {id:"star-glasses",name:"Star Glasses",type:"glasses",storeGroup:"shared-head",atlas:"wearable",atlasIndex:1,cost:140},
+        {id:"nova-shirt",name:"Nova Jacket",type:"shirt",storeGroup:"womens-tops",atlas:"wearable",atlasIndex:2,cost:240},
+        {id:"orbit-pants",name:"Orbit Pants",type:"pants",storeGroup:"bottoms",atlas:"wearable",atlasIndex:3,cost:280},
+        {id:"moon-boots",name:"Moon Boots",type:"shoes",storeGroup:"footwear",atlas:"wearable",atlasIndex:4,cost:320},
         {id:"pet-dog",name:"Orbit Dog",type:"pet",atlas:"pet",atlasIndex:0,cost:420},
         {id:"pet-cat",name:"Nova Cat",type:"pet",atlas:"pet",atlasIndex:1,cost:450},
         {id:"pet-iguana",name:"Solar Iguana",type:"pet",atlas:"pet",atlasIndex:2,cost:500},
         {id:"pet-bird",name:"Comet Bird",type:"pet",atlas:"pet",atlasIndex:3,cost:540},
         {id:"pet-monkey",name:"Moon Monkey",type:"pet",atlas:"pet",atlasIndex:4,cost:600},
-        {id:"violet-visor",name:"Violet Comet Visor",type:"glasses",atlas:"wardrobe2",atlasCol:0,atlasRow:0,cost:260},
-        {id:"holo-angles",name:"Cyan Holo Angles",type:"glasses",atlas:"wardrobe2",atlasCol:1,atlasRow:0,cost:290},
-        {id:"starlight-crown",name:"Starlight Crown",type:"hat",atlas:"wardrobe2",atlasCol:2,atlasRow:0,cost:440},
-        {id:"cosmic-hood",name:"Cosmic Cable Hood",type:"hat",atlas:"wardrobe2",atlasCol:3,atlasRow:0,cost:330},
-        {id:"star-fedora",name:"Midnight Star Fedora",type:"hat",atlas:"wardrobe2",atlasCol:4,atlasRow:0,cost:300},
-        {id:"eva-suit",name:"Aurora Space Suit",type:"shirt",atlas:"wardrobe2",atlasCol:0,atlasRow:1,cost:720},
-        {id:"midnight-suit",name:"Midnight Business Suit",type:"shirt",atlas:"wardrobe2",atlasCol:1,atlasRow:1,cost:610},
-        {id:"violet-coat",name:"Violet Rift Coat",type:"shirt",atlas:"wardrobe2",atlasCol:2,atlasRow:1,cost:560},
-        {id:"neon-jacket",name:"Neon Street Jacket",type:"shirt",atlas:"wardrobe2",atlasCol:3,atlasRow:1,cost:520},
-        {id:"burgundy-suit",name:"Solar Executive Suit",type:"shirt",atlas:"wardrobe2",atlasCol:4,atlasRow:1,cost:640},
-        {id:"aurora-boots",name:"Aurora Space Boots",type:"shoes",atlas:"wardrobe2",atlasCol:0,atlasRow:2,cost:390},
-        {id:"formal-shoes",name:"Orbit Formal Shoes",type:"shoes",atlas:"wardrobe2",atlasCol:1,atlasRow:2,cost:310},
-        {id:"rift-platforms",name:"Rift Platform Boots",type:"shoes",atlas:"wardrobe2",atlasCol:2,atlasRow:2,cost:420},
-        {id:"neon-high-tops",name:"Neon High-Tops",type:"shoes",atlas:"wardrobe2",atlasCol:3,atlasRow:2,cost:360},
-        {id:"lunar-field-boots",name:"Lunar Field Boots",type:"shoes",atlas:"wardrobe2",atlasCol:4,atlasRow:2,cost:380},
-        {id:"midnight-trousers",name:"Midnight Suit Trousers",type:"pants",atlas:"bottoms",atlasIndex:0,cost:390},
-        {id:"burgundy-trousers",name:"Solar Executive Trousers",type:"pants",atlas:"bottoms",atlasIndex:1,cost:410},
-        {id:"cyber-cargos",name:"Neon Cyber Cargos",type:"pants",atlas:"bottoms",atlasIndex:2,cost:460},
-        {id:"rift-trousers",name:"Asymmetric Rift Pants",type:"pants",atlas:"bottoms",atlasIndex:3,cost:440},
-        {id:"cosmic-dress",name:"Constellation Evening Dress",type:"outfit",atlas:"bottoms",atlasIndex:4,cost:780}
+        {id:"violet-visor",name:"Violet Comet Visor",type:"glasses",storeGroup:"womens-head",atlas:"wardrobe2",atlasCol:0,atlasRow:0,cost:260},
+        {id:"holo-angles",name:"Cyan Holo Angles",type:"glasses",storeGroup:"mens-head",atlas:"wardrobe2",atlasCol:1,atlasRow:0,cost:290},
+        {id:"starlight-crown",name:"Starlight Crown",type:"hat",storeGroup:"womens-head",atlas:"wardrobe2",atlasCol:2,atlasRow:0,cost:440},
+        {id:"cosmic-hood",name:"Cosmic Cable Hood",type:"hat",storeGroup:"womens-head",atlas:"wardrobe2",atlasCol:3,atlasRow:0,cost:330},
+        {id:"star-fedora",name:"Midnight Star Fedora",type:"hat",storeGroup:"mens-head",atlas:"wardrobe2",atlasCol:4,atlasRow:0,cost:300},
+        {id:"eva-suit",name:"Aurora Space Suit",type:"shirt",storeGroup:"mens-tops",atlas:"wardrobe2",atlasCol:0,atlasRow:1,cost:720},
+        {id:"midnight-suit",name:"Midnight Business Suit",type:"shirt",storeGroup:"mens-tops",atlas:"wardrobe2",atlasCol:1,atlasRow:1,cost:610},
+        {id:"violet-coat",name:"Violet Rift Coat",type:"shirt",storeGroup:"womens-tops",atlas:"wardrobe2",atlasCol:2,atlasRow:1,cost:560},
+        {id:"neon-jacket",name:"Neon Street Jacket",type:"shirt",storeGroup:"womens-tops",atlas:"wardrobe2",atlasCol:3,atlasRow:1,cost:520},
+        {id:"burgundy-suit",name:"Solar Executive Suit",type:"shirt",storeGroup:"mens-tops",atlas:"wardrobe2",atlasCol:4,atlasRow:1,cost:640},
+        {id:"aurora-boots",name:"Aurora Space Boots",type:"shoes",storeGroup:"footwear",atlas:"wardrobe2",atlasCol:0,atlasRow:2,cost:390},
+        {id:"formal-shoes",name:"Orbit Formal Shoes",type:"shoes",storeGroup:"footwear",atlas:"wardrobe2",atlasCol:1,atlasRow:2,cost:310},
+        {id:"rift-platforms",name:"Rift Platform Boots",type:"shoes",storeGroup:"footwear",atlas:"wardrobe2",atlasCol:2,atlasRow:2,cost:420},
+        {id:"neon-high-tops",name:"Neon High-Tops",type:"shoes",storeGroup:"footwear",atlas:"wardrobe2",atlasCol:3,atlasRow:2,cost:360},
+        {id:"lunar-field-boots",name:"Lunar Field Boots",type:"shoes",storeGroup:"footwear",atlas:"wardrobe2",atlasCol:4,atlasRow:2,cost:380},
+        {id:"midnight-trousers",name:"Midnight Suit Trousers",type:"pants",storeGroup:"bottoms",atlas:"bottoms",atlasIndex:0,cost:390},
+        {id:"burgundy-trousers",name:"Solar Executive Trousers",type:"pants",storeGroup:"bottoms",atlas:"bottoms",atlasIndex:1,cost:410},
+        {id:"cyber-cargos",name:"Neon Cyber Cargos",type:"pants",storeGroup:"bottoms",atlas:"bottoms",atlasIndex:2,cost:460},
+        {id:"rift-trousers",name:"Asymmetric Rift Pants",type:"pants",storeGroup:"bottoms",atlas:"bottoms",atlasIndex:3,cost:440},
+        {id:"cosmic-dress",name:"Constellation Evening Dress",type:"outfit",storeGroup:"womens-tops",atlas:"bottoms",atlasIndex:4,cost:780}
       ];
       const playfield = document.querySelector("#playfield");
       const letterNodes = document.querySelector("#letterNodes");
@@ -2023,7 +2025,16 @@
         });
         wardrobeStore.replaceChildren();
         companionStore.replaceChildren();
-        shopItems.filter(item => !item.standard).forEach(item => {
+        const wardrobeGroups = [
+          ["womens-tops","Women's tops & dresses"],
+          ["mens-tops","Men's tops & suits"],
+          ["womens-head","Women's headwear"],
+          ["mens-head","Men's headwear"],
+          ["shared-head","Shared eyewear"],
+          ["bottoms","Pants & bottoms"],
+          ["footwear","Shoes & boots"]
+        ];
+        const createStoreItemButton = item => {
           const owned = progress.inventory.owned.includes(item.id);
           const button = document.createElement("button");
           button.type = "button";
@@ -2037,8 +2048,17 @@
           const price = document.createElement("strong");
           price.textContent = owned ? "Owned" : `${item.cost} pts`;
           button.append(icon,label,price);
-          (item.type === "pet" ? companionStore : wardrobeStore).append(button);
+          return button;
+        };
+        wardrobeGroups.forEach(([groupId,groupLabel]) => {
+          const items = shopItems.filter(item => !item.standard && item.storeGroup === groupId);
+          if (!items.length) return;
+          const heading = document.createElement("h4");
+          heading.className = "store-category-label";
+          heading.textContent = groupLabel;
+          wardrobeStore.append(heading,...items.map(createStoreItemButton));
         });
+        shopItems.filter(item => item.type === "pet").forEach(item => companionStore.append(createStoreItemButton(item)));
       }
 
       function applyItemArt(element, item) {
