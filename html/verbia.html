@@ -559,6 +559,7 @@
     .inventory-stage { position:relative; height:min(58svh,560px); min-height:440px; margin:14px 0; overflow:hidden; border:1px solid rgba(255,255,255,.13); border-radius:24px 8px; background:radial-gradient(circle at 50% 36%,color-mix(in srgb,var(--mint) 20%,transparent),transparent 34%),linear-gradient(180deg,#0d2730,#070b15 70%); box-shadow:inset 0 0 55px rgba(75,223,255,.08); }
     .inventory-stage::after { content:"FULL-BODY FITTING BAY"; position:absolute; left:14px; top:12px; color:rgba(255,255,255,.42); font-size:.5rem; font-weight:900; letter-spacing:.16em; }
     .persona { --atlas-x:0%;--atlas-y:0%; position:absolute; z-index:2; left:50%; bottom:12px; width:min(76%,330px); height:calc(100% - 40px); transform:translateX(-50%); background-image:url('../images/verbia/explorer-fullbody-atlas-v1.png'); background-size:500% 200%; background-position:var(--atlas-x) var(--atlas-y); background-repeat:no-repeat; filter:drop-shadow(0 16px 18px rgba(0,0,0,.45)); }
+    .persona.nova-fullbody { width:min(68%,294px); background-image:url('../images/verbia/explorer-nova-fullbody-v2.png'); background-size:cover; background-position:center; }
     .persona-wearable { position:absolute; z-index:4; left:50%; display:none; translate:-50% 0; background-image:url('../images/verbia/explorer-wearables-atlas-v1.png'); background-size:500% 100%; background-repeat:no-repeat; filter:drop-shadow(0 5px 7px rgba(0,0,0,.4)); pointer-events:none; }
     .persona-wearable.visible { display:block; }
     .persona-wearable.hat { top:5%; width:35%; height:17%; background-position:0 0; }
@@ -569,7 +570,8 @@
     .inventory-pet { --pet-x:0%; position:absolute; z-index:7; right:5px; bottom:10px; width:36%; height:34%; background-image:url('../images/verbia/explorer-pets-atlas-v1.png'); background-size:500% 100%; background-position:var(--pet-x) 0; background-repeat:no-repeat; filter:drop-shadow(0 8px 8px rgba(0,0,0,.5)); }
     .inventory-pet:empty { display:none; }
     .inventory-list { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
-    .inventory-item { padding:10px; border:1px solid rgba(255,255,255,.14); border-radius:13px 5px; color:var(--surface-muted); background:rgba(255,255,255,.055); text-align:left; cursor:pointer; }
+    .inventory-item { padding:8px; border:1px solid rgba(255,255,255,.14); border-radius:13px 5px; color:var(--surface-muted); background:rgba(255,255,255,.055); text-align:left; cursor:pointer; }
+    .inventory-item-preview { display:block; width:100%; height:74px; margin-bottom:7px; background-repeat:no-repeat; }
     .inventory-item strong { display:block; color:var(--surface-text); font-size:.7rem; }.inventory-item small { color:var(--gold); }
     .inventory-item.equipped { border-color:var(--mint); box-shadow:0 0 14px color-mix(in srgb,var(--mint) 22%,transparent); }
 
@@ -959,7 +961,7 @@
       const settingsKey = "verbia-settings-v1";
       const avatars = [
         {id:"rx7",name:"RX-7",index:8,bodyIndex:0,cost:0},
-        {id:"nova",name:"Nova",src:"../images/verbia/avatar-nova-v1.png",bodyIndex:1,cost:0},
+        {id:"nova",name:"Nova",src:"../images/verbia/avatar-nova-v2-cable-hair.png",bodySrc:"../images/verbia/explorer-nova-fullbody-v2.png",bodyIndex:1,cost:0},
         {id:"elena",name:"Elena",index:0,bodyIndex:2,cost:350}, {id:"malik",name:"Malik",index:1,bodyIndex:3,cost:400},
         {id:"mei",name:"Mei",index:2,bodyIndex:4,cost:425}, {id:"luca",name:"Luca",index:3,bodyIndex:5,cost:450},
         {id:"asha",name:"Asha",index:4,bodyIndex:6,cost:475}, {id:"finn",name:"Finn",index:5,bodyIndex:7,cost:500},
@@ -975,7 +977,22 @@
         {id:"pet-cat",name:"Nova Cat",type:"pet",atlas:"pet",atlasIndex:1,cost:450},
         {id:"pet-iguana",name:"Solar Iguana",type:"pet",atlas:"pet",atlasIndex:2,cost:500},
         {id:"pet-bird",name:"Comet Bird",type:"pet",atlas:"pet",atlasIndex:3,cost:540},
-        {id:"pet-monkey",name:"Moon Monkey",type:"pet",atlas:"pet",atlasIndex:4,cost:600}
+        {id:"pet-monkey",name:"Moon Monkey",type:"pet",atlas:"pet",atlasIndex:4,cost:600},
+        {id:"violet-visor",name:"Violet Comet Visor",type:"glasses",atlas:"wardrobe2",atlasCol:0,atlasRow:0,cost:260},
+        {id:"holo-angles",name:"Cyan Holo Angles",type:"glasses",atlas:"wardrobe2",atlasCol:1,atlasRow:0,cost:290},
+        {id:"starlight-crown",name:"Starlight Crown",type:"hat",atlas:"wardrobe2",atlasCol:2,atlasRow:0,cost:440},
+        {id:"cosmic-hood",name:"Cosmic Cable Hood",type:"hat",atlas:"wardrobe2",atlasCol:3,atlasRow:0,cost:330},
+        {id:"star-fedora",name:"Midnight Star Fedora",type:"hat",atlas:"wardrobe2",atlasCol:4,atlasRow:0,cost:300},
+        {id:"eva-suit",name:"Aurora Space Suit",type:"shirt",atlas:"wardrobe2",atlasCol:0,atlasRow:1,cost:720},
+        {id:"midnight-suit",name:"Midnight Business Suit",type:"shirt",atlas:"wardrobe2",atlasCol:1,atlasRow:1,cost:610},
+        {id:"violet-coat",name:"Violet Rift Coat",type:"shirt",atlas:"wardrobe2",atlasCol:2,atlasRow:1,cost:560},
+        {id:"neon-jacket",name:"Neon Street Jacket",type:"shirt",atlas:"wardrobe2",atlasCol:3,atlasRow:1,cost:520},
+        {id:"burgundy-suit",name:"Solar Executive Suit",type:"shirt",atlas:"wardrobe2",atlasCol:4,atlasRow:1,cost:640},
+        {id:"aurora-boots",name:"Aurora Space Boots",type:"shoes",atlas:"wardrobe2",atlasCol:0,atlasRow:2,cost:390},
+        {id:"formal-shoes",name:"Orbit Formal Shoes",type:"shoes",atlas:"wardrobe2",atlasCol:1,atlasRow:2,cost:310},
+        {id:"rift-platforms",name:"Rift Platform Boots",type:"shoes",atlas:"wardrobe2",atlasCol:2,atlasRow:2,cost:420},
+        {id:"neon-high-tops",name:"Neon High-Tops",type:"shoes",atlas:"wardrobe2",atlasCol:3,atlasRow:2,cost:360},
+        {id:"lunar-field-boots",name:"Lunar Field Boots",type:"shoes",atlas:"wardrobe2",atlasCol:4,atlasRow:2,cost:380}
       ];
       const playfield = document.querySelector("#playfield");
       const letterNodes = document.querySelector("#letterNodes");
@@ -1973,15 +1990,25 @@
           button.disabled = !owned && (progress.points || 0) < item.cost;
           const icon = document.createElement("span");
           icon.className = "shop-icon";
-          icon.style.backgroundImage = `url('../images/verbia/explorer-${item.atlas === "pet" ? "pets" : "wearables"}-atlas-v1.png')`;
-          icon.style.backgroundSize = "500% 100%";
-          icon.style.backgroundPosition = `${item.atlasIndex * 25}% 0`;
+          applyItemArt(icon, item);
           const label = document.createTextNode(item.name);
           const price = document.createElement("strong");
           price.textContent = owned ? "Owned" : `${item.cost} pts`;
           button.append(icon,label,price);
           (item.type === "pet" ? companionStore : wardrobeStore).append(button);
         });
+      }
+
+      function applyItemArt(element, item) {
+        if (item.atlas === "wardrobe2") {
+          element.style.backgroundImage = "url('../images/verbia/explorer-wardrobe-atlas-v2.png')";
+          element.style.backgroundSize = "500% 300%";
+          element.style.backgroundPosition = `${item.atlasCol * 25}% ${item.atlasRow * 50}%`;
+        } else {
+          element.style.backgroundImage = `url('../images/verbia/explorer-${item.atlas === "pet" ? "pets" : "wearables"}-atlas-v1.png')`;
+          element.style.backgroundSize = "500% 100%";
+          element.style.backgroundPosition = `${item.atlasIndex * 25}% 0`;
+        }
       }
 
       function unlockAvatar(avatarId) {
@@ -2042,12 +2069,17 @@
         const avatar = avatars.find(item => item.id === settings.avatar) || avatars[0];
         const bodyColumn = avatar.bodyIndex % 5;
         const bodyRow = Math.floor(avatar.bodyIndex / 5);
+        inventoryPersona.classList.toggle("nova-fullbody", avatar.id === "nova");
         inventoryPersona.style.setProperty("--atlas-x", `${bodyColumn * 25}%`);
         inventoryPersona.style.setProperty("--atlas-y", `${bodyRow * 100}%`);
         inventoryPersona.setAttribute("aria-label", `${avatar.name} full-body explorer`);
         const equipped = progress.inventory.equipped;
         const pet = shopItems.find(item => item.id === equipped.pet);
-        [[personaHat,"hat"],[personaGlasses,"glasses"],[personaShirt,"shirt"],[personaPants,"pants"],[personaShoes,"shoes"]].forEach(([layer,type]) => layer.classList.toggle("visible", Boolean(equipped[type])));
+        [[personaHat,"hat"],[personaGlasses,"glasses"],[personaShirt,"shirt"],[personaPants,"pants"],[personaShoes,"shoes"]].forEach(([layer,type]) => {
+          const item = shopItems.find(entry => entry.id === equipped[type]);
+          layer.classList.toggle("visible", Boolean(item));
+          if (item) applyItemArt(layer, item);
+        });
         inventoryPet.textContent = pet ? " " : "";
         if (pet) inventoryPet.style.setProperty("--pet-x", `${pet.atlasIndex * 25}%`);
         inventoryPet.setAttribute("aria-label", pet ? `${pet.name} equipped` : "No pet equipped");
@@ -2066,11 +2098,14 @@
           button.type = "button";
           button.className = `inventory-item${equippedNow ? " equipped" : ""}`;
           button.dataset.inventoryItem = item.id;
+          const preview = document.createElement("span");
+          preview.className = "inventory-item-preview";
+          applyItemArt(preview, item);
           const name = document.createElement("strong");
           name.textContent = item.name;
           const state = document.createElement("small");
           state.textContent = equippedNow ? "Equipped · tap to remove" : "Tap to equip";
-          button.append(name,state);
+          button.append(preview,name,state);
           inventoryList.append(button);
         });
       }
