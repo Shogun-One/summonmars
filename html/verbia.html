@@ -178,7 +178,9 @@
     .game-avatar-wearable.shirt,.persona-wearable.shirt { background-size:var(--shirt-size) auto!important; background-position:calc(50% + var(--fit-x)) var(--shirt-y)!important; }
     .game-avatar-wearable.pants,.persona-wearable.pants { background-size:var(--pants-size) auto!important; background-position:calc(50% + var(--fit-x)) var(--pants-y)!important; }
     .game-avatar-wearable.outfit,.persona-wearable.outfit { z-index:5; background-size:var(--outfit-size) auto!important; background-position:calc(50% + var(--fit-x)) var(--outfit-y)!important; }
-    .game-avatar-wearable.shoes,.persona-wearable.shoes { background-size:var(--shoes-size) auto!important; background-position:calc(50% + var(--fit-x)) var(--shoes-y)!important; }
+    .game-avatar-wearable.shoe-left,.game-avatar-wearable.shoe-right { inset:auto auto 0; width:var(--shoe-width); height:var(--shoe-height); translate:-50% 0; background-size:contain!important; background-position:center bottom!important; }
+    .game-avatar-wearable.shoe-left { left:calc(var(--shoe-left-x) + var(--fit-x)); }
+    .game-avatar-wearable.shoe-right { left:calc(var(--shoe-right-x) + var(--fit-x)); }
     .progress-card:has(.game-avatar) .progress-row { padding-left:70px; }
     .progress-card:has(.game-avatar) .progress-track { margin-left:70px; }
 
@@ -576,10 +578,13 @@
     .persona { --atlas-x:0%;--atlas-y:0%; position:absolute; z-index:2; left:50%; bottom:12px; width:min(76%,330px); height:calc(100% - 40px); transform:translateX(-50%); background-image:url('../images/verbia/explorer-fitting-atlas-v3.png'); background-size:500% 200%; background-position:var(--atlas-x) var(--atlas-y); background-repeat:no-repeat; filter:drop-shadow(0 16px 18px rgba(0,0,0,.45)); }
     .persona-wearable { position:absolute; z-index:4; left:50%; bottom:12px; width:min(76%,330px); height:calc(100% - 40px); display:none; translate:-50% 0; background-repeat:no-repeat; filter:drop-shadow(0 5px 7px rgba(0,0,0,.4)); pointer-events:none; }
     .persona-wearable.visible { display:block; }
-    .inventory-stage,.game-avatar { --fit-x:0%;--hat-size:34%;--hat-y:3%;--glasses-size:29%;--glasses-y:15%;--shirt-size:52%;--shirt-y:33%;--pants-size:34%;--pants-y:97%;--outfit-size:64%;--outfit-y:75%;--shoes-size:40%;--shoes-y:100%; }
-    .inventory-stage[data-fit-profile="female"],.game-avatar[data-fit-profile="female"] { --hat-size:31%;--glasses-size:27%;--shirt-size:48%;--pants-size:32%;--outfit-size:60%;--shoes-size:38%; }
-    .inventory-stage[data-fit-profile="male"],.game-avatar[data-fit-profile="male"] { --hat-size:32%;--glasses-size:28%;--shirt-size:56%;--pants-size:37%;--outfit-size:68%;--shoes-size:42%; }
-    .inventory-stage[data-fit-profile="robot"],.game-avatar[data-fit-profile="robot"] { --hat-size:35%;--hat-y:1%;--glasses-size:31%;--glasses-y:13%;--shirt-size:50%;--shirt-y:31%;--pants-size:34%;--pants-y:97%;--outfit-size:64%;--outfit-y:73%;--shoes-size:42%;--shoes-y:100%; }
+    .persona-wearable.shoe-left,.persona-wearable.shoe-right { top:auto; bottom:12px; width:var(--shoe-width); height:var(--shoe-height); translate:-50% 0; background-size:contain!important; background-position:center bottom!important; }
+    .persona-wearable.shoe-left { left:calc(var(--shoe-left-x) + var(--fit-x)); }
+    .persona-wearable.shoe-right { left:calc(var(--shoe-right-x) + var(--fit-x)); }
+    .inventory-stage,.game-avatar { --fit-x:0%;--hat-size:34%;--hat-y:3%;--glasses-size:29%;--glasses-y:15%;--shirt-size:52%;--shirt-y:33%;--pants-size:34%;--pants-y:97%;--outfit-size:64%;--outfit-y:75%;--shoe-left-x:42%;--shoe-right-x:58%;--shoe-width:14%;--shoe-height:25%; }
+    .inventory-stage[data-fit-profile="female"],.game-avatar[data-fit-profile="female"] { --hat-size:31%;--glasses-size:27%;--shirt-size:62%;--pants-size:32%;--outfit-size:60%;--shoe-left-x:42%;--shoe-right-x:58%;--shoe-width:13%; }
+    .inventory-stage[data-fit-profile="male"],.game-avatar[data-fit-profile="male"] { --hat-size:32%;--glasses-size:28%;--shirt-size:70%;--pants-size:37%;--outfit-size:68%;--shoe-left-x:40%;--shoe-right-x:60%;--shoe-width:15%; }
+    .inventory-stage[data-fit-profile="robot"],.game-avatar[data-fit-profile="robot"] { --hat-size:35%;--hat-y:1%;--glasses-size:31%;--glasses-y:13%;--shirt-size:55%;--shirt-y:32%;--pants-size:36%;--pants-y:97%;--outfit-size:64%;--outfit-y:73%;--shoe-left-x:41%;--shoe-right-x:59%;--shoe-width:14%; }
     .inventory-pet { --pet-x:0%; position:absolute; z-index:7; right:5px; bottom:10px; width:36%; height:34%; background-image:url('../images/verbia/explorer-pets-atlas-v1.png'); background-size:500% 100%; background-position:var(--pet-x) 0; background-repeat:no-repeat; filter:drop-shadow(0 8px 8px rgba(0,0,0,.5)); }
     .inventory-pet:empty { display:none; }
     .inventory-list { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
@@ -802,7 +807,8 @@
         <span class="game-avatar-wearable shirt" id="gameAvatarShirt"></span>
         <span class="game-avatar-wearable pants" id="gameAvatarPants"></span>
         <span class="game-avatar-wearable outfit" id="gameAvatarOutfit"></span>
-        <span class="game-avatar-wearable shoes" id="gameAvatarShoes"></span>
+        <span class="game-avatar-wearable shoe-left" id="gameAvatarShoeLeft"></span>
+        <span class="game-avatar-wearable shoe-right" id="gameAvatarShoeRight"></span>
       </button>
       <div class="progress-row">
         <span class="score-display">Score <strong id="boardScore">0</strong></span>
@@ -909,7 +915,7 @@
       <div class="inventory-explorers"><h3>Your explorers</h3><div class="avatar-grid" id="avatarChoices"></div></div>
       <div class="inventory-stage">
         <div class="persona" id="inventoryPersona"></div>
-        <span class="persona-wearable hat" id="personaHat"></span><span class="persona-wearable glasses" id="personaGlasses"></span><span class="persona-wearable shirt" id="personaShirt"></span><span class="persona-wearable pants" id="personaPants"></span><span class="persona-wearable outfit" id="personaOutfit"></span><span class="persona-wearable shoes" id="personaShoes"></span>
+        <span class="persona-wearable hat" id="personaHat"></span><span class="persona-wearable glasses" id="personaGlasses"></span><span class="persona-wearable shirt" id="personaShirt"></span><span class="persona-wearable pants" id="personaPants"></span><span class="persona-wearable outfit" id="personaOutfit"></span><span class="persona-wearable shoe-left" id="personaShoeLeft"></span><span class="persona-wearable shoe-right" id="personaShoeRight"></span>
         <span class="inventory-pet" id="inventoryPet" aria-label="Equipped pet"></span>
       </div>
       <div class="inventory-list" id="inventoryList"></div>
@@ -983,14 +989,14 @@
       const storageKey = "verbia-progress-v3";
       const settingsKey = "verbia-settings-v1";
       const avatars = [
-        {id:"rx7",name:"RX-7",index:8,bodyIndex:0,cost:0},
-        {id:"nova",name:"Nova",src:"../images/verbia/avatar-nova-v2-cable-hair.png",bodySrc:"../images/verbia/explorer-nova-fullbody-v2.png",bodyIndex:1,cost:0},
-        {id:"elena",name:"Elena",index:0,bodyIndex:2,cost:400}, {id:"malik",name:"Malik",index:1,bodyIndex:3,cost:400},
-        {id:"mei",name:"Mei",index:2,bodyIndex:4,cost:400}, {id:"luca",name:"Luca",index:3,bodyIndex:5,cost:400},
-        {id:"asha",name:"Asha",index:4,bodyIndex:6,cost:400}, {id:"finn",name:"Finn",index:5,bodyIndex:7,cost:400},
-        {id:"amara",name:"Amara",index:6,bodyIndex:8,cost:400}, {id:"kai",name:"Kai",index:7,bodyIndex:9,cost:400},
-        {id:"sofia",name:"Sofía",portraitAtlas:"hispanic",portraitIndex:0,bodyAtlas:"hispanic",bodyIndex:0,cost:400},
-        {id:"mateo",name:"Mateo",portraitAtlas:"hispanic",portraitIndex:1,bodyAtlas:"hispanic",bodyIndex:1,cost:400}
+        {id:"rx7",name:"RX-7",index:8,bodySrc:"../images/verbia/bodies-standard/rx7.png",bodyIndex:0,cost:0},
+        {id:"nova",name:"Nova",src:"../images/verbia/avatar-nova-v2-cable-hair.png",bodySrc:"../images/verbia/bodies-standard/nova.png",bodyIndex:1,cost:0},
+        {id:"elena",name:"Elena",index:0,bodySrc:"../images/verbia/bodies-standard/elena.png",bodyIndex:2,cost:400}, {id:"malik",name:"Malik",index:1,bodySrc:"../images/verbia/bodies-standard/malik.png",bodyIndex:3,cost:400},
+        {id:"mei",name:"Mei",index:2,bodySrc:"../images/verbia/bodies-standard/mei.png",bodyIndex:4,cost:400}, {id:"luca",name:"Luca",index:3,bodySrc:"../images/verbia/bodies-standard/luca.png",bodyIndex:5,cost:400},
+        {id:"asha",name:"Asha",index:4,bodySrc:"../images/verbia/bodies-standard/asha.png",bodyIndex:6,cost:400}, {id:"finn",name:"Finn",index:5,bodySrc:"../images/verbia/bodies-standard/finn.png",bodyIndex:7,cost:400},
+        {id:"amara",name:"Amara",index:6,bodySrc:"../images/verbia/bodies-standard/amara.png",bodyIndex:8,cost:400}, {id:"kai",name:"Kai",index:7,bodySrc:"../images/verbia/bodies-standard/kai.png",bodyIndex:9,cost:400},
+        {id:"sofia",name:"Sofía",portraitAtlas:"hispanic",portraitIndex:0,bodySrc:"../images/verbia/bodies-standard/sofia.png",bodyIndex:0,cost:400},
+        {id:"mateo",name:"Mateo",portraitAtlas:"hispanic",portraitIndex:1,bodySrc:"../images/verbia/bodies-standard/mateo.png",bodyIndex:1,cost:400}
       ];
       const shopItems = [
         {id:"standard-field-jacket",name:"Standard Field Jacket",type:"shirt",atlas:"standard",atlasIndex:0,cost:0,standard:true},
@@ -1056,7 +1062,8 @@
       const gameAvatarShirt = document.querySelector("#gameAvatarShirt");
       const gameAvatarPants = document.querySelector("#gameAvatarPants");
       const gameAvatarOutfit = document.querySelector("#gameAvatarOutfit");
-      const gameAvatarShoes = document.querySelector("#gameAvatarShoes");
+      const gameAvatarShoeLeft = document.querySelector("#gameAvatarShoeLeft");
+      const gameAvatarShoeRight = document.querySelector("#gameAvatarShoeRight");
       const pauseButton = document.querySelector("#pauseButton");
       const spaceBackdrop = document.querySelector("#spaceBackdrop");
       const boardBackdrop = document.querySelector("#boardBackdrop");
@@ -1111,7 +1118,8 @@
       const personaShirt = document.querySelector("#personaShirt");
       const personaPants = document.querySelector("#personaPants");
       const personaOutfit = document.querySelector("#personaOutfit");
-      const personaShoes = document.querySelector("#personaShoes");
+      const personaShoeLeft = document.querySelector("#personaShoeLeft");
+      const personaShoeRight = document.querySelector("#personaShoeRight");
       const inventoryPet = document.querySelector("#inventoryPet");
       const inventoryList = document.querySelector("#inventoryList");
 
@@ -2074,13 +2082,17 @@
       }
 
       function avatarFitOffset(avatar) {
-        return ({rx7:"6%",sofia:"11%",mateo:"-12%"})[avatar.id] || "0%";
+        return "0%";
       }
 
       function applyExplorerBody(element, avatar) {
         const bodyColumn = avatar.bodyIndex % 5;
         const bodyRow = Math.floor(avatar.bodyIndex / 5);
-        if (avatar.bodyAtlas === "hispanic") {
+        if (avatar.bodySrc) {
+          element.style.backgroundImage = `url('${avatar.bodySrc}')`;
+          element.style.backgroundSize = "contain";
+          element.style.backgroundPosition = "center bottom";
+        } else if (avatar.bodyAtlas === "hispanic") {
           element.style.backgroundImage = "url('../images/verbia/explorer-hispanic-fitting-v1.png')";
           element.style.backgroundSize = "200% 100%";
           element.style.backgroundPosition = `${avatar.bodyIndex * 100}% 0`;
@@ -2102,13 +2114,28 @@
         });
       }
 
+      function fittedAssetKey(item) {
+        const index = item.atlas === "wardrobe2" ? item.atlasRow * 5 + item.atlasCol : item.atlasIndex;
+        return `${item.atlas === "wearable" ? "wearable" : item.atlas}-${index}`;
+      }
+
+      function renderEquippedShoes(leftLayer, rightLayer) {
+        const item = shopItems.find(entry => entry.id === progress.inventory.equipped.shoes);
+        [leftLayer,rightLayer].forEach(layer => layer.classList.toggle("visible", Boolean(item)));
+        if (!item) return;
+        const key = fittedAssetKey(item);
+        leftLayer.style.backgroundImage = `url('../images/verbia/wardrobe-fitted/${key}-left.png')`;
+        rightLayer.style.backgroundImage = `url('../images/verbia/wardrobe-fitted/${key}-right.png')`;
+      }
+
       function renderGameAvatar() {
         ensureInventory();
         const avatar = avatars.find(item => item.id === settings.avatar) || avatars[0];
         avatarBadge.dataset.fitProfile = avatarFitProfile(avatar);
         avatarBadge.style.setProperty("--fit-x", avatarFitOffset(avatar));
         applyExplorerBody(gameAvatarBase, avatar);
-        renderEquippedLayers([[gameAvatarHat,"hat"],[gameAvatarGlasses,"glasses"],[gameAvatarShirt,"shirt"],[gameAvatarPants,"pants"],[gameAvatarOutfit,"outfit"],[gameAvatarShoes,"shoes"]]);
+        renderEquippedLayers([[gameAvatarHat,"hat"],[gameAvatarGlasses,"glasses"],[gameAvatarShirt,"shirt"],[gameAvatarPants,"pants"],[gameAvatarOutfit,"outfit"]]);
+        renderEquippedShoes(gameAvatarShoeLeft, gameAvatarShoeRight);
         avatarBadge.setAttribute("aria-label", `${avatar.name}, wearing the current showroom outfit. Open player and game menu`);
       }
 
@@ -2178,7 +2205,8 @@
         inventoryPersona.setAttribute("aria-label", `${avatar.name} full-body explorer`);
         const equipped = progress.inventory.equipped;
         const pet = shopItems.find(item => item.id === equipped.pet);
-        renderEquippedLayers([[personaHat,"hat"],[personaGlasses,"glasses"],[personaShirt,"shirt"],[personaPants,"pants"],[personaOutfit,"outfit"],[personaShoes,"shoes"]]);
+        renderEquippedLayers([[personaHat,"hat"],[personaGlasses,"glasses"],[personaShirt,"shirt"],[personaPants,"pants"],[personaOutfit,"outfit"]]);
+        renderEquippedShoes(personaShoeLeft, personaShoeRight);
         renderGameAvatar();
         inventoryPet.textContent = pet ? " " : "";
         if (pet) inventoryPet.style.setProperty("--pet-x", `${pet.atlasIndex * 25}%`);
