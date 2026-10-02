@@ -271,6 +271,8 @@
     .hint-button,.daily-bubble { position:relative; inset:auto; width:52px; height:52px; display:grid; place-items:center; padding:0; border:1px solid color-mix(in srgb,var(--mint) 72%,white); border-radius:50%; color:#102019; background:linear-gradient(145deg,#fff9c7,var(--gold) 58%,#e7893f); box-shadow:0 0 14px color-mix(in srgb,var(--gold) 38%,transparent),inset 0 1px rgba(255,255,255,.72); font-size:1.55rem; line-height:1; cursor:pointer; pointer-events:auto; }
     .hint-button { background:linear-gradient(145deg,#f7fff9,var(--mint) 58%,color-mix(in srgb,var(--mint) 58%,#1b5142)); box-shadow:0 0 14px color-mix(in srgb,var(--mint) 42%,transparent),inset 0 1px rgba(255,255,255,.8); }
     .bubble-icon { display:block; translate:0 -1px; filter:drop-shadow(0 1px 1px rgba(0,0,0,.24)); }
+    .daily-target { position:relative; width:29px; height:29px; border:2px solid #fff7df; border-radius:50%; background:radial-gradient(circle,#ffe46f 0 16%,#e63d49 17% 34%,#fff7df 35% 52%,#e63d49 53% 70%,#fff7df 71%); box-shadow:0 1px 4px rgba(0,0,0,.35); }
+    .daily-dart { position:absolute; left:-10px; top:-10px; color:#17201e; font:950 1.45rem/1 Georgia,serif; rotate:90deg; text-shadow:0 1px 0 #fff7df; }
     .bubble-count { position:absolute; top:-5px; right:-5px; min-width:24px; height:24px; display:grid; place-items:center; padding:0 4px; border:2px solid #fff5cb; border-radius:99px; color:#fff; background:#17201e; box-shadow:0 3px 8px rgba(0,0,0,.48); font-size:.62rem; font-weight:950; line-height:1; letter-spacing:-.02em; }
     .hint-button:disabled { opacity:.42; cursor:not-allowed; filter:grayscale(.6); }
     .daily-bubble[hidden] { display:none; }
@@ -869,7 +871,7 @@
       <p class="hint">Touch • trace • release</p>
       <div class="bubble-tools" aria-label="Board bonuses">
         <button class="hint-button" id="hintButton" type="button" aria-label="Use a hint"><span class="bubble-icon" aria-hidden="true">💡</span><span class="bubble-count" id="hintCount">×3</span></button>
-        <button class="daily-bubble" id="dailyBubble" type="button" hidden aria-label="Play today's daily dart reward"><span class="bubble-icon" aria-hidden="true">🎯</span><span class="bubble-count">×1</span></button>
+        <button class="daily-bubble" id="dailyBubble" type="button" hidden aria-label="Play today's daily dart reward"><span class="bubble-icon daily-target" aria-hidden="true"><span class="daily-dart">➶</span></span><span class="bubble-count">×1</span></button>
       </div>
     </section>
 
