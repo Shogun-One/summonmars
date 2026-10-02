@@ -975,6 +975,7 @@
       const tilts = [-8,5,11,-5,7,-11];
       const storageKey = "verbia-progress-v3";
       const settingsKey = "verbia-settings-v1";
+      const testingCatalogUnlocked = true;
       const avatars = [
         {id:"rx7",name:"RX-7",index:8,bodySrc:"../images/verbia/bodies-standard/rx7.png",bodyIndex:0,cost:0},
         {id:"nova",name:"Nova",src:"../images/verbia/avatar-nova-v2-cable-hair.png",bodySrc:"../images/verbia/bodies-standard/nova.png",bodyIndex:1,cost:0},
@@ -2010,6 +2011,10 @@
         }
         if (!Array.isArray(progress.unlockedAvatars)) progress.unlockedAvatars = ["rx7","nova"];
         progress.unlockedAvatars = [...new Set(["rx7","nova",...progress.unlockedAvatars.filter(id => avatars.some(avatar => avatar.id === id))])];
+        if (testingCatalogUnlocked) {
+          progress.unlockedAvatars = avatars.map(avatar => avatar.id);
+          progress.inventory.owned = shopItems.map(item => item.id);
+        }
       }
 
       function renderShop() {
