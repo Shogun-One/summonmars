@@ -567,7 +567,7 @@
     .direction-icon { display:grid; place-items:center; width:38px; height:38px; border-radius:50%; color:#071411; background:var(--mint); font-size:1.15rem; }
 
     .inventory-stage { position:relative; height:min(58svh,560px); min-height:440px; margin:14px 0; overflow:hidden; border:1px solid rgba(255,255,255,.13); border-radius:24px 8px; background:radial-gradient(circle at 50% 36%,color-mix(in srgb,var(--mint) 20%,transparent),transparent 34%),linear-gradient(180deg,#0d2730,#070b15 70%); box-shadow:inset 0 0 55px rgba(75,223,255,.08); }
-    .inventory-stage::after { content:"FULL-BODY FITTING BAY"; position:absolute; left:14px; top:12px; color:rgba(255,255,255,.42); font-size:.5rem; font-weight:900; letter-spacing:.16em; }
+    .inventory-stage::after { content:"FULL-BODY FITTING BAY"; position:absolute; z-index:10; left:50%; top:12px; translate:-50% 0; color:rgba(255,255,255,.42); font-size:.5rem; font-weight:900; letter-spacing:.16em; white-space:nowrap; }
     .persona { --atlas-x:0%;--atlas-y:0%; position:absolute; z-index:2; left:50%; bottom:12px; width:min(76%,330px); height:calc(100% - 40px); transform:translateX(-50%); background-image:url('../images/verbia/explorer-fitting-atlas-v3.png'); background-size:500% 200%; background-position:var(--atlas-x) var(--atlas-y); background-repeat:no-repeat; filter:drop-shadow(0 16px 18px rgba(0,0,0,.45)); }
     .inventory-ship { position:absolute; z-index:1; inset:0; background-repeat:no-repeat; background-size:cover; background-position:center; opacity:.3; filter:saturate(1.15) drop-shadow(0 12px 18px rgba(0,0,0,.65)); }
     .inventory-ship:empty { display:none; }
@@ -576,11 +576,12 @@
     .inventory-list { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; }
     .inventory-category-label { grid-column:1/-1; margin:16px 0 2px; color:color-mix(in srgb,var(--gold) 78%,white); font-size:.7rem; font-weight:900; letter-spacing:.13em; text-align:center; text-transform:uppercase; }
     .inventory-list > .feature-intro { grid-column:1 / -1; width:100%; }
-    .inventory-item { height:118px; overflow:hidden; padding:5px 3px 6px; border:1px solid rgba(255,255,255,.14); border-radius:13px 5px; color:var(--surface-muted); background:rgba(255,255,255,.055); text-align:center; cursor:pointer; }
+    .inventory-item { height:142px; overflow:hidden; padding:6px 4px 8px; border:1px solid rgba(255,255,255,.14); border-radius:13px 5px; color:var(--surface-muted); background:rgba(255,255,255,.055); text-align:center; cursor:pointer; }
     .inventory-item-preview { display:block; width:64px; height:64px; margin:0 auto 5px; background-repeat:no-repeat; background-size:contain; background-position:center; }
     .inventory-item-preview.square-cell { aspect-ratio:1 / 2; }
-    .inventory-item strong { display:block; color:var(--surface-text); font-size:.58rem; line-height:1.05; }.inventory-item small { color:var(--gold); font-size:.5rem; line-height:1.05; }
+    .inventory-item strong { display:block; color:var(--surface-text); font-size:.58rem; line-height:1.15; }.inventory-item small { display:block; margin-top:5px; color:var(--gold); font-size:.52rem; line-height:1.3; }
     .inventory-item.equipped { border-color:var(--mint); box-shadow:0 0 14px color-mix(in srgb,var(--mint) 22%,transparent); }
+    .showroom-explorer-name { position:absolute; z-index:12; left:20px; bottom:24px; max-width:64%; color:var(--gold); font-family:"Brush Script MT","Segoe Script","Comic Sans MS",cursive; font-size:clamp(2rem,8vw,3.8rem); font-weight:900; line-height:.8; letter-spacing:.035em; text-transform:uppercase; rotate:-11deg; text-shadow:0 3px 0 rgba(29,11,0,.9),0 0 12px color-mix(in srgb,var(--gold) 70%,transparent); pointer-events:none; }
 
     .discovery-dock { position:relative; z-index:4; min-height:0; }
     .discovery-shelf { position:relative; height:clamp(135px,17svh,165px); overflow:hidden; touch-action:pan-y; border:1px solid color-mix(in srgb,var(--mint) 28%,transparent); border-radius:20px 8px 20px 8px; background:linear-gradient(160deg,color-mix(in srgb,var(--panel) 94%,#fff 6%),color-mix(in srgb,var(--deep) 94%,transparent)); box-shadow:0 12px 35px rgba(0,0,0,.28),inset 0 1px rgba(255,255,255,.05); backdrop-filter:blur(13px); }
@@ -896,6 +897,7 @@
         <span class="inventory-ship" id="inventoryShip" aria-label="Selected spaceship"></span>
         <div class="persona" id="inventoryPersona"></div>
         <span class="inventory-pet" id="inventoryPet" aria-label="Equipped pet"></span>
+        <span class="showroom-explorer-name" id="showroomExplorerName" aria-hidden="true"></span>
       </div>
       <div class="inventory-explorers"><h3>Your explorers</h3><div class="avatar-grid" id="avatarChoices"></div></div>
       <div class="inventory-list" id="inventoryList"></div>
@@ -1067,6 +1069,7 @@
       const inventoryPersona = document.querySelector("#inventoryPersona");
       const inventoryShip = document.querySelector("#inventoryShip");
       const inventoryPet = document.querySelector("#inventoryPet");
+      const showroomExplorerName = document.querySelector("#showroomExplorerName");
       const inventoryList = document.querySelector("#inventoryList");
 
       let profileExists = storedProfileExists();
@@ -2120,6 +2123,7 @@
         const equipped = progress.inventory.equipped;
         applyExplorerBody(inventoryPersona, avatar);
         inventoryPersona.setAttribute("aria-label", `${avatar.name} full-body explorer`);
+        showroomExplorerName.textContent = avatar.name;
         const pet = shopItems.find(item => item.id === equipped.pet);
         const ship = shopItems.find(item => item.id === equipped.ship);
         renderGameAvatar();
