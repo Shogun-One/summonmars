@@ -149,6 +149,7 @@
     }
 
     .progress-card {
+      position: relative;
       padding: 12px 14px;
       border: 1px solid rgba(117,245,199,.18);
       border-radius: 18px;
@@ -167,6 +168,19 @@
       letter-spacing: .08em;
       text-transform: uppercase;
     }
+
+    .game-avatar { position:absolute; z-index:12; left:4px; bottom:-2px; width:82px; height:158px; padding:0; overflow:visible; border:0; background:transparent; cursor:pointer; filter:drop-shadow(0 8px 9px rgba(0,0,0,.5)); }
+    .game-avatar-base { --atlas-x:0%;--atlas-y:0%; position:absolute; z-index:1; inset:0; background-image:url('../images/verbia/explorer-fitting-atlas-v3.png'); background-size:500% 200%; background-position:var(--atlas-x) var(--atlas-y); background-repeat:no-repeat; }
+    .game-avatar-wearable { position:absolute; z-index:3; left:50%; display:none; translate:-50% 0; background-repeat:no-repeat; pointer-events:none; }
+    .game-avatar-wearable.visible { display:block; }
+    .game-avatar-wearable.hat { top:5%; width:35%; height:17%; }
+    .game-avatar-wearable.glasses { top:15%; width:31%; height:9%; }
+    .game-avatar-wearable.shirt { top:25%; width:54%; height:38%; }
+    .game-avatar-wearable.pants { top:54%; width:45%; height:34%; }
+    .game-avatar-wearable.outfit { z-index:4; top:21%; width:63%; height:73%; }
+    .game-avatar-wearable.shoes { bottom:1%; width:43%; height:17%; }
+    .progress-card:has(.game-avatar) .progress-row { padding-left:70px; }
+    .progress-card:has(.game-avatar) .progress-track { margin-left:70px; }
 
     .progress-row strong { color: var(--ink); }
     #boardState.cleared { color:var(--gold); text-shadow:0 0 8px var(--gold),0 0 18px color-mix(in srgb,var(--mint) 68%,transparent); animation:clearedStateGlow 1.2s ease-in-out infinite alternate; }
@@ -244,8 +258,7 @@
       opacity: 0;
     }
 
-    .board-tools { position:absolute; z-index:8; top:14px; left:15px; display:flex; align-items:center; gap:7px; }
-    .avatar-badge { width:52px; height:52px; padding:0; overflow:hidden; border:1px solid color-mix(in srgb, var(--mint) 45%, transparent); border-radius:16px 7px 16px 7px; background:rgba(0,0,0,.24); box-shadow:0 0 18px color-mix(in srgb, var(--mint) 18%, transparent); cursor:pointer; }
+    .board-tools { position:absolute; z-index:8; top:22px; left:143px; display:flex; align-items:center; gap:7px; }
     .pause-button { width:35px; height:35px; border:1px solid rgba(255,255,255,.14); border-radius:10px 4px 10px 4px; color:var(--ink); background:rgba(0,0,0,.25); font-weight:900; cursor:pointer; }
     .avatar-art { width:100%; height:100%; background-image:url('/images/verbia/avatar-roster-v1.png'); background-size:300% 300%; background-repeat:no-repeat; background-position:var(--avatar-x) var(--avatar-y); }
     .avatar-choice .avatar-art { width:60px; height:60px; margin:auto; border-radius:14px 6px 14px 6px; box-shadow:0 8px 18px rgba(0,0,0,.3); }
@@ -273,7 +286,7 @@
     }
 
     .shuffle-button:active { transform: scale(.96); }
-    .bubble-tools { position:absolute; z-index:9; top:12px; left:50%; display:flex; gap:8px; transform:translateX(-50%); }
+    .bubble-tools { position:absolute; z-index:9; top:12px; left:15px; display:flex; gap:8px; }
     .hint-button,.daily-bubble { position:relative; inset:auto; width:56px; height:56px; padding:0; border:2px solid var(--gold); border-radius:50%; color:#201500; background:radial-gradient(circle at 34% 26%,#fff7b2,var(--gold) 45%,#df7e35); box-shadow:0 0 0 5px rgba(255,217,120,.07),0 9px 22px rgba(0,0,0,.42); font-size:1.28rem; line-height:1; cursor:pointer; animation:bubbleFloat 2.2s ease-in-out infinite; }
     .hint-button { border-color:var(--mint); background:radial-gradient(circle at 34% 26%,#f5fff9,var(--mint) 45%,color-mix(in srgb,var(--mint) 58%,#214f42)); animation-delay:-.7s; }
     .hint-button small,.daily-bubble small { display:block; margin-top:2px; color:#1d1607; font-size:.45rem; font-weight:950; line-height:1; letter-spacing:.045em; text-transform:uppercase; }
@@ -783,6 +796,15 @@
     </header>
 
     <section class="progress-card" aria-label="Board progress">
+      <button class="game-avatar" id="avatarBadge" type="button" aria-label="Open player and game menu">
+        <span class="game-avatar-base" id="gameAvatarBase"></span>
+        <span class="game-avatar-wearable hat" id="gameAvatarHat"></span>
+        <span class="game-avatar-wearable glasses" id="gameAvatarGlasses"></span>
+        <span class="game-avatar-wearable shirt" id="gameAvatarShirt"></span>
+        <span class="game-avatar-wearable pants" id="gameAvatarPants"></span>
+        <span class="game-avatar-wearable outfit" id="gameAvatarOutfit"></span>
+        <span class="game-avatar-wearable shoes" id="gameAvatarShoes"></span>
+      </button>
       <div class="progress-row">
         <span class="score-display">Score <strong id="boardScore">0</strong></span>
         <span id="boardState">Find 6 to clear</span>
@@ -793,7 +815,6 @@
     <section class="playfield" id="playfield" aria-label="Letter constellation. Drag through letters to form a word.">
       <canvas class="board-backdrop" id="boardBackdrop" aria-hidden="true"></canvas>
       <div class="board-tools">
-        <button class="avatar-badge" id="avatarBadge" type="button" aria-label="Open player and game menu"></button>
         <button class="pause-button" id="pauseButton" type="button" aria-label="Pause and open game menu">Ⅱ</button>
       </div>
       <div class="word-display" id="wordDisplay" data-empty="true" aria-live="polite"></div>
@@ -1030,6 +1051,13 @@
       const sheetContent = document.querySelector("#sheetContent");
       const toast = document.querySelector("#toast");
       const avatarBadge = document.querySelector("#avatarBadge");
+      const gameAvatarBase = document.querySelector("#gameAvatarBase");
+      const gameAvatarHat = document.querySelector("#gameAvatarHat");
+      const gameAvatarGlasses = document.querySelector("#gameAvatarGlasses");
+      const gameAvatarShirt = document.querySelector("#gameAvatarShirt");
+      const gameAvatarPants = document.querySelector("#gameAvatarPants");
+      const gameAvatarOutfit = document.querySelector("#gameAvatarOutfit");
+      const gameAvatarShoes = document.querySelector("#gameAvatarShoes");
       const pauseButton = document.querySelector("#pauseButton");
       const spaceBackdrop = document.querySelector("#spaceBackdrop");
       const boardBackdrop = document.querySelector("#boardBackdrop");
@@ -2043,6 +2071,39 @@
         }
       }
 
+      function applyExplorerBody(element, avatar) {
+        const bodyColumn = avatar.bodyIndex % 5;
+        const bodyRow = Math.floor(avatar.bodyIndex / 5);
+        if (avatar.bodyAtlas === "hispanic") {
+          element.style.backgroundImage = "url('../images/verbia/explorer-hispanic-fitting-v1.png')";
+          element.style.backgroundSize = "200% 100%";
+          element.style.backgroundPosition = `${avatar.bodyIndex * 100}% 0`;
+        } else {
+          element.style.removeProperty("background-image");
+          element.style.removeProperty("background-size");
+          element.style.backgroundPosition = "var(--atlas-x) var(--atlas-y)";
+          element.style.setProperty("--atlas-x", `${bodyColumn * 25}%`);
+          element.style.setProperty("--atlas-y", `${bodyRow * 100}%`);
+        }
+      }
+
+      function renderEquippedLayers(layerPairs) {
+        const equipped = progress.inventory.equipped;
+        layerPairs.forEach(([layer,type]) => {
+          const item = shopItems.find(entry => entry.id === equipped[type]);
+          layer.classList.toggle("visible", Boolean(item));
+          if (item) applyItemArt(layer, item);
+        });
+      }
+
+      function renderGameAvatar() {
+        ensureInventory();
+        const avatar = avatars.find(item => item.id === settings.avatar) || avatars[0];
+        applyExplorerBody(gameAvatarBase, avatar);
+        renderEquippedLayers([[gameAvatarHat,"hat"],[gameAvatarGlasses,"glasses"],[gameAvatarShirt,"shirt"],[gameAvatarPants,"pants"],[gameAvatarOutfit,"outfit"],[gameAvatarShoes,"shoes"]]);
+        avatarBadge.setAttribute("aria-label", `${avatar.name}, wearing the current showroom outfit. Open player and game menu`);
+      }
+
       function unlockAvatar(avatarId) {
         ensureInventory();
         const avatar = avatars.find(item => item.id === avatarId);
@@ -2103,27 +2164,12 @@
         ensureInventory();
         inventoryPoints.textContent = progress.points || 0;
         const avatar = avatars.find(item => item.id === settings.avatar) || avatars[0];
-        const bodyColumn = avatar.bodyIndex % 5;
-        const bodyRow = Math.floor(avatar.bodyIndex / 5);
-        if (avatar.bodyAtlas === "hispanic") {
-          inventoryPersona.style.backgroundImage = "url('../images/verbia/explorer-hispanic-fitting-v1.png')";
-          inventoryPersona.style.backgroundSize = "200% 100%";
-          inventoryPersona.style.backgroundPosition = `${avatar.bodyIndex * 100}% 0`;
-        } else {
-          inventoryPersona.style.removeProperty("background-image");
-          inventoryPersona.style.removeProperty("background-size");
-          inventoryPersona.style.backgroundPosition = "var(--atlas-x) var(--atlas-y)";
-          inventoryPersona.style.setProperty("--atlas-x", `${bodyColumn * 25}%`);
-          inventoryPersona.style.setProperty("--atlas-y", `${bodyRow * 100}%`);
-        }
+        applyExplorerBody(inventoryPersona, avatar);
         inventoryPersona.setAttribute("aria-label", `${avatar.name} full-body explorer`);
         const equipped = progress.inventory.equipped;
         const pet = shopItems.find(item => item.id === equipped.pet);
-        [[personaHat,"hat"],[personaGlasses,"glasses"],[personaShirt,"shirt"],[personaPants,"pants"],[personaOutfit,"outfit"],[personaShoes,"shoes"]].forEach(([layer,type]) => {
-          const item = shopItems.find(entry => entry.id === equipped[type]);
-          layer.classList.toggle("visible", Boolean(item));
-          if (item) applyItemArt(layer, item);
-        });
+        renderEquippedLayers([[personaHat,"hat"],[personaGlasses,"glasses"],[personaShirt,"shirt"],[personaPants,"pants"],[personaOutfit,"outfit"],[personaShoes,"shoes"]]);
+        renderGameAvatar();
         inventoryPet.textContent = pet ? " " : "";
         if (pet) inventoryPet.style.setProperty("--pet-x", `${pet.atlasIndex * 25}%`);
         inventoryPet.setAttribute("aria-label", pet ? `${pet.name} equipped` : "No pet equipped");
@@ -2470,8 +2516,7 @@
         playfield.dataset.shape = settings.shape;
         const avatar = avatars.find(item => item.id === settings.avatar) || avatars[0];
         settings.avatar = avatar.id;
-        avatarBadge.replaceChildren(createPortrait(avatar));
-        avatarBadge.setAttribute("aria-label", `${avatar.name} selected. Open player and game menu`);
+        renderGameAvatar();
         document.querySelectorAll("[data-theme-choice]").forEach(button => button.classList.toggle("selected", button.dataset.themeChoice === settings.theme));
         document.querySelectorAll("[data-sound-mode]").forEach(button => {
           const selected = button.dataset.soundMode === settings.soundMode;
