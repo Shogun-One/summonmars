@@ -228,27 +228,21 @@
     }
 
     .word-display {
-      position: absolute;
-      z-index: 5;
-      top: 28px;
-      left: 50%;
-      width: calc(100% - 86px);
-      height:82px;
-      transform:translateX(-50%);
-      display:flex;
-      align-items:flex-end;
-      justify-content:center;
-      gap:clamp(5px,2.2vw,13px);
+      position: relative;
+      z-index: 10;
+      height: 38px;
+      margin: -10px 0;
+      display: grid;
+      place-items: center;
       color: var(--ink);
       font-family: Georgia, serif;
-      font-size:var(--trace-size,clamp(2.8rem,12vw,4rem));
-      line-height:1;
+      font-size: clamp(1.8rem, 8vw, 2.55rem);
+      line-height: 1;
+      letter-spacing: .16em;
       text-align: center;
       text-shadow: 0 0 18px rgba(117,245,199,.45);
-      pointer-events:none;
+      pointer-events: none;
     }
-
-    .word-display-letter { display:block; min-width:.68em; transform:translateY(calc(var(--arc-rise,0) * -1px)) rotate(var(--arc-tilt,0deg)); transform-origin:center bottom; }
 
     .word-display[data-empty="true"] {
       opacity: 0;
@@ -835,6 +829,8 @@
       <div class="progress-track"><div class="progress-fill" id="progressFill"></div><span class="progress-threshold" id="progressThreshold" aria-hidden="true"></span></div>
     </section>
 
+    <div class="word-display" id="wordDisplay" data-empty="true" aria-live="polite"></div>
+
     <section class="playfield" id="playfield" aria-label="Letter constellation. Drag through letters to form a word.">
       <canvas class="board-backdrop" id="boardBackdrop" aria-hidden="true"></canvas>
       <div class="board-tools">
@@ -842,7 +838,6 @@
         <button class="board-control-button sound-cycle-button" id="soundCycleButton" type="button" aria-label="Change sound mode">♫ Music + FX</button>
         <button class="board-control-button shuffle-button" id="shuffleButton" type="button" aria-label="Shuffle letter positions">↝ Shuffle</button>
       </div>
-      <div class="word-display" id="wordDisplay" data-empty="true" aria-live="polite"></div>
       <div class="toast" id="toast" role="status" aria-live="assertive"></div>
       <div class="effects-layer" id="effectsLayer" aria-hidden="true"></div>
       <svg id="paths" aria-hidden="true">
@@ -1867,17 +1862,7 @@
       function renderWord() {
         const letters = selected.map(node => node.dataset.letter);
         const word = letters.join("");
-        wordDisplay.style.setProperty("--trace-size", letters.length > 4 ? "clamp(1.8rem,7.4vw,2.65rem)" : "clamp(2.8rem,12vw,4rem)");
-        wordDisplay.replaceChildren(...letters.map((letter,index) => {
-          const span = document.createElement("span");
-          const midpoint = (letters.length - 1) / 2;
-          const distance = midpoint ? (index - midpoint) / midpoint : 0;
-          span.className = "word-display-letter";
-          span.textContent = letter;
-          span.style.setProperty("--arc-rise", String(Math.round(7 + 31 * (1 - distance * distance))));
-          span.style.setProperty("--arc-tilt", `${Math.round(distance * 18)}deg`);
-          return span;
-        }));
+        wordDisplay.textContent = word;
         wordDisplay.setAttribute("aria-label", word);
         wordDisplay.dataset.empty = String(!word);
       }
