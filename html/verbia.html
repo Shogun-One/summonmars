@@ -211,11 +211,10 @@
         linear-gradient(rgba(5, 24, 21, .78), rgba(3, 14, 13, .9));
       box-shadow: 0 24px 70px rgba(0,0,0,.38), inset 0 1px rgba(255,255,255,.05);
       touch-action: none;
-      transform-style: preserve-3d;
       transform-origin: 50% 50%;
-      backface-visibility: hidden;
+      isolation: isolate;
     }
-    .playfield.board-flipping { pointer-events:none; animation:boardFlip .82s cubic-bezier(.55,.05,.22,1) both; }
+    .playfield.board-flipping { pointer-events:none; backface-visibility:hidden; transform-style:preserve-3d; will-change:transform,filter; animation:boardFlip .82s cubic-bezier(.55,.05,.22,1) both; }
     @keyframes boardFlip { 0%{transform:perspective(1100px) rotateY(0) scale(1);filter:brightness(1)} 47%{transform:perspective(1100px) rotateY(88deg) scale(.94);filter:brightness(.5)} 50%{transform:perspective(1100px) rotateY(-88deg) scale(.94);filter:brightness(.55)} 100%{transform:perspective(1100px) rotateY(0) scale(1);filter:brightness(1)} }
 
     .playfield::after {
@@ -790,6 +789,12 @@
       .progress-card { padding-block: 9px; }
     }
 
+    @media (min-width:600px) and (min-height:700px) {
+      .app { width:min(100%,680px); padding-inline:24px; }
+      .playfield { height:clamp(430px,58svh,600px); }
+      .discovery-shelf { height:clamp(150px,18svh,190px); }
+    }
+
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; }
     }
@@ -1238,6 +1243,8 @@
       let backtrackTimer = 0;
       let traceResetTimer = 0;
       let bonusShelfReturnTimer = 0;
+      let responsiveRenderFrame = 0;
+      let responsiveRenderTimer = 0;
       let masteryFireworksTimer = 0;
       let fireworksCleanupTimer = 0;
 
@@ -1511,7 +1518,25 @@
         vibrate(18);
       });
 
-      window.addEventListener("resize", () => { drawConstellation(); drawPath(); renderMilestoneBackground(boardIndex + 1); });
+      window.addEventListener("resize", scheduleResponsiveRender, {passive:true});
+      window.visualViewport?.addEventListener("resize", scheduleResponsiveRender, {passive:true});
+      new ResizeObserver(scheduleResponsiveRender).observe(playfield);
+
+      function scheduleResponsiveRender() {
+        if (!responsiveRenderFrame) {
+          responsiveRenderFrame = requestAnimationFrame(() => {
+            responsiveRenderFrame = 0;
+            drawConstellation();
+            drawPath();
+          });
+        }
+        window.clearTimeout(responsiveRenderTimer);
+        responsiveRenderTimer = window.setTimeout(() => {
+          renderMilestoneBackground(boardIndex + 1);
+          drawConstellation();
+          drawPath();
+        }, 140);
+      }
 
       function renderBoard() {
         resetTrace();
