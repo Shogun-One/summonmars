@@ -1821,6 +1821,15 @@ body.touchpad-off .control-deck .mobile-touchpad{ display:none !important; }
   }
 }
 
+/* Portrait only: the large speakers currently straddle half of the arena
+   edge. Lower all four stamps by half of that overlap, equally, while leaving
+   the joystick and every landscape rail coordinate unchanged. */
+@media (max-width:900px) and (orientation:portrait){
+  .control-deck .bubble-btn{
+    top:calc(var(--mobile-big-control) * .25) !important;
+  }
+}
+
 /* Narrow phones (including iPhone Firefox) must fit the launch prompt,
    arena, and control deck inside the actually visible viewport. Wider fold
    screens keep the larger arena rules above. */
@@ -2599,8 +2608,8 @@ document.querySelectorAll('img[data-asset]').forEach((img) => {
     let launchChoiceSelection = 0;
     let launchAxisLatch = 0;
     let suppressLaunchCarryover = false;
-    let missileGuidanceShown = false;
-    let weaponGuidanceShown = false;
+    let missileGuidanceAcknowledged = false;
+    let weaponGuidanceAcknowledged = false;
     let lastHasChangeableWeapon = false;
     const firstUsePulseTimers = {missile:0,weapon:0};
 
@@ -2615,16 +2624,16 @@ document.querySelectorAll('img[data-asset]').forEach((img) => {
       targets.forEach(target=>target?.classList.remove('first-use-control-pulse'));
     }
 
-    function pulseFirstUseControl(kind,duration=3600){
+    function pulseFirstUseControl(kind,duration=0){
       stopFirstUseControlPulse(kind);
       const targets=kind==='missile' ? [resetBtn,missileReserveEl] : [musicBtn,weaponStatusOverlayEl];
       targets.forEach(target=>target?.classList.add('first-use-control-pulse'));
-      firstUsePulseTimers[kind]=setTimeout(()=>stopFirstUseControlPulse(kind),duration);
+      if(duration>0) firstUsePulseTimers[kind]=setTimeout(()=>stopFirstUseControlPulse(kind),duration);
     }
 
     function resetFirstUseGuidance(){
-      missileGuidanceShown=false;
-      weaponGuidanceShown=false;
+      missileGuidanceAcknowledged=false;
+      weaponGuidanceAcknowledged=false;
       lastHasChangeableWeapon=false;
       stopFirstUseControlPulse('missile');
       stopFirstUseControlPulse('weapon');
@@ -3568,7 +3577,6 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
         confirmGameOverChoice();
         return;
       }
-      stopFirstUseControlPulse('missile');
       launchMissile();
       try{ navigator.vibrate?.(18); }catch{}
     }
@@ -3580,7 +3588,6 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
       if(e.pointerType === 'mouse' && e.button !== 0) return;
       e.preventDefault();
       e.stopPropagation();
-      stopFirstUseControlPulse('weapon');
       cycleCollectedWeapon();
       try{ navigator.vibrate?.(12); }catch{}
     }
@@ -3992,8 +3999,7 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
       weaponStatusOverlayEl.setAttribute('aria-hidden', hasSpecialWeapon ? 'false' : 'true');
       weaponStatusOverlayEl.setAttribute('aria-label', `Change weapon. Selected: ${weaponDisplayName(weaponMode)}`);
       if(hasSpecialWeapon) positionMissileReserve();
-      if(hasSpecialWeapon && !lastHasChangeableWeapon && !weaponGuidanceShown && !awaitingLaunchInput && !paused && !gameOver){
-        weaponGuidanceShown=true;
+      if(hasSpecialWeapon && !lastHasChangeableWeapon && !weaponGuidanceAcknowledged && !paused && !gameOver){
         pulseFirstUseControl('weapon');
       }
       lastHasChangeableWeapon=hasSpecialWeapon;
@@ -4043,6 +4049,10 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
       if(weaponLevels.back > 0) available.push('back');
       if(weaponLevels.cross > 0) available.push('cross');
       if(weaponLevels.dog > 0) available.push('dog');
+      if(available.length>1){
+        weaponGuidanceAcknowledged=true;
+        stopFirstUseControlPulse('weapon');
+      }
       const currentIndex = Math.max(0, available.indexOf(weaponMode));
       weaponMode = available[(currentIndex + 1) % available.length];
       showGameAlert(weaponDisplayName(weaponMode), 'sound-on');
@@ -4084,7 +4094,9 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
         level:Math.max(1,level|0),score:Math.max(0,score|0),lives:clamp(lives|0,1,MAX_LIVES),
         hits:clamp(hits|0,0,MAX_HITS-1),bossKills:Math.max(0,bossKills|0),
         killsThisLevel:Math.max(0,killsThisLevel|0),missileAmmo:Math.max(0,missileAmmo|0),
-        weaponMode,weaponLevels:{...weaponLevels},weaponOfferIndex,savedAt:Date.now()
+        weaponMode,weaponLevels:{...weaponLevels},weaponOfferIndex,
+        guidance:{missileAcknowledged:missileGuidanceAcknowledged,weaponAcknowledged:weaponGuidanceAcknowledged},
+        savedAt:Date.now()
       }));
     }
     // Capture the latest resumable state before a refresh, tab close, or
@@ -4932,10 +4944,12 @@ function updateBosses(dt){
       updateHitUI();
       updateMissileUI();
       updateWeaponStatusOverlay();
-      missileGuidanceShown=missileAmmo>0;
-      weaponGuidanceShown=lastHasChangeableWeapon;
-      stopFirstUseControlPulse('missile');
-      stopFirstUseControlPulse('weapon');
+      missileGuidanceAcknowledged=Boolean(saved?.guidance?.missileAcknowledged);
+      weaponGuidanceAcknowledged=Boolean(saved?.guidance?.weaponAcknowledged);
+      if(missileAmmo>0 && !missileGuidanceAcknowledged) pulseFirstUseControl('missile');
+      else stopFirstUseControlPulse('missile');
+      if(lastHasChangeableWeapon && !weaponGuidanceAcknowledged) pulseFirstUseControl('weapon');
+      else stopFirstUseControlPulse('weapon');
       ensureWeaponOfferCadence(targetLevel);
       campaignSessionStarted=true;
       saveCampaignProgress();
@@ -6056,9 +6070,10 @@ mobilePauseBtn?.addEventListener('pointerdown', (e) => {
         missileReserveEl.classList.remove('collected');
         void missileReserveEl.offsetWidth;
         missileReserveEl.classList.add('collected');
-        if(lastMissileReserveAmmo===0 && !missileGuidanceShown && !awaitingLaunchInput && !paused && !gameOver){
-          missileGuidanceShown=true;
-          pulseFirstUseControl('missile');
+        if(!paused && !gameOver){
+          // First availability keeps calling attention until the launcher is
+          // actually used. Later refills give a short three-pulse reminder.
+          pulseFirstUseControl('missile',missileGuidanceAcknowledged?2400:0);
         }
       }else if(missileAmmo === 0){
         missileReserveEl.classList.remove('collected');
@@ -6068,6 +6083,8 @@ mobilePauseBtn?.addEventListener('pointerdown', (e) => {
 
     function launchMissile(){
       if(missileAmmo <= 0 || gameOver || paused || awaitingLaunchInput || preStartTimer > 0 || ship.exploding > 0) return;
+      missileGuidanceAcknowledged=true;
+      stopFirstUseControlPulse('missile');
       const ang = forwardAngle();
       const fx = Math.cos(ang), fy = Math.sin(ang);
       bullets.push({
