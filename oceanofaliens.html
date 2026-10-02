@@ -2621,6 +2621,7 @@ document.querySelectorAll('img[data-asset]').forEach((img) => {
     let launchChoiceSelection = 0;
     let launchAxisLatch = 0;
     let suppressLaunchCarryover = false;
+    let joystickGuidanceAcknowledged = false;
     let missileGuidanceAcknowledged = false;
     let weaponGuidanceAcknowledged = false;
     let lastHasChangeableWeapon = false;
@@ -2628,6 +2629,13 @@ document.querySelectorAll('img[data-asset]').forEach((img) => {
 
     function setJoystickLaunchGuidance(active){
       joystickEl?.classList.toggle('launch-guidance-pulse',Boolean(active));
+    }
+
+    function acknowledgeJoystickGuidance(){
+      if(joystickGuidanceAcknowledged) return;
+      joystickGuidanceAcknowledged=true;
+      setJoystickLaunchGuidance(false);
+      saveCampaignProgress();
     }
 
     function stopFirstUseControlPulse(kind){
@@ -2645,6 +2653,7 @@ document.querySelectorAll('img[data-asset]').forEach((img) => {
     }
 
     function resetFirstUseGuidance(){
+      joystickGuidanceAcknowledged=false;
       missileGuidanceAcknowledged=false;
       weaponGuidanceAcknowledged=false;
       lastHasChangeableWeapon=false;
@@ -4120,7 +4129,7 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
         hits:clamp(hits|0,0,MAX_HITS-1),bossKills:Math.max(0,bossKills|0),
         killsThisLevel:Math.max(0,killsThisLevel|0),missileAmmo:Math.max(0,missileAmmo|0),
         weaponMode,weaponLevels:{...weaponLevels},weaponOfferIndex,
-        guidance:{missileAcknowledged:missileGuidanceAcknowledged,weaponAcknowledged:weaponGuidanceAcknowledged},
+        guidance:{joystickAcknowledged:joystickGuidanceAcknowledged,missileAcknowledged:missileGuidanceAcknowledged,weaponAcknowledged:weaponGuidanceAcknowledged},
         savedAt:Date.now()
       }));
     }
@@ -4768,7 +4777,10 @@ function updateBosses(dt){
 
     function startGracePeriod(){
       awaitingLaunchInput = false;
-      setJoystickLaunchGuidance(false);
+      // Starting from the playfield, keyboard, or controller is not the same
+      // as learning the touch joystick. Keep its subtle pulse alive until the
+      // joystick itself is touched at least once.
+      setJoystickLaunchGuidance(!joystickGuidanceAcknowledged);
       preStartTimer = PRESTART_MS;
       running = false;
     }
@@ -4851,7 +4863,7 @@ function updateBosses(dt){
       } else {
         preStartIsInitial = true;
         awaitingLaunchInput = true;
-        setJoystickLaunchGuidance(true);
+        setJoystickLaunchGuidance(!joystickGuidanceAcknowledged);
         preStartTimer = 0;
         running = false;
       }
@@ -4929,7 +4941,7 @@ function updateBosses(dt){
       }
 
       awaitingLaunchInput = true;
-      setJoystickLaunchGuidance(true);
+      setJoystickLaunchGuidance(!joystickGuidanceAcknowledged);
       preStartTimer = 0;
       running = false;
       // A reset can be selected while the pause menu has suspended music.
@@ -4969,6 +4981,8 @@ function updateBosses(dt){
       updateHitUI();
       updateMissileUI();
       updateWeaponStatusOverlay();
+      joystickGuidanceAcknowledged=Boolean(saved?.guidance?.joystickAcknowledged);
+      setJoystickLaunchGuidance(!joystickGuidanceAcknowledged);
       missileGuidanceAcknowledged=Boolean(saved?.guidance?.missileAcknowledged);
       weaponGuidanceAcknowledged=Boolean(saved?.guidance?.weaponAcknowledged);
       if(missileAmmo>0 && !missileGuidanceAcknowledged) pulseFirstUseControl('missile');
@@ -6001,6 +6015,8 @@ if(joystickEl){
 joystickEl?.addEventListener('pointerdown', (e) => {
   e.preventDefault();
   e.stopPropagation();
+
+  acknowledgeJoystickGuidance();
 
   // Keep ownership of the steering pointer. Other fingers remain free for
   // missiles and menu controls instead of stealing or ending the joystick.
