@@ -175,9 +175,9 @@
     .score-display strong { color:var(--gold); font-family:Georgia,serif; font-size:1rem; letter-spacing:0; }
 
     .progress-track {
+      position: relative;
       height: 5px;
       margin-top: 9px;
-      overflow: hidden;
       border-radius: 99px;
       background: rgba(255,255,255,.09);
     }
@@ -190,6 +190,8 @@
       box-shadow: 0 0 14px var(--mint);
       transition: width .45s ease;
     }
+
+    .progress-threshold { position:absolute; z-index:2; top:50%; width:3px; height:15px; border-radius:3px; background:#fff8c7; box-shadow:0 0 5px #fff,0 0 12px var(--gold); transform:translate(-50%,-50%); pointer-events:none; }
 
     .playfield {
       position: relative;
@@ -732,7 +734,7 @@
         <span class="score-display">Score <strong id="boardScore">0</strong></span>
         <span id="boardState">Find 6 to clear</span>
       </div>
-      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div><span class="progress-threshold" id="progressThreshold" aria-hidden="true"></span></div>
     </section>
 
     <section class="playfield" id="playfield" aria-label="Letter constellation. Drag through letters to form a word.">
@@ -878,6 +880,7 @@
       const constellationLines = document.querySelector("#constellationLines");
       const boardScore = document.querySelector("#boardScore");
       const progressFill = document.querySelector("#progressFill");
+      const progressThreshold = document.querySelector("#progressThreshold");
       const boardState = document.querySelector("#boardState");
       const boardNumber = document.querySelector("#boardNumber");
       const shuffleButton = document.querySelector("#shuffleButton");
@@ -1178,6 +1181,10 @@
         return [5,6,7,4,6,7,5,7,6,7][(level - 17) % 10];
       }
 
+      function clearRequirement(goalCount) {
+        return Math.max(1, Math.ceil(goalCount * .6));
+      }
+
       function ensureBoard(level) {
         const index = level - 1;
         if (!progress.levelBoards) progress.levelBoards = {};
@@ -1195,6 +1202,11 @@
         } else if (progress.levelBoards[index].dictionaryVersion !== 5) {
           const board = progress.levelBoards[index];
           applyBoardDictionary(board, level);
+          if (profileExists) saveProgress();
+        }
+        const standardClearAt = clearRequirement(progress.levelBoards[index].goals.length);
+        if (progress.levelBoards[index].clearAt !== standardClearAt) {
+          progress.levelBoards[index].clearAt = standardClearAt;
           if (profileExists) saveProgress();
         }
         boards[index] = progress.levelBoards[index];
@@ -1238,11 +1250,10 @@
         const shorter = accepted.filter(word => word.length < letters.length);
         const anchor = accepted.includes(letters) ? [letters] : [];
         const goals = [...new Set([...anchor, ...fullLength.slice(0, Math.ceil(target / 3)), ...shorter])].slice(0, target);
-        const clearRatio = level <= 3 ? .5 : level <= 10 ? .58 : .66;
         board.dictionaryVersion = 5;
         board.accepted = accepted;
         board.goals = goals;
-        board.clearAt = Math.max(1, Math.ceil(goals.length * clearRatio));
+        board.clearAt = clearRequirement(goals.length);
         return board;
       }
 
@@ -1564,6 +1575,7 @@
         const cleared = amount >= board.clearAt;
         boardScore.textContent = progress.points || 0;
         progressFill.style.width = `${Math.min(100, amount / board.goals.length * 100)}%`;
+        progressThreshold.style.left = `${board.clearAt / board.goals.length * 100}%`;
         boardState.textContent = amount === board.goals.length ? "Mastered" : cleared ? "Board cleared" : `Find ${board.clearAt - amount} to clear`;
         boardState.classList.toggle("cleared", cleared);
         nextButton.disabled = !cleared || boardTransitioning;
