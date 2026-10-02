@@ -177,8 +177,8 @@
 
     .game-avatar { position:absolute; z-index:12; left:-16px; bottom:-28px; width:114px; height:162px; padding:0; overflow:visible; border:0; background:transparent; cursor:pointer; filter:drop-shadow(0 8px 9px rgba(0,0,0,.5)); }
     .game-avatar-base { --atlas-x:0%;--atlas-y:0%; position:absolute; z-index:1; inset:0; background-image:url('../images/verbia/explorer-fitting-atlas-v3.png'); background-size:500% 200%; background-position:var(--atlas-x) var(--atlas-y); background-repeat:no-repeat; }
-    .game-loadout-ship { position:absolute; z-index:2; left:-48px; bottom:-28px; width:165px; height:118px; background-repeat:no-repeat; background-size:contain; background-position:center bottom; opacity:.54; filter:brightness(1.12) saturate(1.15) drop-shadow(0 5px 7px rgba(0,0,0,.45)); pointer-events:none; }
-    .game-loadout-pet { position:absolute; z-index:13; left:84px; bottom:100%; width:82px; height:92px; transform:scale(var(--companion-scale,1)); transform-origin:center bottom; background-repeat:no-repeat; background-size:contain; background-position:center bottom; filter:drop-shadow(0 5px 6px rgba(0,0,0,.48)); pointer-events:none; }
+    .game-loadout-ship { position:absolute; z-index:2; left:-78px; bottom:-28px; width:245px; height:166px; background-repeat:no-repeat; background-size:contain; background-position:center bottom; opacity:.54; filter:brightness(1.12) saturate(1.15) drop-shadow(0 5px 7px rgba(0,0,0,.45)); pointer-events:none; }
+    .game-loadout-pet { position:absolute; z-index:13; left:58px; bottom:calc(100% - 3px); width:78px; height:88px; transform:scale(var(--companion-scale,1)); transform-origin:center bottom; background-repeat:no-repeat; background-size:contain; background-position:center bottom; filter:drop-shadow(0 5px 6px rgba(0,0,0,.48)); pointer-events:none; }
     .game-loadout-ship:empty,.game-loadout-pet:empty { display:none; }
     .progress-card:has(.game-avatar) .progress-row { padding-left:70px; }
     .progress-row { position:relative; z-index:25; }
@@ -861,7 +861,7 @@
       </svg>
       <div id="letterNodes"></div>
       <p class="board-goal" id="boardState">Find 6 to clear</p>
-      <p class="hint">Touch • trace • release</p>
+      <p class="hint" id="playHint">Touch • trace • release</p>
       <div class="bubble-tools" aria-label="Board bonuses">
         <button class="hint-button" id="hintButton" type="button" aria-label="Use a hint"><span class="bubble-icon" aria-hidden="true">💡</span><span class="bubble-count" id="hintCount">×3</span></button>
         <button class="daily-bubble" id="dailyBubble" type="button" hidden aria-label="Play today's daily dart reward"><span class="bubble-icon daily-target" aria-hidden="true"><span class="daily-dart">➶</span></span><span class="bubble-count">×1</span></button>
@@ -1127,6 +1127,7 @@
       const constellationLines = document.querySelector("#constellationLines");
       const boardScore = document.querySelector("#boardScore");
       const boardState = document.querySelector("#boardState");
+      const playHint = document.querySelector("#playHint");
       const boardNumber = document.querySelector("#boardNumber");
       const shuffleButton = document.querySelector("#shuffleButton");
       const soundCycleButton = document.querySelector("#soundCycleButton");
@@ -2143,7 +2144,8 @@
         const amount = goalFound.length;
         const cleared = amount >= board.clearAt;
         boardScore.textContent = progress.points || 0;
-        boardState.textContent = amount === board.goals.length ? "Mastered" : cleared ? "Board cleared" : `Find ${board.clearAt - amount} to clear`;
+        boardState.textContent = amount === board.goals.length ? "Mastered" : cleared ? "You May Pass" : `Find ${board.clearAt - amount} to clear`;
+        playHint.textContent = cleared ? "Stay To Master Board" : "Touch • trace • release";
         boardState.classList.toggle("cleared", cleared);
         nextButton.disabled = !cleared || boardTransitioning;
         nextButton.classList.toggle("available", cleared && !boardTransitioning);
@@ -2458,7 +2460,7 @@
         if (pet) {
           applyItemArt(gameLoadoutPet, pet);
           gameLoadoutPet.style.setProperty("--companion-scale", String(petGameScale[pet.id] || .84));
-          gameLoadoutPet.style.backgroundPosition = `center calc(100% + ${((petBottomPadding[pet.id] || 0) * 82 / 724).toFixed(1)}px)`;
+          gameLoadoutPet.style.backgroundPosition = `center calc(100% + ${((petBottomPadding[pet.id] || 0) * 78 / 724).toFixed(1)}px)`;
         }
         gameLoadoutPet.setAttribute("aria-label", pet ? `${pet.name} equipped` : "No companion equipped");
         gameLoadoutShip.textContent = ship ? " " : "";
@@ -3323,6 +3325,7 @@
       const foundCount = document.querySelector("#foundCount");
       const totalCount = document.querySelector("#totalCount");
       const boardState = document.querySelector("#boardState");
+      const playHint = document.querySelector("#playHint");
       const wordList = document.querySelector("#wordList");
       const toast = document.querySelector("#toast");
       const resetButton = document.querySelector("#resetButton");
@@ -3469,8 +3472,9 @@
         boardState.textContent = amount === boardWords.length
           ? "Mastered"
           : amount >= clearAt
-            ? "Board cleared"
+            ? "You May Pass"
             : `Find ${clearAt - amount} to clear`;
+        playHint.textContent = amount >= clearAt ? "Stay To Master Board" : "Touch • trace • release";
 
         wordList.replaceChildren();
         if (!found.length) {
