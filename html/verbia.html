@@ -230,31 +230,33 @@
     .word-display {
       position: absolute;
       z-index: 5;
-      top: 74px;
-      left: 50%;
-      width: calc(100% - 36px);
-      min-height: 50px;
-      transform: translateX(-50%);
-      display: grid;
-      place-items: center;
+      top: 112px;
+      bottom: 76px;
+      left: 13px;
+      width: 34px;
+      display: block;
       color: var(--ink);
       font-family: Georgia, serif;
-      font-size: clamp(1.7rem, 8vw, 2.4rem);
-      letter-spacing: .14em;
+      font-size: clamp(1.08rem, 5vw, 1.35rem);
+      line-height:1.05;
+      letter-spacing:.08em;
       text-align: center;
-      text-indent: .14em;
+      text-indent:0;
+      writing-mode:vertical-rl;
+      text-orientation:upright;
       text-shadow: 0 0 18px rgba(117,245,199,.45);
+      pointer-events:none;
     }
 
     .word-display[data-empty="true"] {
       opacity: 0;
     }
 
-    .board-tools { position:absolute; z-index:8; top:19px; left:17px; right:17px; display:flex; align-items:flex-start; justify-content:space-between; gap:7px; pointer-events:none; }
-    .board-left-controls { display:grid; gap:3px; justify-items:start; }
+    .board-tools { position:absolute; z-index:8; top:19px; left:17px; right:17px; display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:7px; pointer-events:none; }
     .board-control-button { min-width:72px; padding:8px 10px; border:1px solid rgba(255,217,120,.25); border-radius:12px 5px 12px 5px; color:var(--gold); background:rgba(255,217,120,.07); font-size:.62rem; font-weight:850; letter-spacing:.08em; text-transform:uppercase; cursor:pointer; pointer-events:auto; }
     .pause-button { justify-self:start; }
-    .sound-cycle-button { min-width:94px; }
+    .sound-cycle-button { min-width:94px; justify-self:center; }
+    .shuffle-button { justify-self:end; }
     .avatar-art { width:100%; height:100%; background-image:url('/images/verbia/avatar-roster-v1.png'); background-size:300% 300%; background-repeat:no-repeat; background-position:var(--avatar-x) var(--avatar-y); }
     .avatar-choice .avatar-art { width:60px; height:60px; margin:auto; border-radius:14px 6px 14px 6px; box-shadow:0 8px 18px rgba(0,0,0,.3); }
     #themeChoices { grid-template-columns:repeat(2, minmax(0, 1fr)); }
@@ -628,9 +630,12 @@
     .board-nav-button.previous { left:13px; }
     .board-nav-button.next { right:13px; }
     .board-nav-button:disabled { opacity:.25; cursor:not-allowed; }
-    .board-nav-button.available { color:#fff; box-shadow:0 0 16px color-mix(in srgb,var(--mint) 48%,transparent),inset 0 0 11px color-mix(in srgb,var(--mint) 34%,transparent); animation:navGentleFade 7.5s ease-in-out infinite; }
+    .board-nav-button.available { color:#fff; }
+    .board-nav-button.previous.available { box-shadow:0 0 16px color-mix(in srgb,var(--mint) 48%,transparent),inset 0 0 11px color-mix(in srgb,var(--mint) 34%,transparent); animation:navGentleFade 7.5s ease-in-out infinite; }
+    .board-nav-button.next.available { border-color:#62ff8f; box-shadow:0 0 8px #62ff8f,0 0 19px rgba(55,255,118,.88),inset 0 0 12px rgba(55,255,118,.5); animation:nextNeonPulse 1.65s ease-in-out infinite; }
     @keyframes navGentleFade { 0%,58%,100%{opacity:.9;filter:brightness(1.08)} 72%{opacity:.46;filter:brightness(.72)} 84%{opacity:.82;filter:brightness(1)} }
-    @media (prefers-reduced-motion:reduce) { .board-nav-button.available { animation:none; opacity:.82; } }
+    @keyframes nextNeonPulse { 0%,100%{border-color:#42ff7c;box-shadow:0 0 6px #42ff7c,0 0 14px rgba(55,255,118,.68),inset 0 0 8px rgba(55,255,118,.38)} 50%{border-color:#baffcb;box-shadow:0 0 12px #7dff9f,0 0 30px #32ff70,inset 0 0 17px rgba(72,255,126,.72)} }
+    @media (prefers-reduced-motion:reduce) { .board-nav-button.available { animation:none; opacity:.9; } }
 
     .sheet-backdrop {
       position: fixed;
@@ -831,10 +836,8 @@
     <section class="playfield" id="playfield" aria-label="Letter constellation. Drag through letters to form a word.">
       <canvas class="board-backdrop" id="boardBackdrop" aria-hidden="true"></canvas>
       <div class="board-tools">
-        <div class="board-left-controls">
-          <button class="board-control-button pause-button" id="pauseButton" type="button" aria-label="Pause and open game menu">Pause</button>
-          <button class="board-control-button sound-cycle-button" id="soundCycleButton" type="button" aria-label="Change sound mode">♫ Music + FX</button>
-        </div>
+        <button class="board-control-button pause-button" id="pauseButton" type="button" aria-label="Pause and open game menu">Pause</button>
+        <button class="board-control-button sound-cycle-button" id="soundCycleButton" type="button" aria-label="Change sound mode">♫ Music + FX</button>
         <button class="board-control-button shuffle-button" id="shuffleButton" type="button" aria-label="Shuffle letter positions">↝ Shuffle</button>
       </div>
       <div class="word-display" id="wordDisplay" data-empty="true" aria-live="polite"></div>
