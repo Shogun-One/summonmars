@@ -883,7 +883,7 @@
         <li><span class="direction-icon">★</span><div><b>Find bonus words</b><p>Valid words outside the stage list earn extra points and fly into Bonus Discoveries.</p></div></li>
         <li><span class="direction-icon">💡</span><div><b>Hints and daily rewards</b><p>Three hints refresh daily. The Daily Orbit dart board can award more hints or discovery points.</p></div></li>
         <li><span class="direction-icon">↻</span><div><b>Shuffle and revisit</b><p>Shuffle letters for a fresh view, or use the left arrow to revisit up to five incomplete cleared boards.</p></div></li>
-        <li><span class="direction-icon">🛍</span><div><b>Collect explorers</b><p>Spend discovery points to unlock complete explorers, companions, and spaceships, then select them in the Inventory Showroom.</p></div></li>
+        <li><span class="direction-icon">🛍</span><div><b>Collect explorers</b><p>Spend discovery points to unlock complete explorers, companions, ships, and vehicles, then select them in the Inventory Showroom.</p></div></li>
       </ol>
     </section>
   </div>
@@ -892,9 +892,9 @@
     <section class="feature-panel" role="dialog" aria-modal="true" aria-labelledby="inventoryTitle">
       <button class="feature-back" id="inventoryBack" type="button">← Go back</button>
       <h2 id="inventoryTitle">Inventory Showroom</h2>
-      <p class="feature-intro"><span id="inventoryPoints">0</span> discovery points · Choose an explorer, companion, and spaceship.</p>
+      <p class="feature-intro"><span id="inventoryPoints">0</span> discovery points · Choose an explorer, companion, and ship or vehicle.</p>
       <div class="inventory-stage">
-        <span class="inventory-ship" id="inventoryShip" aria-label="Selected spaceship"></span>
+        <span class="inventory-ship" id="inventoryShip" aria-label="Selected ship or vehicle"></span>
         <div class="persona" id="inventoryPersona"></div>
         <span class="inventory-pet" id="inventoryPet" aria-label="Equipped pet"></span>
         <span class="showroom-explorer-name" id="showroomExplorerName" aria-hidden="true"></span>
@@ -908,10 +908,10 @@
     <section class="feature-panel" role="dialog" aria-modal="true" aria-labelledby="shopTitle">
       <button class="feature-back" id="shopBack" type="button">← Go back</button>
       <h2 id="shopTitle">Explorer Store</h2>
-      <p class="feature-intro"><span id="shopPoints">0</span> discovery points · Unlock complete explorers and faithful companions.</p>
-      <div class="store-section"><h3>Human explorers</h3><div class="store-avatar-grid" id="storeAvatarChoices"></div></div>
+      <p class="feature-intro"><span id="shopPoints">0</span> discovery points · Unlock complete explorers, companions, ships, and vehicles.</p>
+      <div class="store-section"><h3>Explorers</h3><div class="store-avatar-grid" id="storeAvatarChoices"></div></div>
       <div class="store-section"><h3>Companions</h3><div class="store-preview" id="companionStore"></div></div>
-      <div class="store-section"><h3>Spaceships</h3><div class="store-preview" id="shipStore"></div></div>
+      <div class="store-section"><h3>Ships &amp; vehicles</h3><div class="store-preview" id="shipStore"></div></div>
     </section>
   </div>
 
@@ -979,7 +979,10 @@
         {id:"asha",name:"Asha",index:4,bodySrc:"../images/verbia/bodies-standard/asha.png",bodyIndex:6,cost:400}, {id:"finn",name:"Finn",index:5,bodySrc:"../images/verbia/bodies-standard/finn.png",bodyIndex:7,cost:400},
         {id:"amara",name:"Amara",index:6,bodySrc:"../images/verbia/bodies-standard/amara.png",bodyIndex:8,cost:400}, {id:"kai",name:"Kai",index:7,bodySrc:"../images/verbia/bodies-standard/kai.png",bodyIndex:9,cost:400},
         {id:"sofia",name:"Sofía",portraitAtlas:"hispanic",portraitIndex:0,bodySrc:"../images/verbia/bodies-standard/sofia.png",bodyIndex:0,cost:400},
-        {id:"mateo",name:"Mateo",portraitAtlas:"hispanic",portraitIndex:1,bodySrc:"../images/verbia/bodies-standard/mateo.png",bodyIndex:1,cost:400}
+        {id:"mateo",name:"Mateo",portraitAtlas:"hispanic",portraitIndex:1,bodySrc:"../images/verbia/bodies-standard/mateo.png",bodyIndex:1,cost:400},
+        {id:"bigfoot",name:"Bigfoot",bodySrc:"../images/verbia/bodies-standard/bigfoot.png",bodyIndex:12,cost:400},
+        {id:"yeti",name:"Yeti",bodySrc:"../images/verbia/bodies-standard/yeti.png",bodyIndex:13,cost:400},
+        {id:"alien",name:"Zyra",bodySrc:"../images/verbia/bodies-standard/alien.png",bodyIndex:14,cost:400}
       ];
       const shopItems = [
         {id:"pet-dog",name:"Orbit Dog",type:"pet",asset:"../images/verbia/companions/orbit-dog.png",cost:420},
@@ -987,12 +990,21 @@
         {id:"pet-iguana",name:"Solar Iguana",type:"pet",asset:"../images/verbia/companions/solar-iguana.png",cost:500},
         {id:"pet-bird",name:"Comet Bird",type:"pet",asset:"../images/verbia/companions/comet-bird.png",cost:540},
         {id:"pet-monkey",name:"Moon Monkey",type:"pet",asset:"../images/verbia/companions/moon-monkey.png",cost:600},
+        {id:"pet-pitbull",name:"Stellar Pit Bull",type:"pet",asset:"../images/verbia/companions/stellar-pitbull.png",cost:620},
+        {id:"pet-lion",name:"Cosmic Lion",type:"pet",asset:"../images/verbia/companions/cosmic-lion.png",cost:700},
+        {id:"pet-tiger",name:"Nebula Tiger",type:"pet",asset:"../images/verbia/companions/nebula-tiger.png",cost:700},
+        {id:"pet-shepherd",name:"Orbit Shepherd",type:"pet",asset:"../images/verbia/companions/orbit-shepherd.png",cost:640},
+        {id:"pet-sloth",name:"Lunar Sloth",type:"pet",asset:"../images/verbia/companions/lunar-sloth.png",cost:580},
+        {id:"pet-poodle",name:"Stellar Poodle",type:"pet",asset:"../images/verbia/companions/stellar-poodle.png",cost:620},
+        {id:"pet-hawk",name:"Solar Hawk",type:"pet",asset:"../images/verbia/companions/solar-hawk.png",cost:680},
         {id:"ship-emerald",name:"Emerald Crescent",type:"ship",asset:"../images/verbia/ships/emerald-crescent.png",cost:900},
         {id:"ship-crimson",name:"Crimson Arrow",type:"ship",asset:"../images/verbia/ships/crimson-arrow.png",cost:900},
         {id:"ship-azure",name:"Azure Ring",type:"ship",asset:"../images/verbia/ships/azure-ring.png",cost:900},
         {id:"ship-solar",name:"Solar Skiff",type:"ship",asset:"../images/verbia/ships/solar-skiff.png",cost:900},
         {id:"ship-violet",name:"Violet Crystal",type:"ship",asset:"../images/verbia/ships/violet-crystal.png",cost:900},
-        {id:"ship-teal",name:"Teal Shuttle",type:"ship",asset:"../images/verbia/ships/teal-shuttle.png",cost:900}
+        {id:"ship-teal",name:"Teal Shuttle",type:"ship",asset:"../images/verbia/ships/teal-shuttle.png",cost:900},
+        {id:"vehicle-pickup",name:"Nebula Titan Pickup",type:"ship",asset:"../images/verbia/ships/nebula-titan-pickup.png",cost:900},
+        {id:"vehicle-challenger",name:"Cosmic Challenger",type:"ship",asset:"../images/verbia/ships/cosmic-challenger.png",cost:900}
       ];
       const playfield = document.querySelector("#playfield");
       const letterNodes = document.querySelector("#letterNodes");
@@ -2132,7 +2144,7 @@
         inventoryPet.setAttribute("aria-label", pet ? `${pet.name} equipped` : "No pet equipped");
         inventoryShip.textContent = ship ? " " : "";
         if (ship) applyItemArt(inventoryShip, ship);
-        inventoryShip.setAttribute("aria-label", ship ? `${ship.name} selected` : "No spaceship selected");
+        inventoryShip.setAttribute("aria-label", ship ? `${ship.name} selected` : "No ship or vehicle selected");
         inventoryList.replaceChildren();
         const ownedItems = shopItems.filter(item => progress.inventory.owned.includes(item.id));
         if (!ownedItems.length) {
@@ -2145,7 +2157,7 @@
         ["pet","ship"].forEach(type => {
           const heading = document.createElement("h3");
           heading.className = "inventory-category-label";
-          heading.textContent = type === "pet" ? "Companions" : "Spaceships";
+          heading.textContent = type === "pet" ? "Companions" : "Ships & vehicles";
           inventoryList.append(heading);
           ownedItems.filter(item => item.type === type).forEach(item => {
           const equippedNow = equipped[item.type] === item.id;
@@ -2159,7 +2171,7 @@
           const name = document.createElement("strong");
           name.textContent = item.name;
           const state = document.createElement("small");
-          state.textContent = equippedNow ? `${item.type === "pet" ? "Companion" : "Ship"} selected · tap to remove` : `Tap to select ${item.type === "pet" ? "companion" : "ship"}`;
+          state.textContent = equippedNow ? `${item.type === "pet" ? "Companion" : "Ship/vehicle"} selected · tap to remove` : `Tap to select ${item.type === "pet" ? "companion" : "ship/vehicle"}`;
           button.append(preview,name,state);
           inventoryList.append(button);
           });
