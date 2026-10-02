@@ -975,8 +975,8 @@
       boardMasterAudio.preload = "auto";
       backgroundMusic.preload = "auto";
       backgroundMusic.loop = true;
-      boardClearAudio.volume = .72;
-      boardMasterAudio.volume = .78;
+      boardClearAudio.volume = .52;
+      boardMasterAudio.volume = .57;
       backgroundMusic.volume = .18;
       let backgroundMusicStarted = false;
       let boardTransitioning = false;
@@ -2231,8 +2231,8 @@
         whooshFilter.frequency.exponentialRampToValueAtTime(4200, now + .28);
         whooshFilter.frequency.exponentialRampToValueAtTime(780, now + duration);
         whooshGain.gain.setValueAtTime(.0001, now);
-        whooshGain.gain.exponentialRampToValueAtTime(.15, now + .08);
-        whooshGain.gain.setValueAtTime(.13, now + .3);
+        whooshGain.gain.exponentialRampToValueAtTime(.2, now + .08);
+        whooshGain.gain.setValueAtTime(.175, now + .3);
         whooshGain.gain.exponentialRampToValueAtTime(.0001, now + duration);
         if (panner) {
           panner.pan.setValueAtTime(-.82, now);
@@ -2253,7 +2253,7 @@
         engineFilter.frequency.value = 260;
         engineFilter.Q.value = .45;
         engineGain.gain.setValueAtTime(.0001, now);
-        engineGain.gain.exponentialRampToValueAtTime(.035, now + .055);
+        engineGain.gain.exponentialRampToValueAtTime(.048, now + .055);
         engineGain.gain.exponentialRampToValueAtTime(.0001, now + duration);
         engine.connect(engineFilter).connect(engineGain).connect(context.destination);
         whoosh.start(now);
