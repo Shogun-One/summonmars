@@ -962,7 +962,7 @@
       const tilts = [-8,5,11,-5,7,-11];
       const storageKey = "verbia-progress-v3";
       const settingsKey = "verbia-settings-v1";
-      const testingCatalogUnlocked = false;
+      const testingCatalogUnlocked = true;
       const avatars = [
         {id:"rx7",name:"RX-7",index:8,bodySrc:"../images/verbia/bodies-standard/rx7.png",bodyIndex:0,cost:0},
         {id:"nova",name:"Nova",src:"../images/verbia/avatar-nova-v2-cable-hair.png",bodySrc:"../images/verbia/bodies-standard/nova.png",bodyIndex:1,cost:0},
@@ -2423,7 +2423,11 @@
       function createPortrait(avatar) {
         const portrait = document.createElement("div");
         portrait.className = "avatar-art";
-        if (avatar.portraitAtlas === "hispanic") {
+        if (avatar.bodySrc) {
+          portrait.style.backgroundImage = `url('${avatar.bodySrc}')`;
+          portrait.style.backgroundSize = "155% auto";
+          portrait.style.backgroundPosition = "center 8%";
+        } else if (avatar.portraitAtlas === "hispanic") {
           portrait.style.backgroundImage = "url('../images/verbia/avatar-hispanic-roster-v1.png')";
           portrait.style.backgroundSize = "200% 100%";
           portrait.style.backgroundPosition = `${avatar.portraitIndex * 100}% 0`;
