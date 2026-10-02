@@ -389,11 +389,11 @@
     .setting-button { min-height:36px; padding:6px 7px; border:1px solid rgba(255,255,255,.18); border-radius:9px 4px 9px 4px; color:var(--surface-muted); background:rgba(255,255,255,.065); font-size:.57rem; font-weight:850; line-height:1.05; cursor:pointer; }
     .setting-button.selected { color:var(--accent-text); border-color:var(--mint); background:var(--mint); box-shadow:0 0 12px color-mix(in srgb,var(--mint) 25%,transparent); }
     .haptic-toggle { min-width:76px; }
-    .menu-preview { position:relative; height:146px; margin-top:10px; overflow:hidden; border:1px solid color-mix(in srgb,var(--mint) 28%,transparent); border-radius:17px 6px; background:radial-gradient(circle at 50% 42%,color-mix(in srgb,var(--mint) 14%,transparent),transparent 38%),linear-gradient(180deg,#0d2730,#070b15 78%); box-shadow:inset 0 0 34px rgba(75,223,255,.06); }
+    .menu-preview { position:relative; height:146px; margin-top:10px; overflow:hidden; border:1px solid color-mix(in srgb,var(--mint) 34%,transparent); border-radius:17px 6px; background:radial-gradient(circle at 52% 38%,color-mix(in srgb,var(--mint) 28%,transparent),transparent 44%),linear-gradient(180deg,#175063,#0b1933 82%); box-shadow:inset 0 0 34px rgba(75,223,255,.13); }
     .menu-preview::before { content:"CURRENT EXPLORER"; position:absolute; z-index:8; left:10px; top:8px; color:rgba(255,255,255,.42); font-size:.45rem; font-weight:900; letter-spacing:.15em; }
-    .menu-preview-ship { position:absolute; z-index:1; top:8px; right:2%; bottom:8px; width:46%; background-repeat:no-repeat; background-position:right center; background-size:contain; opacity:.3; filter:saturate(1.12) drop-shadow(0 5px 8px rgba(0,0,0,.44)); }
+    .menu-preview-ship { position:absolute; z-index:1; top:8px; right:2%; bottom:8px; width:46%; background-repeat:no-repeat; background-position:right center; background-size:contain; opacity:.5; filter:brightness(1.18) saturate(1.2) drop-shadow(0 5px 8px rgba(0,0,0,.38)); }
     .menu-preview-persona { position:absolute; z-index:3; left:50%; bottom:3px; width:42%; height:132px; translate:-50% 0; background-repeat:no-repeat; background-position:center bottom; background-size:contain; filter:drop-shadow(0 8px 8px rgba(0,0,0,.5)); }
-    .menu-preview-pet { position:absolute; z-index:5; right:19%; bottom:3px; width:23%; height:78px; background-repeat:no-repeat; background-position:center bottom; background-size:contain; filter:drop-shadow(0 5px 6px rgba(0,0,0,.48)); }
+    .menu-preview-pet { position:absolute; z-index:5; right:22%; bottom:3px; width:21%; height:78px; transform:scale(var(--companion-scale,1)); transform-origin:center bottom; background-repeat:no-repeat; background-position:center bottom; background-size:contain; filter:drop-shadow(0 5px 6px rgba(0,0,0,.48)); }
     .menu-preview-name { position:absolute; z-index:7; left:12px; top:52%; translate:0 -50%; max-width:34%; color:var(--gold); font-family:"Brush Script MT","Segoe Script","Comic Sans MS",cursive; font-size:1.45rem; font-weight:900; line-height:.8; text-transform:uppercase; rotate:-8deg; text-shadow:0 2px 0 rgba(29,11,0,.9); }
     .menu-preview-ship:empty,.menu-preview-pet:empty { display:none; }
     .configuration-panel { min-height:0; }
@@ -602,7 +602,7 @@
     .persona { --atlas-x:0%;--atlas-y:0%; position:absolute; z-index:2; left:50%; bottom:12px; width:min(76%,330px); height:calc(100% - 40px); transform:translateX(-50%); background-image:url('../images/verbia/explorer-fitting-atlas-v3.png'); background-size:500% 200%; background-position:var(--atlas-x) var(--atlas-y); background-repeat:no-repeat; filter:drop-shadow(0 16px 18px rgba(0,0,0,.45)); }
     .inventory-ship { position:absolute; z-index:1; inset:0; background-repeat:no-repeat; background-size:cover; background-position:center; opacity:.3; filter:saturate(1.15) drop-shadow(0 12px 18px rgba(0,0,0,.65)); }
     .inventory-ship:empty { display:none; }
-    .inventory-pet { position:absolute; z-index:7; right:3%; bottom:8px; width:34%; aspect-ratio:1; background-repeat:no-repeat; background-size:contain; background-position:center bottom; filter:drop-shadow(0 8px 8px rgba(0,0,0,.5)); }
+    .inventory-pet { position:absolute; z-index:7; right:3%; bottom:8px; width:34%; aspect-ratio:1; transform:scale(var(--companion-scale,1)); transform-origin:right bottom; background-repeat:no-repeat; background-size:contain; background-position:center bottom; filter:drop-shadow(0 8px 8px rgba(0,0,0,.5)); }
     .inventory-pet:empty { display:none; }
     .inventory-list { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; }
     .inventory-category-label { grid-column:1/-1; margin:16px 0 2px; color:color-mix(in srgb,var(--gold) 78%,white); font-size:.7rem; font-weight:900; letter-spacing:.13em; text-align:center; text-transform:uppercase; }
@@ -1035,18 +1035,18 @@
         {id:"kage",name:"Kage",bodySrc:"../images/verbia/bodies-standard/kage.png",bodyIndex:15,cost:400}
       ];
       const shopItems = [
-        {id:"pet-dog",name:"Orbit Dog",type:"pet",asset:"../images/verbia/companions/orbit-dog.png",cost:420},
-        {id:"pet-cat",name:"Nova Cat",type:"pet",asset:"../images/verbia/companions/nova-cat.png",cost:450},
-        {id:"pet-iguana",name:"Solar Iguana",type:"pet",asset:"../images/verbia/companions/solar-iguana.png",cost:500},
-        {id:"pet-bird",name:"Comet Bird",type:"pet",asset:"../images/verbia/companions/comet-bird.png",cost:540},
-        {id:"pet-monkey",name:"Moon Monkey",type:"pet",asset:"../images/verbia/companions/moon-monkey.png",cost:600},
-        {id:"pet-pitbull",name:"Stellar Pit Bull",type:"pet",asset:"../images/verbia/companions/stellar-pitbull.png",cost:620},
-        {id:"pet-lion",name:"Cosmic Lion",type:"pet",asset:"../images/verbia/companions/cosmic-lion.png",cost:700},
-        {id:"pet-tiger",name:"Nebula Tiger",type:"pet",asset:"../images/verbia/companions/nebula-tiger.png",cost:700},
-        {id:"pet-shepherd",name:"Orbit Shepherd",type:"pet",asset:"../images/verbia/companions/orbit-shepherd.png",cost:640},
-        {id:"pet-sloth",name:"Lunar Sloth",type:"pet",asset:"../images/verbia/companions/lunar-sloth.png",cost:580},
-        {id:"pet-poodle",name:"Stellar Poodle",type:"pet",asset:"../images/verbia/companions/stellar-poodle.png",cost:620},
-        {id:"pet-hawk",name:"Solar Hawk",type:"pet",asset:"../images/verbia/companions/solar-hawk.png",cost:680},
+        {id:"pet-dog",name:"Orbit Dog",type:"pet",asset:"../images/verbia/companions/orbit-dog.png",showroomScale:1.08,cost:420},
+        {id:"pet-cat",name:"Nova Cat",type:"pet",asset:"../images/verbia/companions/nova-cat.png",showroomScale:.82,cost:450},
+        {id:"pet-iguana",name:"Solar Iguana",type:"pet",asset:"../images/verbia/companions/solar-iguana.png",showroomScale:.78,cost:500},
+        {id:"pet-bird",name:"Comet Bird",type:"pet",asset:"../images/verbia/companions/comet-bird.png",showroomScale:.68,cost:540},
+        {id:"pet-monkey",name:"Moon Monkey",type:"pet",asset:"../images/verbia/companions/moon-monkey.png",showroomScale:.88,cost:600},
+        {id:"pet-pitbull",name:"Stellar Pit Bull",type:"pet",asset:"../images/verbia/companions/stellar-pitbull.png",showroomScale:1.15,cost:620},
+        {id:"pet-lion",name:"Cosmic Lion",type:"pet",asset:"../images/verbia/companions/cosmic-lion.png",showroomScale:1.52,cost:700},
+        {id:"pet-tiger",name:"Nebula Tiger",type:"pet",asset:"../images/verbia/companions/nebula-tiger.png",showroomScale:1.55,cost:700},
+        {id:"pet-shepherd",name:"Orbit Shepherd",type:"pet",asset:"../images/verbia/companions/orbit-shepherd.png",showroomScale:1.2,cost:640},
+        {id:"pet-sloth",name:"Lunar Sloth",type:"pet",asset:"../images/verbia/companions/lunar-sloth.png",showroomScale:.92,cost:580},
+        {id:"pet-poodle",name:"Stellar Poodle",type:"pet",asset:"../images/verbia/companions/stellar-poodle.png",showroomScale:1.08,cost:620},
+        {id:"pet-hawk",name:"Solar Hawk",type:"pet",asset:"../images/verbia/companions/solar-hawk.png",showroomScale:.72,cost:680},
         {id:"ship-emerald",name:"Emerald Crescent",type:"ship",asset:"../images/verbia/ships/emerald-crescent.png",cost:900},
         {id:"ship-crimson",name:"Crimson Arrow",type:"ship",asset:"../images/verbia/ships/crimson-arrow.png",cost:900},
         {id:"ship-azure",name:"Azure Ring",type:"ship",asset:"../images/verbia/ships/azure-ring.png",cost:900},
@@ -2058,6 +2058,10 @@
 
       function renderShop() {
         ensureInventory();
+        if (!progress.unlockedAvatars.includes(settings.avatar) || !avatars.some(avatar => avatar.id === settings.avatar)) {
+          settings.avatar = "rx7";
+          saveSettings();
+        }
         if (shopPoints) shopPoints.textContent = progress.points || 0;
         storeAvatarChoices.replaceChildren();
         avatars.forEach(avatar => {
@@ -2065,6 +2069,9 @@
           const button = createAvatarButton(avatar, unlocked, true);
           button.dataset.storeAvatar = avatar.id;
           button.disabled = !unlocked && (progress.points || 0) < avatar.cost;
+          const selected = avatar.id === settings.avatar;
+          button.classList.toggle("selected", selected);
+          button.setAttribute("aria-pressed", String(selected));
           storeAvatarChoices.append(button);
         });
         companionStore.replaceChildren();
@@ -2091,6 +2098,7 @@
 
       function applyItemArt(element, item) {
         element.classList.remove("fitted-item-art","square-cell");
+        element.style.setProperty("--companion-scale", item.type === "pet" ? String(item.showroomScale || 1) : "1");
         element.style.backgroundImage = `url('${item.asset}')`;
         element.style.backgroundSize = "contain";
         element.style.backgroundPosition = "center";
