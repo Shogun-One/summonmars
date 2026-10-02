@@ -970,7 +970,7 @@
       const tilts = [-8,5,11,-5,7,-11];
       const storageKey = "verbia-progress-v3";
       const settingsKey = "verbia-settings-v1";
-      const testingCatalogUnlocked = true;
+      const testingCatalogUnlocked = false;
       const avatars = [
         {id:"rx7",name:"RX-7",index:8,bodySrc:"../images/verbia/bodies-standard/rx7.png",bodyIndex:0,cost:0},
         {id:"nova",name:"Nova",src:"../images/verbia/avatar-nova-v2-cable-hair.png",bodySrc:"../images/verbia/bodies-standard/nova.png",bodyIndex:1,cost:0},
@@ -982,7 +982,8 @@
         {id:"mateo",name:"Mateo",portraitAtlas:"hispanic",portraitIndex:1,bodySrc:"../images/verbia/bodies-standard/mateo.png",bodyIndex:1,cost:400},
         {id:"bigfoot",name:"Bigfoot",bodySrc:"../images/verbia/bodies-standard/bigfoot.png",bodyIndex:12,cost:400},
         {id:"yeti",name:"Yeti",bodySrc:"../images/verbia/bodies-standard/yeti.png",bodyIndex:13,cost:400},
-        {id:"alien",name:"Zyra",bodySrc:"../images/verbia/bodies-standard/alien.png",bodyIndex:14,cost:400}
+        {id:"alien",name:"Zyra",bodySrc:"../images/verbia/bodies-standard/alien.png",bodyIndex:14,cost:400},
+        {id:"kage",name:"Kage",bodySrc:"../images/verbia/bodies-standard/kage.png",bodyIndex:15,cost:400}
       ];
       const shopItems = [
         {id:"pet-dog",name:"Orbit Dog",type:"pet",asset:"../images/verbia/companions/orbit-dog.png",cost:420},
@@ -1389,7 +1390,7 @@
       }
 
       function freshProgress(profileCreated = false) {
-        return { profileCreated, currentLevel:1, highestLevel:1, boards:{}, levelBoards:{}, signatures:[], hintHistory:{}, points:0, hints:{date:todayKey(),count:3}, dailyRewardDate:"", inventory:{owned:[],equipped:{ship:"ship-emerald"}}, wardrobeBaseVersion:4, avatarCatalogVersion:1, unlockedAvatars:["rx7","nova"], seed:Math.floor(Math.random() * 2147483647) || 9173 };
+        return { profileCreated, currentLevel:1, highestLevel:1, boards:{}, levelBoards:{}, signatures:[], hintHistory:{}, points:0, hints:{date:todayKey(),count:3}, dailyRewardDate:"", inventory:{owned:[],equipped:{}}, wardrobeBaseVersion:4, avatarCatalogVersion:1, unlockedAvatars:["rx7","nova"], seed:Math.floor(Math.random() * 2147483647) || 9173 };
       }
 
       function letterCountForLevel(level) {
@@ -2000,7 +2001,7 @@
         ensureInventory();
         if (shopPoints) shopPoints.textContent = progress.points || 0;
         storeAvatarChoices.replaceChildren();
-        avatars.filter(avatar => avatar.cost > 0).forEach(avatar => {
+        avatars.forEach(avatar => {
           const unlocked = progress.unlockedAvatars.includes(avatar.id);
           const button = createAvatarButton(avatar, unlocked, true);
           button.dataset.storeAvatar = avatar.id;
