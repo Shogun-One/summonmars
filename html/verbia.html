@@ -200,7 +200,7 @@
         radial-gradient(circle at 50% 46%, rgba(39, 105, 89, .18), transparent 44%),
         linear-gradient(rgba(5, 24, 21, .78), rgba(3, 14, 13, .9));
       box-shadow: 0 24px 70px rgba(0,0,0,.38), inset 0 1px rgba(255,255,255,.05);
-      touch-action: none;
+      touch-action: pan-y;
       transform-style: preserve-3d;
       transform-origin: 50% 50%;
       backface-visibility: hidden;
@@ -322,6 +322,7 @@
       cursor: pointer;
       transition: transform .14s ease, border-color .14s ease, box-shadow .14s ease;
       -webkit-tap-highlight-color: transparent;
+      touch-action: none;
     }
 
     .letter-node.selected {
@@ -402,13 +403,6 @@
       letter-spacing: .1em;
       text-transform: uppercase;
       white-space: nowrap;
-    }
-
-    .lower-panel {
-      position: relative;
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-      gap: 10px;
     }
 
     .discoveries {
@@ -538,13 +532,8 @@
     .store-item { padding:9px 4px; border:1px solid rgba(255,255,255,.2); border-radius:11px 4px; color:var(--surface-muted); background:rgba(255,255,255,.075); font-size:.61rem; font-weight:750; }
     .store-item strong { display:block; margin-top:4px; color:var(--gold); }
 
-    .shelf-arrow { position:absolute; right:13px; top:50%; width:28px; height:28px; display:grid; place-items:center; translate:0 -50%; border:1px solid rgba(255,255,255,.13); border-radius:50%; color:var(--gold); font-size:1rem; transition:transform .22s ease; }
-    .discoveries { position:relative; padding-right:48px; }
-    .discoveries[aria-expanded="true"] .shelf-arrow { transform:rotate(180deg); animation:shelfPulse 1.15s ease-in-out infinite; }
-    @keyframes shelfPulse { 50% { box-shadow:0 0 0 7px color-mix(in srgb,var(--gold) 0%,transparent),0 0 18px var(--gold); transform:rotate(180deg) scale(1.12); } }
-    .discovery-shelf { position:absolute; z-index:18; left:0; right:0; bottom:calc(100% + 10px); max-height:0; overflow:hidden; opacity:0; pointer-events:none; border:1px solid color-mix(in srgb,var(--mint) 24%,transparent); border-radius:22px 9px 22px 9px; background:linear-gradient(160deg,color-mix(in srgb,var(--panel) 96%,#fff 4%),var(--deep)); box-shadow:0 -20px 45px rgba(0,0,0,.42); transform:translateY(14px); transition:max-height .28s ease,opacity .2s ease,transform .28s ease; }
-    .discovery-shelf.open { max-height:min(44svh,330px); opacity:1; pointer-events:auto; transform:translateY(0); }
-    .discovery-shelf__inner { max-height:min(42svh,310px); overflow-y:auto; padding:15px; }
+    .discovery-shelf { position:absolute; z-index:18; left:10px; right:10px; bottom:58px; height:clamp(138px,22svh,190px); overflow:hidden; touch-action:pan-y; border:1px solid color-mix(in srgb,var(--mint) 28%,transparent); border-radius:20px 8px 20px 8px; background:linear-gradient(160deg,color-mix(in srgb,var(--panel) 94%,#fff 6%),color-mix(in srgb,var(--deep) 94%,transparent)); box-shadow:0 -12px 35px rgba(0,0,0,.38),inset 0 1px rgba(255,255,255,.05); backdrop-filter:blur(13px); }
+    .discovery-shelf__inner { height:100%; overflow-y:auto; padding:14px 15px 18px; scrollbar-width:thin; scrollbar-color:color-mix(in srgb,var(--mint) 45%,transparent) transparent; }
     .discovery-shelf h3 { margin:0 0 8px; color:var(--gold); font-size:.66rem; letter-spacing:.12em; text-transform:uppercase; }
     .discovery-shelf h3:not(:first-child) { margin-top:16px; }
     .shelf-words { display:flex; flex-wrap:wrap; gap:6px; }
@@ -554,6 +543,12 @@
     .shelf-length-group+.shelf-length-group { margin-top:11px; }
     .shelf-length-label { margin:0 0 6px; color:var(--muted); font-size:.59rem; font-weight:800; letter-spacing:.1em; text-transform:uppercase; }
     .shelf-empty { margin:0; color:var(--muted); font-size:.72rem; }
+    .board-nav-button { position:absolute; z-index:21; bottom:10px; width:42px; height:42px; display:grid; place-items:center; padding:0 0 3px; border:1px solid color-mix(in srgb,var(--mint) 32%,transparent); border-radius:50%; color:var(--mint); background:rgba(3,17,15,.82); box-shadow:inset 0 1px rgba(255,255,255,.08); font:700 1.8rem/1 Georgia,serif; cursor:pointer; transition:opacity .2s ease,filter .2s ease; }
+    .board-nav-button.previous { left:13px; }
+    .board-nav-button.next { right:13px; }
+    .board-nav-button:disabled { opacity:.25; cursor:not-allowed; }
+    .board-nav-button.available { animation:navPulse 1.25s ease-in-out infinite; }
+    @keyframes navPulse { 50%{color:#fff;filter:brightness(1.35);box-shadow:0 0 0 8px color-mix(in srgb,var(--mint) 0%,transparent),0 0 24px var(--mint),inset 0 0 13px color-mix(in srgb,var(--mint) 45%,transparent);transform:scale(1.08)} }
 
     .sheet-backdrop {
       position: fixed;
@@ -775,22 +770,11 @@
       <div id="letterNodes"></div>
       <span class="board-complete" id="boardComplete">Cleared</span>
       <p class="hint">Touch • trace • release</p>
-    </section>
-
-    <section class="lower-panel">
-      <aside class="discovery-shelf" id="discoveryShelf" aria-hidden="true">
+      <aside class="discovery-shelf" id="discoveryShelf" aria-label="Board discoveries">
         <div class="discovery-shelf__inner" id="discoveryShelfContent"></div>
       </aside>
-      <button class="discoveries control" id="discoveriesButton" type="button" aria-expanded="false" aria-controls="discoveryShelf">
-        <span class="discovery-label">Discoveries</span>
-        <span class="discovery-summary">
-          <span class="discovery-count"><span id="goalSummary">0 / 18</span> <small>stage</small></span>
-          <span class="discovery-count"><span id="bonusSummary">0</span> <small>bonus</small></span>
-        </span>
-        <span class="shelf-arrow" aria-hidden="true">⌃</span>
-      </button>
-      <button class="control primary" id="nextButton" type="button">Continue</button>
-      <button class="control" id="previousBoardsButton" type="button">Previous boards</button>
+      <button class="board-nav-button previous" id="previousBoardsButton" type="button" aria-label="Open previous boards" disabled>‹</button>
+      <button class="board-nav-button next" id="nextButton" type="button" aria-label="Continue to next board" disabled>›</button>
     </section>
   </main>
 
@@ -914,9 +898,6 @@
       const boardState = document.querySelector("#boardState");
       const boardNumber = document.querySelector("#boardNumber");
       const boardComplete = document.querySelector("#boardComplete");
-      const goalSummary = document.querySelector("#goalSummary");
-      const bonusSummary = document.querySelector("#bonusSummary");
-      const discoveriesButton = document.querySelector("#discoveriesButton");
       const shuffleButton = document.querySelector("#shuffleButton");
       const hintButton = document.querySelector("#hintButton");
       const hintCount = document.querySelector("#hintCount");
@@ -1022,10 +1003,6 @@
         if (tracing && event.pointerId === pointerId) finishTrace(event);
       });
 
-      discoveriesButton.addEventListener("click", toggleDiscoveryShelf);
-      document.addEventListener("pointerdown", event => {
-        if (discoveryShelf.classList.contains("open") && !discoveryShelf.contains(event.target) && !discoveriesButton.contains(event.target)) closeDiscoveryShelf();
-      });
       closeDiscoveries.addEventListener("click", closeSheet);
       backdrop.addEventListener("click", event => { if (event.target === backdrop) closeSheet(); });
       document.addEventListener("keydown", event => { if (event.key === "Escape") closeSheet(); });
@@ -1171,9 +1148,9 @@
           letterNodes.append(node);
         });
         nodes = [...letterNodes.querySelectorAll(".letter-node")];
-        nextButton.textContent = boardIndex + 1 < (progress.highestLevel || 1)
+        nextButton.setAttribute("aria-label", boardIndex + 1 < (progress.highestLevel || 1)
           ? `Return to Board ${String(progress.highestLevel).padStart(2,"0")}`
-          : "Continue";
+          : "Continue to next board");
         requestAnimationFrame(() => { drawConstellation(); renderProgress(); });
       }
 
@@ -1196,7 +1173,7 @@
         window.setTimeout(() => {
           playfield.classList.remove("board-flipping");
           boardTransitioning = false;
-          nextButton.disabled = false;
+          renderProgress();
           showToast(`Board ${String(boardIndex + 1).padStart(2,"0")} opened`);
         }, 840);
       }
@@ -1322,10 +1299,10 @@
         return Array.from({length:count}, (_, index) => {
           const t = count === 1 ? .5 : index / (count - 1);
           const radiusX = ({3:23,4:29,5:34,6:38,7:42})[count] ?? 42;
-          const radiusY = ({3:20,4:25,5:29,6:32,7:35})[count] ?? 35;
+          const radiusY = ({3:14,4:18,5:22,6:25,7:28})[count] ?? 28;
           const x = 50 - Math.cos(Math.PI * t) * radiusX;
           const bend = Math.sin(Math.PI * t) * radiusY;
-          const y = type === "horseshoe-down" ? 65 - bend : 35 + bend;
+          const y = type === "horseshoe-down" ? 57 - bend : 27 + bend;
           return [x,y];
         });
       }
@@ -1580,11 +1557,10 @@
         const amount = goalFound.length;
         const cleared = amount >= board.clearAt;
         boardScore.textContent = progress.points || 0;
-        goalSummary.textContent = `${amount} / ${board.goals.length}`;
-        bonusSummary.textContent = bonusFound.length;
         progressFill.style.width = `${Math.min(100, amount / board.goals.length * 100)}%`;
         boardState.textContent = amount === board.goals.length ? "Mastered" : cleared ? "Board cleared" : `Find ${board.clearAt - amount} to clear`;
-        nextButton.classList.toggle("show", cleared);
+        nextButton.disabled = !cleared || boardTransitioning;
+        nextButton.classList.toggle("available", cleared && !boardTransitioning);
         boardComplete.classList.toggle("show", cleared);
         renderPreviousBoardsButton();
         renderDiscoveryShelf();
@@ -1603,7 +1579,7 @@
         if (!backdrop.classList.contains("open")) return;
         backdrop.classList.remove("open");
         backdrop.setAttribute("aria-hidden", "true");
-        discoveriesButton.focus();
+        pauseButton.focus();
       }
 
       function setTab(tab) {
@@ -1724,18 +1700,8 @@
         } catch { return false; }
       }
 
-      function toggleDiscoveryShelf() {
-        const opening = !discoveryShelf.classList.contains("open");
-        discoveryShelf.classList.toggle("open", opening);
-        discoveryShelf.setAttribute("aria-hidden", String(!opening));
-        discoveriesButton.setAttribute("aria-expanded", String(opening));
-        if (opening) renderDiscoveryShelf();
-      }
-
       function closeDiscoveryShelf() {
-        discoveryShelf.classList.remove("open");
-        discoveryShelf.setAttribute("aria-hidden", "true");
-        discoveriesButton.setAttribute("aria-expanded", "false");
+        renderDiscoveryShelf();
       }
 
       function todayKey() {
@@ -2040,6 +2006,7 @@
       function renderPreviousBoardsButton() {
         const choices = getPreviousBoardChoices();
         previousBoardsButton.disabled = choices.length === 0;
+        previousBoardsButton.classList.toggle("available", choices.length > 0);
         previousBoardsButton.setAttribute("aria-label", choices.length
           ? `Previous boards. ${choices.length} incomplete board${choices.length === 1 ? "" : "s"} available.`
           : "No incomplete cleared boards available yet.");
