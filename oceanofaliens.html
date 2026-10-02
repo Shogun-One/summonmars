@@ -410,6 +410,28 @@
       100%{ transform:scale(1); opacity:1; }
     }
 
+    /* First-use guidance: pulse the glow without changing control geometry. */
+    @keyframes firstUseRedNeonPulse{
+      0%,100%{ border-color:rgba(255,76,96,.58); box-shadow:0 0 10px rgba(255,24,55,.35),inset 0 0 12px rgba(255,30,62,.12); }
+      48%{ border-color:#ff3858; box-shadow:0 0 12px #ff163f,0 0 34px rgba(255,22,63,.95),0 0 58px rgba(255,22,63,.52),inset 0 0 25px rgba(255,38,75,.38); }
+    }
+    @keyframes firstUseKnobPulse{
+      0%,100%{ box-shadow:0 6px 16px rgba(0,0,0,.7),0 0 12px rgba(255,35,65,.45),inset 0 0 15px rgba(255,255,255,.15); }
+      48%{ box-shadow:0 6px 16px rgba(0,0,0,.7),0 0 18px #ff163f,0 0 38px rgba(255,22,63,.82),inset 0 0 22px rgba(255,60,92,.42); }
+    }
+    .touchpad-plate.launch-guidance-pulse,
+    .first-use-control-pulse{
+      animation:firstUseRedNeonPulse .78s ease-in-out infinite !important;
+    }
+    .touchpad-plate.launch-guidance-pulse .joystick-knob{
+      animation:firstUseKnobPulse .78s ease-in-out infinite !important;
+    }
+    @media (prefers-reduced-motion:reduce){
+      .touchpad-plate.launch-guidance-pulse,
+      .touchpad-plate.launch-guidance-pulse .joystick-knob,
+      .first-use-control-pulse{ animation-duration:1.5s !important; }
+    }
+
     .weapon-status-overlay{
       display:none;
       position:absolute;
@@ -2577,6 +2599,36 @@ document.querySelectorAll('img[data-asset]').forEach((img) => {
     let launchChoiceSelection = 0;
     let launchAxisLatch = 0;
     let suppressLaunchCarryover = false;
+    let missileGuidanceShown = false;
+    let weaponGuidanceShown = false;
+    let lastHasChangeableWeapon = false;
+    const firstUsePulseTimers = {missile:0,weapon:0};
+
+    function setJoystickLaunchGuidance(active){
+      joystickEl?.classList.toggle('launch-guidance-pulse',Boolean(active));
+    }
+
+    function stopFirstUseControlPulse(kind){
+      clearTimeout(firstUsePulseTimers[kind]);
+      firstUsePulseTimers[kind]=0;
+      const targets=kind==='missile' ? [resetBtn,missileReserveEl] : [musicBtn,weaponStatusOverlayEl];
+      targets.forEach(target=>target?.classList.remove('first-use-control-pulse'));
+    }
+
+    function pulseFirstUseControl(kind,duration=3600){
+      stopFirstUseControlPulse(kind);
+      const targets=kind==='missile' ? [resetBtn,missileReserveEl] : [musicBtn,weaponStatusOverlayEl];
+      targets.forEach(target=>target?.classList.add('first-use-control-pulse'));
+      firstUsePulseTimers[kind]=setTimeout(()=>stopFirstUseControlPulse(kind),duration);
+    }
+
+    function resetFirstUseGuidance(){
+      missileGuidanceShown=false;
+      weaponGuidanceShown=false;
+      lastHasChangeableWeapon=false;
+      stopFirstUseControlPulse('missile');
+      stopFirstUseControlPulse('weapon');
+    }
 
     let width = canvas.width;
     let height = canvas.height;
@@ -3516,6 +3568,7 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
         confirmGameOverChoice();
         return;
       }
+      stopFirstUseControlPulse('missile');
       launchMissile();
       try{ navigator.vibrate?.(18); }catch{}
     }
@@ -3527,6 +3580,7 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
       if(e.pointerType === 'mouse' && e.button !== 0) return;
       e.preventDefault();
       e.stopPropagation();
+      stopFirstUseControlPulse('weapon');
       cycleCollectedWeapon();
       try{ navigator.vibrate?.(12); }catch{}
     }
@@ -3938,6 +3992,11 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
       weaponStatusOverlayEl.setAttribute('aria-hidden', hasSpecialWeapon ? 'false' : 'true');
       weaponStatusOverlayEl.setAttribute('aria-label', `Change weapon. Selected: ${weaponDisplayName(weaponMode)}`);
       if(hasSpecialWeapon) positionMissileReserve();
+      if(hasSpecialWeapon && !lastHasChangeableWeapon && !weaponGuidanceShown && !awaitingLaunchInput && !paused && !gameOver){
+        weaponGuidanceShown=true;
+        pulseFirstUseControl('weapon');
+      }
+      lastHasChangeableWeapon=hasSpecialWeapon;
     }
 
     function collectWeaponPickup(mode){
@@ -4672,6 +4731,7 @@ function updateBosses(dt){
 
     function startGracePeriod(){
       awaitingLaunchInput = false;
+      setJoystickLaunchGuidance(false);
       preStartTimer = PRESTART_MS;
       running = false;
     }
@@ -4754,6 +4814,7 @@ function updateBosses(dt){
       } else {
         preStartIsInitial = true;
         awaitingLaunchInput = true;
+        setJoystickLaunchGuidance(true);
         preStartTimer = 0;
         running = false;
       }
@@ -4803,6 +4864,7 @@ function updateBosses(dt){
       // still use the normal pity cadence so the playfield stays balanced.
       asteroidsSinceReward = INITIAL_ASTEROID_REWARD_HEADSTART;
       enemiesSinceMissileReward = 0;
+      resetFirstUseGuidance();
       missileAmmo = 0;
       updateMissileUI();
 
@@ -4830,6 +4892,7 @@ function updateBosses(dt){
       }
 
       awaitingLaunchInput = true;
+      setJoystickLaunchGuidance(true);
       preStartTimer = 0;
       running = false;
       // A reset can be selected while the pause menu has suspended music.
@@ -4869,6 +4932,10 @@ function updateBosses(dt){
       updateHitUI();
       updateMissileUI();
       updateWeaponStatusOverlay();
+      missileGuidanceShown=missileAmmo>0;
+      weaponGuidanceShown=lastHasChangeableWeapon;
+      stopFirstUseControlPulse('missile');
+      stopFirstUseControlPulse('weapon');
       ensureWeaponOfferCadence(targetLevel);
       campaignSessionStarted=true;
       saveCampaignProgress();
@@ -5905,6 +5972,9 @@ joystickEl?.addEventListener('pointerdown', (e) => {
   joyActive = true;
   if(!paused && !gameOver){
     mobileFireHeld = true;
+    // A quick tap can end before the next animation frame. Launch directly
+    // from pointerdown so "touch the joystick to start" always works.
+    beginLaunchFromInput();
     shoot();
     shootCooldown = shootDelay;
   }
@@ -5986,6 +6056,10 @@ mobilePauseBtn?.addEventListener('pointerdown', (e) => {
         missileReserveEl.classList.remove('collected');
         void missileReserveEl.offsetWidth;
         missileReserveEl.classList.add('collected');
+        if(lastMissileReserveAmmo===0 && !missileGuidanceShown && !awaitingLaunchInput && !paused && !gameOver){
+          missileGuidanceShown=true;
+          pulseFirstUseControl('missile');
+        }
       }else if(missileAmmo === 0){
         missileReserveEl.classList.remove('collected');
       }
@@ -7925,7 +7999,8 @@ if (flashTimer > 0) {
       ctx.fillStyle='rgba(0,0,0,.42)';
       ctx.fillRect(0,0,width,height);
       const boxW=Math.min(width-40,560),boxH=width<600?126:138;
-      const x=(width-boxW)/2,y=(height-boxH)/2;
+      const hintH=width<600?58:64,hintGap=10;
+      const x=(width-boxW)/2,y=(height-boxH-hintGap-hintH)/2;
       ctx.fillStyle='rgba(12,6,22,.94)';
       ctx.strokeStyle='rgba(125,255,188,.88)';
       ctx.lineWidth=2;
@@ -7941,6 +8016,21 @@ if (flashTimer > 0) {
       ctx.fillStyle='rgba(228,228,255,.82)';
       ctx.font=`${width<600?12:14}px system-ui`;
       ctx.fillText('Steer or fire to launch',width/2,y+101);
+
+      const hintY=y+boxH+hintGap;
+      ctx.fillStyle='rgba(20,5,24,.94)';
+      ctx.strokeStyle='rgba(255,56,88,.88)';
+      ctx.lineWidth=2;
+      ctx.shadowColor='rgba(255,22,63,.45)';
+      ctx.shadowBlur=14;
+      roundRect(ctx,x,hintY,boxW,hintH,14,true,true);
+      ctx.shadowBlur=0;
+      ctx.fillStyle='#ff8aa0';
+      ctx.font=`900 ${width<600?12:14}px Orbitron, system-ui`;
+      ctx.fillText('CONTROLS & DIRECTIONS',width/2,hintY+20);
+      ctx.fillStyle='rgba(255,236,246,.88)';
+      ctx.font=`${width<600?11:13}px system-ui`;
+      ctx.fillText('Press PAUSE, then open DIRECTIONS',width/2,hintY+42);
       ctx.restore();
     }
 
