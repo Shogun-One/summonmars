@@ -602,7 +602,7 @@
     .persona { --atlas-x:0%;--atlas-y:0%; position:absolute; z-index:2; left:50%; bottom:12px; width:min(76%,330px); height:calc(100% - 40px); transform:translateX(-50%); background-image:url('../images/verbia/explorer-fitting-atlas-v3.png'); background-size:500% 200%; background-position:var(--atlas-x) var(--atlas-y); background-repeat:no-repeat; filter:drop-shadow(0 16px 18px rgba(0,0,0,.45)); }
     .inventory-ship { position:absolute; z-index:1; inset:0; background-repeat:no-repeat; background-size:cover; background-position:center; opacity:.3; filter:saturate(1.15) drop-shadow(0 12px 18px rgba(0,0,0,.65)); }
     .inventory-ship:empty { display:none; }
-    .inventory-pet { position:absolute; z-index:7; right:3%; bottom:8px; width:34%; aspect-ratio:1; transform:scale(var(--companion-scale,1)); transform-origin:right bottom; background-repeat:no-repeat; background-size:contain; background-position:center bottom; filter:drop-shadow(0 8px 8px rgba(0,0,0,.5)); }
+    .inventory-pet { position:absolute; z-index:7; right:3%; bottom:calc(8px + var(--companion-lift,0px)); width:34%; aspect-ratio:1; transform:scale(var(--companion-scale,1)); transform-origin:right bottom; background-repeat:no-repeat; background-size:contain; background-position:center bottom; filter:drop-shadow(0 8px 8px rgba(0,0,0,.5)); }
     .inventory-pet:empty { display:none; }
     .inventory-list { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; }
     .inventory-category-label { grid-column:1/-1; margin:16px 0 2px; color:color-mix(in srgb,var(--gold) 78%,white); font-size:.7rem; font-weight:900; letter-spacing:.13em; text-align:center; text-transform:uppercase; }
@@ -1036,17 +1036,17 @@
       ];
       const shopItems = [
         {id:"pet-dog",name:"Orbit Dog",type:"pet",asset:"../images/verbia/companions/orbit-dog.png",showroomScale:1.08,cost:420},
-        {id:"pet-cat",name:"Nova Cat",type:"pet",asset:"../images/verbia/companions/nova-cat.png",showroomScale:.82,cost:450},
-        {id:"pet-iguana",name:"Solar Iguana",type:"pet",asset:"../images/verbia/companions/solar-iguana.png",showroomScale:.78,cost:500},
-        {id:"pet-bird",name:"Comet Bird",type:"pet",asset:"../images/verbia/companions/comet-bird.png",showroomScale:.68,cost:540},
-        {id:"pet-monkey",name:"Moon Monkey",type:"pet",asset:"../images/verbia/companions/moon-monkey.png",showroomScale:.88,cost:600},
+        {id:"pet-cat",name:"Nova Cat",type:"pet",asset:"../images/verbia/companions/nova-cat.png",showroomScale:.82,showroomLift:24,cost:450},
+        {id:"pet-iguana",name:"Solar Iguana",type:"pet",asset:"../images/verbia/companions/solar-iguana.png",showroomScale:.78,showroomLift:26,cost:500},
+        {id:"pet-bird",name:"Comet Bird",type:"pet",asset:"../images/verbia/companions/comet-bird.png",showroomScale:.68,showroomLift:32,cost:540},
+        {id:"pet-monkey",name:"Moon Monkey",type:"pet",asset:"../images/verbia/companions/moon-monkey.png",showroomScale:.88,showroomLift:22,cost:600},
         {id:"pet-pitbull",name:"Stellar Pit Bull",type:"pet",asset:"../images/verbia/companions/stellar-pitbull.png",showroomScale:1.15,cost:620},
         {id:"pet-lion",name:"Cosmic Lion",type:"pet",asset:"../images/verbia/companions/cosmic-lion.png",showroomScale:1.52,cost:700},
         {id:"pet-tiger",name:"Nebula Tiger",type:"pet",asset:"../images/verbia/companions/nebula-tiger.png",showroomScale:1.55,cost:700},
         {id:"pet-shepherd",name:"Orbit Shepherd",type:"pet",asset:"../images/verbia/companions/orbit-shepherd.png",showroomScale:1.2,cost:640},
-        {id:"pet-sloth",name:"Lunar Sloth",type:"pet",asset:"../images/verbia/companions/lunar-sloth.png",showroomScale:.92,cost:580},
+        {id:"pet-sloth",name:"Lunar Sloth",type:"pet",asset:"../images/verbia/companions/lunar-sloth.png",showroomScale:.92,showroomLift:20,cost:580},
         {id:"pet-poodle",name:"Stellar Poodle",type:"pet",asset:"../images/verbia/companions/stellar-poodle.png",showroomScale:1.08,cost:620},
-        {id:"pet-hawk",name:"Solar Hawk",type:"pet",asset:"../images/verbia/companions/solar-hawk.png",showroomScale:.72,cost:680},
+        {id:"pet-hawk",name:"Solar Hawk",type:"pet",asset:"../images/verbia/companions/solar-hawk.png",showroomScale:.72,showroomLift:30,cost:680},
         {id:"ship-emerald",name:"Emerald Crescent",type:"ship",asset:"../images/verbia/ships/emerald-crescent.png",cost:900},
         {id:"ship-crimson",name:"Crimson Arrow",type:"ship",asset:"../images/verbia/ships/crimson-arrow.png",cost:900},
         {id:"ship-azure",name:"Azure Ring",type:"ship",asset:"../images/verbia/ships/azure-ring.png",cost:900},
@@ -2099,6 +2099,7 @@
       function applyItemArt(element, item) {
         element.classList.remove("fitted-item-art","square-cell");
         element.style.setProperty("--companion-scale", item.type === "pet" ? String(item.showroomScale || 1) : "1");
+        element.style.setProperty("--companion-lift", item.type === "pet" ? `${item.showroomLift || 0}px` : "0px");
         element.style.backgroundImage = `url('${item.asset}')`;
         element.style.backgroundSize = "contain";
         element.style.backgroundPosition = "center";
