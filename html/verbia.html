@@ -169,6 +169,8 @@
     }
 
     .progress-row strong { color: var(--ink); }
+    #boardState.cleared { color:var(--gold); text-shadow:0 0 8px var(--gold),0 0 18px color-mix(in srgb,var(--mint) 68%,transparent); animation:clearedStateGlow 1.2s ease-in-out infinite alternate; }
+    @keyframes clearedStateGlow { to{color:#fffbdc;filter:brightness(1.28);text-shadow:0 0 11px #fff,0 0 24px var(--gold),0 0 38px var(--mint)} }
     .score-display { display:flex; align-items:baseline; gap:8px; }
     .score-display strong { color:var(--gold); font-family:Georgia,serif; font-size:1rem; letter-spacing:0; }
 
@@ -538,7 +540,7 @@
     .shelf-length-group+.shelf-length-group { margin-top:11px; }
     .shelf-length-label { margin:0 0 6px; color:var(--muted); font-size:.59rem; font-weight:800; letter-spacing:.1em; text-transform:uppercase; }
     .shelf-empty { margin:0; color:var(--muted); font-size:.72rem; }
-    .board-nav-button { position:absolute; z-index:21; bottom:58px; width:42px; height:42px; display:grid; place-items:center; padding:0 0 3px; border:1px solid color-mix(in srgb,var(--mint) 32%,transparent); border-radius:50%; color:var(--mint); background:rgba(3,17,15,.82); box-shadow:inset 0 1px rgba(255,255,255,.08); font:700 1.8rem/1 Georgia,serif; cursor:pointer; transition:opacity .2s ease,filter .2s ease; }
+    .board-nav-button { position:absolute; z-index:21; bottom:9px; width:52px; height:52px; display:grid; place-items:center; padding:0 0 4px; border:1px solid color-mix(in srgb,var(--mint) 32%,transparent); border-radius:50%; color:var(--mint); background:rgba(3,17,15,.82); box-shadow:inset 0 1px rgba(255,255,255,.08); font:700 2.2rem/1 Georgia,serif; cursor:pointer; transition:opacity .2s ease,filter .2s ease; }
     .board-nav-button.previous { left:13px; }
     .board-nav-button.next { right:13px; }
     .board-nav-button:disabled { opacity:.25; cursor:not-allowed; }
@@ -608,26 +610,6 @@
     .word-chip { min-width: 0; padding: 8px 6px; overflow: hidden; border: 1px solid rgba(117,245,199,.14); border-radius: 10px; color: var(--mint); background: rgba(117,245,199,.06); font-size: .72rem; font-weight: 800; letter-spacing: .06em; text-align: center; text-overflow: ellipsis; }
     .word-chip.missing { color: rgba(167,199,189,.46); background: rgba(0,0,0,.12); letter-spacing: .12em; }
     .sheet-note { margin: 0 0 13px; color: var(--muted); font-size: .72rem; line-height: 1.45; }
-
-    .board-complete {
-      position: absolute;
-      z-index: 6;
-      right: 16px;
-      bottom: 14px;
-      padding: 6px 9px;
-      border-radius: 99px;
-      color: #082019;
-      background: var(--gold);
-      font-size: .6rem;
-      font-weight: 900;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-      opacity: 0;
-      transform: translateY(6px);
-      transition: .2s ease;
-    }
-
-    .board-complete.show { opacity: 1; transform: translateY(0); }
 
     .toast {
       position: absolute;
@@ -773,7 +755,6 @@
         <polyline class="path-line" id="pathLine" points=""></polyline>
       </svg>
       <div id="letterNodes"></div>
-      <span class="board-complete" id="boardComplete">Cleared</span>
       <p class="hint">Touch • trace • release</p>
       <button class="board-nav-button previous" id="previousBoardsButton" type="button" aria-label="Open previous boards" disabled>‹</button>
       <button class="board-nav-button next" id="nextButton" type="button" aria-label="Continue to next board" disabled>›</button>
@@ -899,7 +880,6 @@
       const progressFill = document.querySelector("#progressFill");
       const boardState = document.querySelector("#boardState");
       const boardNumber = document.querySelector("#boardNumber");
-      const boardComplete = document.querySelector("#boardComplete");
       const shuffleButton = document.querySelector("#shuffleButton");
       const hintButton = document.querySelector("#hintButton");
       const hintCount = document.querySelector("#hintCount");
@@ -967,6 +947,7 @@
       let boardTransitioning = false;
       let hoveredTraceNode = null;
       let backtrackTimer = 0;
+      let traceResetTimer = 0;
 
       ensureBoard(boardIndex + 1);
 
@@ -988,6 +969,10 @@
         if (!directNode && event.target.closest("button")) return;
         const node = directNode || traceNodeAtPoint(event.clientX, event.clientY);
         if (!node || tracing) return;
+        if (selected.length) {
+          window.clearTimeout(traceResetTimer);
+          resetTrace();
+        }
         event.preventDefault();
         tracing = true;
         pointerId = event.pointerId;
@@ -1504,7 +1489,7 @@
         const accepted = new Set(board.accepted);
         const found = getFound();
         const previousGoalCount = found.filter(foundWord => board.goals.includes(foundWord)).length;
-        let resetDelay = 180;
+        let resetDelay = 130;
         if (word.length < 3) {
           if (word) {
             showToast("Words need at least 3 letters", true);
@@ -1531,23 +1516,26 @@
             launchFireworks(true);
             playWoo();
             playApplause(1.45);
-            resetDelay = 1550;
+            resetDelay = 420;
           } else if (justCleared) {
             launchFireworks(false);
             playApplause(1.2);
-            resetDelay = 1250;
+            resetDelay = 320;
           } else {
             playApplause(.34);
-            resetDelay = 680;
+            resetDelay = 220;
           }
           navigator.vibrate?.([22,32,22]);
           renderProgress();
           renderWallet();
         }
-        window.setTimeout(resetTrace, resetDelay);
+        window.clearTimeout(traceResetTimer);
+        traceResetTimer = window.setTimeout(resetTrace, resetDelay);
       }
 
       function resetTrace() {
+        window.clearTimeout(traceResetTimer);
+        traceResetTimer = 0;
         window.clearTimeout(backtrackTimer);
         tracing = false; pointerId = null; pointer = null; hoveredTraceNode = null;
         selected.forEach(node => node.classList.remove("selected", "cosmic-complete"));
@@ -1577,9 +1565,9 @@
         boardScore.textContent = progress.points || 0;
         progressFill.style.width = `${Math.min(100, amount / board.goals.length * 100)}%`;
         boardState.textContent = amount === board.goals.length ? "Mastered" : cleared ? "Board cleared" : `Find ${board.clearAt - amount} to clear`;
+        boardState.classList.toggle("cleared", cleared);
         nextButton.disabled = !cleared || boardTransitioning;
         nextButton.classList.toggle("available", cleared && !boardTransitioning);
-        boardComplete.classList.toggle("show", cleared);
         renderPreviousBoardsButton();
         renderDiscoveryShelf();
         if (backdrop.classList.contains("open")) renderSheet();
