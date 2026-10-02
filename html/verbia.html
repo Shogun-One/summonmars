@@ -581,7 +581,7 @@
     .inventory-item-preview.square-cell { aspect-ratio:1 / 2; }
     .inventory-item strong { display:block; color:var(--surface-text); font-size:.58rem; line-height:1.15; }.inventory-item small { display:block; margin-top:5px; color:var(--gold); font-size:.52rem; line-height:1.3; }
     .inventory-item.equipped { border-color:var(--mint); box-shadow:0 0 14px color-mix(in srgb,var(--mint) 22%,transparent); }
-    .showroom-explorer-name { position:absolute; z-index:12; left:20px; bottom:24px; max-width:64%; color:var(--gold); font-family:"Brush Script MT","Segoe Script","Comic Sans MS",cursive; font-size:clamp(2rem,8vw,3.8rem); font-weight:900; line-height:.8; letter-spacing:.035em; text-transform:uppercase; rotate:-11deg; text-shadow:0 3px 0 rgba(29,11,0,.9),0 0 12px color-mix(in srgb,var(--gold) 70%,transparent); pointer-events:none; }
+    .showroom-explorer-name { position:absolute; z-index:12; left:20px; bottom:78px; max-width:64%; color:var(--gold); font-family:"Brush Script MT","Segoe Script","Comic Sans MS",cursive; font-size:clamp(2rem,8vw,3.8rem); font-weight:900; line-height:.8; letter-spacing:.035em; text-transform:uppercase; rotate:-11deg; text-shadow:0 3px 0 rgba(29,11,0,.9),0 0 12px color-mix(in srgb,var(--gold) 70%,transparent); pointer-events:none; }
 
     .discovery-dock { position:relative; z-index:4; min-height:0; }
     .discovery-shelf { position:relative; height:clamp(135px,17svh,165px); overflow:hidden; touch-action:pan-y; border:1px solid color-mix(in srgb,var(--mint) 28%,transparent); border-radius:20px 8px 20px 8px; background:linear-gradient(160deg,color-mix(in srgb,var(--panel) 94%,#fff 6%),color-mix(in srgb,var(--deep) 94%,transparent)); box-shadow:0 12px 35px rgba(0,0,0,.28),inset 0 1px rgba(255,255,255,.05); backdrop-filter:blur(13px); }
@@ -2459,8 +2459,8 @@
         portrait.className = "avatar-art";
         if (avatar.bodySrc) {
           portrait.style.backgroundImage = `url('${avatar.bodySrc}')`;
-          portrait.style.backgroundSize = "155% auto";
-          portrait.style.backgroundPosition = "center 8%";
+          portrait.style.backgroundSize = "120% auto";
+          portrait.style.backgroundPosition = "center 10%";
         } else if (avatar.portraitAtlas === "hispanic") {
           portrait.style.backgroundImage = "url('../images/verbia/avatar-hispanic-roster-v1.png')";
           portrait.style.backgroundSize = "200% 100%";
