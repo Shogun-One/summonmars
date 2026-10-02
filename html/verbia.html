@@ -747,7 +747,7 @@
 
     .splash-screen { position:fixed; z-index:70; inset:0; display:grid; place-items:start center; overflow:hidden; color:#fff; background:#020b0d; isolation:isolate; }
     .splash-screen[hidden] { display:none; }
-    .splash-screen::before { content:""; position:absolute; z-index:-2; inset:-3%; background-image:url('/images/verbia/splash-word-explorer-v1.png'); background-size:cover; background-position:center 42%; filter:saturate(1.08) brightness(.84); animation:splashScene 3s cubic-bezier(.18,.72,.22,1) both; }
+    .splash-screen::before { content:""; position:absolute; z-index:-2; inset:-3%; background-image:url('../images/verbia/splash-word-explorer-v1.png'); background-size:cover; background-position:center 42%; filter:saturate(1.08) brightness(.84); animation:splashScene 3s cubic-bezier(.18,.72,.22,1) both; }
     .splash-screen::after { content:""; position:absolute; z-index:-1; inset:0; background:radial-gradient(ellipse 62% 25% at 50% 13%,rgba(1,7,15,.74),rgba(1,7,15,.38) 48%,transparent 78%),linear-gradient(to bottom,rgba(1,6,13,.48) 0,rgba(1,6,13,.12) 34%,transparent 52%,rgba(1,5,9,.18) 100%); animation:splashVeil 3s ease both; }
     .splash-content { width:100%; margin-top:max(7svh,calc(env(safe-area-inset-top) + 24px)); padding:24px; text-align:center; }
     .splash-title { margin:0; color:#f8fff4; font:500 clamp(3.5rem,18vw,8rem)/.9 Georgia,serif; letter-spacing:-.055em; text-shadow:0 0 16px var(--mint),0 0 48px color-mix(in srgb,var(--mint) 60%,transparent); opacity:0; animation:verbiaTitle .6s .2s cubic-bezier(.2,.85,.25,1.2) forwards; }
