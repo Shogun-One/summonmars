@@ -8063,7 +8063,8 @@ if (flashTimer > 0) {
       ctx.fillStyle='rgba(0,0,0,.42)';
       ctx.fillRect(0,0,width,height);
       const boxW=Math.min(width-40,560),boxH=width<600?126:138;
-      const hintH=width<600?58:64,hintGap=10;
+      // Keep both guidance cards at the same dimensions and visual ratio.
+      const hintH=boxH,hintGap=10;
       const x=(width-boxW)/2,y=(height-boxH-hintGap-hintH)/2;
       ctx.fillStyle='rgba(12,6,22,.94)';
       ctx.strokeStyle='rgba(125,255,188,.88)';
@@ -8090,11 +8091,11 @@ if (flashTimer > 0) {
       roundRect(ctx,x,hintY,boxW,hintH,14,true,true);
       ctx.shadowBlur=0;
       ctx.fillStyle='#ff8aa0';
-      ctx.font=`900 ${width<600?12:14}px Orbitron, system-ui`;
-      ctx.fillText('CONTROLS & DIRECTIONS',width/2,hintY+20);
+      ctx.font=`900 ${width<600?18:24}px Orbitron, system-ui`;
+      ctx.fillText('CONTROLS & DIRECTIONS',width/2,hintY+hintH*.38);
       ctx.fillStyle='rgba(255,236,246,.88)';
-      ctx.font=`${width<600?11:13}px system-ui`;
-      ctx.fillText('Press PAUSE, then open DIRECTIONS',width/2,hintY+42);
+      ctx.font=`${width<600?12:14}px system-ui`;
+      ctx.fillText('Press PAUSE, then open DIRECTIONS',width/2,hintY+hintH*.70);
       ctx.restore();
     }
 
