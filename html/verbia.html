@@ -535,6 +535,9 @@
     .wallet-card { display:flex; justify-content:space-between; gap:12px; padding:12px; border:1px solid rgba(255,217,120,.3); border-radius:13px 5px 13px 5px; background:rgba(255,217,120,.09); color:var(--surface-muted); font-size:.7rem; font-weight:750; }
     .wallet-card strong { display:block; color:var(--gold); font-size:1rem; }
     .store-preview { display:grid; grid-template-columns:repeat(3,1fr); gap:7px; }
+    .store-section+.store-section { margin-top:22px; }
+    .store-section h3,.inventory-explorers h3 { margin:0 0 9px; color:color-mix(in srgb,var(--gold) 78%,white); font-size:.7rem; font-weight:900; letter-spacing:.13em; text-transform:uppercase; }
+    .store-avatar-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; }
     .store-item { min-height:76px; padding:9px 4px; border:1px solid rgba(255,255,255,.2); border-radius:11px 4px; color:var(--surface-muted); background:rgba(255,255,255,.075); font-size:.61rem; font-weight:750; cursor:pointer; }
     .store-item .shop-icon { display:block; width:100%; height:58px; margin-bottom:5px; background-repeat:no-repeat; }
     .store-item strong { display:block; margin-top:4px; color:var(--gold); }
@@ -835,8 +838,8 @@
       <div class="menu-section">
         <h3>Cosmic color</h3>
         <div class="choice-grid" id="themeChoices">
-          <button class="choice-button" type="button" data-theme-choice="emerald"><span class="theme-swatch" style="--swatch:#75f5c7;--scene-two:#ffd978;--scene-glow:#32cfa2;--scene-deep:#031713"></span>Emerald Worlds<small>Ancient green planets and luminous mint trails.</small></button>
           <button class="choice-button" type="button" data-theme-choice="cosmic-red"><span class="theme-swatch" style="--swatch:#ff7772;--scene-two:#ffc36b;--scene-glow:#ff405d;--scene-deep:#210307"></span>Crimson Supernova<small>Solar flares crossing a deep scarlet nebula.</small></button>
+          <button class="choice-button" type="button" data-theme-choice="emerald"><span class="theme-swatch" style="--swatch:#75f5c7;--scene-two:#ffd978;--scene-glow:#32cfa2;--scene-deep:#031713"></span>Emerald Worlds<small>Ancient green planets and luminous mint trails.</small></button>
           <button class="choice-button" type="button" data-theme-choice="nebula-blue"><span class="theme-swatch" style="--swatch:#67d9ff;--scene-two:#9f9bff;--scene-glow:#278bff;--scene-deep:#02091d"></span>Azure Expanse<small>Sapphire space, electric stars and icy worlds.</small></button>
           <button class="choice-button" type="button" data-theme-choice="solar-yellow"><span class="theme-swatch" style="--swatch:#ffd75f;--scene-two:#ff864f;--scene-glow:#ffbe32;--scene-deep:#1a0c02"></span>Solar Horizon<small>Golden suns above ember-orange atmospheres.</small></button>
           <button class="choice-button" type="button" data-theme-choice="violet-drift"><span class="theme-swatch" style="--swatch:#d692ff;--scene-two:#ff75bd;--scene-glow:#a449ff;--scene-deep:#10021c"></span>Violet Rift<small>Royal clouds, rose starlight and distant moons.</small></button>
@@ -849,10 +852,6 @@
           <button class="choice-button" type="button" data-shape-choice="circle">Circles</button>
           <button class="choice-button" type="button" data-shape-choice="triangle">Triangles</button>
         </div>
-      </div>
-      <div class="menu-section">
-        <h3>Choose your explorer</h3>
-        <div class="avatar-grid" id="avatarChoices"></div>
       </div>
       <div class="menu-section">
         <h3>Explorer wallet</h3>
@@ -882,6 +881,7 @@
       <button class="feature-back" id="inventoryBack" type="button">← Go back</button>
       <h2 id="inventoryTitle">Inventory Showroom</h2>
       <p class="feature-intro"><span id="inventoryPoints">0</span> discovery points · Equip owned items and choose one companion.</p>
+      <div class="inventory-explorers"><h3>Your explorers</h3><div class="avatar-grid" id="avatarChoices"></div></div>
       <div class="inventory-stage">
         <div class="persona" id="inventoryPersona"></div>
         <span class="persona-wearable hat" id="personaHat"></span><span class="persona-wearable glasses" id="personaGlasses"></span><span class="persona-wearable shirt" id="personaShirt"></span><span class="persona-wearable pants" id="personaPants"></span><span class="persona-wearable shoes" id="personaShoes"></span>
@@ -896,7 +896,9 @@
       <button class="feature-back" id="shopBack" type="button">← Go back</button>
       <h2 id="shopTitle">Explorer Store</h2>
       <p class="feature-intro"><span id="shopPoints">0</span> discovery points · Unlock explorers, realistic wardrobe pieces, and faithful companions.</p>
-      <div class="menu-section"><h3>Wardrobe & companions</h3><div class="store-preview" id="storePreview"></div></div>
+      <div class="store-section"><h3>Human explorers</h3><div class="store-avatar-grid" id="storeAvatarChoices"></div></div>
+      <div class="store-section"><h3>Wardrobe</h3><div class="store-preview" id="wardrobeStore"></div></div>
+      <div class="store-section"><h3>Companions</h3><div class="store-preview" id="companionStore"></div></div>
     </section>
   </div>
 
@@ -1034,7 +1036,9 @@
       const previousBoardsList = document.querySelector("#previousBoardsList");
       const closePreviousBoards = document.querySelector("#closePreviousBoards");
       const effectsLayer = document.querySelector("#effectsLayer");
-      const storePreview = document.querySelector("#storePreview");
+      const storeAvatarChoices = document.querySelector("#storeAvatarChoices");
+      const wardrobeStore = document.querySelector("#wardrobeStore");
+      const companionStore = document.querySelector("#companionStore");
       const shopOverlay = document.querySelector("#shopOverlay");
       const shopBack = document.querySelector("#shopBack");
       const shopPoints = document.querySelector("#shopPoints");
@@ -1167,9 +1171,11 @@
       inventoryBack.addEventListener("click", closeInventory);
       directionsBack.addEventListener("click", closeDirections);
       shopBack.addEventListener("click", closeShop);
-      storePreview.addEventListener("click", event => {
+      shopOverlay.addEventListener("click", event => {
         const choice = event.target.closest("[data-shop-item]");
         if (choice) purchaseItem(choice.dataset.shopItem);
+        const avatarChoice = event.target.closest("[data-store-avatar]");
+        if (avatarChoice) unlockAvatar(avatarChoice.dataset.storeAvatar);
       });
       inventoryList.addEventListener("click", event => {
         const choice = event.target.closest("[data-inventory-item]");
@@ -1229,22 +1235,11 @@
         const choice = event.target.closest("[data-avatar-choice]");
         if (!choice) return;
         const avatar = avatars.find(item => item.id === choice.dataset.avatarChoice);
-        if (!avatar) return;
-        ensureInventory();
-        if (!progress.unlockedAvatars.includes(avatar.id)) {
-          if ((progress.points || 0) < avatar.cost) {
-            showToast(`${avatar.name} requires ${avatar.cost} points`, "duplicate");
-            return;
-          }
-          progress.points -= avatar.cost;
-          progress.unlockedAvatars.push(avatar.id);
-          saveProgress();
-          renderWallet();
-          showToast(`${avatar.name} joined your explorers`, "success");
-        }
+        if (!avatar || !progress.unlockedAvatars.includes(avatar.id)) return;
         settings.avatar = avatar.id;
         renderAvatarChoices();
         applySettings(false);
+        renderInventory();
       });
 
       continueGameButton.addEventListener("click", () => {
@@ -1264,7 +1259,7 @@
         localStorage.removeItem("verbia-prototype-board-01");
         progress = freshProgress(true);
         profileExists = true;
-        settings = { theme:"emerald", shape:"shard", avatar:"rx7", soundMode:"all", haptics:true, avatarDefaultVersion:2 };
+        settings = { theme:"cosmic-red", shape:"shard", avatar:"rx7", soundMode:"all", haptics:true, avatarDefaultVersion:2 };
         boardIndex = 0;
         boards.length = 0;
         ensureBoard(1);
@@ -1959,7 +1954,16 @@
       function renderShop() {
         ensureInventory();
         if (shopPoints) shopPoints.textContent = progress.points || 0;
-        storePreview.replaceChildren();
+        storeAvatarChoices.replaceChildren();
+        avatars.filter(avatar => avatar.cost > 0).forEach(avatar => {
+          const unlocked = progress.unlockedAvatars.includes(avatar.id);
+          const button = createAvatarButton(avatar, unlocked, true);
+          button.dataset.storeAvatar = avatar.id;
+          button.disabled = !unlocked && (progress.points || 0) < avatar.cost;
+          storeAvatarChoices.append(button);
+        });
+        wardrobeStore.replaceChildren();
+        companionStore.replaceChildren();
         shopItems.forEach(item => {
           const owned = progress.inventory.owned.includes(item.id);
           const button = document.createElement("button");
@@ -1976,8 +1980,32 @@
           const price = document.createElement("strong");
           price.textContent = owned ? "Owned" : `${item.cost} pts`;
           button.append(icon,label,price);
-          storePreview.append(button);
+          (item.type === "pet" ? companionStore : wardrobeStore).append(button);
         });
+      }
+
+      function unlockAvatar(avatarId) {
+        ensureInventory();
+        const avatar = avatars.find(item => item.id === avatarId);
+        if (!avatar) return;
+        if (progress.unlockedAvatars.includes(avatar.id)) {
+          settings.avatar = avatar.id;
+          saveSettings();
+          closeShop();
+          openInventory();
+          return;
+        }
+        if ((progress.points || 0) < avatar.cost) return;
+        progress.points -= avatar.cost;
+        progress.unlockedAvatars.push(avatar.id);
+        settings.avatar = avatar.id;
+        saveProgress();
+        saveSettings();
+        renderWallet();
+        renderAvatarChoices();
+        applySettings(false);
+        showToast(`${avatar.name} joined your explorers`, "success");
+        renderShop();
       }
 
       function purchaseItem(itemId) {
@@ -2313,22 +2341,26 @@
       function renderAvatarChoices() {
         avatarChoices.replaceChildren();
         ensureInventory();
-        avatars.forEach(avatar => {
-          const unlocked = progress.unlockedAvatars.includes(avatar.id);
-          const button = document.createElement("button");
-          button.className = `avatar-choice${unlocked ? "" : " locked"}`;
-          button.type = "button";
+        avatars.filter(avatar => progress.unlockedAvatars.includes(avatar.id)).forEach(avatar => {
+          const button = createAvatarButton(avatar, true, false);
           button.dataset.avatarChoice = avatar.id;
-          button.setAttribute("aria-label", unlocked ? `Choose ${avatar.name} avatar` : `Unlock ${avatar.name} for ${avatar.cost} points`);
-          button.append(createPortrait(avatar));
-          const label = document.createElement("span");
-          label.textContent = avatar.name;
-          const cost = document.createElement("small");
-          cost.className = "avatar-cost";
-          cost.textContent = avatar.cost === 0 ? "Free" : unlocked ? "Owned" : `${avatar.cost} pts`;
-          button.append(label, cost);
           avatarChoices.append(button);
         });
+      }
+
+      function createAvatarButton(avatar, unlocked, storeMode) {
+        const button = document.createElement("button");
+        button.className = `avatar-choice${unlocked ? "" : " locked"}`;
+        button.type = "button";
+        button.setAttribute("aria-label", unlocked ? `Choose ${avatar.name} avatar` : `Unlock ${avatar.name} for ${avatar.cost} points`);
+        button.append(createPortrait(avatar));
+        const label = document.createElement("span");
+        label.textContent = avatar.name;
+        const cost = document.createElement("small");
+        cost.className = "avatar-cost";
+        cost.textContent = avatar.cost === 0 ? "Free" : unlocked ? (storeMode ? "Owned · view" : "Owned") : `${avatar.cost} pts`;
+        button.append(label, cost);
+        return button;
       }
 
       function createPortrait(avatar) {
@@ -2386,8 +2418,8 @@
           const saved = JSON.parse(localStorage.getItem(settingsKey) || "{}");
           delete saved.layout;
           if (!saved.avatarDefaultVersion) saved.avatar = "rx7";
-          return { theme:"emerald", shape:"shard", avatar:"rx7", soundMode:"all", haptics:true, ...saved, avatarDefaultVersion:2 };
-        } catch { return { theme:"emerald", shape:"shard", avatar:"rx7", soundMode:"all", haptics:true, avatarDefaultVersion:2 }; }
+          return { theme:"cosmic-red", shape:"shard", avatar:"rx7", soundMode:"all", haptics:true, ...saved, avatarDefaultVersion:2 };
+        } catch { return { theme:"cosmic-red", shape:"shard", avatar:"rx7", soundMode:"all", haptics:true, avatarDefaultVersion:2 }; }
       }
 
       function saveSettings() { localStorage.setItem(settingsKey, JSON.stringify(settings)); }
