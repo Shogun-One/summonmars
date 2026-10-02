@@ -5132,6 +5132,11 @@ function updateBosses(dt){
     document.addEventListener('ocean-of-aliens-gate-unlocked',handleGameUnlocked,{once:true});
 
     function softRestart(){
+      // Every restart begins a genuinely new run. Purchased inventory stays
+      // owned, but unspent points from the previous run must return to zero.
+      storeCredits=0;
+      saveInventory();
+      syncPointsBalanceUI();
       resetRun(true);
       armEffectsAudioSession();
       beginLevel(1);
