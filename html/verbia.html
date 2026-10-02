@@ -539,14 +539,15 @@
     .previous-empty { margin:0; padding:15px; border:1px dashed rgba(255,255,255,.18); border-radius:13px; color:var(--surface-muted); text-align:center; font-size:.72rem; }
     .wallet-card { display:flex; justify-content:space-between; gap:12px; padding:12px; border:1px solid rgba(255,217,120,.3); border-radius:13px 5px 13px 5px; background:rgba(255,217,120,.09); color:var(--surface-muted); font-size:.7rem; font-weight:750; }
     .wallet-card strong { display:block; color:var(--gold); font-size:1rem; }
-    .store-preview { display:grid; grid-template-columns:repeat(3,1fr); gap:7px; }
+    .store-preview { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; }
     .store-section+.store-section { margin-top:22px; }
     .store-section h3,.inventory-explorers h3 { margin:0 0 9px; color:color-mix(in srgb,var(--gold) 78%,white); font-size:.7rem; font-weight:900; letter-spacing:.13em; text-transform:uppercase; }
     .store-category-label { grid-column:1/-1; margin:10px 0 0; padding:8px 10px 6px; border-bottom:1px solid color-mix(in srgb,var(--accent) 32%,transparent); color:color-mix(in srgb,var(--gold) 78%,white); font-size:.64rem; font-weight:900; letter-spacing:.12em; text-align:left; text-transform:uppercase; }
     .store-category-label:first-child { margin-top:0; }
     .store-avatar-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; }
-    .store-item { min-height:76px; padding:9px 4px; border:1px solid rgba(255,255,255,.2); border-radius:11px 4px; color:var(--surface-muted); background:rgba(255,255,255,.075); font-size:.61rem; font-weight:750; cursor:pointer; }
-    .store-item .shop-icon { display:block; width:100%; height:auto; aspect-ratio:.6; margin-bottom:5px; background-repeat:no-repeat; }
+    .store-avatar-grid .avatar-choice { height:112px; }
+    .store-item { height:118px; overflow:hidden; padding:5px 3px 6px; border:1px solid rgba(255,255,255,.2); border-radius:13px 5px 13px 5px; color:var(--surface-muted); background:rgba(255,255,255,.075); font-size:.58rem; font-weight:750; cursor:pointer; }
+    .store-item .shop-icon { display:block; width:60px; height:60px; margin:0 auto 5px; border-radius:14px 6px; background-repeat:no-repeat; background-size:contain; background-position:center; }
     .store-item .shop-icon.square-cell { aspect-ratio:1 / 2; }
     .store-item .shop-icon.fitted-item-art,.inventory-item-preview.fitted-item-art { aspect-ratio:1 / 2; background-size:contain!important; background-position:center bottom!important; }
     .store-item strong { display:block; margin-top:4px; color:var(--gold); }
@@ -568,14 +569,17 @@
     .inventory-stage { position:relative; height:min(58svh,560px); min-height:440px; margin:14px 0; overflow:hidden; border:1px solid rgba(255,255,255,.13); border-radius:24px 8px; background:radial-gradient(circle at 50% 36%,color-mix(in srgb,var(--mint) 20%,transparent),transparent 34%),linear-gradient(180deg,#0d2730,#070b15 70%); box-shadow:inset 0 0 55px rgba(75,223,255,.08); }
     .inventory-stage::after { content:"FULL-BODY FITTING BAY"; position:absolute; left:14px; top:12px; color:rgba(255,255,255,.42); font-size:.5rem; font-weight:900; letter-spacing:.16em; }
     .persona { --atlas-x:0%;--atlas-y:0%; position:absolute; z-index:2; left:50%; bottom:12px; width:min(76%,330px); height:calc(100% - 40px); transform:translateX(-50%); background-image:url('../images/verbia/explorer-fitting-atlas-v3.png'); background-size:500% 200%; background-position:var(--atlas-x) var(--atlas-y); background-repeat:no-repeat; filter:drop-shadow(0 16px 18px rgba(0,0,0,.45)); }
-    .inventory-pet { --pet-x:0%; position:absolute; z-index:7; right:5px; bottom:10px; width:34%; height:auto; aspect-ratio:3 / 5; background-image:url('../images/verbia/explorer-pets-atlas-v1.png'); background-size:500% 100%; background-position:var(--pet-x) 0; background-repeat:no-repeat; filter:drop-shadow(0 8px 8px rgba(0,0,0,.5)); }
+    .inventory-ship { position:absolute; z-index:1; inset:0; background-repeat:no-repeat; background-size:cover; background-position:center; opacity:.3; filter:saturate(1.15) drop-shadow(0 12px 18px rgba(0,0,0,.65)); }
+    .inventory-ship:empty { display:none; }
+    .inventory-pet { position:absolute; z-index:7; right:3%; bottom:8px; width:34%; aspect-ratio:1; background-repeat:no-repeat; background-size:contain; background-position:center bottom; filter:drop-shadow(0 8px 8px rgba(0,0,0,.5)); }
     .inventory-pet:empty { display:none; }
-    .inventory-list { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+    .inventory-list { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; }
+    .inventory-category-label { grid-column:1/-1; margin:16px 0 2px; color:color-mix(in srgb,var(--gold) 78%,white); font-size:.7rem; font-weight:900; letter-spacing:.13em; text-align:center; text-transform:uppercase; }
     .inventory-list > .feature-intro { grid-column:1 / -1; width:100%; }
-    .inventory-item { padding:8px; border:1px solid rgba(255,255,255,.14); border-radius:13px 5px; color:var(--surface-muted); background:rgba(255,255,255,.055); text-align:left; cursor:pointer; }
-    .inventory-item-preview { display:block; width:100%; height:auto; aspect-ratio:.6; margin-bottom:7px; background-repeat:no-repeat; }
+    .inventory-item { height:118px; overflow:hidden; padding:5px 3px 6px; border:1px solid rgba(255,255,255,.14); border-radius:13px 5px; color:var(--surface-muted); background:rgba(255,255,255,.055); text-align:center; cursor:pointer; }
+    .inventory-item-preview { display:block; width:64px; height:64px; margin:0 auto 5px; background-repeat:no-repeat; background-size:contain; background-position:center; }
     .inventory-item-preview.square-cell { aspect-ratio:1 / 2; }
-    .inventory-item strong { display:block; color:var(--surface-text); font-size:.7rem; }.inventory-item small { color:var(--gold); }
+    .inventory-item strong { display:block; color:var(--surface-text); font-size:.58rem; line-height:1.05; }.inventory-item small { color:var(--gold); font-size:.5rem; line-height:1.05; }
     .inventory-item.equipped { border-color:var(--mint); box-shadow:0 0 14px color-mix(in srgb,var(--mint) 22%,transparent); }
 
     .discovery-dock { position:relative; z-index:4; min-height:0; }
@@ -878,7 +882,7 @@
         <li><span class="direction-icon">★</span><div><b>Find bonus words</b><p>Valid words outside the stage list earn extra points and fly into Bonus Discoveries.</p></div></li>
         <li><span class="direction-icon">💡</span><div><b>Hints and daily rewards</b><p>Three hints refresh daily. The Daily Orbit dart board can award more hints or discovery points.</p></div></li>
         <li><span class="direction-icon">↻</span><div><b>Shuffle and revisit</b><p>Shuffle letters for a fresh view, or use the left arrow to revisit up to five incomplete cleared boards.</p></div></li>
-        <li><span class="direction-icon">🛍</span><div><b>Collect explorers</b><p>Spend discovery points to unlock complete explorers and companions, then select them in the Inventory Showroom.</p></div></li>
+        <li><span class="direction-icon">🛍</span><div><b>Collect explorers</b><p>Spend discovery points to unlock complete explorers, companions, and spaceships, then select them in the Inventory Showroom.</p></div></li>
       </ol>
     </section>
   </div>
@@ -887,12 +891,13 @@
     <section class="feature-panel" role="dialog" aria-modal="true" aria-labelledby="inventoryTitle">
       <button class="feature-back" id="inventoryBack" type="button">← Go back</button>
       <h2 id="inventoryTitle">Inventory Showroom</h2>
-      <p class="feature-intro"><span id="inventoryPoints">0</span> discovery points · Choose a complete explorer and one companion.</p>
-      <div class="inventory-explorers"><h3>Your explorers</h3><div class="avatar-grid" id="avatarChoices"></div></div>
+      <p class="feature-intro"><span id="inventoryPoints">0</span> discovery points · Choose an explorer, companion, and spaceship.</p>
       <div class="inventory-stage">
+        <span class="inventory-ship" id="inventoryShip" aria-label="Selected spaceship"></span>
         <div class="persona" id="inventoryPersona"></div>
         <span class="inventory-pet" id="inventoryPet" aria-label="Equipped pet"></span>
       </div>
+      <div class="inventory-explorers"><h3>Your explorers</h3><div class="avatar-grid" id="avatarChoices"></div></div>
       <div class="inventory-list" id="inventoryList"></div>
     </section>
   </div>
@@ -904,6 +909,7 @@
       <p class="feature-intro"><span id="shopPoints">0</span> discovery points · Unlock complete explorers and faithful companions.</p>
       <div class="store-section"><h3>Human explorers</h3><div class="store-avatar-grid" id="storeAvatarChoices"></div></div>
       <div class="store-section"><h3>Companions</h3><div class="store-preview" id="companionStore"></div></div>
+      <div class="store-section"><h3>Spaceships</h3><div class="store-preview" id="shipStore"></div></div>
     </section>
   </div>
 
@@ -974,11 +980,17 @@
         {id:"mateo",name:"Mateo",portraitAtlas:"hispanic",portraitIndex:1,bodySrc:"../images/verbia/bodies-standard/mateo.png",bodyIndex:1,cost:400}
       ];
       const shopItems = [
-        {id:"pet-dog",name:"Orbit Dog",type:"pet",atlas:"pet",atlasIndex:0,cost:420},
-        {id:"pet-cat",name:"Nova Cat",type:"pet",atlas:"pet",atlasIndex:1,cost:450},
-        {id:"pet-iguana",name:"Solar Iguana",type:"pet",atlas:"pet",atlasIndex:2,cost:500},
-        {id:"pet-bird",name:"Comet Bird",type:"pet",atlas:"pet",atlasIndex:3,cost:540},
-        {id:"pet-monkey",name:"Moon Monkey",type:"pet",atlas:"pet",atlasIndex:4,cost:600}
+        {id:"pet-dog",name:"Orbit Dog",type:"pet",asset:"../images/verbia/companions/orbit-dog.png",cost:420},
+        {id:"pet-cat",name:"Nova Cat",type:"pet",asset:"../images/verbia/companions/nova-cat.png",cost:450},
+        {id:"pet-iguana",name:"Solar Iguana",type:"pet",asset:"../images/verbia/companions/solar-iguana.png",cost:500},
+        {id:"pet-bird",name:"Comet Bird",type:"pet",asset:"../images/verbia/companions/comet-bird.png",cost:540},
+        {id:"pet-monkey",name:"Moon Monkey",type:"pet",asset:"../images/verbia/companions/moon-monkey.png",cost:600},
+        {id:"ship-emerald",name:"Emerald Crescent",type:"ship",asset:"../images/verbia/ships/emerald-crescent.png",cost:900},
+        {id:"ship-crimson",name:"Crimson Arrow",type:"ship",asset:"../images/verbia/ships/crimson-arrow.png",cost:900},
+        {id:"ship-azure",name:"Azure Ring",type:"ship",asset:"../images/verbia/ships/azure-ring.png",cost:900},
+        {id:"ship-solar",name:"Solar Skiff",type:"ship",asset:"../images/verbia/ships/solar-skiff.png",cost:900},
+        {id:"ship-violet",name:"Violet Crystal",type:"ship",asset:"../images/verbia/ships/violet-crystal.png",cost:900},
+        {id:"ship-teal",name:"Teal Shuttle",type:"ship",asset:"../images/verbia/ships/teal-shuttle.png",cost:900}
       ];
       const playfield = document.querySelector("#playfield");
       const letterNodes = document.querySelector("#letterNodes");
@@ -1042,6 +1054,7 @@
       const effectsLayer = document.querySelector("#effectsLayer");
       const storeAvatarChoices = document.querySelector("#storeAvatarChoices");
       const companionStore = document.querySelector("#companionStore");
+      const shipStore = document.querySelector("#shipStore");
       const shopOverlay = document.querySelector("#shopOverlay");
       const shopBack = document.querySelector("#shopBack");
       const shopPoints = document.querySelector("#shopPoints");
@@ -1052,6 +1065,7 @@
       const inventoryPoints = document.querySelector("#inventoryPoints");
       const inventoryStage = document.querySelector(".inventory-stage");
       const inventoryPersona = document.querySelector("#inventoryPersona");
+      const inventoryShip = document.querySelector("#inventoryShip");
       const inventoryPet = document.querySelector("#inventoryPet");
       const inventoryList = document.querySelector("#inventoryList");
 
@@ -1360,7 +1374,7 @@
       }
 
       function freshProgress(profileCreated = false) {
-        return { profileCreated, currentLevel:1, highestLevel:1, boards:{}, levelBoards:{}, signatures:[], hintHistory:{}, points:0, hints:{date:todayKey(),count:3}, dailyRewardDate:"", inventory:{owned:[],equipped:{}}, wardrobeBaseVersion:3, avatarCatalogVersion:1, unlockedAvatars:["rx7","nova"], seed:Math.floor(Math.random() * 2147483647) || 9173 };
+        return { profileCreated, currentLevel:1, highestLevel:1, boards:{}, levelBoards:{}, signatures:[], hintHistory:{}, points:0, hints:{date:todayKey(),count:3}, dailyRewardDate:"", inventory:{owned:[],equipped:{ship:"ship-emerald"}}, wardrobeBaseVersion:4, avatarCatalogVersion:1, unlockedAvatars:["rx7","nova"], seed:Math.floor(Math.random() * 2147483647) || 9173 };
       }
 
       function letterCountForLevel(level) {
@@ -1946,11 +1960,14 @@
         progress.inventory ||= {owned:[],equipped:{}};
         if (!Array.isArray(progress.inventory.owned)) progress.inventory.owned = [];
         progress.inventory.equipped ||= {};
-        if ((progress.wardrobeBaseVersion || 0) < 3) {
-          const petIds = new Set(shopItems.map(item => item.id));
-          progress.inventory.owned = progress.inventory.owned.filter(id => petIds.has(id));
-          progress.inventory.equipped = petIds.has(progress.inventory.equipped.pet) ? {pet:progress.inventory.equipped.pet} : {};
-          progress.wardrobeBaseVersion = 3;
+        if ((progress.wardrobeBaseVersion || 0) < 4) {
+          const currentIds = new Set(shopItems.map(item => item.id));
+          progress.inventory.owned = progress.inventory.owned.filter(id => currentIds.has(id));
+          progress.inventory.equipped = {
+            ...(currentIds.has(progress.inventory.equipped.pet) ? {pet:progress.inventory.equipped.pet} : {}),
+            ship:"ship-emerald"
+          };
+          progress.wardrobeBaseVersion = 4;
         }
         if (!Array.isArray(progress.unlockedAvatars)) progress.unlockedAvatars = ["rx7","nova"];
         if ((progress.avatarCatalogVersion || 0) < 1) {
@@ -1976,6 +1993,7 @@
           storeAvatarChoices.append(button);
         });
         companionStore.replaceChildren();
+        shipStore.replaceChildren();
         const createStoreItemButton = item => {
           const owned = progress.inventory.owned.includes(item.id);
           const button = document.createElement("button");
@@ -1993,13 +2011,15 @@
           return button;
         };
         shopItems.filter(item => item.type === "pet").forEach(item => companionStore.append(createStoreItemButton(item)));
+        shopItems.filter(item => item.type === "ship").forEach(item => shipStore.append(createStoreItemButton(item)));
       }
 
       function applyItemArt(element, item) {
         element.classList.remove("fitted-item-art","square-cell");
-        element.style.backgroundImage = "url('../images/verbia/explorer-pets-atlas-v1.png')";
-        element.style.backgroundSize = "500% 100%";
-        element.style.backgroundPosition = `${item.atlasIndex * 25}% 0`;
+        element.style.backgroundImage = `url('${item.asset}')`;
+        element.style.backgroundSize = "contain";
+        element.style.backgroundPosition = "center";
+        element.style.backgroundRepeat = "no-repeat";
       }
 
       function avatarFitProfile(avatar) {
@@ -2085,7 +2105,7 @@
         if (!progress.inventory.owned.includes(itemId)) return;
         const item = shopItems.find(entry => entry.id === itemId);
         if (!item) return;
-        progress.inventory.equipped.pet = progress.inventory.equipped.pet === item.id ? null : item.id;
+        progress.inventory.equipped[item.type] = progress.inventory.equipped[item.type] === item.id ? null : item.id;
         saveProgress();
         renderInventory();
         vibrate(18);
@@ -2101,10 +2121,14 @@
         applyExplorerBody(inventoryPersona, avatar);
         inventoryPersona.setAttribute("aria-label", `${avatar.name} full-body explorer`);
         const pet = shopItems.find(item => item.id === equipped.pet);
+        const ship = shopItems.find(item => item.id === equipped.ship);
         renderGameAvatar();
         inventoryPet.textContent = pet ? " " : "";
-        if (pet) inventoryPet.style.setProperty("--pet-x", `${pet.atlasIndex * 25}%`);
+        if (pet) applyItemArt(inventoryPet, pet);
         inventoryPet.setAttribute("aria-label", pet ? `${pet.name} equipped` : "No pet equipped");
+        inventoryShip.textContent = ship ? " " : "";
+        if (ship) applyItemArt(inventoryShip, ship);
+        inventoryShip.setAttribute("aria-label", ship ? `${ship.name} selected` : "No spaceship selected");
         inventoryList.replaceChildren();
         const ownedItems = shopItems.filter(item => progress.inventory.owned.includes(item.id));
         if (!ownedItems.length) {
@@ -2114,7 +2138,12 @@
           inventoryList.append(empty);
           return;
         }
-        ownedItems.forEach(item => {
+        ["pet","ship"].forEach(type => {
+          const heading = document.createElement("h3");
+          heading.className = "inventory-category-label";
+          heading.textContent = type === "pet" ? "Companions" : "Spaceships";
+          inventoryList.append(heading);
+          ownedItems.filter(item => item.type === type).forEach(item => {
           const equippedNow = equipped[item.type] === item.id;
           const button = document.createElement("button");
           button.type = "button";
@@ -2126,9 +2155,10 @@
           const name = document.createElement("strong");
           name.textContent = item.name;
           const state = document.createElement("small");
-          state.textContent = equippedNow ? "Companion selected · tap to remove" : "Tap to select companion";
+          state.textContent = equippedNow ? `${item.type === "pet" ? "Companion" : "Ship"} selected · tap to remove` : `Tap to select ${item.type === "pet" ? "companion" : "ship"}`;
           button.append(preview,name,state);
           inventoryList.append(button);
+          });
         });
       }
 
