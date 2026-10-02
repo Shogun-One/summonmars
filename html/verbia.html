@@ -383,6 +383,15 @@
     .setting-button { min-height:36px; padding:6px 7px; border:1px solid rgba(255,255,255,.18); border-radius:9px 4px 9px 4px; color:var(--surface-muted); background:rgba(255,255,255,.065); font-size:.57rem; font-weight:850; line-height:1.05; cursor:pointer; }
     .setting-button.selected { color:var(--accent-text); border-color:var(--mint); background:var(--mint); box-shadow:0 0 12px color-mix(in srgb,var(--mint) 25%,transparent); }
     .haptic-toggle { min-width:76px; }
+    .menu-preview { position:relative; height:146px; margin-top:10px; overflow:hidden; border:1px solid color-mix(in srgb,var(--mint) 28%,transparent); border-radius:17px 6px; background:radial-gradient(circle at 50% 42%,color-mix(in srgb,var(--mint) 14%,transparent),transparent 38%),linear-gradient(180deg,#0d2730,#070b15 78%); box-shadow:inset 0 0 34px rgba(75,223,255,.06); }
+    .menu-preview::before { content:"CURRENT EXPLORER"; position:absolute; z-index:8; left:10px; top:8px; color:rgba(255,255,255,.42); font-size:.45rem; font-weight:900; letter-spacing:.15em; }
+    .menu-preview-ship { position:absolute; z-index:1; inset:0; background-repeat:no-repeat; background-position:center; background-size:cover; opacity:.25; filter:saturate(1.12); }
+    .menu-preview-persona { position:absolute; z-index:3; left:50%; bottom:3px; width:42%; height:132px; translate:-50% 0; background-repeat:no-repeat; background-position:center bottom; background-size:contain; filter:drop-shadow(0 8px 8px rgba(0,0,0,.5)); }
+    .menu-preview-pet { position:absolute; z-index:5; right:13%; bottom:3px; width:26%; height:78px; background-repeat:no-repeat; background-position:center bottom; background-size:contain; filter:drop-shadow(0 5px 6px rgba(0,0,0,.48)); }
+    .menu-preview-name { position:absolute; z-index:7; left:12px; bottom:12px; max-width:38%; color:var(--gold); font-family:"Brush Script MT","Segoe Script","Comic Sans MS",cursive; font-size:1.45rem; font-weight:900; line-height:.8; text-transform:uppercase; rotate:-8deg; text-shadow:0 2px 0 rgba(29,11,0,.9); }
+    .menu-preview-ship:empty,.menu-preview-pet:empty { display:none; }
+    .configuration-panel { min-height:0; }
+    .configuration-panel .menu-section:first-of-type { margin-top:12px; }
 
     .avatar-portrait { --skin:#8d5a3c; --hair:#15120f; --shirt:var(--mint); position:relative; width:100%; height:100%; overflow:hidden; background:radial-gradient(circle at 50% 32%,color-mix(in srgb,var(--shirt) 24%,transparent),transparent 58%); }
     .avatar-portrait .body { position:absolute; z-index:1; width:72%; height:38%; left:14%; bottom:-9%; border-radius:50% 50% 8px 8px; background:linear-gradient(135deg,color-mix(in srgb,var(--shirt) 75%,white),var(--shirt)); }
@@ -400,7 +409,22 @@
     .avatar-portrait.robot .head::after { width:34%; left:33%; border-color:#20343c; }
     .avatar-choice .avatar-portrait { height:52px; margin-bottom:4px; }
 
-    @media (max-width:420px) { .choice-grid{grid-template-columns:repeat(2,minmax(0,1fr));}.avatar-grid{grid-template-columns:repeat(5,minmax(0,1fr));}.start-menu{padding:18px 15px;} }
+    @media (max-width:420px) { .choice-grid{grid-template-columns:repeat(2,minmax(0,1fr));}.avatar-grid{grid-template-columns:repeat(5,minmax(0,1fr));}.start-menu{padding:15px 13px;}.menu-brand h2{font-size:2.35rem}.menu-action{margin-top:15px}.menu-subaction{padding:9px}.settings-bar{margin-top:9px;padding:8px}.menu-preview{height:136px}.menu-preview-persona{height:123px}.menu-section{margin-top:12px} }
+    @media (max-height:950px) {
+      .start-menu { max-height:96svh; padding:13px; }
+      .menu-brand h2 { font-size:2.15rem; }
+      .menu-brand p { margin-top:3px; font-size:.62rem; }
+      .menu-action { margin-top:11px; padding:10px; }
+      .menu-subaction { margin-top:5px; padding:8px; }
+      .settings-bar { margin-top:8px; padding:7px; }
+      .setting-button { min-height:32px; padding:5px; }
+      .menu-preview { height:108px; margin-top:8px; }
+      .menu-preview-persona { height:98px; }
+      .menu-preview-pet { height:60px; }
+      .menu-preview-name { bottom:9px; font-size:1.25rem; }
+      .menu-section { margin-top:8px; }
+      .wallet-card { padding:8px 10px; }
+    }
 
     .hint {
       position: absolute;
@@ -837,8 +861,9 @@
       </div>
       <button class="menu-action" id="resumeButton" type="button">Start journey</button>
       <button class="menu-subaction" id="inventoryButton" type="button">Inventory Showroom</button>
-      <button class="menu-subaction" id="directionsButton" type="button">Directions</button>
       <button class="menu-subaction" id="shopButton" type="button">Explorer Shop</button>
+      <button class="menu-subaction" id="directionsButton" type="button">Directions</button>
+      <button class="menu-subaction" id="configurationButton" type="button">Settings | Configuration</button>
       <div class="settings-bar" aria-label="Game settings">
         <div class="settings-group"><span>Sound</span><div class="sound-options" id="soundOptions">
           <button class="setting-button" type="button" data-sound-mode="all">Music + FX</button>
@@ -847,6 +872,24 @@
         </div></div>
         <div class="settings-group"><span>Haptics</span><button class="setting-button haptic-toggle" id="hapticToggle" type="button" aria-pressed="true">Vibrate on</button></div>
       </div>
+      <div class="menu-preview" id="menuPreview" aria-label="Current explorer loadout">
+        <span class="menu-preview-ship" id="menuPreviewShip"></span>
+        <span class="menu-preview-persona" id="menuPreviewPersona"></span>
+        <span class="menu-preview-pet" id="menuPreviewPet"></span>
+        <span class="menu-preview-name" id="menuPreviewName"></span>
+      </div>
+      <div class="menu-section">
+        <h3>Explorer wallet</h3>
+        <div class="wallet-card"><span>Discovery points<strong id="walletPoints">0</strong></span><span>Daily hints<strong id="walletHints">3 / 3</strong></span></div>
+      </div>
+    </section>
+  </div>
+
+  <div class="feature-overlay" id="configurationOverlay" aria-hidden="true">
+    <section class="feature-panel configuration-panel" role="dialog" aria-modal="true" aria-labelledby="configurationTitle">
+      <button class="feature-back" id="configurationBack" type="button">← Go back</button>
+      <h2 id="configurationTitle">Settings | Configuration</h2>
+      <p class="feature-intro">Choose the look and shape of your Verbia universe.</p>
       <div class="menu-section">
         <h3>Cosmic color</h3>
         <div class="choice-grid" id="themeChoices">
@@ -864,10 +907,6 @@
           <button class="choice-button" type="button" data-shape-choice="circle">Circles</button>
           <button class="choice-button" type="button" data-shape-choice="triangle">Triangles</button>
         </div>
-      </div>
-      <div class="menu-section">
-        <h3>Explorer wallet</h3>
-        <div class="wallet-card"><span>Discovery points<strong id="walletPoints">0</strong></span><span>Daily hints<strong id="walletHints">3 / 3</strong></span></div>
       </div>
     </section>
   </div>
@@ -1040,6 +1079,7 @@
       const inventoryButton = document.querySelector("#inventoryButton");
       const directionsButton = document.querySelector("#directionsButton");
       const shopButton = document.querySelector("#shopButton");
+      const configurationButton = document.querySelector("#configurationButton");
       const themeChoices = document.querySelector("#themeChoices");
       const soundOptions = document.querySelector("#soundOptions");
       const hapticToggle = document.querySelector("#hapticToggle");
@@ -1063,6 +1103,10 @@
       const powerFill = document.querySelector("#powerFill");
       const walletPoints = document.querySelector("#walletPoints");
       const walletHints = document.querySelector("#walletHints");
+      const menuPreviewPersona = document.querySelector("#menuPreviewPersona");
+      const menuPreviewPet = document.querySelector("#menuPreviewPet");
+      const menuPreviewShip = document.querySelector("#menuPreviewShip");
+      const menuPreviewName = document.querySelector("#menuPreviewName");
       const previousBoardsOverlay = document.querySelector("#previousBoardsOverlay");
       const previousBoardsList = document.querySelector("#previousBoardsList");
       const closePreviousBoards = document.querySelector("#closePreviousBoards");
@@ -1075,6 +1119,8 @@
       const shopPoints = document.querySelector("#shopPoints");
       const directionsOverlay = document.querySelector("#directionsOverlay");
       const directionsBack = document.querySelector("#directionsBack");
+      const configurationOverlay = document.querySelector("#configurationOverlay");
+      const configurationBack = document.querySelector("#configurationBack");
       const inventoryOverlay = document.querySelector("#inventoryOverlay");
       const inventoryBack = document.querySelector("#inventoryBack");
       const inventoryPoints = document.querySelector("#inventoryPoints");
@@ -1197,8 +1243,10 @@
       inventoryButton.addEventListener("click", openInventory);
       directionsButton.addEventListener("click", openDirections);
       shopButton.addEventListener("click", openShop);
+      configurationButton.addEventListener("click", openConfiguration);
       inventoryBack.addEventListener("click", closeInventory);
       directionsBack.addEventListener("click", closeDirections);
+      configurationBack.addEventListener("click", closeConfiguration);
       shopBack.addEventListener("click", closeShop);
       shopOverlay.addEventListener("click", event => {
         const choice = event.target.closest("[data-shop-item]");
@@ -1876,6 +1924,7 @@
       function openMenu() {
         resetTrace();
         closeDiscoveryShelf();
+        renderMenuPreview();
         menuOverlay.classList.add("open");
         menuOverlay.setAttribute("aria-hidden", "false");
         resumeButton.textContent = hasStarted ? "Resume game" : "Start journey";
@@ -2140,6 +2189,7 @@
         const pet = shopItems.find(item => item.id === equipped.pet);
         const ship = shopItems.find(item => item.id === equipped.ship);
         renderGameAvatar();
+        renderMenuPreview();
         inventoryPet.textContent = pet ? " " : "";
         if (pet) applyItemArt(inventoryPet, pet);
         inventoryPet.setAttribute("aria-label", pet ? `${pet.name} equipped` : "No pet equipped");
@@ -2177,6 +2227,38 @@
           inventoryList.append(button);
           });
         });
+      }
+
+      function renderMenuPreview() {
+        ensureInventory();
+        const avatar = avatars.find(item => item.id === settings.avatar) || avatars[0];
+        const equipped = progress.inventory.equipped;
+        const pet = shopItems.find(item => item.id === equipped.pet && progress.inventory.owned.includes(item.id));
+        const ship = shopItems.find(item => item.id === equipped.ship && progress.inventory.owned.includes(item.id));
+        applyExplorerBody(menuPreviewPersona, avatar);
+        menuPreviewPersona.setAttribute("aria-label", `${avatar.name} current explorer`);
+        menuPreviewName.textContent = avatar.name;
+        menuPreviewPet.textContent = pet ? " " : "";
+        menuPreviewPet.style.removeProperty("background-image");
+        if (pet) applyItemArt(menuPreviewPet, pet);
+        menuPreviewPet.setAttribute("aria-label", pet ? `${pet.name} equipped` : "No companion equipped");
+        menuPreviewShip.textContent = ship ? " " : "";
+        menuPreviewShip.style.removeProperty("background-image");
+        if (ship) applyItemArt(menuPreviewShip, ship);
+        menuPreviewShip.setAttribute("aria-label", ship ? `${ship.name} selected` : "No ship or vehicle selected");
+      }
+
+      function openConfiguration() {
+        configurationOverlay.classList.add("open");
+        configurationOverlay.setAttribute("aria-hidden", "false");
+        configurationOverlay.scrollTop = 0;
+        configurationBack.focus();
+      }
+
+      function closeConfiguration() {
+        configurationOverlay.classList.remove("open");
+        configurationOverlay.setAttribute("aria-hidden", "true");
+        configurationButton.focus();
       }
 
       function openDirections() {
