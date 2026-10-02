@@ -616,9 +616,11 @@
     .toast {
       position: absolute;
       z-index: 12;
-      top: 76px;
+      top: auto;
+      bottom: 8px;
       left: 50%;
-      max-width: calc(100% - 46px);
+      width: max-content;
+      max-width: calc(100% - 138px);
       padding: 10px 16px;
       border: 1px solid rgba(117,245,199,.35);
       border-radius: 99px;
@@ -631,7 +633,7 @@
       text-align: center;
       opacity: 0;
       pointer-events: none;
-      transform: translate(-50%, -8px);
+      transform: translate(-50%, 8px);
       transition: opacity .2s ease, transform .2s ease;
     }
 
@@ -640,7 +642,7 @@
     .toast.error { color:#fff; border-color:#ff8589; background:#d92732; box-shadow:0 12px 38px rgba(90,0,7,.55),0 0 18px rgba(255,52,62,.38); }
     .toast.duplicate { color:#251900; border-color:#ffe68a; background:#f5c451; box-shadow:0 12px 38px rgba(91,62,0,.48),0 0 18px rgba(245,196,81,.38); }
     .toast.bonus { display:flex; align-items:center; gap:10px; padding-block:8px; }
-    .toast.bonus::before { content:"★"; flex:0 0 auto; color:#ffe779; font-size:4.3rem; line-height:.72; -webkit-text-stroke:1px rgba(80,49,0,.5); filter:drop-shadow(0 0 12px rgba(255,225,92,.95)); animation:bonusStar .55s cubic-bezier(.2,.9,.25,1.35) both; }
+    .toast.bonus::before { content:"★"; flex:0 0 auto; color:#ffe779; font-size:2.85rem; line-height:.72; -webkit-text-stroke:1px rgba(80,49,0,.5); filter:drop-shadow(0 0 10px rgba(255,225,92,.95)); animation:bonusStar .55s cubic-bezier(.2,.9,.25,1.35) both; }
     @keyframes bonusStar { from{opacity:0;transform:scale(.25) rotate(-35deg)} to{opacity:1;transform:scale(1) rotate(0)} }
     .bonus-flight { position:fixed; z-index:120; left:0; top:0; padding:9px 14px; border:1px solid #fff1a8; border-radius:99px; color:#291c00; background:linear-gradient(135deg,#fff3a5,var(--gold)); box-shadow:0 0 14px #fff4a6,0 0 34px var(--gold),0 10px 24px rgba(0,0,0,.42); font-size:.75rem; font-weight:950; letter-spacing:.08em; pointer-events:none; white-space:nowrap; }
     .bonus-shelf-heading.arrived,.shelf-word.bonus.arrived { animation:bonusArrival .7s cubic-bezier(.2,.9,.25,1.35); }
