@@ -359,11 +359,6 @@
     #themeChoices .theme-swatch { position:relative; display:block; width:100%; height:58px; margin:0 0 8px; overflow:hidden; border-radius:12px 4px 12px 4px; background:radial-gradient(ellipse at 28% 70%,var(--scene-glow),transparent 34%),radial-gradient(ellipse at 76% 16%,color-mix(in srgb,var(--scene-two) 64%,transparent),transparent 40%),linear-gradient(145deg,var(--scene-deep),color-mix(in srgb,var(--swatch) 46%,#02050d)); box-shadow:inset 0 1px rgba(255,255,255,.3),0 0 18px color-mix(in srgb,var(--swatch) 30%,transparent); }
     #themeChoices .theme-swatch::before { content:""; position:absolute; width:28px; height:28px; right:13px; top:12px; border-radius:50%; background:radial-gradient(circle at 34% 28%,#fff,var(--scene-two) 18%,var(--swatch) 58%,#071019 72%); box-shadow:0 0 18px var(--scene-glow); }
     #themeChoices .theme-swatch::after { content:"✦  ·  ✧   ·  ✦"; position:absolute; left:10px; top:9px; color:rgba(255,255,255,.86); font-size:.62rem; letter-spacing:.22em; text-shadow:18px 22px 0 color-mix(in srgb,var(--swatch) 70%,white); }
-    #layoutChoices { grid-template-columns:1fr; }
-    #layoutChoices .choice-button { min-height:86px; }
-    .path-preview { position:relative; display:block; width:92px; height:48px; margin:0 auto 7px; border:1px solid rgba(255,255,255,.08); border-radius:12px; background:radial-gradient(circle at 50% 50%,color-mix(in srgb,var(--mint) 12%,transparent),transparent 68%); }
-    .path-preview i { position:absolute; width:9px; height:9px; margin:-4.5px; border-radius:50%; background:var(--mint); box-shadow:0 0 9px var(--mint); }
-    .path-preview i:nth-child(1){left:50%;top:12%;}.path-preview i:nth-child(2){left:87%;top:36%;}.path-preview i:nth-child(3){left:73%;top:84%;}.path-preview i:nth-child(4){left:27%;top:84%;}.path-preview i:nth-child(5){left:13%;top:36%;}
     .avatar-grid { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:8px; }
     .avatar-choice { padding:5px 3px 6px; border:1px solid rgba(255,255,255,.2); border-radius:13px 5px 13px 5px; color:var(--surface-text); background:rgba(255,255,255,.075); font-size:.61rem; font-weight:850; cursor:pointer; }
     .avatar-choice.selected { color:var(--ink); border-color:var(--gold); box-shadow:0 0 16px color-mix(in srgb,var(--gold) 20%,transparent); }
@@ -532,10 +527,10 @@
 
     .discovery-dock { position:relative; z-index:4; min-height:0; }
     .discovery-shelf { position:relative; height:clamp(135px,17svh,165px); overflow:hidden; touch-action:pan-y; border:1px solid color-mix(in srgb,var(--mint) 28%,transparent); border-radius:20px 8px 20px 8px; background:linear-gradient(160deg,color-mix(in srgb,var(--panel) 94%,#fff 6%),color-mix(in srgb,var(--deep) 94%,transparent)); box-shadow:0 12px 35px rgba(0,0,0,.28),inset 0 1px rgba(255,255,255,.05); backdrop-filter:blur(13px); }
-    .discovery-shelf__inner { height:100%; overflow-y:auto; padding:14px 15px 18px; scrollbar-width:thin; scrollbar-color:color-mix(in srgb,var(--mint) 45%,transparent) transparent; }
+    .discovery-shelf__inner { height:100%; overflow-y:auto; padding:14px 15px 18px; text-align:center; scrollbar-width:thin; scrollbar-color:color-mix(in srgb,var(--mint) 45%,transparent) transparent; }
     .discovery-shelf h3 { margin:0 0 8px; color:var(--gold); font-size:.66rem; letter-spacing:.12em; text-transform:uppercase; }
     .discovery-shelf h3:not(:first-child) { margin-top:16px; }
-    .shelf-words { display:flex; flex-wrap:wrap; gap:6px; }
+    .shelf-words { display:flex; flex-wrap:wrap; justify-content:center; gap:6px; }
     .shelf-word { padding:6px 9px; border-radius:9px 3px 9px 3px; color:#07130f; background:var(--mint); font-size:.67rem; font-weight:850; letter-spacing:.06em; }
     .shelf-word.missing { color:color-mix(in srgb,var(--muted) 52%,transparent); border:1px solid rgba(255,255,255,.08); background:rgba(0,0,0,.14); letter-spacing:.12em; }
     .shelf-word.bonus { color:var(--gold); border:1px solid color-mix(in srgb,var(--gold) 35%,transparent); background:rgba(255,255,255,.045); }
@@ -663,6 +658,17 @@
     .toast.bonus::before { content:"★"; flex:0 0 auto; color:#ffe779; font-size:4.3rem; line-height:.72; -webkit-text-stroke:1px rgba(80,49,0,.5); filter:drop-shadow(0 0 12px rgba(255,225,92,.95)); animation:bonusStar .55s cubic-bezier(.2,.9,.25,1.35) both; }
     @keyframes bonusStar { from{opacity:0;transform:scale(.25) rotate(-35deg)} to{opacity:1;transform:scale(1) rotate(0)} }
 
+    .portrait-lock { display:none; }
+    @media (orientation:landscape) and (max-height:600px) {
+      .portrait-lock { position:fixed; z-index:1000; inset:0; display:grid; place-items:center; padding:28px; color:#fffaf0; text-align:center; background:radial-gradient(circle at 50% 42%,var(--bg-glow),transparent 36%),linear-gradient(145deg,var(--deep),#010506); }
+      .portrait-lock__card { width:min(420px,90vw); padding:28px; border:1px solid color-mix(in srgb,var(--mint) 48%,transparent); border-radius:28px 10px; background:rgba(5,18,17,.92); box-shadow:0 24px 80px rgba(0,0,0,.62); }
+      .portrait-lock__icon { display:block; margin-bottom:12px; color:var(--mint); font-size:3.2rem; animation:portraitTurn 1.8s ease-in-out infinite; }
+      .portrait-lock h2 { margin:0 0 8px; font:500 2rem Georgia,serif; }
+      .portrait-lock p { margin:0; color:var(--muted); font-size:.8rem; line-height:1.5; }
+      body > :not(.portrait-lock) { visibility:hidden; }
+    }
+    @keyframes portraitTurn { 50%{transform:rotate(-90deg) scale(1.08)} }
+
     .splash-screen { position:fixed; z-index:70; inset:0; display:grid; place-items:start center; overflow:hidden; color:#fff; background:#020b0d; isolation:isolate; }
     .splash-screen[hidden] { display:none; }
     .splash-screen::before { content:""; position:absolute; z-index:-2; inset:-3%; background-image:url('/images/verbia/splash-word-explorer-v1.png'); background-size:cover; background-position:center 42%; filter:saturate(1.08) brightness(.84); animation:splashScene 3s cubic-bezier(.18,.72,.22,1) both; }
@@ -706,6 +712,9 @@
   </style>
 </head>
 <body>
+  <aside class="portrait-lock" aria-label="Portrait orientation required">
+    <div class="portrait-lock__card"><span class="portrait-lock__icon">▯</span><h2>Portrait mode</h2><p>Rotate your phone upright to continue exploring Verbia.</p></div>
+  </aside>
   <section class="splash-screen" id="splashScreen" aria-label="Verbia opening">
     <div class="splash-content">
       <h1 class="splash-title">Verbia</h1>
@@ -790,12 +799,6 @@
           <button class="choice-button" type="button" data-theme-choice="nebula-blue"><span class="theme-swatch" style="--swatch:#67d9ff;--scene-two:#9f9bff;--scene-glow:#278bff;--scene-deep:#02091d"></span>Azure Expanse<small>Sapphire space, electric stars and icy worlds.</small></button>
           <button class="choice-button" type="button" data-theme-choice="solar-yellow"><span class="theme-swatch" style="--swatch:#ffd75f;--scene-two:#ff864f;--scene-glow:#ffbe32;--scene-deep:#1a0c02"></span>Solar Horizon<small>Golden suns above ember-orange atmospheres.</small></button>
           <button class="choice-button" type="button" data-theme-choice="violet-drift"><span class="theme-swatch" style="--swatch:#d692ff;--scene-two:#ff75bd;--scene-glow:#a449ff;--scene-deep:#10021c"></span>Violet Rift<small>Royal clouds, rose starlight and distant moons.</small></button>
-        </div>
-      </div>
-      <div class="menu-section">
-        <h3>Letter path</h3>
-        <div class="choice-grid" id="layoutChoices">
-          <button class="choice-button" type="button" data-layout-choice="oval"><span class="path-preview"><i></i><i></i><i></i><i></i><i></i></span>Orbital Oval</button>
         </div>
       </div>
       <div class="menu-section">
@@ -914,7 +917,6 @@
       const startMenu = document.querySelector("#startMenu");
       const resumeButton = document.querySelector("#resumeButton");
       const themeChoices = document.querySelector("#themeChoices");
-      const layoutChoices = document.querySelector("#layoutChoices");
       const shapeChoices = document.querySelector("#shapeChoices");
       const avatarChoices = document.querySelector("#avatarChoices");
       const splashScreen = document.querySelector("#splashScreen");
@@ -971,6 +973,13 @@
       renderBoard();
       refreshDailyState();
       showOpeningSplash();
+
+      const requestPortraitLock = () => {
+        if (!screen.orientation?.lock) return;
+        screen.orientation.lock("portrait").catch(() => {});
+      };
+      document.addEventListener("pointerdown", requestPortraitLock, {once:true});
+      document.addEventListener("fullscreenchange", () => { if (document.fullscreenElement) requestPortraitLock(); });
 
       playfield.addEventListener("pointerdown", event => {
         const directNode = event.target.closest(".letter-node");
@@ -1038,13 +1047,6 @@
         applySettings(false);
       });
 
-      layoutChoices.addEventListener("click", event => {
-        const choice = event.target.closest("[data-layout-choice]");
-        if (!choice) return;
-        settings.layout = choice.dataset.layoutChoice;
-        applySettings(true);
-      });
-
       shapeChoices.addEventListener("click", event => {
         const choice = event.target.closest("[data-shape-choice]");
         if (!choice) return;
@@ -1076,7 +1078,7 @@
         localStorage.removeItem("verbia-prototype-board-01");
         progress = freshProgress(true);
         profileExists = true;
-        settings = { theme:"emerald", layout:"oval", shape:"shard", avatar:"rx7", avatarDefaultVersion:2 };
+        settings = { theme:"emerald", shape:"shard", avatar:"rx7", avatarDefaultVersion:2 };
         boardIndex = 0;
         boards.length = 0;
         ensureBoard(1);
@@ -1123,7 +1125,7 @@
       function renderBoard() {
         resetTrace();
         const board = ensureBoard(boardIndex + 1);
-        const layout = layoutFor(board.letters.length, settings.layout);
+        const layout = layoutFor(board.letters.length);
         boardNumber.textContent = String(boardIndex + 1).padStart(2, "0");
         renderMilestoneBackground(boardIndex + 1);
         letterNodes.replaceChildren();
@@ -1293,8 +1295,8 @@
         return original.reverse();
       }
 
-      function layoutFor(count, type) {
-        const centerX = 50, centerY = 47;
+      function layoutFor(count) {
+        const centerX = 50, centerY = 53;
         const radiusX = count <= 4 ? 31 : 36;
         const radiusY = count <= 4 ? 20 : 24;
         const startAngle = -Math.PI / 2;
@@ -1960,7 +1962,6 @@
       }
 
       function applySettings(rerenderBoard) {
-        if (settings.layout !== "oval") settings.layout = "oval";
         if (!["shard","circle"].includes(settings.shape)) settings.shape = "shard";
         document.documentElement.dataset.theme = settings.theme;
         playfield.dataset.shape = settings.shape;
@@ -1969,7 +1970,6 @@
         avatarBadge.replaceChildren(createPortrait(avatar));
         avatarBadge.setAttribute("aria-label", `${avatar.name} selected. Open player and game menu`);
         document.querySelectorAll("[data-theme-choice]").forEach(button => button.classList.toggle("selected", button.dataset.themeChoice === settings.theme));
-        document.querySelectorAll("[data-layout-choice]").forEach(button => button.classList.toggle("selected", button.dataset.layoutChoice === settings.layout));
         document.querySelectorAll("[data-shape-choice]").forEach(button => button.classList.toggle("selected", button.dataset.shapeChoice === settings.shape));
         document.querySelectorAll("[data-avatar-choice]").forEach(button => button.classList.toggle("selected", button.dataset.avatarChoice === settings.avatar));
         saveSettings();
@@ -1979,9 +1979,10 @@
       function loadSettings() {
         try {
           const saved = JSON.parse(localStorage.getItem(settingsKey) || "{}");
+          delete saved.layout;
           if (!saved.avatarDefaultVersion) saved.avatar = "rx7";
-          return { theme:"emerald", layout:"oval", shape:"shard", avatar:"rx7", ...saved, avatarDefaultVersion:2 };
-        } catch { return { theme:"emerald", layout:"oval", shape:"shard", avatar:"rx7", avatarDefaultVersion:2 }; }
+          return { theme:"emerald", shape:"shard", avatar:"rx7", ...saved, avatarDefaultVersion:2 };
+        } catch { return { theme:"emerald", shape:"shard", avatar:"rx7", avatarDefaultVersion:2 }; }
       }
 
       function saveSettings() { localStorage.setItem(settingsKey, JSON.stringify(settings)); }
