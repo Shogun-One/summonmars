@@ -65,15 +65,12 @@
       position: fixed;
       inset: 0;
       pointer-events: none;
-      opacity: 0.45;
-      background-image:
-        radial-gradient(circle, rgba(255,255,255,.55) 0 1px, transparent 1.4px),
-        radial-gradient(circle, rgba(117,245,199,.4) 0 1px, transparent 1.4px);
-      background-position: 0 0, 31px 47px;
-      background-size: 83px 83px, 127px 127px;
-      mask-image: linear-gradient(to bottom, black, transparent 76%);
+      z-index: 1;
+      opacity: .42;
+      background:radial-gradient(ellipse at center,transparent 35%,rgba(0,0,0,.34) 100%);
     }
 
+    .starfield-backdrop { position:fixed; z-index:0; inset:0; width:100%; height:100%; pointer-events:none; opacity:.82; }
     .space-backdrop { position:fixed; z-index:0; inset:0; width:100%; height:100%; pointer-events:none; opacity:0; transition:opacity 1.2s ease; }
     .space-backdrop.active { opacity:.88; }
     .board-backdrop { position:absolute; z-index:0; inset:0; width:100%; height:100%; pointer-events:none; opacity:.72; filter:saturate(1.12) contrast(1.04); }
@@ -828,6 +825,7 @@
     </div>
   </section>
 
+  <canvas class="starfield-backdrop" id="starfieldBackdrop" aria-hidden="true"></canvas>
   <canvas class="space-backdrop" id="spaceBackdrop" aria-hidden="true"></canvas>
   <main class="app">
     <header>
@@ -1137,6 +1135,7 @@
       const avatarBadge = document.querySelector("#avatarBadge");
       const gameAvatarBase = document.querySelector("#gameAvatarBase");
       const pauseButton = document.querySelector("#pauseButton");
+      const starfieldBackdrop = document.querySelector("#starfieldBackdrop");
       const spaceBackdrop = document.querySelector("#spaceBackdrop");
       const boardBackdrop = document.querySelector("#boardBackdrop");
       const menuOverlay = document.querySelector("#menuOverlay");
@@ -1250,12 +1249,18 @@
       let bonusShelfReturnTimer = 0;
       let responsiveRenderFrame = 0;
       let responsiveRenderTimer = 0;
+      let starfieldFrame = 0;
+      let starfieldLastTime = 0;
+      let nextShootingStarAt = 0;
+      let movingStars = [];
+      let shootingStars = [];
       let masteryFireworksTimer = 0;
       let fireworksCleanupTimer = 0;
 
       ensureBoard(boardIndex + 1);
 
       renderAvatarChoices();
+      initializeStarfield();
       applySettings(false);
       renderBoard();
       refreshDailyState();
@@ -1537,10 +1542,90 @@
         }
         window.clearTimeout(responsiveRenderTimer);
         responsiveRenderTimer = window.setTimeout(() => {
+          resizeStarfield();
           renderMilestoneBackground(boardIndex + 1);
           drawConstellation();
           drawPath();
         }, 140);
+      }
+
+      function initializeStarfield() {
+        resizeStarfield();
+        starfieldLastTime = performance.now();
+        nextShootingStarAt = starfieldLastTime + 2600 + Math.random() * 3800;
+        cancelAnimationFrame(starfieldFrame);
+        starfieldFrame = requestAnimationFrame(animateStarfield);
+      }
+
+      function resizeStarfield() {
+        const ratio = Math.min(1.5, window.devicePixelRatio || 1);
+        const width = Math.max(320, window.innerWidth);
+        const height = Math.max(480, window.innerHeight);
+        starfieldBackdrop.width = Math.round(width * ratio);
+        starfieldBackdrop.height = Math.round(height * ratio);
+        starfieldBackdrop.style.width = `${width}px`;
+        starfieldBackdrop.style.height = `${height}px`;
+        starfieldBackdrop.getContext("2d").setTransform(ratio,0,0,ratio,0,0);
+        const count = Math.max(58, Math.min(125, Math.round(width * height / 10500)));
+        movingStars = Array.from({length:count}, () => ({
+          x:Math.random() * width,
+          y:Math.random() * height,
+          radius:.35 + Math.random() * 1.15,
+          speed:2.5 + Math.random() * 8,
+          drift:(Math.random() - .5) * 1.8,
+          phase:Math.random() * Math.PI * 2,
+          twinkle:.55 + Math.random() * 1.1
+        }));
+      }
+
+      function animateStarfield(now) {
+        const ctx = starfieldBackdrop.getContext("2d");
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+        const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        const elapsed = Math.min(40, now - starfieldLastTime || 16) / 1000;
+        starfieldLastTime = now;
+        ctx.clearRect(0,0,width,height);
+        movingStars.forEach(star => {
+          if (!reduceMotion) {
+            star.y += star.speed * elapsed;
+            star.x += star.drift * elapsed;
+            if (star.y > height + 3) { star.y = -3; star.x = Math.random() * width; }
+            if (star.x < -3) star.x = width + 3;
+            if (star.x > width + 3) star.x = -3;
+          }
+          const shimmer = .38 + (Math.sin(now * .001 * star.twinkle + star.phase) + 1) * .23;
+          ctx.fillStyle = `rgba(224,255,245,${shimmer})`;
+          ctx.beginPath();
+          ctx.arc(star.x,star.y,star.radius,0,Math.PI * 2);
+          ctx.fill();
+        });
+        if (!reduceMotion && now >= nextShootingStarAt) {
+          const fromRight = Math.random() > .5;
+          shootingStars.push({x:fromRight ? width * (.55 + Math.random() * .4) : width * (.05 + Math.random() * .35),y:-35,vx:fromRight ? -220 - Math.random() * 100 : 190 + Math.random() * 110,vy:250 + Math.random() * 115,life:0,maxLife:1.05 + Math.random() * .45});
+          nextShootingStarAt = now + 4200 + Math.random() * 6500;
+        }
+        shootingStars = shootingStars.filter(star => {
+          star.life += elapsed;
+          star.x += star.vx * elapsed;
+          star.y += star.vy * elapsed;
+          const remaining = 1 - star.life / star.maxLife;
+          if (remaining <= 0) return false;
+          const magnitude = Math.hypot(star.vx,star.vy) || 1;
+          const tail = 72 + magnitude * .12;
+          const tailX = star.x - star.vx / magnitude * tail;
+          const tailY = star.y - star.vy / magnitude * tail;
+          const glow = ctx.createLinearGradient(tailX,tailY,star.x,star.y);
+          glow.addColorStop(0,"rgba(117,245,199,0)");
+          glow.addColorStop(1,`rgba(255,255,238,${Math.min(1,remaining * 1.8)})`);
+          ctx.strokeStyle = glow;
+          ctx.lineWidth = 1.4;
+          ctx.beginPath();ctx.moveTo(tailX,tailY);ctx.lineTo(star.x,star.y);ctx.stroke();
+          ctx.fillStyle = `rgba(255,255,245,${Math.min(1,remaining * 2)})`;
+          ctx.beginPath();ctx.arc(star.x,star.y,1.7,0,Math.PI * 2);ctx.fill();
+          return true;
+        });
+        starfieldFrame = requestAnimationFrame(animateStarfield);
       }
 
       function renderBoard() {
