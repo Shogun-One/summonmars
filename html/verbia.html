@@ -191,7 +191,7 @@
 
     .playfield {
       position: relative;
-      height: clamp(390px, 58svh, 540px);
+      height: clamp(370px, 47svh, 450px);
       min-height: 365px;
       overflow: hidden;
       border: 1px solid rgba(117,245,199,.2);
@@ -363,7 +363,7 @@
     #layoutChoices .choice-button { min-height:86px; }
     .path-preview { position:relative; display:block; width:92px; height:48px; margin:0 auto 7px; border:1px solid rgba(255,255,255,.08); border-radius:12px; background:radial-gradient(circle at 50% 50%,color-mix(in srgb,var(--mint) 12%,transparent),transparent 68%); }
     .path-preview i { position:absolute; width:9px; height:9px; margin:-4.5px; border-radius:50%; background:var(--mint); box-shadow:0 0 9px var(--mint); }
-    .path-preview i:nth-child(1),.path-preview i:nth-child(5){top:18%;}.path-preview i:nth-child(2),.path-preview i:nth-child(4){top:58%;}.path-preview i:nth-child(3){top:78%;}
+    .path-preview i:nth-child(1),.path-preview i:nth-child(5){top:10%;}.path-preview i:nth-child(2),.path-preview i:nth-child(4){top:52%;}.path-preview i:nth-child(3){top:86%;}
     .path-preview.down { transform:scaleY(-1); }
     .path-preview i:nth-child(1){left:10%;}.path-preview i:nth-child(2){left:29%;}.path-preview i:nth-child(3){left:50%;}.path-preview i:nth-child(4){left:71%;}.path-preview i:nth-child(5){left:90%;}
     .avatar-grid { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:8px; }
@@ -532,7 +532,8 @@
     .store-item { padding:9px 4px; border:1px solid rgba(255,255,255,.2); border-radius:11px 4px; color:var(--surface-muted); background:rgba(255,255,255,.075); font-size:.61rem; font-weight:750; }
     .store-item strong { display:block; margin-top:4px; color:var(--gold); }
 
-    .discovery-shelf { position:absolute; z-index:18; left:10px; right:10px; bottom:58px; height:clamp(138px,22svh,190px); overflow:hidden; touch-action:pan-y; border:1px solid color-mix(in srgb,var(--mint) 28%,transparent); border-radius:20px 8px 20px 8px; background:linear-gradient(160deg,color-mix(in srgb,var(--panel) 94%,#fff 6%),color-mix(in srgb,var(--deep) 94%,transparent)); box-shadow:0 -12px 35px rgba(0,0,0,.38),inset 0 1px rgba(255,255,255,.05); backdrop-filter:blur(13px); }
+    .discovery-dock { position:relative; z-index:4; min-height:0; }
+    .discovery-shelf { position:relative; height:clamp(135px,17svh,165px); overflow:hidden; touch-action:pan-y; border:1px solid color-mix(in srgb,var(--mint) 28%,transparent); border-radius:20px 8px 20px 8px; background:linear-gradient(160deg,color-mix(in srgb,var(--panel) 94%,#fff 6%),color-mix(in srgb,var(--deep) 94%,transparent)); box-shadow:0 12px 35px rgba(0,0,0,.28),inset 0 1px rgba(255,255,255,.05); backdrop-filter:blur(13px); }
     .discovery-shelf__inner { height:100%; overflow-y:auto; padding:14px 15px 18px; scrollbar-width:thin; scrollbar-color:color-mix(in srgb,var(--mint) 45%,transparent) transparent; }
     .discovery-shelf h3 { margin:0 0 8px; color:var(--gold); font-size:.66rem; letter-spacing:.12em; text-transform:uppercase; }
     .discovery-shelf h3:not(:first-child) { margin-top:16px; }
@@ -770,11 +771,14 @@
       <div id="letterNodes"></div>
       <span class="board-complete" id="boardComplete">Cleared</span>
       <p class="hint">Touch • trace • release</p>
+      <button class="board-nav-button previous" id="previousBoardsButton" type="button" aria-label="Open previous boards" disabled>‹</button>
+      <button class="board-nav-button next" id="nextButton" type="button" aria-label="Continue to next board" disabled>›</button>
+    </section>
+
+    <section class="discovery-dock">
       <aside class="discovery-shelf" id="discoveryShelf" aria-label="Board discoveries">
         <div class="discovery-shelf__inner" id="discoveryShelfContent"></div>
       </aside>
-      <button class="board-nav-button previous" id="previousBoardsButton" type="button" aria-label="Open previous boards" disabled>‹</button>
-      <button class="board-nav-button next" id="nextButton" type="button" aria-label="Continue to next board" disabled>›</button>
     </section>
   </main>
 
@@ -1296,15 +1300,15 @@
       }
 
       function layoutFor(count, type) {
-        return Array.from({length:count}, (_, index) => {
-          const t = count === 1 ? .5 : index / (count - 1);
-          const radiusX = ({3:23,4:29,5:34,6:38,7:42})[count] ?? 42;
-          const radiusY = ({3:14,4:18,5:22,6:25,7:28})[count] ?? 28;
-          const x = 50 - Math.cos(Math.PI * t) * radiusX;
-          const bend = Math.sin(Math.PI * t) * radiusY;
-          const y = type === "horseshoe-down" ? 57 - bend : 27 + bend;
-          return [x,y];
-        });
+        const upward = {
+          3: [[28,29],[50,62],[72,29]],
+          4: [[25,27],[28,59],[72,59],[75,27]],
+          5: [[24,26],[24,47],[50,65],[76,47],[76,26]],
+          6: [[22,25],[22,45],[36,63],[64,63],[78,45],[78,25]],
+          7: [[20,24],[20,43],[33,61],[50,69],[67,61],[80,43],[80,24]]
+        };
+        const points = upward[count] || upward[7];
+        return points.map(([x,y]) => [x, type === "horseshoe-down" ? 100 - y : y]);
       }
 
       function renderMilestoneBackground(level) {
