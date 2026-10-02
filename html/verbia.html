@@ -377,6 +377,11 @@
     .avatar-choice.selected .avatar-cost { color:color-mix(in srgb,var(--gold) 70%,white); }
     .menu-action { width:100%; margin-top:22px; padding:13px; border:0; border-radius:15px 6px 15px 6px; color:#07130f; background:linear-gradient(135deg,var(--mint),var(--gold)); font-size:.78rem; font-weight:900; letter-spacing:.12em; text-transform:uppercase; cursor:pointer; }
     .menu-subaction { width:100%; margin-top:8px; padding:11px; border:1px solid color-mix(in srgb,var(--mint) 38%,transparent); border-radius:13px 5px; color:var(--surface-text); background:rgba(117,245,199,.08); font-size:.68rem; font-weight:900; letter-spacing:.1em; text-transform:uppercase; cursor:pointer; }
+    .wallet-actions { display:grid; gap:5px; margin-top:7px; }
+    .wallet-actions .menu-subaction { margin-top:0; }
+    .explorer-shop-pulse { animation:shopAttention 2.8s ease-in-out infinite; }
+    @keyframes shopAttention { 0%,100% { border-color:color-mix(in srgb,var(--mint) 38%,transparent); box-shadow:0 0 0 0 color-mix(in srgb,var(--gold) 0%,transparent); transform:scale(1); } 50% { color:#fff7dc; border-color:var(--gold); box-shadow:0 0 0 4px color-mix(in srgb,var(--gold) 11%,transparent),0 0 18px color-mix(in srgb,var(--gold) 34%,transparent); transform:scale(1.012); } }
+    @media (prefers-reduced-motion:reduce) { .explorer-shop-pulse { animation:none; border-color:var(--gold); } }
     .settings-bar { display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:end; gap:9px; margin-top:12px; padding:10px; border:1px solid rgba(255,255,255,.14); border-radius:15px 6px 15px 6px; background:rgba(255,255,255,.045); }
     .settings-group>span { display:block; margin:0 0 6px; color:color-mix(in srgb,var(--gold) 78%,white); font-size:.57rem; font-weight:900; letter-spacing:.12em; text-transform:uppercase; }
     .sound-options { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:5px; }
@@ -860,10 +865,8 @@
         <p>Create your path through words</p>
       </div>
       <button class="menu-action" id="resumeButton" type="button">Start journey</button>
-      <button class="menu-subaction" id="inventoryButton" type="button">Inventory Showroom</button>
-      <button class="menu-subaction" id="shopButton" type="button">Explorer Shop</button>
+      <button class="menu-subaction" id="configurationButton" type="button">UI Themes</button>
       <button class="menu-subaction" id="directionsButton" type="button">Directions</button>
-      <button class="menu-subaction" id="configurationButton" type="button">Settings | Configuration</button>
       <div class="settings-bar" aria-label="Game settings">
         <div class="settings-group"><span>Sound</span><div class="sound-options" id="soundOptions">
           <button class="setting-button" type="button" data-sound-mode="all">Music + FX</button>
@@ -881,6 +884,10 @@
       <div class="menu-section">
         <h3>Explorer wallet</h3>
         <div class="wallet-card"><span>Discovery points<strong id="walletPoints">0</strong></span><span>Daily hints<strong id="walletHints">3 / 3</strong></span></div>
+        <div class="wallet-actions">
+          <button class="menu-subaction" id="inventoryButton" type="button">Inventory Showroom</button>
+          <button class="menu-subaction explorer-shop-pulse" id="shopButton" type="button">Explorer Shop</button>
+        </div>
       </div>
     </section>
   </div>
@@ -888,7 +895,7 @@
   <div class="feature-overlay" id="configurationOverlay" aria-hidden="true">
     <section class="feature-panel configuration-panel" role="dialog" aria-modal="true" aria-labelledby="configurationTitle">
       <button class="feature-back" id="configurationBack" type="button">← Go back</button>
-      <h2 id="configurationTitle">Settings | Configuration</h2>
+      <h2 id="configurationTitle">UI Themes</h2>
       <p class="feature-intro">Choose the look and shape of your Verbia universe.</p>
       <div class="menu-section">
         <h3>Cosmic color</h3>
