@@ -210,7 +210,7 @@
         radial-gradient(circle at 50% 46%, rgba(39, 105, 89, .18), transparent 44%),
         linear-gradient(rgba(5, 24, 21, .78), rgba(3, 14, 13, .9));
       box-shadow: 0 24px 70px rgba(0,0,0,.38), inset 0 1px rgba(255,255,255,.05);
-      touch-action: pan-y;
+      touch-action: none;
       transform-style: preserve-3d;
       transform-origin: 50% 50%;
       backface-visibility: hidden;
@@ -230,20 +230,20 @@
     .word-display {
       position: absolute;
       z-index: 5;
-      top: 112px;
-      bottom: 76px;
-      left: 13px;
-      width: 34px;
-      display: block;
+      top: 70px;
+      left: 50%;
+      width: calc(100% - 120px);
+      min-height: 52px;
+      transform:translateX(-50%);
+      display:grid;
+      place-items:center;
       color: var(--ink);
       font-family: Georgia, serif;
-      font-size: clamp(1.08rem, 5vw, 1.35rem);
-      line-height:1.05;
-      letter-spacing:.08em;
+      font-size:clamp(1.75rem,8vw,2.45rem);
+      line-height:1;
+      letter-spacing:.16em;
       text-align: center;
-      text-indent:0;
-      writing-mode:vertical-rl;
-      text-orientation:upright;
+      text-indent:.16em;
       text-shadow: 0 0 18px rgba(117,245,199,.45);
       pointer-events:none;
     }
@@ -1291,9 +1291,9 @@
       });
 
       playfield.addEventListener("pointerup", finishTrace);
-      playfield.addEventListener("pointercancel", finishTrace);
+      playfield.addEventListener("pointercancel", cancelTrace);
       playfield.addEventListener("lostpointercapture", event => {
-        if (tracing && event.pointerId === pointerId) finishTrace(event);
+        if (tracing && event.pointerId === pointerId) cancelTrace(event);
       });
 
       closeDiscoveries.addEventListener("click", closeSheet);
@@ -1870,12 +1870,33 @@
 
       function finishTrace(event) {
         if (!tracing || (event.pointerId != null && event.pointerId !== pointerId)) return;
+        event.preventDefault?.();
+        const completedPointerId = pointerId;
         tracing = false;
         window.clearTimeout(backtrackTimer);
         hoveredTraceNode = null;
         pointer = null;
         lastPointerClient = null;
+        if (completedPointerId != null && playfield.hasPointerCapture?.(completedPointerId)) playfield.releasePointerCapture(completedPointerId);
+        pointerId = null;
         submitWord();
+      }
+
+      function cancelTrace(event) {
+        if (!tracing || (event?.pointerId != null && event.pointerId !== pointerId)) return;
+        event?.preventDefault?.();
+        const cancelledPointerId = pointerId;
+        tracing = false;
+        pointerId = null;
+        pointer = null;
+        lastPointerClient = null;
+        hoveredTraceNode = null;
+        window.clearTimeout(backtrackTimer);
+        if (cancelledPointerId != null && playfield.hasPointerCapture?.(cancelledPointerId)) playfield.releasePointerCapture(cancelledPointerId);
+        selected.forEach(node => node.classList.remove("selected","cosmic-complete"));
+        selected = [];
+        renderWord();
+        drawPath();
       }
 
       function submitWord() {
