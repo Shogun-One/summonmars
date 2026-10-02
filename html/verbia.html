@@ -976,6 +976,8 @@
       let audioContext = null;
       let applauseNoise = null;
       let boardTransitioning = false;
+      let hoveredTraceNode = null;
+      let backtrackTimer = 0;
 
       ensureBoard(boardIndex + 1);
 
@@ -992,6 +994,7 @@
         tracing = true;
         pointerId = event.pointerId;
         playfield.setPointerCapture?.(pointerId);
+        hoveredTraceNode = node;
         selectNode(node);
         updatePointer(event);
       });
@@ -1000,8 +1003,9 @@
         if (!tracing || event.pointerId !== pointerId) return;
         event.preventDefault();
         updatePointer(event);
-        const hovered = document.elementFromPoint(event.clientX, event.clientY)?.closest(".letter-node");
-        if (hovered && playfield.contains(hovered)) selectNode(hovered);
+        const candidate = document.elementFromPoint(event.clientX, event.clientY)?.closest(".letter-node");
+        const hovered = candidate && playfield.contains(candidate) ? candidate : null;
+        handleTraceHover(hovered);
         drawPath();
       });
 
@@ -1309,13 +1313,16 @@
 
       function layoutFor(count, type) {
         if (type !== "triangle") {
+          const sideMargin = ({3:31,4:21,5:15,6:9,7:5})[count] ?? 5;
+          const arcDepth = ({3:8,4:13,5:17,6:21,7:25})[count] ?? 25;
           return Array.from({length:count}, (_, index) => {
             const t = count === 1 ? .5 : index / (count - 1);
-            const arc = Math.sin(Math.PI * t) * 30;
-            return [12 + t * 76, type === "frown" ? 66 - arc : 34 + arc];
+            const arc = Math.sin(Math.PI * t) * arcDepth;
+            return [sideMargin + t * (100 - sideMargin * 2), type === "frown" ? 62 - arc : 38 + arc];
           });
         }
-        const corners = [[50,27],[88,68],[12,68]];
+        const triangleScale = ({3:.32,4:.6,5:.92,6:.7,7:1})[count] ?? 1;
+        const corners = [[50,47 - 20 * triangleScale],[50 + 38 * triangleScale,47 + 21 * triangleScale],[50 - 38 * triangleScale,47 + 21 * triangleScale]];
         return Array.from({length:count}, (_, index) => {
           const distance = index / count * 3;
           const side = Math.floor(distance) % 3;
@@ -1375,23 +1382,35 @@
       }
 
       function selectNode(node) {
-        const existingIndex = selected.indexOf(node);
-        if (existingIndex >= 0) {
-          if (existingIndex === selected.length - 2) {
-            const removed = selected.pop();
-            removed.classList.remove("selected");
-            navigator.vibrate?.(6);
-            renderWord();
-            drawPath();
-          }
-          return;
-        }
+        if (selected.includes(node)) return;
         selected.push(node);
         node.classList.add("selected");
         playCosmicSelect();
         navigator.vibrate?.(10);
         renderWord();
         drawPath();
+      }
+
+      function handleTraceHover(node) {
+        if (node === hoveredTraceNode) return;
+        hoveredTraceNode = node;
+        window.clearTimeout(backtrackTimer);
+        if (!node) return;
+        const existingIndex = selected.indexOf(node);
+        if (existingIndex < 0) {
+          selectNode(node);
+          return;
+        }
+        if (existingIndex !== selected.length - 2) return;
+        backtrackTimer = window.setTimeout(() => {
+          if (!tracing || hoveredTraceNode !== node || selected.at(-2) !== node) return;
+          const removed = selected.pop();
+          removed.classList.remove("selected", "cosmic-complete");
+          playCosmicSelect();
+          navigator.vibrate?.(6);
+          renderWord();
+          drawPath();
+        }, 115);
       }
 
       function updatePointer(event) {
@@ -1439,6 +1458,8 @@
       function finishTrace(event) {
         if (!tracing || (event.pointerId != null && event.pointerId !== pointerId)) return;
         tracing = false;
+        window.clearTimeout(backtrackTimer);
+        hoveredTraceNode = null;
         pointer = null;
         submitWord();
       }
@@ -1493,7 +1514,8 @@
       }
 
       function resetTrace() {
-        tracing = false; pointerId = null; pointer = null;
+        window.clearTimeout(backtrackTimer);
+        tracing = false; pointerId = null; pointer = null; hoveredTraceNode = null;
         selected.forEach(node => node.classList.remove("selected", "cosmic-complete"));
         selected = [];
         if (wordDisplay) renderWord();
