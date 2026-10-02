@@ -954,10 +954,15 @@
       let applauseNoise = null;
       const boardClearAudio = new Audio("../mp3/verbia/board-clear-applause.mp3");
       const boardMasterAudio = new Audio("../mp3/verbia/board-master-hurray.mp3");
+      const backgroundMusic = new Audio("../mp3/verbia/cosmic-lounge-loop.ogg");
       boardClearAudio.preload = "auto";
       boardMasterAudio.preload = "auto";
+      backgroundMusic.preload = "auto";
+      backgroundMusic.loop = true;
       boardClearAudio.volume = .72;
       boardMasterAudio.volume = .78;
+      backgroundMusic.volume = .18;
+      let backgroundMusicStarted = false;
       let boardTransitioning = false;
       let hoveredTraceNode = null;
       let backtrackTimer = 0;
@@ -975,8 +980,21 @@
         if (!screen.orientation?.lock) return;
         screen.orientation.lock("portrait").catch(() => {});
       };
+      const startBackgroundMusic = () => {
+        if (backgroundMusicStarted) return;
+        backgroundMusic.play().then(() => {
+          backgroundMusicStarted = true;
+          document.removeEventListener("pointerdown", startBackgroundMusic);
+        }).catch(() => {});
+      };
       document.addEventListener("pointerdown", requestPortraitLock, {once:true});
+      document.addEventListener("pointerdown", startBackgroundMusic);
       document.addEventListener("fullscreenchange", () => { if (document.fullscreenElement) requestPortraitLock(); });
+      document.addEventListener("visibilitychange", () => {
+        if (!backgroundMusicStarted) return;
+        if (document.hidden) backgroundMusic.pause();
+        else backgroundMusic.play().catch(() => {});
+      });
 
       playfield.addEventListener("pointerdown", event => {
         const directNode = event.target.closest(".letter-node");
