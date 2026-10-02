@@ -200,7 +200,12 @@
         linear-gradient(rgba(5, 24, 21, .78), rgba(3, 14, 13, .9));
       box-shadow: 0 24px 70px rgba(0,0,0,.38), inset 0 1px rgba(255,255,255,.05);
       touch-action: none;
+      transform-style: preserve-3d;
+      transform-origin: 50% 50%;
+      backface-visibility: hidden;
     }
+    .playfield.board-flipping { pointer-events:none; animation:boardFlip .82s cubic-bezier(.55,.05,.22,1) both; }
+    @keyframes boardFlip { 0%{transform:perspective(1100px) rotateY(0) scale(1);filter:brightness(1)} 47%{transform:perspective(1100px) rotateY(88deg) scale(.94);filter:brightness(.5)} 50%{transform:perspective(1100px) rotateY(-88deg) scale(.94);filter:brightness(.55)} 100%{transform:perspective(1100px) rotateY(0) scale(1);filter:brightness(1)} }
 
     .playfield::after {
       content: "";
@@ -970,6 +975,7 @@
       let wheelLastTime = 0;
       let audioContext = null;
       let applauseNoise = null;
+      let boardTransitioning = false;
 
       ensureBoard(boardIndex + 1);
 
@@ -1098,18 +1104,16 @@
       });
 
       nextButton.addEventListener("click", () => {
+        if (boardTransitioning) return;
         const frontier = progress.highestLevel || 1;
+        let targetIndex;
         if (boardIndex + 1 < frontier) {
-          boardIndex = frontier - 1;
+          targetIndex = frontier - 1;
         } else {
-          boardIndex += 1;
-          progress.highestLevel = Math.max(frontier, boardIndex + 1);
+          targetIndex = boardIndex + 1;
+          progress.highestLevel = Math.max(frontier, targetIndex + 1);
         }
-        progress.currentLevel = boardIndex + 1;
-        ensureBoard(progress.currentLevel);
-        saveProgress();
-        renderBoard();
-        showToast(`Board ${String(boardIndex + 1).padStart(2,"0")} opened`);
+        flipToBoard(targetIndex);
       });
 
       shuffleButton.addEventListener("click", () => {
@@ -1160,6 +1164,30 @@
           ? `Return to Board ${String(progress.highestLevel).padStart(2,"0")}`
           : "Continue";
         requestAnimationFrame(() => { drawConstellation(); renderProgress(); });
+      }
+
+      function flipToBoard(targetIndex) {
+        boardTransitioning = true;
+        nextButton.disabled = true;
+        resetTrace();
+        closeDiscoveryShelf();
+        playBoardVroom();
+        playfield.classList.remove("board-flipping");
+        void playfield.offsetWidth;
+        playfield.classList.add("board-flipping");
+        window.setTimeout(() => {
+          boardIndex = targetIndex;
+          progress.currentLevel = boardIndex + 1;
+          ensureBoard(progress.currentLevel);
+          saveProgress();
+          renderBoard();
+        }, 395);
+        window.setTimeout(() => {
+          playfield.classList.remove("board-flipping");
+          boardTransitioning = false;
+          nextButton.disabled = false;
+          showToast(`Board ${String(boardIndex + 1).padStart(2,"0")} opened`);
+        }, 840);
       }
 
       function freshProgress(profileCreated = false) {
@@ -2000,6 +2028,31 @@
         oscillator.connect(gain).connect(context.destination);
         oscillator.start(now);
         oscillator.stop(now + .14);
+      }
+
+      function playBoardVroom() {
+        const context = getAudioContext();
+        if (!context) return;
+        const now = context.currentTime;
+        const oscillator = context.createOscillator();
+        const filter = context.createBiquadFilter();
+        const gain = context.createGain();
+        oscillator.type = "sawtooth";
+        oscillator.frequency.setValueAtTime(72, now);
+        oscillator.frequency.exponentialRampToValueAtTime(185, now + .34);
+        oscillator.frequency.exponentialRampToValueAtTime(96, now + .72);
+        filter.type = "lowpass";
+        filter.frequency.setValueAtTime(420, now);
+        filter.frequency.exponentialRampToValueAtTime(1150, now + .33);
+        filter.frequency.exponentialRampToValueAtTime(360, now + .76);
+        filter.Q.value = 5;
+        gain.gain.setValueAtTime(.0001, now);
+        gain.gain.exponentialRampToValueAtTime(.07, now + .055);
+        gain.gain.setValueAtTime(.06, now + .4);
+        gain.gain.exponentialRampToValueAtTime(.0001, now + .78);
+        oscillator.connect(filter).connect(gain).connect(context.destination);
+        oscillator.start(now);
+        oscillator.stop(now + .8);
       }
 
       function playAwe() {
