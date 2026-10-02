@@ -370,6 +370,12 @@
     .avatar-cost { display:block; min-height:9px; margin-top:2px; color:var(--surface-muted); font-size:.5rem; font-weight:750; letter-spacing:.03em; }
     .avatar-choice.selected .avatar-cost { color:color-mix(in srgb,var(--gold) 70%,white); }
     .menu-action { width:100%; margin-top:22px; padding:13px; border:0; border-radius:15px 6px 15px 6px; color:#07130f; background:linear-gradient(135deg,var(--mint),var(--gold)); font-size:.78rem; font-weight:900; letter-spacing:.12em; text-transform:uppercase; cursor:pointer; }
+    .settings-bar { display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:end; gap:9px; margin-top:12px; padding:10px; border:1px solid rgba(255,255,255,.14); border-radius:15px 6px 15px 6px; background:rgba(255,255,255,.045); }
+    .settings-group>span { display:block; margin:0 0 6px; color:color-mix(in srgb,var(--gold) 78%,white); font-size:.57rem; font-weight:900; letter-spacing:.12em; text-transform:uppercase; }
+    .sound-options { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:5px; }
+    .setting-button { min-height:36px; padding:6px 7px; border:1px solid rgba(255,255,255,.18); border-radius:9px 4px 9px 4px; color:var(--surface-muted); background:rgba(255,255,255,.065); font-size:.57rem; font-weight:850; line-height:1.05; cursor:pointer; }
+    .setting-button.selected { color:var(--accent-text); border-color:var(--mint); background:var(--mint); box-shadow:0 0 12px color-mix(in srgb,var(--mint) 25%,transparent); }
+    .haptic-toggle { min-width:76px; }
 
     .avatar-portrait { --skin:#8d5a3c; --hair:#15120f; --shirt:var(--mint); position:relative; width:100%; height:100%; overflow:hidden; background:radial-gradient(circle at 50% 32%,color-mix(in srgb,var(--shirt) 24%,transparent),transparent 58%); }
     .avatar-portrait .body { position:absolute; z-index:1; width:72%; height:38%; left:14%; bottom:-9%; border-radius:50% 50% 8px 8px; background:linear-gradient(135deg,color-mix(in srgb,var(--shirt) 75%,white),var(--shirt)); }
@@ -781,6 +787,14 @@
         <p>Create your path through words</p>
       </div>
       <button class="menu-action" id="resumeButton" type="button">Start journey</button>
+      <div class="settings-bar" aria-label="Game settings">
+        <div class="settings-group"><span>Sound</span><div class="sound-options" id="soundOptions">
+          <button class="setting-button" type="button" data-sound-mode="all">Music + FX</button>
+          <button class="setting-button" type="button" data-sound-mode="effects">FX only</button>
+          <button class="setting-button" type="button" data-sound-mode="off">No sound</button>
+        </div></div>
+        <div class="settings-group"><span>Haptics</span><button class="setting-button haptic-toggle" id="hapticToggle" type="button" aria-pressed="true">Vibrate on</button></div>
+      </div>
       <div class="menu-section">
         <h3>Cosmic color</h3>
         <div class="choice-grid" id="themeChoices">
@@ -907,6 +921,8 @@
       const startMenu = document.querySelector("#startMenu");
       const resumeButton = document.querySelector("#resumeButton");
       const themeChoices = document.querySelector("#themeChoices");
+      const soundOptions = document.querySelector("#soundOptions");
+      const hapticToggle = document.querySelector("#hapticToggle");
       const shapeChoices = document.querySelector("#shapeChoices");
       const avatarChoices = document.querySelector("#avatarChoices");
       const splashScreen = document.querySelector("#splashScreen");
@@ -983,7 +999,7 @@
         screen.orientation.lock("portrait").catch(() => {});
       };
       const startBackgroundMusic = () => {
-        if (backgroundMusicStarted) return;
+        if (backgroundMusicStarted || settings.soundMode !== "all") return;
         backgroundMusic.play().then(() => {
           backgroundMusicStarted = true;
           document.removeEventListener("pointerdown", startBackgroundMusic);
@@ -995,7 +1011,7 @@
       document.addEventListener("visibilitychange", () => {
         if (!backgroundMusicStarted) return;
         if (document.hidden) backgroundMusic.pause();
-        else backgroundMusic.play().catch(() => {});
+        else if (settings.soundMode === "all") backgroundMusic.play().catch(() => {});
       });
 
       playfield.addEventListener("pointerdown", event => {
@@ -1068,6 +1084,20 @@
         applySettings(false);
       });
 
+      soundOptions.addEventListener("click", event => {
+        const choice = event.target.closest("[data-sound-mode]");
+        if (!choice) return;
+        settings.soundMode = choice.dataset.soundMode;
+        applySettings(false);
+        if (settings.soundMode === "all") startBackgroundMusic();
+      });
+
+      hapticToggle.addEventListener("click", () => {
+        settings.haptics = !settings.haptics;
+        applySettings(false);
+        vibrate(22);
+      });
+
       shapeChoices.addEventListener("click", event => {
         const choice = event.target.closest("[data-shape-choice]");
         if (!choice) return;
@@ -1099,7 +1129,7 @@
         localStorage.removeItem("verbia-prototype-board-01");
         progress = freshProgress(true);
         profileExists = true;
-        settings = { theme:"emerald", shape:"shard", avatar:"rx7", avatarDefaultVersion:2 };
+        settings = { theme:"emerald", shape:"shard", avatar:"rx7", soundMode:"all", haptics:true, avatarDefaultVersion:2 };
         boardIndex = 0;
         boards.length = 0;
         ensureBoard(1);
@@ -1138,7 +1168,7 @@
           node.setAttribute("aria-label", `Letter ${letters[index]}`);
         });
         showToast("Constellation remapped");
-        navigator.vibrate?.(18);
+        vibrate(18);
       });
 
       window.addEventListener("resize", () => { drawConstellation(); drawPath(); renderMilestoneBackground(boardIndex + 1); });
@@ -1431,7 +1461,7 @@
         selected.push(node);
         node.classList.add("selected");
         playCosmicSelect();
-        navigator.vibrate?.(10);
+        vibrate(10);
         renderWord();
         drawPath();
       }
@@ -1469,7 +1499,7 @@
           const removed = selected.pop();
           removed.classList.remove("selected", "cosmic-complete");
           playCosmicSelect();
-          navigator.vibrate?.(6);
+          vibrate(6);
           renderWord();
           drawPath();
         }, 115);
@@ -1567,7 +1597,7 @@
             playApplause(.34);
             resetDelay = 220;
           }
-          navigator.vibrate?.([22,32,22]);
+          vibrate([22,32,22]);
           renderProgress();
           renderWallet();
           if (!isGoal) requestAnimationFrame(() => animateBonusWord(word));
@@ -1890,7 +1920,7 @@
           rewardResult.textContent = `Bullseye! You won ${prize.label}.`;
           rewardFire.textContent = "Prize collected";
           renderWallet();
-          navigator.vibrate?.([35,30,60]);
+          vibrate([35,30,60]);
         }, flightDuration + 80);
       }
 
@@ -2040,6 +2070,8 @@
 
       function applySettings(rerenderBoard) {
         if (!["shard","circle","triangle"].includes(settings.shape)) settings.shape = "shard";
+        if (!["all","effects","off"].includes(settings.soundMode)) settings.soundMode = "all";
+        if (typeof settings.haptics !== "boolean") settings.haptics = true;
         document.documentElement.dataset.theme = settings.theme;
         playfield.dataset.shape = settings.shape;
         const avatar = avatars.find(item => item.id === settings.avatar) || avatars[0];
@@ -2047,8 +2079,25 @@
         avatarBadge.replaceChildren(createPortrait(avatar));
         avatarBadge.setAttribute("aria-label", `${avatar.name} selected. Open player and game menu`);
         document.querySelectorAll("[data-theme-choice]").forEach(button => button.classList.toggle("selected", button.dataset.themeChoice === settings.theme));
+        document.querySelectorAll("[data-sound-mode]").forEach(button => {
+          const selected = button.dataset.soundMode === settings.soundMode;
+          button.classList.toggle("selected", selected);
+          button.setAttribute("aria-pressed", String(selected));
+        });
+        hapticToggle.classList.toggle("selected", settings.haptics);
+        hapticToggle.setAttribute("aria-pressed", String(settings.haptics));
+        hapticToggle.textContent = settings.haptics ? "Vibrate on" : "Vibrate off";
         document.querySelectorAll("[data-shape-choice]").forEach(button => button.classList.toggle("selected", button.dataset.shapeChoice === settings.shape));
         document.querySelectorAll("[data-avatar-choice]").forEach(button => button.classList.toggle("selected", button.dataset.avatarChoice === settings.avatar));
+        if (settings.soundMode !== "all") backgroundMusic.pause();
+        else if (backgroundMusicStarted && !document.hidden) backgroundMusic.play().catch(() => {});
+        if (settings.soundMode === "off") {
+          boardClearAudio.pause();
+          boardMasterAudio.pause();
+          audioContext?.suspend().catch(() => {});
+        } else {
+          audioContext?.resume().catch(() => {});
+        }
         saveSettings();
         if (rerenderBoard) renderBoard(); else renderBoardBackdrop(boardIndex + 1);
       }
@@ -2058,8 +2107,8 @@
           const saved = JSON.parse(localStorage.getItem(settingsKey) || "{}");
           delete saved.layout;
           if (!saved.avatarDefaultVersion) saved.avatar = "rx7";
-          return { theme:"emerald", shape:"shard", avatar:"rx7", ...saved, avatarDefaultVersion:2 };
-        } catch { return { theme:"emerald", shape:"shard", avatar:"rx7", avatarDefaultVersion:2 }; }
+          return { theme:"emerald", shape:"shard", avatar:"rx7", soundMode:"all", haptics:true, ...saved, avatarDefaultVersion:2 };
+        } catch { return { theme:"emerald", shape:"shard", avatar:"rx7", soundMode:"all", haptics:true, avatarDefaultVersion:2 }; }
       }
 
       function saveSettings() { localStorage.setItem(settingsKey, JSON.stringify(settings)); }
@@ -2128,11 +2177,17 @@
       }
 
       function getAudioContext() {
+        if (settings.soundMode === "off") return null;
         const AudioEngine = window.AudioContext || window.webkitAudioContext;
         if (!AudioEngine) return null;
         audioContext ||= new AudioEngine();
         if (audioContext.state === "suspended") audioContext.resume().catch(() => {});
         return audioContext;
+      }
+
+      function vibrate(pattern) {
+        if (!settings.haptics) return;
+        navigator.vibrate?.(pattern);
       }
 
       function playCosmicSelect() {
@@ -2231,6 +2286,7 @@
       }
 
       function playRecordedEffect(audio, fallback) {
+        if (settings.soundMode === "off") return;
         try {
           audio.pause();
           audio.currentTime = 0;
