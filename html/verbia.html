@@ -322,8 +322,16 @@
       transform: translate(-50%, -50%) rotate(var(--tilt, 0deg)) scale(1.1);
       color: #07130f;
       background: linear-gradient(145deg, #fff9d7, var(--gold) 60%, #d9a438);
-      box-shadow: 0 0 30px rgba(255,217,120,.5);
+      box-shadow: 0 0 12px #fff, 0 0 28px var(--mint), 0 0 52px color-mix(in srgb,var(--gold) 72%,transparent);
+      animation:neonSelect .72s ease-in-out infinite alternate;
     }
+    .letter-node.cosmic-complete { animation:cosmicComplete .62s ease-out both; }
+    @keyframes neonSelect { to { filter:brightness(1.24) saturate(1.35); box-shadow:0 0 16px #fff,0 0 38px var(--mint),0 0 68px var(--gold); } }
+    @keyframes cosmicComplete { 0%{filter:brightness(1);transform:translate(-50%,-50%) rotate(var(--tilt,0deg)) scale(1.08)} 45%{color:#fff;background:linear-gradient(145deg,#fff,var(--mint) 42%,#8d75ff);filter:brightness(1.8);box-shadow:0 0 24px #fff,0 0 60px var(--mint),0 0 95px #9a79ff;transform:translate(-50%,-50%) rotate(var(--tilt,0deg)) scale(1.22)} 100%{filter:brightness(1.05);transform:translate(-50%,-50%) rotate(var(--tilt,0deg)) scale(1.08)} }
+    .effects-layer { position:absolute; z-index:12; inset:0; overflow:hidden; pointer-events:none; }
+    .firework-particle { --spark:var(--gold); position:absolute; left:var(--origin-x); bottom:-8px; width:7px; height:13px; border-radius:50% 50% 45% 45%; opacity:0; background:var(--spark); box-shadow:0 0 8px var(--spark),0 0 18px var(--spark); animation:fireworkFlight var(--duration) cubic-bezier(.18,.68,.24,1) var(--delay) forwards; }
+    .fireworks-big .firework-particle { width:9px; height:17px; }
+    @keyframes fireworkFlight { 0%{opacity:0;transform:translate(0,0) scale(.35)} 12%{opacity:1} 68%{opacity:1;transform:translate(calc(var(--x)*.35),calc(var(--y)*.78)) scale(.85)} 100%{opacity:0;transform:translate(var(--x),var(--y)) scale(.12) rotate(210deg)} }
 
     .letter-node:focus-visible { outline: 3px solid var(--gold); outline-offset: 4px; }
 
@@ -744,6 +752,7 @@
         <button class="daily-bubble" id="dailyBubble" type="button" hidden aria-label="Play today's daily dart reward">🎯<small>Daily</small></button>
       </div>
       <div class="toast" id="toast" role="status" aria-live="assertive"></div>
+      <div class="effects-layer" id="effectsLayer" aria-hidden="true"></div>
       <svg id="paths" aria-hidden="true">
         <g id="constellationLines"></g>
         <polyline class="path-glow" id="pathGlow" points=""></polyline>
@@ -939,6 +948,7 @@
       const previousBoardsOverlay = document.querySelector("#previousBoardsOverlay");
       const previousBoardsList = document.querySelector("#previousBoardsList");
       const closePreviousBoards = document.querySelector("#closePreviousBoards");
+      const effectsLayer = document.querySelector("#effectsLayer");
 
       let profileExists = storedProfileExists();
       let progress = loadProgress();
@@ -958,6 +968,8 @@
       let wheelFrame = 0;
       let wheelAngle = 0;
       let wheelLastTime = 0;
+      let audioContext = null;
+      let applauseNoise = null;
 
       ensureBoard(boardIndex + 1);
 
@@ -1348,6 +1360,7 @@
         }
         selected.push(node);
         node.classList.add("selected");
+        playCosmicSelect();
         navigator.vibrate?.(10);
         renderWord();
         drawPath();
@@ -1407,29 +1420,53 @@
         const word = selected.map(node => node.dataset.letter).join("");
         const accepted = new Set(board.accepted);
         const found = getFound();
+        const previousGoalCount = found.filter(foundWord => board.goals.includes(foundWord)).length;
+        let resetDelay = 180;
         if (word.length < 3) {
-          if (word) showToast("Words need at least 3 letters", true);
+          if (word) {
+            showToast("Words need at least 3 letters", true);
+            playAwe();
+          }
         } else if (!accepted.has(word)) {
           showToast(`${word} is not recognized as a standard game word`, true);
+          playAwe();
         } else if (found.some(foundWord => foundWord.toUpperCase() === word)) {
           showToast(`${word} • already discovered`, "duplicate");
+          playAwe();
         } else {
           found.push(word);
           progress.boards[boardIndex] = found;
           saveProgress();
           const isGoal = board.goals.includes(word);
+          const currentGoalCount = previousGoalCount + (isGoal ? 1 : 0);
+          const justMastered = isGoal && previousGoalCount < board.goals.length && currentGoalCount === board.goals.length;
+          const justCleared = isGoal && previousGoalCount < board.clearAt && currentGoalCount >= board.clearAt;
           progress.points = (progress.points || 0) + (isGoal ? 10 : 5);
           showToast(isGoal ? `${word} • stage word +10` : `${word} • bonus word +5`, isGoal ? "success" : "bonus");
+          selected.forEach(node => node.classList.add("cosmic-complete"));
+          if (justMastered) {
+            launchFireworks(true);
+            playWoo();
+            playApplause(1.45);
+            resetDelay = 1550;
+          } else if (justCleared) {
+            launchFireworks(false);
+            playApplause(1.2);
+            resetDelay = 1250;
+          } else {
+            playApplause(.34);
+            resetDelay = 680;
+          }
           navigator.vibrate?.([22,32,22]);
           renderProgress();
           renderWallet();
         }
-        window.setTimeout(resetTrace, 140);
+        window.setTimeout(resetTrace, resetDelay);
       }
 
       function resetTrace() {
         tracing = false; pointerId = null; pointer = null;
-        selected.forEach(node => node.classList.remove("selected"));
+        selected.forEach(node => node.classList.remove("selected", "cosmic-complete"));
         selected = [];
         if (wordDisplay) renderWord();
         if (pathLine) drawPath();
@@ -1938,6 +1975,131 @@
         previousBoardsOverlay.classList.remove("open");
         previousBoardsOverlay.setAttribute("aria-hidden", "true");
         if (restoreFocus) previousBoardsButton.focus();
+      }
+
+      function getAudioContext() {
+        const AudioEngine = window.AudioContext || window.webkitAudioContext;
+        if (!AudioEngine) return null;
+        audioContext ||= new AudioEngine();
+        if (audioContext.state === "suspended") audioContext.resume().catch(() => {});
+        return audioContext;
+      }
+
+      function playCosmicSelect() {
+        const context = getAudioContext();
+        if (!context) return;
+        const now = context.currentTime;
+        const oscillator = context.createOscillator();
+        const gain = context.createGain();
+        oscillator.type = "sine";
+        oscillator.frequency.setValueAtTime(560, now);
+        oscillator.frequency.exponentialRampToValueAtTime(1040, now + .09);
+        gain.gain.setValueAtTime(.0001, now);
+        gain.gain.exponentialRampToValueAtTime(.045, now + .012);
+        gain.gain.exponentialRampToValueAtTime(.0001, now + .13);
+        oscillator.connect(gain).connect(context.destination);
+        oscillator.start(now);
+        oscillator.stop(now + .14);
+      }
+
+      function playAwe() {
+        const context = getAudioContext();
+        if (!context) return;
+        const now = context.currentTime;
+        [0, .012].forEach((offset, index) => {
+          const oscillator = context.createOscillator();
+          const filter = context.createBiquadFilter();
+          const gain = context.createGain();
+          oscillator.type = index ? "triangle" : "sawtooth";
+          oscillator.frequency.setValueAtTime(index ? 245 : 196, now + offset);
+          oscillator.frequency.exponentialRampToValueAtTime(index ? 165 : 132, now + .48);
+          filter.type = "bandpass";
+          filter.frequency.value = index ? 980 : 620;
+          filter.Q.value = 3.5;
+          gain.gain.setValueAtTime(.0001, now);
+          gain.gain.exponentialRampToValueAtTime(index ? .035 : .045, now + .035);
+          gain.gain.exponentialRampToValueAtTime(.0001, now + .52);
+          oscillator.connect(filter).connect(gain).connect(context.destination);
+          oscillator.start(now + offset);
+          oscillator.stop(now + .54);
+        });
+      }
+
+      function playWoo() {
+        const context = getAudioContext();
+        if (!context) return;
+        const now = context.currentTime;
+        [0, .025].forEach((offset, index) => {
+          const oscillator = context.createOscillator();
+          const filter = context.createBiquadFilter();
+          const gain = context.createGain();
+          oscillator.type = index ? "triangle" : "sawtooth";
+          oscillator.frequency.setValueAtTime(index ? 235 : 190, now + offset);
+          oscillator.frequency.exponentialRampToValueAtTime(index ? 590 : 470, now + .62);
+          filter.type = "bandpass";
+          filter.frequency.value = index ? 1150 : 700;
+          filter.Q.value = 2.4;
+          gain.gain.setValueAtTime(.0001, now);
+          gain.gain.exponentialRampToValueAtTime(index ? .045 : .055, now + .06);
+          gain.gain.setValueAtTime(index ? .042 : .05, now + .48);
+          gain.gain.exponentialRampToValueAtTime(.0001, now + .78);
+          oscillator.connect(filter).connect(gain).connect(context.destination);
+          oscillator.start(now + offset);
+          oscillator.stop(now + .8);
+        });
+      }
+
+      function playApplause(duration = .35) {
+        const context = getAudioContext();
+        if (!context) return;
+        if (!applauseNoise || applauseNoise.sampleRate !== context.sampleRate) {
+          applauseNoise = context.createBuffer(1, context.sampleRate * 2, context.sampleRate);
+          const samples = applauseNoise.getChannelData(0);
+          for (let index = 0; index < samples.length; index++) samples[index] = Math.random() * 2 - 1;
+        }
+        const now = context.currentTime;
+        const claps = Math.max(5, Math.round(duration * 18));
+        for (let index = 0; index < claps; index++) {
+          const start = now + Math.random() * duration;
+          const source = context.createBufferSource();
+          const filter = context.createBiquadFilter();
+          const gain = context.createGain();
+          source.buffer = applauseNoise;
+          filter.type = "bandpass";
+          filter.frequency.value = 900 + Math.random() * 1300;
+          filter.Q.value = .7;
+          const volume = .018 + Math.random() * .026;
+          gain.gain.setValueAtTime(.0001, start);
+          gain.gain.linearRampToValueAtTime(volume, start + .008);
+          gain.gain.exponentialRampToValueAtTime(.0001, start + .055 + Math.random() * .045);
+          source.connect(filter).connect(gain).connect(context.destination);
+          source.start(start, Math.random(), .12);
+        }
+      }
+
+      function launchFireworks(big) {
+        effectsLayer.classList.toggle("fireworks-big", big);
+        effectsLayer.replaceChildren();
+        const colors = ["#75f5c7", "#ffd978", "#ff7b89", "#8fa7ff", "#ffffff"];
+        const bursts = big ? 3 : 1;
+        const sparksPerBurst = big ? 24 : 15;
+        for (let burst = 0; burst < bursts; burst++) {
+          const origin = big ? 22 + burst * 28 : 50;
+          for (let index = 0; index < sparksPerBurst; index++) {
+            const spark = document.createElement("i");
+            spark.className = "firework-particle";
+            const angle = Math.PI * (1.08 + Math.random() * .84);
+            const distance = (big ? 135 : 90) + Math.random() * (big ? 150 : 95);
+            spark.style.setProperty("--origin-x", `${origin + (Math.random() * 8 - 4)}%`);
+            spark.style.setProperty("--x", `${Math.cos(angle) * distance}px`);
+            spark.style.setProperty("--y", `${-Math.abs(Math.sin(angle) * distance) - (big ? 185 : 125)}px`);
+            spark.style.setProperty("--spark", colors[(index + burst) % colors.length]);
+            spark.style.setProperty("--delay", `${burst * .16 + Math.random() * .1}s`);
+            spark.style.setProperty("--duration", `${big ? 1.15 + Math.random() * .45 : .85 + Math.random() * .3}s`);
+            effectsLayer.append(spark);
+          }
+        }
+        window.setTimeout(() => effectsLayer.replaceChildren(), big ? 2100 : 1500);
       }
 
       function saveProgress() {
