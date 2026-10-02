@@ -391,10 +391,10 @@
     .haptic-toggle { min-width:76px; }
     .menu-preview { position:relative; height:146px; margin-top:10px; overflow:hidden; border:1px solid color-mix(in srgb,var(--mint) 28%,transparent); border-radius:17px 6px; background:radial-gradient(circle at 50% 42%,color-mix(in srgb,var(--mint) 14%,transparent),transparent 38%),linear-gradient(180deg,#0d2730,#070b15 78%); box-shadow:inset 0 0 34px rgba(75,223,255,.06); }
     .menu-preview::before { content:"CURRENT EXPLORER"; position:absolute; z-index:8; left:10px; top:8px; color:rgba(255,255,255,.42); font-size:.45rem; font-weight:900; letter-spacing:.15em; }
-    .menu-preview-ship { position:absolute; z-index:1; inset:0; background-repeat:no-repeat; background-position:center; background-size:cover; opacity:.25; filter:saturate(1.12); }
+    .menu-preview-ship { position:absolute; z-index:1; top:8px; right:2%; bottom:8px; width:46%; background-repeat:no-repeat; background-position:right center; background-size:contain; opacity:.3; filter:saturate(1.12) drop-shadow(0 5px 8px rgba(0,0,0,.44)); }
     .menu-preview-persona { position:absolute; z-index:3; left:50%; bottom:3px; width:42%; height:132px; translate:-50% 0; background-repeat:no-repeat; background-position:center bottom; background-size:contain; filter:drop-shadow(0 8px 8px rgba(0,0,0,.5)); }
-    .menu-preview-pet { position:absolute; z-index:5; right:13%; bottom:3px; width:26%; height:78px; background-repeat:no-repeat; background-position:center bottom; background-size:contain; filter:drop-shadow(0 5px 6px rgba(0,0,0,.48)); }
-    .menu-preview-name { position:absolute; z-index:7; left:12px; bottom:12px; max-width:38%; color:var(--gold); font-family:"Brush Script MT","Segoe Script","Comic Sans MS",cursive; font-size:1.45rem; font-weight:900; line-height:.8; text-transform:uppercase; rotate:-8deg; text-shadow:0 2px 0 rgba(29,11,0,.9); }
+    .menu-preview-pet { position:absolute; z-index:5; right:19%; bottom:3px; width:23%; height:78px; background-repeat:no-repeat; background-position:center bottom; background-size:contain; filter:drop-shadow(0 5px 6px rgba(0,0,0,.48)); }
+    .menu-preview-name { position:absolute; z-index:7; left:12px; top:52%; translate:0 -50%; max-width:34%; color:var(--gold); font-family:"Brush Script MT","Segoe Script","Comic Sans MS",cursive; font-size:1.45rem; font-weight:900; line-height:.8; text-transform:uppercase; rotate:-8deg; text-shadow:0 2px 0 rgba(29,11,0,.9); }
     .menu-preview-ship:empty,.menu-preview-pet:empty { display:none; }
     .configuration-panel { min-height:0; }
     .configuration-panel .menu-section:first-of-type { margin-top:12px; }
@@ -427,7 +427,7 @@
       .menu-preview { height:108px; margin-top:8px; }
       .menu-preview-persona { height:98px; }
       .menu-preview-pet { height:60px; }
-      .menu-preview-name { bottom:9px; font-size:1.25rem; }
+      .menu-preview-name { font-size:1.25rem; }
       .menu-section { margin-top:8px; }
       .menu-wallet-section { margin-top:14px; }
       .wallet-card { padding:8px 10px; }
@@ -630,8 +630,9 @@
     .board-nav-button.previous { left:13px; }
     .board-nav-button.next { right:13px; }
     .board-nav-button:disabled { opacity:.25; cursor:not-allowed; }
-    .board-nav-button.available { animation:navPulse 1.25s ease-in-out infinite; }
-    @keyframes navPulse { 50%{color:#fff;filter:brightness(1.35);box-shadow:0 0 0 8px color-mix(in srgb,var(--mint) 0%,transparent),0 0 24px var(--mint),inset 0 0 13px color-mix(in srgb,var(--mint) 45%,transparent);transform:scale(1.08)} }
+    .board-nav-button.available { color:#fff; box-shadow:0 0 16px color-mix(in srgb,var(--mint) 48%,transparent),inset 0 0 11px color-mix(in srgb,var(--mint) 34%,transparent); animation:navGentleFade 7.5s ease-in-out infinite; }
+    @keyframes navGentleFade { 0%,58%,100%{opacity:.9;filter:brightness(1.08)} 72%{opacity:.46;filter:brightness(.72)} 84%{opacity:.82;filter:brightness(1)} }
+    @media (prefers-reduced-motion:reduce) { .board-nav-button.available { animation:none; opacity:.82; } }
 
     .sheet-backdrop {
       position: fixed;
