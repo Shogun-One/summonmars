@@ -332,6 +332,10 @@
       animation:neonSelect .72s ease-in-out infinite alternate;
     }
     .letter-node.cosmic-complete { animation:cosmicComplete .62s ease-out both; }
+    .playfield.shuffling .letter-node {
+      pointer-events: none;
+      transition: left .68s cubic-bezier(.2,.78,.24,1), top .68s cubic-bezier(.2,.78,.24,1), transform .14s ease, border-color .14s ease, box-shadow .14s ease;
+    }
     @keyframes neonSelect { to { filter:brightness(1.24) saturate(1.35); box-shadow:0 0 16px #fff,0 0 38px var(--mint),0 0 68px var(--gold); } }
     @keyframes cosmicComplete { 0%{filter:brightness(1);transform:translate(-50%,-50%) rotate(var(--tilt,0deg)) scale(1.08)} 45%{color:#fff;background:linear-gradient(145deg,#fff,var(--mint) 42%,#8d75ff);filter:brightness(1.8);box-shadow:0 0 24px #fff,0 0 60px var(--mint),0 0 95px #9a79ff;transform:translate(-50%,-50%) rotate(var(--tilt,0deg)) scale(1.22)} 100%{filter:brightness(1.05);transform:translate(-50%,-50%) rotate(var(--tilt,0deg)) scale(1.08)} }
     .effects-layer { position:absolute; z-index:12; inset:0; overflow:hidden; pointer-events:none; }
@@ -1465,18 +1469,45 @@
       });
 
       shuffleButton.addEventListener("click", () => {
+        if (playfield.classList.contains("shuffling") || nodes.length < 2) return;
         resetTrace();
-        const letters = nodes.map(node => node.dataset.letter);
-        for (let index = letters.length - 1; index > 0; index--) {
-          const swapWith = Math.floor(Math.random() * (index + 1));
-          [letters[index], letters[swapWith]] = [letters[swapWith], letters[index]];
+        const positions = nodes.map(node => ({left:node.style.left,top:node.style.top}));
+        let shuffled = positions.slice();
+        let attempts = 0;
+        do {
+          shuffled = positions.slice();
+          for (let index = shuffled.length - 1; index > 0; index--) {
+            const swapWith = Math.floor(Math.random() * (index + 1));
+            [shuffled[index], shuffled[swapWith]] = [shuffled[swapWith], shuffled[index]];
+          }
+          attempts += 1;
+        } while (attempts < 20 && shuffled.some((position,index) => position === positions[index]));
+        if (shuffled.some((position,index) => position === positions[index])) {
+          const shift = 1 + Math.floor(Math.random() * (positions.length - 1));
+          shuffled = positions.map((_,index) => positions[(index + shift) % positions.length]);
         }
-        nodes.forEach((node, index) => {
-          node.dataset.letter = letters[index];
-          node.textContent = letters[index];
-          node.setAttribute("aria-label", `Letter ${letters[index]}`);
+        const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        const duration = reducedMotion ? 0 : 680;
+        playfield.classList.add("shuffling");
+        shuffleButton.disabled = true;
+        void playfield.offsetWidth;
+        nodes.forEach((node,index) => {
+          node.style.left = shuffled[index].left;
+          node.style.top = shuffled[index].top;
         });
-        showToast("Constellation remapped");
+        const startedAt = performance.now();
+        const trackShuffle = now => {
+          drawConstellation();
+          if (now - startedAt < duration) {
+            requestAnimationFrame(trackShuffle);
+            return;
+          }
+          playfield.classList.remove("shuffling");
+          shuffleButton.disabled = false;
+          drawConstellation();
+          showToast("Constellation remapped");
+        };
+        requestAnimationFrame(trackShuffle);
         vibrate(18);
       });
 
