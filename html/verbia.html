@@ -572,6 +572,7 @@
     .inventory-pet { --pet-x:0%; position:absolute; z-index:7; right:5px; bottom:10px; width:36%; height:34%; background-image:url('../images/verbia/explorer-pets-atlas-v1.png'); background-size:500% 100%; background-position:var(--pet-x) 0; background-repeat:no-repeat; filter:drop-shadow(0 8px 8px rgba(0,0,0,.5)); }
     .inventory-pet:empty { display:none; }
     .inventory-list { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+    .inventory-list > .feature-intro { grid-column:1 / -1; width:100%; }
     .inventory-item { padding:8px; border:1px solid rgba(255,255,255,.14); border-radius:13px 5px; color:var(--surface-muted); background:rgba(255,255,255,.055); text-align:left; cursor:pointer; }
     .inventory-item-preview { display:block; width:100%; height:auto; aspect-ratio:.6; margin-bottom:7px; background-repeat:no-repeat; }
     .inventory-item-preview.square-cell { aspect-ratio:1; }
