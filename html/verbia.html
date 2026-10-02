@@ -539,7 +539,8 @@
     .store-section h3,.inventory-explorers h3 { margin:0 0 9px; color:color-mix(in srgb,var(--gold) 78%,white); font-size:.7rem; font-weight:900; letter-spacing:.13em; text-transform:uppercase; }
     .store-avatar-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; }
     .store-item { min-height:76px; padding:9px 4px; border:1px solid rgba(255,255,255,.2); border-radius:11px 4px; color:var(--surface-muted); background:rgba(255,255,255,.075); font-size:.61rem; font-weight:750; cursor:pointer; }
-    .store-item .shop-icon { display:block; width:100%; height:58px; margin-bottom:5px; background-repeat:no-repeat; }
+    .store-item .shop-icon { display:block; width:100%; height:auto; aspect-ratio:.6; margin-bottom:5px; background-repeat:no-repeat; }
+    .store-item .shop-icon.square-cell { aspect-ratio:1; }
     .store-item strong { display:block; margin-top:4px; color:var(--gold); }
     .store-item.owned { color:var(--mint); border-color:color-mix(in srgb,var(--mint) 48%,transparent); }
     .store-item:disabled:not(.owned) { opacity:.52; cursor:not-allowed; }
@@ -566,12 +567,14 @@
     .persona-wearable.glasses { top:15%; width:31%; height:9%; background-position:25% 0; }
     .persona-wearable.shirt { top:25%; width:54%; height:38%; background-position:50% 0; }
     .persona-wearable.pants { top:54%; width:45%; height:34%; background-position:75% 0; }
+    .persona-wearable.outfit { z-index:5; top:21%; width:63%; height:73%; }
     .persona-wearable.shoes { bottom:1%; width:43%; height:17%; background-position:100% 0; }
     .inventory-pet { --pet-x:0%; position:absolute; z-index:7; right:5px; bottom:10px; width:36%; height:34%; background-image:url('../images/verbia/explorer-pets-atlas-v1.png'); background-size:500% 100%; background-position:var(--pet-x) 0; background-repeat:no-repeat; filter:drop-shadow(0 8px 8px rgba(0,0,0,.5)); }
     .inventory-pet:empty { display:none; }
     .inventory-list { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
     .inventory-item { padding:8px; border:1px solid rgba(255,255,255,.14); border-radius:13px 5px; color:var(--surface-muted); background:rgba(255,255,255,.055); text-align:left; cursor:pointer; }
-    .inventory-item-preview { display:block; width:100%; height:74px; margin-bottom:7px; background-repeat:no-repeat; }
+    .inventory-item-preview { display:block; width:100%; height:auto; aspect-ratio:.6; margin-bottom:7px; background-repeat:no-repeat; }
+    .inventory-item-preview.square-cell { aspect-ratio:1; }
     .inventory-item strong { display:block; color:var(--surface-text); font-size:.7rem; }.inventory-item small { color:var(--gold); }
     .inventory-item.equipped { border-color:var(--mint); box-shadow:0 0 14px color-mix(in srgb,var(--mint) 22%,transparent); }
 
@@ -886,7 +889,7 @@
       <div class="inventory-explorers"><h3>Your explorers</h3><div class="avatar-grid" id="avatarChoices"></div></div>
       <div class="inventory-stage">
         <div class="persona" id="inventoryPersona"></div>
-        <span class="persona-wearable hat" id="personaHat"></span><span class="persona-wearable glasses" id="personaGlasses"></span><span class="persona-wearable shirt" id="personaShirt"></span><span class="persona-wearable pants" id="personaPants"></span><span class="persona-wearable shoes" id="personaShoes"></span>
+        <span class="persona-wearable hat" id="personaHat"></span><span class="persona-wearable glasses" id="personaGlasses"></span><span class="persona-wearable shirt" id="personaShirt"></span><span class="persona-wearable pants" id="personaPants"></span><span class="persona-wearable outfit" id="personaOutfit"></span><span class="persona-wearable shoes" id="personaShoes"></span>
         <span class="inventory-pet" id="inventoryPet" aria-label="Equipped pet"></span>
       </div>
       <div class="inventory-list" id="inventoryList"></div>
@@ -992,7 +995,12 @@
         {id:"formal-shoes",name:"Orbit Formal Shoes",type:"shoes",atlas:"wardrobe2",atlasCol:1,atlasRow:2,cost:310},
         {id:"rift-platforms",name:"Rift Platform Boots",type:"shoes",atlas:"wardrobe2",atlasCol:2,atlasRow:2,cost:420},
         {id:"neon-high-tops",name:"Neon High-Tops",type:"shoes",atlas:"wardrobe2",atlasCol:3,atlasRow:2,cost:360},
-        {id:"lunar-field-boots",name:"Lunar Field Boots",type:"shoes",atlas:"wardrobe2",atlasCol:4,atlasRow:2,cost:380}
+        {id:"lunar-field-boots",name:"Lunar Field Boots",type:"shoes",atlas:"wardrobe2",atlasCol:4,atlasRow:2,cost:380},
+        {id:"midnight-trousers",name:"Midnight Suit Trousers",type:"pants",atlas:"bottoms",atlasIndex:0,cost:390},
+        {id:"burgundy-trousers",name:"Solar Executive Trousers",type:"pants",atlas:"bottoms",atlasIndex:1,cost:410},
+        {id:"cyber-cargos",name:"Neon Cyber Cargos",type:"pants",atlas:"bottoms",atlasIndex:2,cost:460},
+        {id:"rift-trousers",name:"Asymmetric Rift Pants",type:"pants",atlas:"bottoms",atlasIndex:3,cost:440},
+        {id:"cosmic-dress",name:"Constellation Evening Dress",type:"outfit",atlas:"bottoms",atlasIndex:4,cost:780}
       ];
       const playfield = document.querySelector("#playfield");
       const letterNodes = document.querySelector("#letterNodes");
@@ -1069,6 +1077,7 @@
       const personaGlasses = document.querySelector("#personaGlasses");
       const personaShirt = document.querySelector("#personaShirt");
       const personaPants = document.querySelector("#personaPants");
+      const personaOutfit = document.querySelector("#personaOutfit");
       const personaShoes = document.querySelector("#personaShoes");
       const inventoryPet = document.querySelector("#inventoryPet");
       const inventoryList = document.querySelector("#inventoryList");
@@ -2000,10 +2009,15 @@
       }
 
       function applyItemArt(element, item) {
+        element.classList.toggle("square-cell", item.atlas === "wardrobe2");
         if (item.atlas === "wardrobe2") {
           element.style.backgroundImage = "url('../images/verbia/explorer-wardrobe-atlas-v2.png')";
           element.style.backgroundSize = "500% 300%";
           element.style.backgroundPosition = `${item.atlasCol * 25}% ${item.atlasRow * 50}%`;
+        } else if (item.atlas === "bottoms") {
+          element.style.backgroundImage = "url('../images/verbia/explorer-bottoms-atlas-v1.png')";
+          element.style.backgroundSize = "500% 100%";
+          element.style.backgroundPosition = `${item.atlasIndex * 25}% 0`;
         } else {
           element.style.backgroundImage = `url('../images/verbia/explorer-${item.atlas === "pet" ? "pets" : "wearables"}-atlas-v1.png')`;
           element.style.backgroundSize = "500% 100%";
@@ -2045,6 +2059,8 @@
         if ((progress.points || 0) < item.cost) return;
         progress.points -= item.cost;
         progress.inventory.owned.push(item.id);
+        if (item.type === "outfit") { progress.inventory.equipped.shirt = null; progress.inventory.equipped.pants = null; }
+        if (item.type === "shirt" || item.type === "pants") progress.inventory.equipped.outfit = null;
         progress.inventory.equipped[item.type] = item.id;
         saveProgress();
         renderWallet();
@@ -2057,6 +2073,8 @@
         if (!progress.inventory.owned.includes(itemId)) return;
         const item = shopItems.find(entry => entry.id === itemId);
         if (!item) return;
+        if (item.type === "outfit") { progress.inventory.equipped.shirt = null; progress.inventory.equipped.pants = null; }
+        if (item.type === "shirt" || item.type === "pants") progress.inventory.equipped.outfit = null;
         progress.inventory.equipped[item.type] = progress.inventory.equipped[item.type] === item.id ? null : item.id;
         saveProgress();
         renderInventory();
@@ -2075,7 +2093,7 @@
         inventoryPersona.setAttribute("aria-label", `${avatar.name} full-body explorer`);
         const equipped = progress.inventory.equipped;
         const pet = shopItems.find(item => item.id === equipped.pet);
-        [[personaHat,"hat"],[personaGlasses,"glasses"],[personaShirt,"shirt"],[personaPants,"pants"],[personaShoes,"shoes"]].forEach(([layer,type]) => {
+        [[personaHat,"hat"],[personaGlasses,"glasses"],[personaShirt,"shirt"],[personaPants,"pants"],[personaOutfit,"outfit"],[personaShoes,"shoes"]].forEach(([layer,type]) => {
           const item = shopItems.find(entry => entry.id === equipped[type]);
           layer.classList.toggle("visible", Boolean(item));
           if (item) applyItemArt(layer, item);
