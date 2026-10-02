@@ -967,6 +967,8 @@
       let hoveredTraceNode = null;
       let backtrackTimer = 0;
       let traceResetTimer = 0;
+      let masteryFireworksTimer = 0;
+      let fireworksCleanupTimer = 0;
 
       ensureBoard(boardIndex + 1);
 
@@ -1174,6 +1176,7 @@
       }
 
       function flipToBoard(targetIndex) {
+        stopMasteryFireworks();
         boardTransitioning = true;
         nextButton.disabled = true;
         resetTrace();
@@ -1553,7 +1556,7 @@
           showToast(isGoal ? `${word} • stage word +10` : `${word} • bonus word +5`, isGoal ? "success" : "bonus");
           selected.forEach(node => node.classList.add("cosmic-complete"));
           if (justMastered) {
-            launchFireworks(true);
+            startMasteryFireworks();
             playMasterHurray();
             resetDelay = 420;
           } else if (justCleared) {
@@ -2153,25 +2156,55 @@
         const context = getAudioContext();
         if (!context) return;
         const now = context.currentTime;
-        const oscillator = context.createOscillator();
-        const filter = context.createBiquadFilter();
-        const gain = context.createGain();
-        oscillator.type = "sawtooth";
-        oscillator.frequency.setValueAtTime(72, now);
-        oscillator.frequency.exponentialRampToValueAtTime(185, now + .34);
-        oscillator.frequency.exponentialRampToValueAtTime(96, now + .72);
-        filter.type = "lowpass";
-        filter.frequency.setValueAtTime(420, now);
-        filter.frequency.exponentialRampToValueAtTime(1150, now + .33);
-        filter.frequency.exponentialRampToValueAtTime(360, now + .76);
-        filter.Q.value = 5;
-        gain.gain.setValueAtTime(.0001, now);
-        gain.gain.exponentialRampToValueAtTime(.07, now + .055);
-        gain.gain.setValueAtTime(.06, now + .4);
-        gain.gain.exponentialRampToValueAtTime(.0001, now + .78);
-        oscillator.connect(filter).connect(gain).connect(context.destination);
-        oscillator.start(now);
-        oscillator.stop(now + .8);
+        const duration = .68;
+        const noiseBuffer = context.createBuffer(1, Math.ceil(context.sampleRate * duration), context.sampleRate);
+        const samples = noiseBuffer.getChannelData(0);
+        let brown = 0;
+        for (let index = 0; index < samples.length; index++) {
+          brown = brown * .965 + (Math.random() * 2 - 1) * .11;
+          samples[index] = brown;
+        }
+
+        const whoosh = context.createBufferSource();
+        const whooshFilter = context.createBiquadFilter();
+        const whooshGain = context.createGain();
+        const panner = context.createStereoPanner?.();
+        whoosh.buffer = noiseBuffer;
+        whooshFilter.type = "bandpass";
+        whooshFilter.Q.value = .55;
+        whooshFilter.frequency.setValueAtTime(520, now);
+        whooshFilter.frequency.exponentialRampToValueAtTime(4200, now + .28);
+        whooshFilter.frequency.exponentialRampToValueAtTime(780, now + duration);
+        whooshGain.gain.setValueAtTime(.0001, now);
+        whooshGain.gain.exponentialRampToValueAtTime(.15, now + .08);
+        whooshGain.gain.setValueAtTime(.13, now + .3);
+        whooshGain.gain.exponentialRampToValueAtTime(.0001, now + duration);
+        if (panner) {
+          panner.pan.setValueAtTime(-.82, now);
+          panner.pan.linearRampToValueAtTime(.82, now + duration);
+          whoosh.connect(whooshFilter).connect(whooshGain).connect(panner).connect(context.destination);
+        } else {
+          whoosh.connect(whooshFilter).connect(whooshGain).connect(context.destination);
+        }
+
+        const engine = context.createOscillator();
+        const engineFilter = context.createBiquadFilter();
+        const engineGain = context.createGain();
+        engine.type = "sawtooth";
+        engine.frequency.setValueAtTime(46, now);
+        engine.frequency.exponentialRampToValueAtTime(112, now + .25);
+        engine.frequency.exponentialRampToValueAtTime(34, now + duration);
+        engineFilter.type = "lowpass";
+        engineFilter.frequency.value = 260;
+        engineFilter.Q.value = .45;
+        engineGain.gain.setValueAtTime(.0001, now);
+        engineGain.gain.exponentialRampToValueAtTime(.035, now + .055);
+        engineGain.gain.exponentialRampToValueAtTime(.0001, now + duration);
+        engine.connect(engineFilter).connect(engineGain).connect(context.destination);
+        whoosh.start(now);
+        engine.start(now);
+        whoosh.stop(now + duration);
+        engine.stop(now + duration);
       }
 
       function playAwe() {
@@ -2269,6 +2302,7 @@
       }
 
       function launchFireworks(big) {
+        window.clearTimeout(fireworksCleanupTimer);
         effectsLayer.classList.toggle("fireworks-big", big);
         effectsLayer.replaceChildren();
         const colors = ["#75f5c7", "#ffd978", "#ff7b89", "#8fa7ff", "#ffffff"];
@@ -2290,7 +2324,21 @@
             effectsLayer.append(spark);
           }
         }
-        window.setTimeout(() => effectsLayer.replaceChildren(), big ? 2100 : 1500);
+        fireworksCleanupTimer = window.setTimeout(() => effectsLayer.replaceChildren(), big ? 2100 : 1500);
+      }
+
+      function startMasteryFireworks() {
+        stopMasteryFireworks();
+        launchFireworks(true);
+        masteryFireworksTimer = window.setInterval(() => launchFireworks(true), 1750);
+      }
+
+      function stopMasteryFireworks() {
+        window.clearInterval(masteryFireworksTimer);
+        window.clearTimeout(fireworksCleanupTimer);
+        masteryFireworksTimer = 0;
+        fireworksCleanupTimer = 0;
+        effectsLayer.replaceChildren();
       }
 
       function saveProgress() {
