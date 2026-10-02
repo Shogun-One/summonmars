@@ -118,7 +118,10 @@
       text-align:center;
     }
 
-    .verbia-wordmark .inverted-v { display:inline-block; margin-left:-.035em; transform:translateY(.035em) rotate(180deg); transform-origin:center 52%; }
+    .verbia-wordmark .leading-v,
+    .verbia-wordmark .inverted-v { display:inline-block; transform-origin:center 52%; }
+    .verbia-wordmark .leading-v { transform:translateY(.095em) scaleY(1.06); }
+    .verbia-wordmark .inverted-v { margin-left:-.035em; transform:translateY(.035em) rotate(180deg) scaleY(1.06); }
 
     h1 {
       margin: 0;
@@ -173,7 +176,7 @@
 
     .game-avatar { position:absolute; z-index:12; left:-16px; bottom:-14px; width:82px; height:158px; padding:0; overflow:visible; border:0; background:transparent; cursor:pointer; filter:drop-shadow(0 8px 9px rgba(0,0,0,.5)); }
     .game-avatar-base { --atlas-x:0%;--atlas-y:0%; position:absolute; z-index:1; inset:0; background-image:url('../images/verbia/explorer-fitting-atlas-v3.png'); background-size:500% 200%; background-position:var(--atlas-x) var(--atlas-y); background-repeat:no-repeat; }
-    .game-loadout-ship { position:absolute; z-index:2; left:76px; bottom:-14px; width:172px; height:118px; background-repeat:no-repeat; background-size:contain; background-position:center bottom; opacity:.54; filter:brightness(1.12) saturate(1.15) drop-shadow(0 5px 7px rgba(0,0,0,.45)); pointer-events:none; }
+    .game-loadout-ship { position:absolute; z-index:2; left:32px; bottom:-14px; width:172px; height:118px; background-repeat:no-repeat; background-size:contain; background-position:center bottom; opacity:.54; filter:brightness(1.12) saturate(1.15) drop-shadow(0 5px 7px rgba(0,0,0,.45)); pointer-events:none; }
     .game-loadout-pet { position:absolute; z-index:13; left:57px; bottom:-14px; width:66px; height:72px; transform:scale(var(--companion-scale,1)); transform-origin:center bottom; background-repeat:no-repeat; background-size:contain; background-position:center bottom; filter:drop-shadow(0 5px 6px rgba(0,0,0,.48)); pointer-events:none; }
     .game-loadout-ship:empty,.game-loadout-pet:empty { display:none; }
     .progress-card:has(.game-avatar) .progress-row { padding-left:70px; }
@@ -797,7 +800,7 @@
   </aside>
   <section class="splash-screen" id="splashScreen" aria-label="Verbia opening">
     <div class="splash-content">
-      <h1 class="splash-title verbia-wordmark" aria-label="Verbia">Verbi<span class="inverted-v" aria-hidden="true">V</span></h1>
+      <h1 class="splash-title verbia-wordmark" aria-label="Verbia"><span class="leading-v" aria-hidden="true">V</span>erbi<span class="inverted-v" aria-hidden="true">V</span></h1>
       <p class="splash-byline">by Summon Mars</p>
       <p class="splash-tagline">World of Words</p>
     </div>
@@ -806,7 +809,7 @@
 
   <section class="launch-overlay" id="launchOverlay" aria-labelledby="launchTitle" hidden>
     <div class="launch-panel">
-      <h2 class="verbia-wordmark" id="launchTitle" aria-label="Verbia">Verbi<span class="inverted-v" aria-hidden="true">V</span></h2>
+      <h2 class="verbia-wordmark" id="launchTitle" aria-label="Verbia"><span class="leading-v" aria-hidden="true">V</span>erbi<span class="inverted-v" aria-hidden="true">V</span></h2>
       <p>Choose how your journey begins.</p>
       <button class="launch-choice-button primary" id="continueGameButton" type="button">Continue<small id="continueGameMeta">Resume your saved word journey</small></button>
       <button class="launch-choice-button" id="newGameButton" type="button">New Game<small>Clear Verbia progress and create a new explorer</small></button>
@@ -819,7 +822,7 @@
   <main class="app">
     <header>
       <div class="brand">
-        <h1 class="verbia-wordmark" aria-label="Verbia">Verbi<span class="inverted-v" aria-hidden="true">V</span></h1>
+        <h1 class="verbia-wordmark" aria-label="Verbia"><span class="leading-v" aria-hidden="true">V</span>erbi<span class="inverted-v" aria-hidden="true">V</span></h1>
         <p class="eyebrow">World of Words</p>
       </div>
       <div class="level-mark">Board<strong id="boardNumber">01</strong></div>
@@ -874,7 +877,7 @@
   <div class="menu-overlay" id="menuOverlay" aria-hidden="true">
     <section class="start-menu" id="startMenu" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="menuTitle">
       <div class="menu-brand">
-        <h2 class="verbia-wordmark" id="menuTitle" aria-label="Verbia">Verbi<span class="inverted-v" aria-hidden="true">V</span></h2>
+        <h2 class="verbia-wordmark" id="menuTitle" aria-label="Verbia"><span class="leading-v" aria-hidden="true">V</span>erbi<span class="inverted-v" aria-hidden="true">V</span></h2>
         <p>Create your path through words</p>
       </div>
       <div class="menu-game-row">
@@ -964,7 +967,7 @@
       <p class="feature-intro">Trace the constellation, discover real words, and build your explorer’s world.</p>
       <ol class="directions-list">
         <li><span class="direction-icon">☝</span><div><b>Trace words</b><p>Touch a letter, glide through adjacent choices, and release to submit. Slide back over the previous letter to undo it.</p></div></li>
-        <li><span class="direction-icon">60%</span><div><b>Clear each board</b><p>Reach the glowing mark on the progress bar to unlock the next board. Find every stage word to master it.</p></div></li>
+        <li><span class="direction-icon">✓</span><div><b>Clear each board</b><p>Find the number of stage words shown at the bottom of the constellation to unlock the next board. Find every stage word to master it.</p></div></li>
         <li><span class="direction-icon">★</span><div><b>Find bonus words</b><p>Valid words outside the stage list earn extra points and fly into Bonus Discoveries.</p></div></li>
         <li><span class="direction-icon">💡</span><div><b>Hints and daily rewards</b><p>Three hints refresh daily. The Daily Orbit dart board can award more hints or discovery points.</p></div></li>
         <li><span class="direction-icon">↻</span><div><b>Shuffle and revisit</b><p>Shuffle letters for a fresh view, or use the left arrow to revisit up to five incomplete cleared boards.</p></div></li>
@@ -1071,7 +1074,7 @@
         {id:"amara",name:"Amara",index:6,bodySrc:"../images/verbia/bodies-standard/amara.png",bodyIndex:8,cost:400}, {id:"kai",name:"Kai",index:7,bodySrc:"../images/verbia/bodies-standard/kai.png",bodyIndex:9,cost:400},
         {id:"sofia",name:"Sofía",portraitAtlas:"hispanic",portraitIndex:0,bodySrc:"../images/verbia/bodies-standard/sofia.png",bodyIndex:0,cost:400},
         {id:"mateo",name:"Mateo",portraitAtlas:"hispanic",portraitIndex:1,bodySrc:"../images/verbia/bodies-standard/mateo.png",bodyIndex:1,cost:400},
-        {id:"bigfoot",name:"Bigfoot",bodySrc:"../images/verbia/bodies-standard/bigfoot.png",bodyIndex:12,cost:400},
+        {id:"bigfoot",name:"Bigfoot",bodySrc:"../images/verbia/bodies-standard/bigfoot.png?v=2",bodyIndex:12,cost:400},
         {id:"yeti",name:"Yeti",bodySrc:"../images/verbia/bodies-standard/yeti.png",bodyIndex:13,cost:400},
         {id:"alien",name:"Zyra",bodySrc:"../images/verbia/bodies-standard/alien.png",bodyIndex:14,cost:400},
         {id:"kage",name:"Kage",bodySrc:"../images/verbia/bodies-standard/kage.png",bodyIndex:15,cost:400}
