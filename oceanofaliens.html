@@ -277,7 +277,16 @@
     .hud .pill.score{ grid-area:score; }
     .hud .pill.best{ grid-area:best; }
     .hud .pill.lives{ grid-area:lives; }
-    .hud .pill.hits{ grid-area:hits; }
+    .hud .pill.hits{
+      grid-area:hits;
+      display:flex;
+      align-items:center;
+      justify-content:flex-start;
+      min-width:0;
+      padding-left:clamp(.28rem,1.5vw,.52rem);
+      padding-right:clamp(.34rem,1.8vw,.65rem);
+      text-align:left;
+    }
     .hud .pill.toNext{ grid-area:toNext; }
     .hud .pill.bossKills{ grid-area:bossKills; }
 
@@ -301,10 +310,14 @@
       box-shadow:0 0 8px rgba(255,92,190,.38);
     }
     .hud .ship-health-bar{
-      display:inline-block;
-      width:clamp(52px,13vw,66px);
+      display:block;
+      flex:1 1 auto;
+      width:auto;
+      min-width:clamp(58px,14vw,96px);
+      max-width:none;
       height:7px;
-      margin-left:5px;
+      margin-left:clamp(6px,1.5vw,10px);
+      margin-right:2px;
       overflow:hidden;
       vertical-align:middle;
       border:1px solid rgba(255,255,255,.28);
@@ -2793,7 +2806,7 @@ document.querySelectorAll('img[data-asset]').forEach((img) => {
     const STORAGE_PREFIX = 'oceanOfAliens';
     const LEGACY_STORAGE_PREFIX = ['aster','oid'].join('');
     const storageKey = suffix => `${STORAGE_PREFIX}${suffix}`;
-    for(const suffix of ['SoundMode','MusicPlayMode','MusicOrderVersion','MusicTrack','MusicVolume','EffectsVolume','DiffIndex','Best','StoreCredits','OwnedItems','EquippedItems','CampaignProgressV1','GamepadConfig','GamepadConfigVersion']){
+    for(const suffix of ['SoundMode','MusicPlayMode','MusicOrderVersion','MusicTrack','MusicVolume','EffectsVolume','DiffIndex','SensitivityIndex','Best','StoreCredits','OwnedItems','EquippedItems','CampaignProgressV1','GamepadConfig','GamepadConfigVersion']){
       const currentKey=storageKey(suffix);
       const legacyKey=`${LEGACY_STORAGE_PREFIX}${suffix}`;
       if(localStorage.getItem(currentKey)===null && localStorage.getItem(legacyKey)!==null){
@@ -3563,6 +3576,18 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
       localStorage.setItem(storageKey('DiffIndex'), String(diffIndex));
       setDiffUI();
       if(restart) softRestart();
+    }
+
+    const SENSITIVITY_PRESETS = [
+      {name:'LOW',mult:.72},
+      {name:'MEDIUM',mult:1},
+      {name:'HIGH',mult:1.34}
+    ];
+    let sensitivityIndex=clamp(Number(localStorage.getItem(storageKey('SensitivityIndex')) ?? 1),0,SENSITIVITY_PRESETS.length-1);
+    function cycleSensitivity(){
+      sensitivityIndex=(sensitivityIndex+1)%SENSITIVITY_PRESETS.length;
+      localStorage.setItem(storageKey('SensitivityIndex'),String(sensitivityIndex));
+      showGameAlert(`STEERING: ${SENSITIVITY_PRESETS[sensitivityIndex].name}`,'sound-on');
     }
 
     // The bottom-left stamp is missile-only. Use pointerdown so a second finger
@@ -5049,6 +5074,7 @@ function updateBosses(dt){
 
       diffIndex = 0;
       setDiffUI();
+      sensitivityIndex = 1;
       soundMode = 'full';
       musicPlayMode = 'alternate';
       musicTrackIndex = 0;
@@ -5227,8 +5253,9 @@ function updateBosses(dt){
         else if(pauseMenuSelection === 3) cycleSoundMode();
         else if(pauseMenuSelection === 4){ pauseMenuView='audioSettings'; audioSettingsSelection=0; }
         else if(pauseMenuSelection === 5) cycleDifficulty(false);
-        else if(pauseMenuSelection === 6){ pauseMenuView = 'directions'; pauseDirectionSelection = 0; }
-        else if(pauseMenuSelection === 7){ pauseMenuView = 'controllerTypes'; pauseControllerIndex=0; }
+        else if(pauseMenuSelection === 6) cycleSensitivity();
+        else if(pauseMenuSelection === 7){ pauseMenuView = 'directions'; pauseDirectionSelection = 0; }
+        else if(pauseMenuSelection === 8){ pauseMenuView = 'controllerTypes'; pauseControllerIndex=0; }
         else closeGameWindow();
       }else if(pauseMenuView === 'inventory'){
         if(inventorySelection === 0){ pauseMenuView='root'; return; }
@@ -5293,8 +5320,9 @@ function updateBosses(dt){
           {x,y:top,w:splitW,h}, {x:x+splitW+splitGap,y:top,w:splitW,h},
           {x,y:top+h+gap,w,h},
           {x,y:top+2*(h+gap),w:splitW,h}, {x:x+splitW+splitGap,y:top+2*(h+gap),w:splitW,h},
-          {x,y:top+3*(h+gap),w,h}, {x,y:top+4*(h+gap),w,h},
-          {x,y:top+5*(h+gap),w,h}, {x,y:top+6*(h+gap),w,h}
+          {x,y:top+3*(h+gap),w:splitW,h}, {x:x+splitW+splitGap,y:top+3*(h+gap),w:splitW,h},
+          {x,y:top+4*(h+gap),w,h}, {x,y:top+5*(h+gap),w,h},
+          {x,y:top+6*(h+gap),w,h}
         ];
       }
       const margin=50,gapX=18,gapY=12,top=height<620?66:82;
@@ -5309,7 +5337,7 @@ function updateBosses(dt){
         {x:margin,y:top,w:splitW,h}, {x:margin+splitW+splitGap,y:top,w:splitW,h},
         {x:rightX,y:top,w,h},
         {x:rightX,y:top+h+gapY,w:splitW,h}, {x:rightX+splitW+splitGap,y:top+h+gapY,w:splitW,h},
-        {x:rightX,y:top+2*(h+gapY),w,h},
+        {x:rightX,y:top+2*(h+gapY),w:splitW,h}, {x:rightX+splitW+splitGap,y:top+2*(h+gapY),w:splitW,h},
         {x:margin,y:top+h+gapY,w,h}, {x:margin,y:top+2*(h+gapY),w,h},
         {x:width/2-120,y:exitY,w:240,h:exitH}
       ];
@@ -6429,8 +6457,9 @@ mobilePauseBtn?.addEventListener('pointerdown', (e) => {
 
       // Preserve analog strength instead of converting every stick movement
       // into full thrust. Keyboard and D-pad inputs naturally remain at 100%.
-      ship.vx += ix * (SHIP_ACCEL * dt) * inputStrength;
-      ship.vy += iy * (SHIP_ACCEL * dt) * inputStrength;
+      const steeringSensitivity=SENSITIVITY_PRESETS[sensitivityIndex].mult;
+      ship.vx += ix * (SHIP_ACCEL * steeringSensitivity * dt) * inputStrength;
+      ship.vy += iy * (SHIP_ACCEL * steeringSensitivity * dt) * inputStrength;
 
       ship.vx *= Math.pow(SHIP_FRICTION, dt/16.67);
       ship.vy *= Math.pow(SHIP_FRICTION, dt/16.67);
@@ -8241,6 +8270,7 @@ if (flashTimer > 0) {
           ['SOUND',soundLabel],
           ['SONG / VOLUME',`${MUSIC_TRACKS[musicTrackIndex].name} • ${musicVolume}/${effectsVolume}`],
           [`DIFFICULTY: ${DIFF_PRESETS[diffIndex].name.toUpperCase()}`,'Select to change difficulty'],
+          [`SENSITIVITY: ${SENSITIVITY_PRESETS[sensitivityIndex].name}`,'Low • Medium • High'],
           ['DIRECTIONS','All gameplay and menu controls'],
           ['CONTROLLER TYPE','Xbox • PlayStation • Keyboard'],
           ['EXIT GAME','']
