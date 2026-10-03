@@ -295,10 +295,11 @@
       fill: none;
       stroke-linecap: round;
       stroke-linejoin: round;
+      vector-effect: non-scaling-stroke;
     }
 
-    .path-glow { stroke: rgba(117,245,199,.18); stroke-width: 15; }
-    .path-line { stroke: var(--mint); stroke-width: 4; filter: drop-shadow(0 0 5px var(--mint)); }
+    .path-glow { stroke: color-mix(in srgb,var(--mint) 26%,transparent); stroke-width: 15; }
+    .path-line { stroke: var(--mint); stroke-width: 4; }
 
     .letter-node {
       position: absolute;
@@ -322,6 +323,8 @@
       font-size: clamp(1.6rem, 8vw, 2.15rem);
       cursor: pointer;
       transition: transform .14s ease, border-color .14s ease, box-shadow .14s ease;
+      backface-visibility: hidden;
+      will-change: transform;
       -webkit-tap-highlight-color: transparent;
       touch-action: none;
     }
@@ -330,15 +333,14 @@
       transform: translate(-50%, -50%) rotate(var(--tilt, 0deg)) scale(1.1);
       color: #07130f;
       background: linear-gradient(145deg, #fff9d7, var(--gold) 60%, #d9a438);
-      box-shadow: 0 0 12px #fff, 0 0 28px var(--mint), 0 0 52px color-mix(in srgb,var(--gold) 72%,transparent);
-      animation:neonSelect .72s ease-in-out infinite alternate;
+      filter: brightness(1.14) saturate(1.18);
+      box-shadow: 0 0 14px #fff, 0 0 32px var(--mint), 0 0 54px color-mix(in srgb,var(--gold) 74%,transparent);
     }
     .letter-node.cosmic-complete { animation:cosmicComplete .62s ease-out both; }
     .playfield.shuffling .letter-node {
       pointer-events: none;
       transition: left .68s cubic-bezier(.2,.78,.24,1), top .68s cubic-bezier(.2,.78,.24,1), transform .14s ease, border-color .14s ease, box-shadow .14s ease;
     }
-    @keyframes neonSelect { to { filter:brightness(1.24) saturate(1.35); box-shadow:0 0 16px #fff,0 0 38px var(--mint),0 0 68px var(--gold); } }
     @keyframes cosmicComplete { 0%{filter:brightness(1);transform:translate(-50%,-50%) rotate(var(--tilt,0deg)) scale(1.08)} 45%{color:#fff;background:linear-gradient(145deg,#fff,var(--mint) 42%,#8d75ff);filter:brightness(1.8);box-shadow:0 0 24px #fff,0 0 60px var(--mint),0 0 95px #9a79ff;transform:translate(-50%,-50%) rotate(var(--tilt,0deg)) scale(1.22)} 100%{filter:brightness(1.05);transform:translate(-50%,-50%) rotate(var(--tilt,0deg)) scale(1.08)} }
     .effects-layer { position:absolute; z-index:12; inset:0; overflow:hidden; pointer-events:none; }
     .firework-particle { --spark:var(--gold); position:absolute; left:var(--origin-x); bottom:-8px; width:7px; height:13px; border-radius:50% 50% 45% 45%; opacity:0; background:var(--spark); box-shadow:0 0 8px var(--spark),0 0 18px var(--spark); animation:fireworkFlight var(--duration) cubic-bezier(.18,.68,.24,1) var(--delay) forwards; }
@@ -1073,6 +1075,7 @@
         <span class="inventory-ship" id="shopShowroomShip" aria-label="Selected ship or vehicle"></span>
         <div class="persona" id="shopShowroomPersona"></div>
         <span class="inventory-pet" id="shopShowroomPet" aria-label="Equipped pet"></span>
+        <span class="inventory-dictionary" id="shopShowroomDictionary" hidden aria-label="Collected SCOWL dictionary"></span>
         <span class="showroom-explorer-name" id="shopShowroomName" aria-hidden="true"></span>
       </div>
       <div class="store-section"><h3>Trinkets &amp; helpers</h3><div class="store-preview" id="helperStore"></div></div>
@@ -1323,6 +1326,7 @@
       const shopShowroomPersona = document.querySelector("#shopShowroomPersona");
       const shopShowroomShip = document.querySelector("#shopShowroomShip");
       const shopShowroomPet = document.querySelector("#shopShowroomPet");
+      const shopShowroomDictionary = document.querySelector("#shopShowroomDictionary");
       const shopShowroomName = document.querySelector("#shopShowroomName");
       const directionsOverlay = document.querySelector("#directionsOverlay");
       const directionsBack = document.querySelector("#directionsBack");
@@ -1359,6 +1363,7 @@
       let traceFieldRect = null;
       let traceMoveFrame = 0;
       let pendingTracePoint = null;
+      let lastPathValue = "";
       let activeTab = "goals";
       let toastTimer;
       let hasStarted = false;
@@ -2233,7 +2238,9 @@
       function drawPath() {
         const points = selected.map(nodeCenter);
         if (tracing && pointer) points.push(pointer);
-        const value = points.map(point => `${point.x},${point.y}`).join(" ");
+        const value = points.map(point => `${point.x.toFixed(1)},${point.y.toFixed(1)}`).join(" ");
+        if (value === lastPathValue) return;
+        lastPathValue = value;
         pathLine.setAttribute("points", value);
         pathGlow.setAttribute("points", value);
       }
@@ -2609,6 +2616,7 @@
         shopShowroomStage.classList.toggle("has-vehicle", Boolean(showroomShip));
         shopShowroomStage.dataset.fitProfile = avatarFitProfile(showroomAvatar);
         shopShowroomStage.style.setProperty("--fit-x", avatarFitOffset(showroomAvatar));
+        shopShowroomDictionary.hidden = !progress.helpers?.dictionary;
         applyExplorerBody(shopShowroomPersona, showroomAvatar);
         shopShowroomPersona.setAttribute("aria-label", `${showroomAvatar.name} full-body explorer`);
         shopShowroomName.textContent = showroomAvatar.name;
