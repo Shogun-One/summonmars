@@ -824,8 +824,11 @@
     .cave-choice::before { content:""; position:absolute; left:50%; top:51%; width:clamp(38px,45%,72px); aspect-ratio:1; translate:-50% -50%; border:2px solid rgba(255,255,255,.72); border-radius:50%; background:rgba(2,7,14,.62); box-shadow:0 0 18px rgba(120,230,255,.52),inset 0 0 13px rgba(255,255,255,.1); }
     .cave-choice span { position:relative; z-index:1; }
     .cave-choice:hover,.cave-choice:focus-visible { outline:none; transform:scale(1.06); filter:brightness(1.28); }
-    .cave-choice:disabled { cursor:default; opacity:.5; filter:grayscale(.55); transform:none; }
-    .cave-choice.chosen { opacity:1; filter:brightness(1.38); }
+    .cave-choice:disabled { cursor:default; transform:none; }
+    .cave-choices.resolved .cave-choice:not(.chosen) { opacity:.28; filter:grayscale(1) brightness(.5); }
+    .cave-choice.chosen { opacity:1; filter:brightness(1.5) saturate(1.28); background:radial-gradient(ellipse at 50% 55%,rgba(255,239,151,.48),rgba(102,230,255,.2) 34%,transparent 68%); }
+    .cave-choice.chosen::before { border-color:#fffbd1; background:rgba(255,224,109,.2); box-shadow:0 0 18px #fff8c2,0 0 36px #7defff,inset 0 0 18px rgba(255,255,255,.36); }
+    .cave-choice.chosen::after { content:"⛏️"; position:absolute; z-index:2; left:50%; top:3%; translate:-50% 0; font-size:clamp(1.45rem,7vw,2.5rem); filter:drop-shadow(0 3px 3px #000) drop-shadow(0 0 10px #fff3a6); transform:rotate(-16deg); }
     .cave-result { min-height:58px; margin:12px 0; display:grid; place-items:center; padding:11px 14px; border:1px solid rgba(255,217,120,.3); border-radius:13px 5px; color:#fff6c9; background:rgba(255,217,120,.08); font-size:.78rem; font-weight:800; line-height:1.45; text-align:center; }
     .cave-prize-guide { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:7px; }
     .cave-prize-guide div { padding:9px; border:1px solid rgba(255,255,255,.11); border-radius:11px 4px; background:rgba(255,255,255,.045); }
@@ -3024,6 +3027,7 @@
 
       function openTreasureCave() {
         if (!progress.treasureCave?.pending) return;
+        caveChoices.classList.remove("resolved");
         caveChoices.querySelectorAll(".cave-choice").forEach(button => {
           button.disabled = false;
           button.classList.remove("chosen");
@@ -3059,6 +3063,7 @@
         saveProgress();
         caveChoices.querySelectorAll(".cave-choice").forEach(button => { button.disabled = true; });
         choice.classList.add("chosen");
+        caveChoices.classList.add("resolved");
         caveResult.textContent = message;
         caveIntro.textContent = `${3 - progress.treasureCave.plays} expedition${3 - progress.treasureCave.plays === 1 ? "" : "s"} remaining today.`;
         caveClose.classList.add("ready");
