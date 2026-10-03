@@ -350,6 +350,7 @@
     #themeChoices .theme-swatch::before { content:""; position:absolute; width:28px; height:28px; right:13px; top:12px; border-radius:50%; background:radial-gradient(circle at 34% 28%,#fff,var(--scene-two) 18%,var(--swatch) 58%,#071019 72%); box-shadow:0 0 18px var(--scene-glow); }
     #themeChoices .theme-swatch::after { content:"✦  ·  ✧   ·  ✦"; position:absolute; left:10px; top:9px; color:rgba(255,255,255,.86); font-size:.62rem; letter-spacing:.22em; text-shadow:18px 22px 0 color-mix(in srgb,var(--swatch) 70%,white); }
     .avatar-grid { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:8px; }
+    .avatar-grid > .avatar-choice:nth-child(3),.store-avatar-grid > .avatar-choice:nth-child(3) { grid-column:1; }
     .avatar-choice { padding:5px 3px 6px; border:1px solid rgba(255,255,255,.2); border-radius:13px 5px 13px 5px; color:var(--surface-text); background:rgba(255,255,255,.075); font-size:.61rem; font-weight:850; cursor:pointer; }
     .avatar-choice.selected { color:var(--ink); border-color:var(--gold); box-shadow:0 0 16px color-mix(in srgb,var(--gold) 20%,transparent); }
     .avatar-choice.locked:not(:disabled)::after { content:"LOCKED"; display:block; margin-top:2px; color:#ffcf6b; font-size:.43rem; letter-spacing:.1em; }
@@ -566,7 +567,7 @@
     .store-section h3,.inventory-explorers h3 { margin:0 0 9px; color:color-mix(in srgb,var(--gold) 78%,white); font-size:.7rem; font-weight:900; letter-spacing:.13em; text-transform:uppercase; }
     .store-category-label { grid-column:1/-1; margin:10px 0 0; padding:8px 10px 6px; border-bottom:1px solid color-mix(in srgb,var(--accent) 32%,transparent); color:color-mix(in srgb,var(--gold) 78%,white); font-size:.64rem; font-weight:900; letter-spacing:.12em; text-align:left; text-transform:uppercase; }
     .store-category-label:first-child { margin-top:0; }
-    .store-avatar-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; }
+    .store-avatar-grid { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:8px; }
     .store-avatar-grid .avatar-choice { height:112px; }
     .store-item { height:118px; overflow:hidden; padding:5px 3px 6px; border:1px solid rgba(255,255,255,.2); border-radius:13px 5px 13px 5px; color:var(--surface-muted); background:rgba(255,255,255,.075); font-size:.58rem; font-weight:750; cursor:pointer; }
     .store-item .shop-icon { display:block; width:60px; height:60px; margin:0 auto 5px; border-radius:14px 6px; background-repeat:no-repeat; background-size:contain; background-position:center; }
@@ -1083,7 +1084,8 @@
         {id:"bigfoot",name:"Bigfoot",bodySrc:"../images/verbia/bodies-standard/bigfoot.png?v=4",bodyIndex:12,cost:400},
         {id:"yeti",name:"Yeti",bodySrc:"../images/verbia/bodies-standard/yeti.png?v=4",bodyIndex:13,cost:400},
         {id:"alien",name:"Zyra",bodySrc:"../images/verbia/bodies-standard/alien.png?v=4",bodyIndex:14,cost:400},
-        {id:"kage",name:"Kage",bodySrc:"../images/verbia/bodies-standard/kage.png?v=4",bodyIndex:15,cost:400}
+        {id:"kage",name:"Kage",bodySrc:"../images/verbia/bodies-standard/kage.png?v=4",bodyIndex:15,cost:400},
+        {id:"werewolf",name:"Howler",bodySrc:"../images/verbia/bodies-standard/werewolf-90s.png?v=1",bodyIndex:16,cost:400}
       ];
       const petGameScale = {
         "pet-dog":.9, "pet-cat":.82, "pet-iguana":.76, "pet-bird":.72, "pet-monkey":.78,
