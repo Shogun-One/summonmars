@@ -3703,29 +3703,33 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
     toNextMaxEl.textContent = levelProgressGoal(1);
 
     const STORE_ITEMS = [
-      {id:'ship-starter',type:'ship',name:'PULSEWING',price:0,color:'#45eaff'},
-      {id:'ship-crimson',type:'ship',name:'CRIMSON VIPER',price:2000,color:'#ff496f'},
-      {id:'ship-solar',type:'ship',name:'SOLAR WARDEN',price:2000,color:'#ffbd45'},
-      {id:'ship-void',type:'ship',name:'VOID PHANTOM',price:2000,color:'#ae70ff'},
-      {id:'ship-emerald',type:'ship',name:'EMERALD EDGE',price:3000,color:'#35f5a1'},
-      {id:'ship-cobalt',type:'ship',name:'COBALT GUNSHIP',price:3000,color:'#4297ff'},
-      {id:'ship-manta',type:'ship',name:'STEALTH MANTA',price:3000,color:'#8de8ff'},
-      {id:'ship-dogbus',type:'ship',name:'DOGFACE BUS',price:3000,color:'#ffae45'},
-      {id:'ship-phoenix',type:'ship',name:'SOLAR PHOENIX',price:3000,color:'#ff623b'},
-      {id:'pilot-shadow',type:'pilot',name:'UNKNOWN PILOT',price:0,color:'#7d718d'},
-      {id:'pilot-nova',type:'pilot',name:'NOVA',price:3500,color:'#ff77c8'},
-      {id:'pilot-ace',type:'pilot',name:'ACE REX',price:3500,color:'#5dffbf'},
-      {id:'pilot-indian-f',type:'pilot',name:'CAPTAIN ASHA',price:3500,color:'#ff9f68'},
-      {id:'pilot-indian-m',type:'pilot',name:'COMMANDER ARJUN',price:3500,color:'#ffc95d'},
-      {id:'pilot-black-f',type:'pilot',name:'MAJOR IMANI',price:3500,color:'#f06bb8'},
-      {id:'pilot-black-m',type:'pilot',name:'CAPTAIN MALIK',price:3500,color:'#75c9ff'},
-      {id:'pilot-asian-f',type:'pilot',name:'COMMANDER MEI',price:3500,color:'#ff6f91'},
-      {id:'pilot-asian-m',type:'pilot',name:'ACE KENJI',price:3500,color:'#70e0d1'},
-      {id:'scene-deep',type:'scene',name:'DEEP SPACE',price:0,color:'#171329'},
-      {id:'scene-nebula',type:'scene',name:'NEBULA RUN',price:4000,color:'#a33bba'},
-      {id:'scene-solar',type:'scene',name:'SOLAR STORM',price:4000,color:'#df5c28'},
-      {id:'missile-21',type:'upgrade',name:'MISSILE BAY 21',price:6000,color:'#ff784e'}
+      {id:'ship-starter',type:'ship',name:'PULSEWING',price:0,bossGate:0,color:'#45eaff'},
+      {id:'ship-crimson',type:'ship',name:'CRIMSON VIPER',price:2000,bossGate:1,color:'#ff496f'},
+      {id:'ship-solar',type:'ship',name:'SOLAR WARDEN',price:2000,bossGate:1,color:'#ffbd45'},
+      {id:'ship-void',type:'ship',name:'VOID PHANTOM',price:2000,bossGate:1,color:'#ae70ff'},
+      {id:'ship-emerald',type:'ship',name:'EMERALD EDGE',price:3000,bossGate:2,color:'#35f5a1'},
+      {id:'ship-cobalt',type:'ship',name:'COBALT GUNSHIP',price:3000,bossGate:2,color:'#4297ff'},
+      {id:'ship-manta',type:'ship',name:'STEALTH MANTA',price:3000,bossGate:3,color:'#8de8ff'},
+      {id:'ship-dogbus',type:'ship',name:'DOGFACE BUS',price:3000,bossGate:4,color:'#ffae45'},
+      {id:'ship-phoenix',type:'ship',name:'SOLAR PHOENIX',price:3000,bossGate:4,color:'#ff623b'},
+      {id:'pilot-shadow',type:'pilot',name:'UNKNOWN PILOT',price:0,bossGate:0,color:'#7d718d'},
+      {id:'pilot-nova',type:'pilot',name:'NOVA',price:3500,bossGate:2,color:'#ff77c8'},
+      {id:'pilot-ace',type:'pilot',name:'ACE REX',price:3500,bossGate:2,color:'#5dffbf'},
+      {id:'pilot-indian-f',type:'pilot',name:'CAPTAIN ASHA',price:3500,bossGate:3,color:'#ff9f68'},
+      {id:'pilot-indian-m',type:'pilot',name:'COMMANDER ARJUN',price:3500,bossGate:3,color:'#ffc95d'},
+      {id:'pilot-black-f',type:'pilot',name:'MAJOR IMANI',price:3500,bossGate:4,color:'#f06bb8'},
+      {id:'pilot-black-m',type:'pilot',name:'CAPTAIN MALIK',price:3500,bossGate:4,color:'#75c9ff'},
+      {id:'pilot-asian-f',type:'pilot',name:'COMMANDER MEI',price:3500,bossGate:5,color:'#ff6f91'},
+      {id:'pilot-asian-m',type:'pilot',name:'ACE KENJI',price:3500,bossGate:5,color:'#70e0d1'},
+      {id:'scene-deep',type:'scene',name:'DEEP SPACE',price:0,bossGate:0,color:'#171329'},
+      {id:'scene-nebula',type:'scene',name:'NEBULA RUN',price:4000,bossGate:6,color:'#a33bba'},
+      {id:'scene-solar',type:'scene',name:'SOLAR STORM',price:4000,bossGate:8,color:'#df5c28'},
+      {id:'missile-21',type:'upgrade',name:'MISSILE BAY 21',price:6000,bossGate:7,color:'#ff784e'}
     ];
+    const DEFAULT_OWNED_STORE_ITEMS=['ship-starter','pilot-shadow','scene-deep','pilot-nova','pilot-ace','ship-dogbus','ship-phoenix'];
+    function storeItemProgressUnlocked(item){
+      return bossKills >= (item.bossGate||0);
+    }
     let storeCredits = Math.max(0, Number(localStorage.getItem(storageKey('StoreCredits')) || 0));
     function syncPointsBalanceUI(){
       // The star is the spendable lifetime balance, not the score earned only
@@ -3737,7 +3741,7 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
     let ownedStoreItems;
     try{ ownedStoreItems = new Set(JSON.parse(localStorage.getItem(storageKey('OwnedItems')) || '[]')); }
     catch{ ownedStoreItems = new Set(); }
-    ['ship-starter','pilot-shadow','scene-deep'].forEach(id=>ownedStoreItems.add(id));
+    DEFAULT_OWNED_STORE_ITEMS.forEach(id=>ownedStoreItems.add(id));
     let equippedStore = {ship:'ship-starter',pilot:'pilot-shadow',scene:'scene-deep'};
     try{ equippedStore = {...equippedStore,...JSON.parse(localStorage.getItem(storageKey('EquippedItems')) || '{}')}; }catch{}
     for(const type of ['ship','pilot','scene']){
@@ -5003,7 +5007,7 @@ function updateBosses(dt){
       continueGameBtn.disabled=!saved;
       continueGameBtn.setAttribute('aria-disabled',saved?'false':'true');
       continueGameMetaEl.textContent=saved
-        ? `Resume Level ${Math.max(1,saved.level|0)} • ${storeCredits.toLocaleString()} points • ${Math.max(0,ownedStoreItems.size-3)} unlocks`
+        ? `Resume Level ${Math.max(1,saved.level|0)} • ${storeCredits.toLocaleString()} points • ${Math.max(0,ownedStoreItems.size-DEFAULT_OWNED_STORE_ITEMS.length)} earned unlocks`
         : 'No saved game yet';
       setLaunchChoiceSelection(saved ? 0 : 1);
     }
@@ -5084,7 +5088,7 @@ function updateBosses(dt){
 
       storeCredits = 0;
       ownedStoreItems.clear();
-      ['ship-starter','pilot-shadow','scene-deep'].forEach(id=>ownedStoreItems.add(id));
+      DEFAULT_OWNED_STORE_ITEMS.forEach(id=>ownedStoreItems.add(id));
       equippedStore = {ship:'ship-starter',pilot:'pilot-shadow',scene:'scene-deep'};
       updatePilotPortrait();
 
@@ -5289,6 +5293,8 @@ function updateBosses(dt){
             updatePilotPortrait();
             showGameAlert(`${item.name} EQUIPPED`,'sound-on');
           }
+        }else if(!storeItemProgressUnlocked(item)){
+          showGameAlert(`DEFEAT BOSS ${item.bossGate} THIS RUN`,'sound-off');
         }else if(storeCredits >= item.price){
           storeCredits -= item.price;
           syncPointsBalanceUI();
@@ -8325,7 +8331,8 @@ if (flashTimer > 0) {
           const selectionIndex=i+1;
           const owned=ownedStoreItems.has(item.id);
           const equipped=item.type!=='upgrade'&&equippedStore[item.type]===item.id;
-          const status=equipped?'EQUIPPED':owned?'OWNED':`${item.price.toLocaleString()} PTS`;
+          const progressUnlocked=owned||storeItemProgressUnlocked(item);
+          const status=equipped?'EQUIPPED':owned?'OWNED':progressUnlocked?`${item.price.toLocaleString()} PTS`:`LOCKED • BOSS ${item.bossGate}`;
           card(rects[selectionIndex].x,rects[selectionIndex].y,rects[selectionIndex].w,rects[selectionIndex].h,inventorySelection===selectionIndex,'','');
           const r=rects[selectionIndex];
           const transparentShipImg=item.type==='ship'?(detailedShipImgs[item.id]||shipImg):null;
@@ -8348,7 +8355,7 @@ if (flashTimer > 0) {
             const titleSize=compact?(item.name.length>15?9:11):(item.name.length>18?11:13);
             ctx.fillStyle=inventorySelection===selectionIndex?'#7dffbc':'#fff';ctx.font=`900 ${titleSize}px Orbitron`;
             ctx.fillText(item.name,textX,r.y+r.h*.39);
-            ctx.fillStyle=equipped?'#7dffbc':'rgba(255,255,255,.9)';ctx.font=`800 ${compact?12:11}px Share Tech Mono`;
+            ctx.fillStyle=equipped?'#7dffbc':progressUnlocked?'rgba(255,255,255,.9)':'#ff8aa0';ctx.font=`800 ${compact?12:11}px Share Tech Mono`;
             ctx.fillText(status,textX,r.y+r.h*.70);
           }else if(atlasReady && Number.isInteger(atlasIndex)){
             const crop=inventoryAtlasCrop(atlasImg,atlasIndex,useAtlas2);
@@ -8358,7 +8365,7 @@ if (flashTimer > 0) {
             const titleSize=compact?(item.name.length>15?9:11):(item.name.length>18?11:13);
             ctx.fillStyle=inventorySelection===selectionIndex?'#7dffbc':'#fff';ctx.font=`900 ${titleSize}px Orbitron`;
             ctx.fillText(item.name,textX,r.y+r.h*.39);
-            ctx.fillStyle=equipped?'#7dffbc':'rgba(255,255,255,.9)';ctx.font=`800 ${compact?12:11}px Share Tech Mono`;
+            ctx.fillStyle=equipped?'#7dffbc':progressUnlocked?'rgba(255,255,255,.9)':'#ff8aa0';ctx.font=`800 ${compact?12:11}px Share Tech Mono`;
             ctx.fillText(status,textX,r.y+r.h*.70);
           }
         });
