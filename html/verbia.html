@@ -654,12 +654,15 @@
     .inventory-score-note small { font:900 clamp(.42rem,1.7vw,.56rem)/1.15 system-ui,sans-serif; letter-spacing:.12em; text-transform:uppercase; }
     .inventory-score-note strong { max-width:100%; overflow:hidden; font:900 clamp(1.35rem,6vw,2rem)/1 Georgia,serif; letter-spacing:-.035em; text-overflow:ellipsis; }
     .inventory-stage::after { content:"FULL-BODY FITTING BAY"; position:absolute; z-index:10; left:50%; top:12px; translate:-50% 0; color:rgba(255,255,255,.42); font-size:.5rem; font-weight:900; letter-spacing:.16em; white-space:nowrap; }
+    .showroom-table { position:absolute; z-index:1; left:3%; bottom:5%; width:36%; height:25%; pointer-events:none; }
+    .showroom-table::before { content:""; position:absolute; left:0; right:0; top:0; height:11px; border:1px solid rgba(190,238,229,.42); border-radius:5px 12px 4px 9px; background:linear-gradient(180deg,#9eb9b4 0 13%,#3b5656 18% 48%,#142b2e 52% 100%); box-shadow:0 5px 10px rgba(0,0,0,.52),inset 0 1px rgba(255,255,255,.5),0 0 12px rgba(117,245,199,.13); transform:perspective(90px) rotateX(7deg); transform-origin:center bottom; }
+    .showroom-table::after { content:""; position:absolute; left:19%; top:10px; bottom:0; width:13px; border:1px solid rgba(172,211,207,.27); border-radius:2px 2px 8px 8px; background:linear-gradient(90deg,#17292b,#7b9996 42%,#263e40 68%,#0d191c); box-shadow:0 6px 10px rgba(0,0,0,.56),32px calc(100% - 8px) 0 -3px #30494a; }
     .persona { --atlas-x:0%;--atlas-y:0%; position:absolute; z-index:2; left:50%; bottom:12px; width:min(76%,330px); height:calc(100% - 40px); transform:translateX(-50%); background-image:url('../images/verbia/explorer-fitting-atlas-v3.png'); background-size:500% 200%; background-position:var(--atlas-x) var(--atlas-y); background-repeat:no-repeat; filter:drop-shadow(0 16px 18px rgba(0,0,0,.45)); }
     .inventory-ship { position:absolute; z-index:1; inset:0; background-repeat:no-repeat; background-size:cover; background-position:center; opacity:.58; filter:brightness(1.28) contrast(1.08) saturate(1.18) drop-shadow(0 0 16px color-mix(in srgb,var(--mint) 34%,transparent)) drop-shadow(0 12px 18px rgba(0,0,0,.65)); }
     .inventory-ship:empty { display:none; }
     .inventory-pet { position:absolute; z-index:7; right:3%; bottom:calc(8px + var(--companion-lift,0px)); width:34%; aspect-ratio:1; transform:scale(var(--companion-scale,1)); transform-origin:right bottom; background-repeat:no-repeat; background-size:contain; background-position:center bottom; filter:drop-shadow(0 8px 8px rgba(0,0,0,.5)); }
     .inventory-pet:empty { display:none; }
-    .inventory-dictionary { position:absolute; z-index:9; left:12px; bottom:10px; width:88px; height:64px; background:url('../images/verbia/menu-open-dictionary.png') center/contain no-repeat; filter:brightness(1.18) drop-shadow(0 5px 8px rgba(0,0,0,.6)); pointer-events:none; }
+    .inventory-dictionary { position:absolute; z-index:1; left:5%; bottom:calc(30% - 6px); width:clamp(72px,25%,98px); height:58px; background:url('../images/verbia/menu-open-dictionary.png') center bottom/contain no-repeat; filter:brightness(1.18) drop-shadow(0 5px 8px rgba(0,0,0,.6)); pointer-events:none; }
     .inventory-dictionary[hidden] { display:none!important; }
     .inventory-list { display:grid; gap:14px; margin-top:14px; }
     .inventory-item-group { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; }
@@ -1126,6 +1129,7 @@
       <p class="feature-intro"><span id="inventoryPoints">0</span> discovery points · Choose an explorer, companion, and ship or vehicle.</p>
       <div class="inventory-stage">
         <span class="inventory-score-note" aria-label="Current permanent score"><small>Score</small><strong id="inventoryStageScore">0</strong></span>
+        <span class="showroom-table" aria-hidden="true"></span>
         <span class="inventory-ship" id="inventoryShip" aria-label="Selected ship or vehicle"></span>
         <div class="persona" id="inventoryPersona"></div>
         <span class="inventory-pet" id="inventoryPet" aria-label="Equipped pet"></span>
@@ -1147,6 +1151,7 @@
       <p class="feature-intro">Unlock complete explorers, companions, ships, vehicles, and helpers.</p>
       <div class="inventory-stage store-showroom-stage" id="shopShowroomStage">
         <span class="store-points-note" aria-label="Current discovery points"><small>Discovery points</small><strong id="shopPoints">0</strong></span>
+        <span class="showroom-table" aria-hidden="true"></span>
         <span class="inventory-ship" id="shopShowroomShip" aria-label="Selected ship or vehicle"></span>
         <div class="persona" id="shopShowroomPersona"></div>
         <span class="inventory-pet" id="shopShowroomPet" aria-label="Equipped pet"></span>
