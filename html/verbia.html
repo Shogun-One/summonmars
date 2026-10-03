@@ -670,8 +670,10 @@
     .board-nav-button.available { color:#fff; }
     .board-nav-button.previous.available { box-shadow:0 0 16px color-mix(in srgb,var(--mint) 48%,transparent),inset 0 0 11px color-mix(in srgb,var(--mint) 34%,transparent); animation:navGentleFade 7.5s ease-in-out infinite; }
     .board-nav-button.next.available { border-color:#62ff8f; box-shadow:0 0 8px #62ff8f,0 0 19px rgba(55,255,118,.88),inset 0 0 12px rgba(55,255,118,.5); animation:nextNeonPulse 1.65s ease-in-out infinite; }
+    .board-nav-button.next.mastered-attention { animation:nextNeonPulse 1.65s ease-in-out infinite,masteredArrowShake .9s ease-in-out infinite; transform-origin:center; }
     @keyframes navGentleFade { 0%,58%,100%{opacity:.9;filter:brightness(1.08)} 72%{opacity:.46;filter:brightness(.72)} 84%{opacity:.82;filter:brightness(1)} }
     @keyframes nextNeonPulse { 0%,100%{border-color:#42ff7c;box-shadow:0 0 6px #42ff7c,0 0 14px rgba(55,255,118,.68),inset 0 0 8px rgba(55,255,118,.38)} 50%{border-color:#baffcb;box-shadow:0 0 12px #7dff9f,0 0 30px #32ff70,inset 0 0 17px rgba(72,255,126,.72)} }
+    @keyframes masteredArrowShake { 0%,48%,100%{transform:translateX(0) rotate(0)} 56%{transform:translateX(-4px) rotate(-5deg)} 64%{transform:translateX(4px) rotate(5deg)} 72%{transform:translateX(-3px) rotate(-3deg)} 80%{transform:translateX(3px) rotate(3deg)} 88%{transform:translateX(0) rotate(0)} }
     @media (prefers-reduced-motion:reduce) { .board-nav-button.available { animation:none; opacity:.9; } }
 
     .sheet-backdrop {
@@ -1968,6 +1970,7 @@
 
       function flipToBoard(targetIndex) {
         stopMasteryFireworks();
+        nextButton.classList.remove("mastered-attention");
         boardTransitioning = true;
         nextButton.disabled = true;
         resetTrace();
@@ -2496,6 +2499,7 @@
         boardState.classList.toggle("cleared", cleared);
         nextButton.disabled = !cleared || boardTransitioning;
         nextButton.classList.toggle("available", cleared && !boardTransitioning);
+        nextButton.classList.toggle("mastered-attention", mastered && !boardTransitioning);
         renderPreviousBoardsButton();
         renderDiscoveryShelf();
         if (backdrop.classList.contains("open")) renderSheet();
