@@ -622,6 +622,9 @@
     .inventory-stage { position:relative; height:min(58svh,560px); min-height:440px; margin:14px 0; overflow:hidden; border:1px solid rgba(255,255,255,.13); border-radius:24px 8px; background:radial-gradient(circle at 50% 36%,color-mix(in srgb,var(--mint) 20%,transparent),transparent 34%),linear-gradient(180deg,#0d2730,#070b15 70%); box-shadow:inset 0 0 55px rgba(75,223,255,.08); }
     .inventory-stage.has-vehicle::before { content:""; position:absolute; z-index:0; inset:12% 2% 14%; background:radial-gradient(ellipse at 50% 55%,color-mix(in srgb,var(--mint) 48%,transparent) 0%,color-mix(in srgb,var(--accent) 24%,transparent) 30%,transparent 72%); filter:blur(14px); opacity:.9; pointer-events:none; }
     .store-showroom-stage { height:min(50svh,480px); min-height:390px; margin-bottom:22px; }
+    .store-points-note { position:absolute; z-index:14; top:24px; right:8px; width:clamp(104px,31%,138px); aspect-ratio:4/3; display:grid; place-content:center; gap:1px; padding:18px 15px 14px; color:#291b0f; background:url('../images/verbia/store-points-note-v1.png') center/contain no-repeat; filter:drop-shadow(0 7px 8px rgba(0,0,0,.55)); text-align:center; transform:rotate(1.5deg); pointer-events:none; }
+    .store-points-note small { font:900 clamp(.42rem,1.8vw,.58rem)/1.1 system-ui,sans-serif; letter-spacing:.13em; text-transform:uppercase; }
+    .store-points-note strong { font:900 clamp(1.15rem,5vw,1.7rem)/1 Georgia,serif; }
     .inventory-stage::after { content:"FULL-BODY FITTING BAY"; position:absolute; z-index:10; left:50%; top:12px; translate:-50% 0; color:rgba(255,255,255,.42); font-size:.5rem; font-weight:900; letter-spacing:.16em; white-space:nowrap; }
     .persona { --atlas-x:0%;--atlas-y:0%; position:absolute; z-index:2; left:50%; bottom:12px; width:min(76%,330px); height:calc(100% - 40px); transform:translateX(-50%); background-image:url('../images/verbia/explorer-fitting-atlas-v3.png'); background-size:500% 200%; background-position:var(--atlas-x) var(--atlas-y); background-repeat:no-repeat; filter:drop-shadow(0 16px 18px rgba(0,0,0,.45)); }
     .inventory-ship { position:absolute; z-index:1; inset:0; background-repeat:no-repeat; background-size:cover; background-position:center; opacity:.58; filter:brightness(1.28) contrast(1.08) saturate(1.18) drop-shadow(0 0 16px color-mix(in srgb,var(--mint) 34%,transparent)) drop-shadow(0 12px 18px rgba(0,0,0,.65)); }
@@ -1070,8 +1073,9 @@
         <button class="feature-resume" id="shopResume" type="button">Resume game</button>
       </div>
       <h2 id="shopTitle">Explorer Store</h2>
-      <p class="feature-intro"><span id="shopPoints">0</span> discovery points · Unlock complete explorers, companions, ships, and vehicles.</p>
+      <p class="feature-intro">Unlock complete explorers, companions, ships, vehicles, and helpers.</p>
       <div class="inventory-stage store-showroom-stage" id="shopShowroomStage">
+        <span class="store-points-note" aria-label="Current discovery points"><small>Discovery points</small><strong id="shopPoints">0</strong></span>
         <span class="inventory-ship" id="shopShowroomShip" aria-label="Selected ship or vehicle"></span>
         <div class="persona" id="shopShowroomPersona"></div>
         <span class="inventory-pet" id="shopShowroomPet" aria-label="Equipped pet"></span>
@@ -2768,8 +2772,9 @@
         if (progress.unlockedAvatars.includes(avatar.id)) {
           settings.avatar = avatar.id;
           saveSettings();
-          closeShop();
-          openInventory();
+          applySettings(false);
+          renderShop();
+          showShopPrize();
           return;
         }
         if ((progress.points || 0) < avatar.cost) return;
@@ -2783,6 +2788,7 @@
         applySettings(false);
         showToast(`${avatar.name} joined your explorers`, "success");
         renderShop();
+        showShopPrize();
       }
 
       function purchaseItem(itemId) {
@@ -2794,6 +2800,7 @@
           saveProgress();
           renderShop();
           renderInventory();
+          showShopPrize();
           vibrate(18);
           return;
         }
@@ -2804,7 +2811,12 @@
         saveProgress();
         renderWallet();
         renderInventory();
+        showShopPrize();
         vibrate([25,20,45]);
+      }
+
+      function showShopPrize() {
+        requestAnimationFrame(() => shopOverlay.scrollTo({top:0,behavior:"smooth"}));
       }
 
       function purchaseHelper(helperId) {
