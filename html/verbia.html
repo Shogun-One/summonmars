@@ -1062,7 +1062,7 @@
       </div>
       <div class="music-speed-bar">
         <span>Music style</span>
-        <label class="music-speed-control" for="musicPace"><input id="musicPace" type="range" min="0" max="2" step="1" value="0" aria-label="Music style: slow music" /></label>
+        <label class="music-speed-control" for="musicPace"><input id="musicPace" type="range" min="0" max="2" step="1" value="1" aria-label="Music style: medium music" /></label>
         <div class="music-speed-labels" aria-hidden="true"><span>Slow</span><span>Medium</span><span>Fast</span></div>
       </div>
     </section>
@@ -1507,7 +1507,7 @@
       const mediumBackgroundMusic = new Audio("../mp3/verbia/cosmic-techno-medium-loop.ogg?v=2");
       const fastBackgroundMusic = new Audio("../mp3/verbia/cosmic-elevator-fast-loop.ogg?v=3");
       const backgroundTracks = [slowBackgroundMusic,mediumBackgroundMusic,fastBackgroundMusic];
-      let backgroundMusic = slowBackgroundMusic;
+      let backgroundMusic = mediumBackgroundMusic;
       boardClearAudio.preload = "auto";
       boardMasterAudio.preload = "auto";
       backgroundTracks.forEach(track => { track.preload = "auto"; track.loop = true; track.volume = .18; });
@@ -1761,7 +1761,7 @@
       });
 
       musicPace.addEventListener("input", () => {
-        settings.musicPace = ["slow","medium","fast"][Number(musicPace.value)] || "slow";
+        settings.musicPace = ["slow","medium","fast"][Number(musicPace.value)] || "medium";
         applySettings(false);
         startBackgroundMusic();
       });
@@ -1829,7 +1829,7 @@
         localStorage.removeItem("verbia-prototype-board-01");
         progress = freshProgress(true);
         profileExists = true;
-        settings = { theme:"cosmic-red", shape:"shard", avatar:"rx7", soundMode:"all", musicPace:"slow", haptics:true, avatarDefaultVersion:2 };
+        settings = { theme:"cosmic-red", shape:"shard", avatar:"rx7", soundMode:"all", musicPace:"medium", haptics:true, avatarDefaultVersion:2 };
         boardIndex = 0;
         boards.length = 0;
         ensureBoard(1);
@@ -3751,7 +3751,7 @@
         ensureInventory();
         if (!["shard","circle","triangle"].includes(settings.shape)) settings.shape = "shard";
         if (!["all","music","effects","off"].includes(settings.soundMode)) settings.soundMode = "all";
-        if (!["slow","medium","fast"].includes(settings.musicPace)) settings.musicPace = "slow";
+        if (!["slow","medium","fast"].includes(settings.musicPace)) settings.musicPace = "medium";
         if (typeof settings.haptics !== "boolean") settings.haptics = true;
         document.documentElement.dataset.theme = settings.theme;
         playfield.dataset.shape = settings.shape;
@@ -3798,8 +3798,8 @@
           const saved = JSON.parse(localStorage.getItem(settingsKey) || "{}");
           delete saved.layout;
           if (!saved.avatarDefaultVersion) saved.avatar = "rx7";
-          return { theme:"cosmic-red", shape:"shard", avatar:"rx7", soundMode:"all", musicPace:"slow", haptics:true, ...saved, avatarDefaultVersion:2 };
-        } catch { return { theme:"cosmic-red", shape:"shard", avatar:"rx7", soundMode:"all", musicPace:"slow", haptics:true, avatarDefaultVersion:2 }; }
+          return { theme:"cosmic-red", shape:"shard", avatar:"rx7", soundMode:"all", musicPace:"medium", haptics:true, ...saved, avatarDefaultVersion:2 };
+        } catch { return { theme:"cosmic-red", shape:"shard", avatar:"rx7", soundMode:"all", musicPace:"medium", haptics:true, avatarDefaultVersion:2 }; }
       }
 
       function saveSettings() { localStorage.setItem(settingsKey, JSON.stringify(settings)); }
