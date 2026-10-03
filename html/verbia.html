@@ -165,8 +165,10 @@
 
     .progress-row {
       display: flex;
-      justify-content: flex-end;
-      gap: 10px;
+      flex-direction:column;
+      align-items:flex-end;
+      justify-content:center;
+      gap: 1px;
       color: var(--muted);
       font-size: .76rem;
       font-weight: 700;
@@ -188,6 +190,8 @@
     @keyframes clearedStateGlow { to{color:#fffbdc;filter:brightness(1.28);text-shadow:0 0 11px #fff,0 0 24px var(--gold),0 0 38px var(--mint)} }
     .score-display { display:flex; align-items:baseline; gap:8px; }
     .score-display strong { color:var(--gold); font-family:Georgia,serif; font-size:1rem; letter-spacing:0; }
+    .points-display { display:flex; align-items:baseline; gap:8px; color:#fff; font-size:.68rem; }
+    .points-display strong { color:var(--mint); font-family:Georgia,serif; font-size:.92rem; letter-spacing:0; }
 
     .playfield {
       position: relative;
@@ -580,7 +584,8 @@
     .previous-choice span { color:var(--surface-muted); font-size:.67rem; }
     .previous-choice b { color:var(--mint); font-size:.7rem; }
     .previous-empty { margin:0; padding:15px; border:1px dashed rgba(255,255,255,.18); border-radius:13px; color:var(--surface-muted); text-align:center; font-size:.72rem; }
-    .wallet-card { display:flex; justify-content:space-between; gap:12px; padding:12px; border:1px solid rgba(255,217,120,.3); border-radius:13px 5px 13px 5px; background:rgba(255,217,120,.09); color:var(--surface-muted); font-size:.7rem; font-weight:750; }
+    .wallet-card { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; padding:12px; border:1px solid rgba(255,217,120,.3); border-radius:13px 5px 13px 5px; background:rgba(255,217,120,.09); color:var(--surface-muted); font-size:.7rem; font-weight:750; }
+    .wallet-card span { min-width:0; text-align:center; }
     .wallet-card strong { display:block; color:var(--gold); font-size:1rem; }
     .store-preview { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; }
     .store-section,.inventory-explorers,.inventory-item-group { padding:12px 10px 10px; border:1px solid color-mix(in srgb,var(--mint) 24%,transparent); border-radius:14px 5px; background:rgba(255,255,255,.025); }
@@ -631,6 +636,9 @@
     .store-points-note { position:absolute; z-index:14; top:24px; right:8px; width:clamp(104px,31%,138px); aspect-ratio:4/3; display:grid; place-content:center; gap:1px; padding:18px 15px 14px; color:#291b0f; background:url('../images/verbia/store-points-note-v1.png') center/contain no-repeat; filter:drop-shadow(0 7px 8px rgba(0,0,0,.55)); text-align:center; transform:rotate(1.5deg); pointer-events:none; }
     .store-points-note small { font:900 clamp(.42rem,1.8vw,.58rem)/1.1 system-ui,sans-serif; letter-spacing:.13em; text-transform:uppercase; }
     .store-points-note strong { font:900 clamp(1.15rem,5vw,1.7rem)/1 Georgia,serif; }
+    .inventory-points-note { position:absolute; z-index:14; top:20px; left:8px; width:clamp(88px,25%,116px); aspect-ratio:3/4; display:grid; place-content:center; gap:1px; padding:30px 13px 13px; color:#17252d; background:url('../images/verbia/inventory-points-tag-v1.webp') center/contain no-repeat; filter:drop-shadow(0 7px 8px rgba(0,0,0,.58)); text-align:center; transform:rotate(-2deg); pointer-events:none; }
+    .inventory-points-note small { font:900 clamp(.38rem,1.55vw,.52rem)/1.15 system-ui,sans-serif; letter-spacing:.09em; text-transform:uppercase; }
+    .inventory-points-note strong { font:900 clamp(1.05rem,4.5vw,1.5rem)/1 Georgia,serif; }
     .inventory-stage::after { content:"FULL-BODY FITTING BAY"; position:absolute; z-index:10; left:50%; top:12px; translate:-50% 0; color:rgba(255,255,255,.42); font-size:.5rem; font-weight:900; letter-spacing:.16em; white-space:nowrap; }
     .persona { --atlas-x:0%;--atlas-y:0%; position:absolute; z-index:2; left:50%; bottom:12px; width:min(76%,330px); height:calc(100% - 40px); transform:translateX(-50%); background-image:url('../images/verbia/explorer-fitting-atlas-v3.png'); background-size:500% 200%; background-position:var(--atlas-x) var(--atlas-y); background-repeat:no-repeat; filter:drop-shadow(0 16px 18px rgba(0,0,0,.45)); }
     .inventory-ship { position:absolute; z-index:1; inset:0; background-repeat:no-repeat; background-size:cover; background-position:center; opacity:.58; filter:brightness(1.28) contrast(1.08) saturate(1.18) drop-shadow(0 0 16px color-mix(in srgb,var(--mint) 34%,transparent)) drop-shadow(0 12px 18px rgba(0,0,0,.65)); }
@@ -785,8 +793,8 @@
     .dictionary-sections { display:grid; grid-template-columns:repeat(5,1fr); gap:3px; width:100%; }
     .dictionary-section { min-width:0; padding:5px 0; border:1px solid rgba(255,255,255,.16); border-radius:6px 2px; color:var(--surface-text); background:rgba(255,255,255,.07); font-size:.61rem; font-weight:950; cursor:pointer; }
     .dictionary-section.active { color:#061512; border-color:var(--mint); background:var(--mint); }
-    .dictionary-words { min-height:0; flex:1 1 auto; overflow-y:auto; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); align-content:start; gap:7px; padding:10px; border:1px solid rgba(117,245,199,.18); border-radius:14px 5px; background:rgba(0,0,0,.24); scrollbar-width:thin; }
-    .dictionary-word { min-width:0; padding:9px 8px; overflow:hidden; border-radius:9px 4px; color:#c4ffe8; background:rgba(117,245,199,.075); font-size:.82rem; font-weight:780; letter-spacing:.035em; text-align:center; text-overflow:ellipsis; }
+    .dictionary-words { min-height:0; flex:1 1 auto; overflow-y:auto; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); grid-auto-rows:minmax(38px,auto); align-content:start; gap:7px; padding:10px; border:1px solid rgba(117,245,199,.18); border-radius:14px 5px; background:rgba(0,0,0,.24); scrollbar-width:thin; }
+    .dictionary-word { min-width:0; min-height:38px; display:flex; align-items:center; justify-content:center; padding:8px; overflow:visible; border-radius:9px 4px; color:#c4ffe8; background:rgba(117,245,199,.075); font-size:.82rem; font-weight:780; line-height:1.25; letter-spacing:.035em; text-align:center; overflow-wrap:anywhere; }
     .dictionary-close { position:absolute; right:14px; top:14px; animation:rewardClosePulse .72s ease-in-out infinite alternate; }
     @media (min-width:650px) { .dictionary-words { grid-template-columns:repeat(3,minmax(0,1fr)); } }
     @media (max-width:540px) {
@@ -936,6 +944,7 @@
       <button class="dictionary-button" id="dictionaryButton" type="button" hidden aria-label="Open collected dictionary"><img src="../images/verbia/menu-open-dictionary.png" alt="" /></button>
       <div class="progress-row">
         <span class="score-display">Score <strong id="boardScore">0</strong></span>
+        <span class="points-display">Points <strong id="boardPoints">0</strong></span>
       </div>
       <div class="trace-feedback-slot">
         <div class="word-display" id="wordDisplay" data-empty="true" aria-live="polite"></div>
@@ -1000,7 +1009,7 @@
       </div>
       <div class="menu-section menu-wallet-section">
         <h3>Explorer wallet</h3>
-        <div class="wallet-card"><span>Discovery points<strong id="walletPoints">0</strong></span><span>Daily hints<strong id="walletHints">3 / 3</strong></span></div>
+        <div class="wallet-card"><span>Discovery points<strong id="walletPoints">0</strong></span><span>Daily hints<strong id="walletHints">3 / 3</strong></span><span>Score<strong id="walletScore">0</strong></span></div>
         <div class="wallet-actions">
           <button class="menu-subaction" id="inventoryButton" type="button">Inventory Showroom</button>
           <button class="menu-subaction explorer-shop-pulse" id="shopButton" type="button">Explorer Shop</button>
@@ -1088,6 +1097,7 @@
       <h2 id="inventoryTitle">Inventory Showroom</h2>
       <p class="feature-intro"><span id="inventoryPoints">0</span> discovery points · Choose an explorer, companion, and ship or vehicle.</p>
       <div class="inventory-stage">
+        <span class="inventory-points-note" aria-label="Current discovery points"><small>Discovery points</small><strong id="inventoryStagePoints">0</strong></span>
         <span class="inventory-ship" id="inventoryShip" aria-label="Selected ship or vehicle"></span>
         <div class="persona" id="inventoryPersona"></div>
         <span class="inventory-pet" id="inventoryPet" aria-label="Equipped pet"></span>
@@ -1314,6 +1324,7 @@
       const pathGlow = document.querySelector("#pathGlow");
       const constellationLines = document.querySelector("#constellationLines");
       const boardScore = document.querySelector("#boardScore");
+      const boardPoints = document.querySelector("#boardPoints");
       const boardState = document.querySelector("#boardState");
       const playHint = document.querySelector("#playHint");
       const boardNumber = document.querySelector("#boardNumber");
@@ -1391,6 +1402,7 @@
       const powerFill = document.querySelector("#powerFill");
       const walletPoints = document.querySelector("#walletPoints");
       const walletHints = document.querySelector("#walletHints");
+      const walletScore = document.querySelector("#walletScore");
       const menuPreviewPersona = document.querySelector("#menuPreviewPersona");
       const menuPreviewPet = document.querySelector("#menuPreviewPet");
       const menuPreviewShip = document.querySelector("#menuPreviewShip");
@@ -1424,6 +1436,7 @@
       const inventoryResume = document.querySelector("#inventoryResume");
       const inventoryPoints = document.querySelector("#inventoryPoints");
       const inventoryStage = document.querySelector(".inventory-stage");
+      const inventoryStagePoints = document.querySelector("#inventoryStagePoints");
       const inventoryPersona = document.querySelector("#inventoryPersona");
       const inventoryShip = document.querySelector("#inventoryShip");
       const inventoryPet = document.querySelector("#inventoryPet");
@@ -1999,7 +2012,7 @@
       }
 
       function freshProgress(profileCreated = false) {
-        return { profileCreated, currentLevel:1, highestLevel:1, boards:{}, levelBoards:{}, signatures:[], hintHistory:{}, points:0, hints:{date:todayKey(),count:3}, hintNotice:true, darts:0, dartNotice:true, dailyDartSeenDate:"", dailyRewardDate:"", treasureCave:{date:todayKey(),plays:0,pending:false}, helpers:{dictionary:false,dictionarySeen:false}, inventory:{owned:[],equipped:{}}, wardrobeBaseVersion:4, avatarCatalogVersion:1, storePricingVersion:1, unlockedAvatars:["rx7","nova"], seed:Math.floor(Math.random() * 2147483647) || 9173 };
+        return { profileCreated, currentLevel:1, highestLevel:1, boards:{}, levelBoards:{}, signatures:[], hintHistory:{}, points:0, score:0, hints:{date:todayKey(),count:3}, hintNotice:true, darts:0, dartNotice:true, dailyDartSeenDate:"", dailyRewardDate:"", treasureCave:{date:todayKey(),plays:0,pending:false}, helpers:{dictionary:false,dictionarySeen:false}, inventory:{owned:[],equipped:{}}, wardrobeBaseVersion:4, avatarCatalogVersion:1, storePricingVersion:1, unlockedAvatars:["rx7","nova"], seed:Math.floor(Math.random() * 2147483647) || 9173 };
       }
 
       function letterCountForLevel(level) {
@@ -2427,12 +2440,13 @@
         } else {
           found.push(word);
           progress.boards[boardIndex] = found;
-          saveProgress();
           const isGoal = board.goals.includes(word);
           const currentGoalCount = previousGoalCount + (isGoal ? 1 : 0);
           const justMastered = isGoal && previousGoalCount < board.goals.length && currentGoalCount === board.goals.length;
           const justCleared = isGoal && previousGoalCount < board.clearAt && currentGoalCount >= board.clearAt;
           progress.points = (progress.points || 0) + (isGoal ? 10 : 5);
+          progress.score = (progress.score || 0) + (isGoal ? 10 : 5);
+          saveProgress();
           showToast(isGoal ? `${word} • stage word +10` : `${word} • bonus word +5`, isGoal ? "success" : "bonus");
           selected.forEach(node => node.classList.add("cosmic-complete"));
           if (justMastered) {
@@ -2488,7 +2502,8 @@
         const amount = goalFound.length;
         const cleared = amount >= board.clearAt;
         const mastered = amount === board.goals.length;
-        boardScore.textContent = progress.points || 0;
+        boardScore.textContent = progress.score || 0;
+        boardPoints.textContent = progress.points || 0;
         boardState.textContent = mastered ? "Mastered" : cleared ? "You May Pass" : `Find ${board.clearAt - amount} to clear`;
         boardState.classList.toggle("mastered", mastered);
         playfield.classList.toggle("mastered-board", mastered);
@@ -2665,6 +2680,14 @@
           changed = true;
         }
         if (!Number.isFinite(progress.points)) progress.points = 0;
+        if (!Number.isFinite(progress.score)) {
+          progress.score = Object.entries(progress.boards || {}).reduce((total,[index,words]) => {
+            const board = progress.levelBoards?.[index] || boards[Number(index)];
+            const goals = new Set(board?.goals || []);
+            return total + [...new Set(Array.isArray(words) ? words : [])].reduce((sum,word) => sum + (goals.has(word) ? 10 : 5),0);
+          },0);
+          changed = true;
+        }
         const availableDarts = (progress.darts || 0) + (progress.dailyRewardDate === today ? 0 : 1);
         if (progress.dailyRewardDate !== today && progress.dailyDartSeenDate !== today && !progress.dartNotice) {
           progress.dartNotice = true;
@@ -2687,7 +2710,9 @@
         hintButton.setAttribute("aria-label", `Use a hint. ${availableHints} available`);
         hintButton.disabled = availableHints < 1 || isCurrentBoardMastered();
         walletPoints.textContent = progress.points || 0;
-        boardScore.textContent = progress.points || 0;
+        walletScore.textContent = progress.score || 0;
+        boardScore.textContent = progress.score || 0;
+        boardPoints.textContent = progress.points || 0;
         walletHints.textContent = `${availableHints} available`;
         renderShop();
       }
@@ -3063,6 +3088,7 @@
       function renderInventory() {
         ensureInventory();
         inventoryPoints.textContent = progress.points || 0;
+        inventoryStagePoints.textContent = progress.points || 0;
         const avatar = avatars.find(item => item.id === settings.avatar) || avatars[0];
         inventoryStage.dataset.fitProfile = avatarFitProfile(avatar);
         inventoryStage.style.setProperty("--fit-x", avatarFitOffset(avatar));
