@@ -209,7 +209,7 @@
 
     .trace-feedback-slot {
       position:absolute;
-      z-index:20;
+      z-index:30;
       top:0;
       bottom:0;
       left:0;
@@ -1164,8 +1164,9 @@
       const tilts = [-8,5,11,-5,7,-11];
       const storageKey = "verbia-progress-v3";
       const settingsKey = "verbia-settings-v1";
-      const testingCatalogUnlocked = true;
-      const helperCosts = {dictionary:0,hints:0,dart:0};
+      const testingCatalogUnlocked = false;
+      const testingProductPrice = 5;
+      const helperCosts = {dictionary:testingProductPrice,hints:testingProductPrice,dart:testingProductPrice};
       const avatars = [
         {id:"rx7",name:"RX-7",index:8,bodySrc:"../images/verbia/bodies-standard/rx7.png?v=4",bodyIndex:0,cost:0},
         {id:"nova",name:"Nova",src:"../images/verbia/avatar-nova-v2-cable-hair.png",bodySrc:"../images/verbia/bodies-standard/nova.png?v=4",bodyIndex:1,cost:0},
@@ -1227,6 +1228,10 @@
         {id:"vehicle-clydesdale",name:"Wasteland Marauder",type:"ship",asset:"../images/verbia/ships/wasteland-marauder.png",cost:900},
         {id:"vehicle-superbike",name:"Nebula Superbike",type:"ship",asset:"../images/verbia/ships/nebula-superbike.png",cost:900}
       ];
+      avatars.forEach(avatar => {
+        if (!["rx7","nova"].includes(avatar.id)) avatar.cost = testingProductPrice;
+      });
+      shopItems.forEach(item => { item.cost = testingProductPrice; });
       const playfield = document.querySelector("#playfield");
       const letterNodes = document.querySelector("#letterNodes");
       const wordDisplay = document.querySelector("#wordDisplay");
@@ -1885,7 +1890,7 @@
       }
 
       function freshProgress(profileCreated = false) {
-        return { profileCreated, currentLevel:1, highestLevel:1, boards:{}, levelBoards:{}, signatures:[], hintHistory:{}, points:0, hints:{date:todayKey(),count:3}, hintNotice:true, darts:0, dartNotice:true, dailyDartSeenDate:"", dailyRewardDate:"", helpers:{dictionary:false,dictionarySeen:false}, inventory:{owned:[],equipped:{}}, wardrobeBaseVersion:4, avatarCatalogVersion:1, unlockedAvatars:["rx7","nova"], seed:Math.floor(Math.random() * 2147483647) || 9173 };
+        return { profileCreated, currentLevel:1, highestLevel:1, boards:{}, levelBoards:{}, signatures:[], hintHistory:{}, points:0, hints:{date:todayKey(),count:3}, hintNotice:true, darts:0, dartNotice:true, dailyDartSeenDate:"", dailyRewardDate:"", helpers:{dictionary:false,dictionarySeen:false}, inventory:{owned:[],equipped:{}}, wardrobeBaseVersion:4, avatarCatalogVersion:1, storePricingVersion:1, unlockedAvatars:["rx7","nova"], seed:Math.floor(Math.random() * 2147483647) || 9173 };
       }
 
       function letterCountForLevel(level) {
@@ -2598,6 +2603,14 @@
           progress.avatarCatalogVersion = 1;
         }
         progress.unlockedAvatars = [...new Set(["rx7","nova",...progress.unlockedAvatars.filter(id => avatars.some(avatar => avatar.id === id))])];
+        if ((progress.storePricingVersion || 0) < 1) {
+          progress.unlockedAvatars = ["rx7","nova"];
+          progress.inventory.owned = [];
+          progress.inventory.equipped = {};
+          progress.helpers.dictionary = false;
+          progress.helpers.dictionarySeen = false;
+          progress.storePricingVersion = 1;
+        }
         if (testingCatalogUnlocked) {
           progress.unlockedAvatars = avatars.map(avatar => avatar.id);
           progress.inventory.owned = shopItems.map(item => item.id);
