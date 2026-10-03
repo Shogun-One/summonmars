@@ -433,6 +433,8 @@
     }
 
     .board-goal { position:absolute; z-index:4; left:50%; bottom:39px; margin:0; translate:-50% 0; color:var(--gold); font-size:.67rem; font-weight:850; letter-spacing:.1em; text-transform:uppercase; white-space:nowrap; text-shadow:0 0 10px color-mix(in srgb,var(--gold) 45%,transparent); }
+    .board-goal.mastered { bottom:22px; color:#fff7b8; font-size:1.34rem; line-height:1; letter-spacing:.14em; text-shadow:0 0 9px #fff,0 0 20px var(--gold),0 0 34px var(--mint); animation:masteredPulse .82s ease-in-out infinite alternate; }
+    @keyframes masteredPulse { from{filter:brightness(.94);transform:scale(.94)} to{filter:brightness(1.35);transform:scale(1.08)} }
 
     .discoveries {
       min-width: 0;
@@ -792,6 +794,7 @@
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; }
       #closeReward.reward-ready { animation:none; color:#fff; background:#ff4f5d; box-shadow:0 0 0 4px rgba(255,79,93,.16),0 0 18px #ff4f5d; }
+      .board-goal.mastered { animation:none; filter:brightness(1.2); }
     }
   </style>
 </head>
@@ -2137,8 +2140,11 @@
         const bonusFound = found.filter(word => !board.goals.includes(word));
         const amount = goalFound.length;
         const cleared = amount >= board.clearAt;
+        const mastered = amount === board.goals.length;
         boardScore.textContent = progress.points || 0;
-        boardState.textContent = amount === board.goals.length ? "Mastered" : cleared ? "You May Pass" : `Find ${board.clearAt - amount} to clear`;
+        boardState.textContent = mastered ? "Mastered" : cleared ? "You May Pass" : `Find ${board.clearAt - amount} to clear`;
+        boardState.classList.toggle("mastered", mastered);
+        playHint.hidden = mastered;
         playHint.textContent = cleared ? "Stay To Master Board" : "Touch • trace • release";
         boardState.classList.toggle("cleared", cleared);
         nextButton.disabled = !cleared || boardTransitioning;
@@ -3463,12 +3469,15 @@
       function renderProgress() {
         const boardFound = found.filter(word => boardWords.includes(word));
         const amount = boardFound.length;
+        const mastered = amount === boardWords.length;
         foundCount.textContent = amount;
-        boardState.textContent = amount === boardWords.length
+        boardState.textContent = mastered
           ? "Mastered"
           : amount >= clearAt
             ? "You May Pass"
             : `Find ${clearAt - amount} to clear`;
+        boardState.classList.toggle("mastered", mastered);
+        playHint.hidden = mastered;
         playHint.textContent = amount >= clearAt ? "Stay To Master Board" : "Touch • trace • release";
 
         wordList.replaceChildren();
