@@ -174,7 +174,7 @@
 
     .game-avatar { position:absolute; z-index:12; left:-16px; bottom:-18px; width:103px; height:146px; padding:0; overflow:visible; border:0; background:transparent; cursor:pointer; filter:drop-shadow(0 8px 9px rgba(0,0,0,.5)); }
     .game-avatar-base { --atlas-x:0%;--atlas-y:0%; position:absolute; z-index:1; inset:0; background-image:url('../images/verbia/explorer-fitting-atlas-v3.png'); background-size:500% 200%; background-position:var(--atlas-x) var(--atlas-y); background-repeat:no-repeat; }
-    .game-loadout-ship { position:absolute; z-index:2; right:clamp(-10px,-2vw,-4px); bottom:calc(100% - clamp(31px,6vw,42px)); width:clamp(150px,38%,245px); height:clamp(112px,25vw,158px); background-repeat:no-repeat; background-size:contain; background-position:right bottom; opacity:.82; filter:brightness(1.32) contrast(1.08) saturate(1.2) drop-shadow(0 0 10px color-mix(in srgb,var(--mint) 32%,transparent)) drop-shadow(0 6px 8px rgba(0,0,0,.5)); pointer-events:none; }
+    .game-loadout-ship { position:absolute; z-index:2; right:0; bottom:calc(100% - clamp(31px,6vw,42px)); width:clamp(150px,38%,245px); height:clamp(112px,25vw,158px); transform:translateX(var(--vehicle-edge-shift,0%)); background-repeat:no-repeat; background-size:contain!important; background-position:right bottom!important; opacity:.82; filter:brightness(1.32) contrast(1.08) saturate(1.2) drop-shadow(0 0 10px color-mix(in srgb,var(--mint) 32%,transparent)) drop-shadow(0 6px 8px rgba(0,0,0,.5)); pointer-events:none; }
     .game-loadout-pet { position:absolute; z-index:13; left:48px; bottom:calc(100% - 3px); width:78px; height:88px; transform:scale(var(--companion-scale,1)); transform-origin:center bottom; background-repeat:no-repeat; background-size:contain; background-position:center bottom; filter:drop-shadow(0 5px 6px rgba(0,0,0,.48)); pointer-events:none; }
     .game-loadout-ship:empty,.game-loadout-pet:empty { display:none; }
     .progress-card:has(.game-avatar) .progress-row { padding-left:70px; }
@@ -236,6 +236,9 @@
     }
 
     .trace-feedback-slot:has(.toast.show) .word-display { opacity: 0; }
+    .playfield.mastered-board .letter-node { opacity:.38; filter:grayscale(1) brightness(.72); pointer-events:none; }
+    .playfield.mastered-board .constellation-line,.playfield.mastered-board .path-line,.playfield.mastered-board .path-glow { opacity:.22; }
+    .board-control-button:disabled { opacity:.34; cursor:not-allowed; filter:grayscale(.75); }
 
     .board-tools { position:absolute; z-index:8; top:19px; left:17px; right:17px; display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:7px; pointer-events:none; }
     .board-control-button { min-width:72px; padding:8px 10px; border:1px solid rgba(255,217,120,.25); border-radius:12px 5px 12px 5px; color:var(--gold); background:rgba(255,217,120,.07); font-size:.62rem; font-weight:850; letter-spacing:.08em; text-transform:uppercase; cursor:pointer; pointer-events:auto; }
@@ -251,8 +254,13 @@
     .theme-swatch { width:100%; height:25px; border-radius:9px 3px 9px 3px; background:radial-gradient(circle at 70% 30%, white 0 1px, transparent 2px), linear-gradient(120deg, color-mix(in srgb, var(--swatch) 28%, #02070d), var(--swatch)); box-shadow:inset 0 1px rgba(255,255,255,.25), 0 0 14px color-mix(in srgb, var(--swatch) 30%, transparent); }
 
     .board-control-button:active { transform:scale(.96); }
-    .bubble-tools { position:absolute; z-index:21; left:13px; right:13px; bottom:9px; display:flex; justify-content:space-between; gap:8px; pointer-events:none; }
-    .hint-button,.daily-bubble { position:relative; inset:auto; width:52px; height:52px; display:grid; place-items:center; padding:0; border:0; border-radius:0; color:#102019; background:transparent; box-shadow:none; font-size:1.7rem; line-height:1; cursor:pointer; pointer-events:auto; }
+    .bubble-tools { position:absolute; z-index:21; left:13px; right:13px; bottom:9px; display:flex; justify-content:flex-start; align-items:flex-end; gap:3px; pointer-events:none; }
+    .hint-button,.daily-bubble,.dictionary-button { position:relative; inset:auto; width:52px; height:52px; display:grid; place-items:center; padding:0; border:0; border-radius:0; color:#102019; background:transparent; box-shadow:none; font-size:1.7rem; line-height:1; cursor:pointer; pointer-events:auto; }
+    .daily-bubble { margin-left:auto; }
+    .dictionary-button { width:46px; height:46px; }
+    .dictionary-button img { width:43px; height:43px; object-fit:contain; filter:drop-shadow(0 2px 4px rgba(0,0,0,.55)); }
+    .dictionary-button.available { animation:dictionaryPulse .85s ease-in-out infinite alternate; }
+    @keyframes dictionaryPulse { to { transform:scale(1.13); filter:brightness(1.28) drop-shadow(0 0 10px var(--gold)); } }
     .bubble-icon { display:block; translate:0 -1px; filter:drop-shadow(0 1px 1px rgba(0,0,0,.24)); }
     .daily-target { position:relative; width:29px; height:29px; border:2px solid #fff7df; border-radius:50%; background:radial-gradient(circle,#ffe46f 0 16%,#e63d49 17% 34%,#fff7df 35% 52%,#e63d49 53% 70%,#fff7df 71%); box-shadow:0 1px 4px rgba(0,0,0,.35); }
     .daily-dart { position:absolute; left:-10px; top:-10px; color:#ff3f4d; font:950 1.45rem/1 Georgia,serif; rotate:90deg; text-shadow:0 1px 0 #fff7df,0 0 5px rgba(255,63,77,.72); }
@@ -605,6 +613,8 @@
     .inventory-ship:empty { display:none; }
     .inventory-pet { position:absolute; z-index:7; right:3%; bottom:calc(8px + var(--companion-lift,0px)); width:34%; aspect-ratio:1; transform:scale(var(--companion-scale,1)); transform-origin:right bottom; background-repeat:no-repeat; background-size:contain; background-position:center bottom; filter:drop-shadow(0 8px 8px rgba(0,0,0,.5)); }
     .inventory-pet:empty { display:none; }
+    .inventory-dictionary { position:absolute; z-index:9; left:12px; bottom:10px; width:88px; height:64px; background:url('../images/verbia/menu-open-dictionary.png') center/contain no-repeat; filter:brightness(1.18) drop-shadow(0 5px 8px rgba(0,0,0,.6)); pointer-events:none; }
+    .inventory-dictionary[hidden] { display:none; }
     .inventory-list { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; }
     .inventory-category-label { grid-column:1/-1; margin:16px 0 2px; color:color-mix(in srgb,var(--gold) 78%,white); font-size:.7rem; font-weight:900; letter-spacing:.13em; text-align:center; text-transform:uppercase; }
     .inventory-list > .feature-intro { grid-column:1 / -1; width:100%; }
@@ -708,15 +718,15 @@
       z-index: 12;
       top: 50%;
       left: 50%;
-      width: max-content;
-      max-width: calc(100% - 4px);
-      padding: 6px 8px;
+      width: calc(100% - 8px);
+      max-width: none;
+      padding: 9px 12px;
       border: 1px solid rgba(117,245,199,.35);
-      border-radius: 99px;
+      border-radius: 12px;
       color: #072019;
       background: var(--mint);
       box-shadow: 0 12px 38px rgba(0,0,0,.38);
-      font-size: .62rem;
+      font-size: clamp(1.25rem, 5vw, 2rem);
       font-weight: 850;
       letter-spacing: .025em;
       line-height:1.15;
@@ -733,6 +743,17 @@
     .toast.duplicate { color:#251900; border-color:#ffe68a; background:#f5c451; box-shadow:0 12px 38px rgba(91,62,0,.48),0 0 18px rgba(245,196,81,.38); }
     .toast.bonus { display:flex; align-items:center; gap:10px; padding-block:8px; }
     .toast.bonus::before { content:"★"; flex:0 0 auto; color:#ffe779; font-size:2.85rem; line-height:.72; -webkit-text-stroke:1px rgba(80,49,0,.5); filter:drop-shadow(0 0 10px rgba(255,225,92,.95)); animation:bonusStar .55s cubic-bezier(.2,.9,.25,1.35) both; }
+    .dictionary-overlay { position:fixed; z-index:92; inset:0; display:grid; place-items:center; padding:16px; background:rgba(1,5,10,.9); backdrop-filter:blur(16px); opacity:0; pointer-events:none; transition:opacity .2s ease; }
+    .dictionary-overlay.open { opacity:1; pointer-events:auto; }
+    .dictionary-panel { position:relative; width:min(100%,520px); max-height:min(90svh,760px); display:flex; flex-direction:column; padding:22px 18px 18px; border:1px solid color-mix(in srgb,var(--gold) 45%,transparent); border-radius:28px 10px; background:linear-gradient(155deg,#173633,#080d18); box-shadow:0 28px 90px rgba(0,0,0,.72); }
+    .dictionary-panel h2 { margin:0; font:500 2rem Georgia,serif; text-align:center; }
+    .dictionary-meta { margin:5px 44px 14px; color:var(--surface-muted); font-size:.68rem; line-height:1.4; text-align:center; }
+    .dictionary-tabs { display:grid; grid-template-columns:repeat(13,minmax(0,1fr)); gap:4px; margin-bottom:12px; }
+    .dictionary-tab { min-width:0; padding:7px 1px; border:1px solid rgba(255,255,255,.14); border-radius:7px 3px; color:var(--surface-muted); background:rgba(255,255,255,.05); font-size:.58rem; font-weight:900; cursor:pointer; }
+    .dictionary-tab.active { color:#071411; border-color:var(--gold); background:var(--gold); }
+    .dictionary-words { min-height:220px; overflow-y:auto; display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); align-content:start; gap:6px; padding:10px; border:1px solid rgba(117,245,199,.14); border-radius:14px 5px; background:rgba(0,0,0,.22); scrollbar-width:thin; }
+    .dictionary-word { min-width:0; padding:6px 4px; overflow:hidden; border-radius:7px; color:var(--mint); background:rgba(117,245,199,.06); font-size:.64rem; font-weight:800; letter-spacing:.04em; text-align:center; text-overflow:ellipsis; }
+    .dictionary-close { position:absolute; right:14px; top:14px; animation:rewardClosePulse .72s ease-in-out infinite alternate; }
     @keyframes bonusStar { from{opacity:0;transform:scale(.25) rotate(-35deg)} to{opacity:1;transform:scale(1) rotate(0)} }
     .word-flight { position:fixed; z-index:120; left:0; top:0; padding:9px 14px; border:1px solid #fff1a8; border-radius:99px; color:#291c00; background:linear-gradient(135deg,#fff3a5,var(--gold)); box-shadow:0 0 14px #fff4a6,0 0 34px var(--gold),0 10px 24px rgba(0,0,0,.42); font-size:.75rem; font-weight:950; letter-spacing:.08em; pointer-events:none; white-space:nowrap; }
     .stage-shelf-heading.arrived,.bonus-shelf-heading.arrived,.shelf-word.arrived { animation:bonusArrival .7s cubic-bezier(.2,.9,.25,1.35); }
@@ -868,7 +889,8 @@
       <p class="hint" id="playHint">Touch • trace • release</p>
       <div class="bubble-tools" aria-label="Board bonuses">
         <button class="hint-button" id="hintButton" type="button" aria-label="Use a hint"><span class="bubble-icon" aria-hidden="true">💡</span><span class="bubble-count" id="hintCount">×3</span></button>
-        <button class="daily-bubble" id="dailyBubble" type="button" hidden aria-label="Play today's daily dart reward"><span class="bubble-icon daily-target" aria-hidden="true"><span class="daily-dart">➶</span></span><span class="bubble-count">×1</span></button>
+        <button class="dictionary-button" id="dictionaryButton" type="button" hidden aria-label="Open collected dictionary"><img src="../images/verbia/menu-open-dictionary.png" alt="" /></button>
+        <button class="daily-bubble" id="dailyBubble" type="button" hidden aria-label="Play dart reward"><span class="bubble-icon daily-target" aria-hidden="true"><span class="daily-dart">➶</span></span><span class="bubble-count" id="dartCount">×1</span></button>
       </div>
     </section>
 
@@ -976,9 +998,9 @@
         <li><span class="direction-icon">☝</span><div><b>Trace words</b><p>Touch a letter, glide through adjacent choices, and release to submit. Slide back over the previous letter to undo it.</p></div></li>
         <li><span class="direction-icon">✓</span><div><b>Clear each board</b><p>Find the number of stage words shown at the bottom of the constellation to unlock the next board. Find every stage word to master it.</p></div></li>
         <li><span class="direction-icon">★</span><div><b>Find bonus words</b><p>Valid words outside the stage list earn extra points and fly into Bonus Discoveries.</p></div></li>
-        <li><span class="direction-icon">💡</span><div><b>Hints and daily rewards</b><p>Three hints refresh daily. The Daily Orbit dart board can award more hints or discovery points.</p></div></li>
+        <li><span class="direction-icon">💡</span><div><b>Hints and daily rewards</b><p>Three hints refresh daily. Buy extra hint packs or darts in the store, then use darts at Daily Orbit for more hints or discovery points.</p></div></li>
         <li><span class="direction-icon">↻</span><div><b>Shuffle and revisit</b><p>Shuffle letters for a fresh view, or use the left arrow to revisit up to five incomplete cleared boards.</p></div></li>
-        <li><span class="direction-icon">🛍</span><div><b>Collect explorers</b><p>Spend discovery points to unlock complete explorers, companions, ships, and vehicles, then select them in the Inventory Showroom.</p></div></li>
+        <li><span class="direction-icon">🛍</span><div><b>Collect explorers and helpers</b><p>Spend discovery points on explorers, companions, vehicles, the SCOWL dictionary, hints, and reward darts.</p></div></li>
       </ol>
     </section>
   </div>
@@ -992,6 +1014,7 @@
         <span class="inventory-ship" id="inventoryShip" aria-label="Selected ship or vehicle"></span>
         <div class="persona" id="inventoryPersona"></div>
         <span class="inventory-pet" id="inventoryPet" aria-label="Equipped pet"></span>
+        <span class="inventory-dictionary" id="inventoryDictionary" hidden aria-label="Collected SCOWL dictionary"></span>
         <span class="showroom-explorer-name" id="showroomExplorerName" aria-hidden="true"></span>
       </div>
       <div class="inventory-explorers"><h3>Your explorers</h3><div class="avatar-grid" id="avatarChoices"></div></div>
@@ -1013,6 +1036,7 @@
       <div class="store-section"><h3>Explorers</h3><div class="store-avatar-grid" id="storeAvatarChoices"></div></div>
       <div class="store-section"><h3>Companions</h3><div class="store-preview" id="companionStore"></div></div>
       <div class="store-section"><h3>Ships &amp; vehicles</h3><div class="store-preview" id="shipStore"></div></div>
+      <div class="store-section"><h3>Trinkets &amp; helpers</h3><div class="store-preview" id="helperStore"></div></div>
     </section>
   </div>
 
@@ -1040,6 +1064,16 @@
       <button class="reward-fire" id="rewardFire" type="button">Throw dart</button>
       <p class="reward-result" id="rewardResult" aria-live="polite"></p>
       <button class="close-button" id="closeReward" type="button" aria-label="Close daily reward">✕</button>
+    </section>
+  </div>
+
+  <div class="dictionary-overlay" id="dictionaryOverlay" aria-hidden="true">
+    <section class="dictionary-panel" role="dialog" aria-modal="true" aria-labelledby="dictionaryTitle">
+      <button class="close-button dictionary-close" id="closeDictionary" type="button" aria-label="Close dictionary">✕</button>
+      <h2 id="dictionaryTitle">Explorer Dictionary</h2>
+      <p class="dictionary-meta" id="dictionaryMeta">37,730 playable SCOWL words · Choose a starting letter</p>
+      <div class="dictionary-tabs" id="dictionaryTabs" role="tablist" aria-label="Starting letter"></div>
+      <div class="dictionary-words" id="dictionaryWords" aria-live="polite"></div>
     </section>
   </div>
 
@@ -1072,6 +1106,7 @@
       const storageKey = "verbia-progress-v3";
       const settingsKey = "verbia-settings-v1";
       const testingCatalogUnlocked = true;
+      const helperCosts = {dictionary:0,hints:0,dart:0};
       const avatars = [
         {id:"rx7",name:"RX-7",index:8,bodySrc:"../images/verbia/bodies-standard/rx7.png?v=4",bodyIndex:0,cost:0},
         {id:"nova",name:"Nova",src:"../images/verbia/avatar-nova-v2-cable-hair.png",bodySrc:"../images/verbia/bodies-standard/nova.png?v=4",bodyIndex:1,cost:0},
@@ -1096,6 +1131,11 @@
         "pet-dog":46, "pet-cat":46, "pet-iguana":91, "pet-bird":76, "pet-monkey":79,
         "pet-pitbull":50, "pet-lion":53, "pet-tiger":49, "pet-shepherd":57,
         "pet-sloth":48, "pet-poodle":45, "pet-hawk":84
+      };
+      const vehicleEdgeShift = {
+        "ship-emerald":"8.6%", "ship-crimson":"2.1%", "ship-azure":"8.2%", "ship-solar":"2.3%",
+        "ship-violet":"2.3%", "ship-teal":"7.6%", "vehicle-pickup":"2.1%", "vehicle-challenger":"1.2%",
+        "vehicle-formula":"3.1%", "vehicle-semi":"4.1%", "vehicle-clydesdale":"12.3%", "vehicle-superbike":"4.7%"
       };
       const shopItems = [
         {id:"pet-dog",name:"Orbit Dog",type:"pet",asset:"../images/verbia/companions/orbit-dog.png",showroomScale:1.08,cost:420},
@@ -1178,6 +1218,13 @@
       const discoveryShelf = document.querySelector("#discoveryShelf");
       const discoveryShelfContent = document.querySelector("#discoveryShelfContent");
       const dailyBubble = document.querySelector("#dailyBubble");
+      const dartCount = document.querySelector("#dartCount");
+      const dictionaryButton = document.querySelector("#dictionaryButton");
+      const dictionaryOverlay = document.querySelector("#dictionaryOverlay");
+      const closeDictionary = document.querySelector("#closeDictionary");
+      const dictionaryTabs = document.querySelector("#dictionaryTabs");
+      const dictionaryWords = document.querySelector("#dictionaryWords");
+      const dictionaryMeta = document.querySelector("#dictionaryMeta");
       const rewardOverlay = document.querySelector("#rewardOverlay");
       const rewardWheel = document.querySelector("#rewardWheel");
       const rewardDart = document.querySelector("#rewardDart");
@@ -1199,6 +1246,7 @@
       const storeAvatarChoices = document.querySelector("#storeAvatarChoices");
       const companionStore = document.querySelector("#companionStore");
       const shipStore = document.querySelector("#shipStore");
+      const helperStore = document.querySelector("#helperStore");
       const shopOverlay = document.querySelector("#shopOverlay");
       const shopBack = document.querySelector("#shopBack");
       const shopPoints = document.querySelector("#shopPoints");
@@ -1220,6 +1268,7 @@
       const inventoryPersona = document.querySelector("#inventoryPersona");
       const inventoryShip = document.querySelector("#inventoryShip");
       const inventoryPet = document.querySelector("#inventoryPet");
+      const inventoryDictionary = document.querySelector("#inventoryDictionary");
       const showroomExplorerName = document.querySelector("#showroomExplorerName");
       const inventoryList = document.querySelector("#inventoryList");
 
@@ -1302,6 +1351,7 @@
       });
 
       playfield.addEventListener("pointerdown", event => {
+        if (isCurrentBoardMastered()) return;
         const directNode = event.target.closest(".letter-node");
         if (!directNode && event.target.closest("button")) return;
         const node = directNode || traceNodeAtPoint(event.clientX, event.clientY);
@@ -1362,6 +1412,8 @@
       shopOverlay.addEventListener("click", event => {
         const choice = event.target.closest("[data-shop-item]");
         if (choice) purchaseItem(choice.dataset.shopItem);
+        const helper = event.target.closest("[data-helper-item]");
+        if (helper) purchaseHelper(helper.dataset.helperItem);
         const avatarChoice = event.target.closest("[data-store-avatar]");
         if (avatarChoice) unlockAvatar(avatarChoice.dataset.storeAvatar);
       });
@@ -1370,6 +1422,13 @@
         if (choice) toggleEquippedItem(choice.dataset.inventoryItem);
       });
       hintButton.addEventListener("click", useHint);
+      dictionaryButton.addEventListener("click", openDictionary);
+      closeDictionary.addEventListener("click", closeDictionaryPanel);
+      dictionaryOverlay.addEventListener("click", event => { if (event.target === dictionaryOverlay) closeDictionaryPanel(); });
+      dictionaryTabs.addEventListener("click", event => {
+        const tab = event.target.closest("[data-dictionary-letter]");
+        if (tab) renderDictionaryLetter(tab.dataset.dictionaryLetter);
+      });
       dailyBubble.addEventListener("click", openDailyReward);
       rewardFire.addEventListener("click", throwDailyDart);
       powerMeter.addEventListener("click", throwDailyDart);
@@ -1501,7 +1560,7 @@
       });
 
       shuffleButton.addEventListener("click", () => {
-        if (playfield.classList.contains("shuffling") || nodes.length < 2) return;
+        if (isCurrentBoardMastered() || playfield.classList.contains("shuffling") || nodes.length < 2) return;
         resetTrace();
         const positions = nodes.map(node => ({left:node.style.left,top:node.style.top}));
         let shuffled = positions.slice();
@@ -1535,7 +1594,7 @@
             return;
           }
           playfield.classList.remove("shuffling");
-          shuffleButton.disabled = false;
+          shuffleButton.disabled = isCurrentBoardMastered();
           drawConstellation();
           showToast("Constellation remapped");
         };
@@ -1701,7 +1760,7 @@
       }
 
       function freshProgress(profileCreated = false) {
-        return { profileCreated, currentLevel:1, highestLevel:1, boards:{}, levelBoards:{}, signatures:[], hintHistory:{}, points:0, hints:{date:todayKey(),count:3}, dailyRewardDate:"", inventory:{owned:[],equipped:{}}, wardrobeBaseVersion:4, avatarCatalogVersion:1, unlockedAvatars:["rx7","nova"], seed:Math.floor(Math.random() * 2147483647) || 9173 };
+        return { profileCreated, currentLevel:1, highestLevel:1, boards:{}, levelBoards:{}, signatures:[], hintHistory:{}, points:0, hints:{date:todayKey(),count:3}, darts:0, dailyRewardDate:"", helpers:{dictionary:true,dictionarySeen:false}, inventory:{owned:[],equipped:{}}, wardrobeBaseVersion:4, avatarCatalogVersion:1, unlockedAvatars:["rx7","nova"], seed:Math.floor(Math.random() * 2147483647) || 9173 };
       }
 
       function letterCountForLevel(level) {
@@ -2151,6 +2210,9 @@
         boardScore.textContent = progress.points || 0;
         boardState.textContent = mastered ? "Mastered" : cleared ? "You May Pass" : `Find ${board.clearAt - amount} to clear`;
         boardState.classList.toggle("mastered", mastered);
+        playfield.classList.toggle("mastered-board", mastered);
+        shuffleButton.disabled = mastered || boardTransitioning;
+        nodes.forEach(node => { node.disabled = mastered; });
         playHint.hidden = mastered;
         playHint.textContent = cleared ? "Stay To Master Board" : "Touch • trace • release";
         boardState.classList.toggle("cleared", cleared);
@@ -2159,6 +2221,13 @@
         renderPreviousBoardsButton();
         renderDiscoveryShelf();
         if (backdrop.classList.contains("open")) renderSheet();
+      }
+
+      function isCurrentBoardMastered() {
+        const board = boards[boardIndex];
+        if (!board) return false;
+        const found = Array.isArray(progress.boards[boardIndex]) ? progress.boards[boardIndex] : [];
+        return board.goals.every(word => found.includes(word));
       }
 
       function openDiscoveries() {
@@ -2312,7 +2381,12 @@
           changed = true;
         }
         if (!Number.isFinite(progress.points)) progress.points = 0;
-        dailyBubble.hidden = !profileExists || progress.dailyRewardDate === today;
+        const availableDarts = (progress.darts || 0) + (progress.dailyRewardDate === today ? 0 : 1);
+        dailyBubble.hidden = !profileExists || availableDarts < 1;
+        dartCount.textContent = `×${availableDarts}`;
+        dailyBubble.setAttribute("aria-label", `Play dart reward. ${availableDarts} dart${availableDarts === 1 ? "" : "s"} available`);
+        dictionaryButton.hidden = !progress.helpers?.dictionary;
+        dictionaryButton.classList.toggle("available", Boolean(progress.helpers?.dictionary && !progress.helpers?.dictionarySeen));
         renderWallet();
         if (changed && profileExists) saveProgress();
       }
@@ -2321,7 +2395,7 @@
         const availableHints = progress.hints?.count ?? 3;
         hintCount.textContent = `×${availableHints}`;
         hintButton.setAttribute("aria-label", `Use a hint. ${availableHints} available`);
-        hintButton.disabled = availableHints < 1;
+        hintButton.disabled = availableHints < 1 || isCurrentBoardMastered();
         walletPoints.textContent = progress.points || 0;
         boardScore.textContent = progress.points || 0;
         walletHints.textContent = `${availableHints} available`;
@@ -2330,6 +2404,9 @@
 
       function ensureInventory() {
         progress.inventory ||= {owned:[],equipped:{}};
+        progress.helpers ||= {dictionary:true,dictionarySeen:false};
+        progress.helpers.dictionary = true;
+        if (!Number.isFinite(progress.darts)) progress.darts = 0;
         if (!Array.isArray(progress.inventory.owned)) progress.inventory.owned = [];
         progress.inventory.equipped ||= {};
         if ((progress.wardrobeBaseVersion || 0) < 4) {
@@ -2390,6 +2467,7 @@
         });
         companionStore.replaceChildren();
         shipStore.replaceChildren();
+        helperStore.replaceChildren();
         const createStoreItemButton = item => {
           const owned = progress.inventory.owned.includes(item.id);
           const selected = progress.inventory.equipped[item.type] === item.id;
@@ -2410,12 +2488,32 @@
         };
         shopItems.filter(item => item.type === "pet").forEach(item => companionStore.append(createStoreItemButton(item)));
         shopItems.filter(item => item.type === "ship").forEach(item => shipStore.append(createStoreItemButton(item)));
+        [
+          {id:"dictionary",name:"SCOWL Dictionary",icon:"../images/verbia/menu-open-dictionary.png",state:progress.helpers.dictionary ? "Owned · open" : `${helperCosts.dictionary} pts`},
+          {id:"hints",name:"Hint Pack ×3",emoji:"💡",state:helperCosts.hints ? `${helperCosts.hints} pts` : "Free while testing"},
+          {id:"dart",name:"Reward Dart ×1",emoji:"🎯",state:helperCosts.dart ? `${helperCosts.dart} pts` : "Free while testing"}
+        ].forEach(helper => {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = `store-item${helper.id === "dictionary" && progress.helpers.dictionary ? " owned" : ""}`;
+          button.dataset.helperItem = helper.id;
+          const icon = document.createElement("span");
+          icon.className = "shop-icon";
+          if (helper.icon) icon.style.backgroundImage = `url('${helper.icon}')`;
+          else { icon.textContent = helper.emoji; icon.style.fontSize = "2.5rem"; icon.style.display = "grid"; icon.style.placeItems = "center"; }
+          const label = document.createTextNode(helper.name);
+          const state = document.createElement("strong");
+          state.textContent = helper.state;
+          button.append(icon,label,state);
+          helperStore.append(button);
+        });
       }
 
       function applyItemArt(element, item) {
         element.classList.remove("fitted-item-art","square-cell");
         element.style.setProperty("--companion-scale", item.type === "pet" ? String(item.showroomScale || 1) : "1");
         element.style.setProperty("--companion-lift", item.type === "pet" ? `${item.showroomLift || 0}px` : "0px");
+        element.style.setProperty("--vehicle-edge-shift", item.type === "ship" ? (vehicleEdgeShift[item.id] || "0%") : "0%");
         element.style.backgroundImage = `url('${item.asset}')`;
         element.style.backgroundSize = "contain";
         element.style.backgroundPosition = "center";
@@ -2520,6 +2618,31 @@
         vibrate([25,20,45]);
       }
 
+      function purchaseHelper(helperId) {
+        ensureInventory();
+        const cost = helperCosts[helperId];
+        if (!Number.isFinite(cost)) return;
+        if (helperId === "dictionary" && progress.helpers.dictionary) {
+          closeShop();
+          openDictionary();
+          return;
+        }
+        if ((progress.points || 0) < cost) {
+          showToast(`Earn ${cost - (progress.points || 0)} more points`, "duplicate");
+          return;
+        }
+        progress.points -= cost;
+        if (helperId === "dictionary") progress.helpers.dictionary = true;
+        if (helperId === "hints") progress.hints.count = (progress.hints.count || 0) + 3;
+        if (helperId === "dart") progress.darts = (progress.darts || 0) + 1;
+        saveProgress();
+        refreshDailyState();
+        renderInventory();
+        renderShop();
+        showToast(helperId === "hints" ? "3 hints added" : helperId === "dart" ? "1 reward dart added" : "Dictionary collected", "success");
+        vibrate([24,18,40]);
+      }
+
       function toggleEquippedItem(itemId) {
         ensureInventory();
         if (!progress.inventory.owned.includes(itemId)) return;
@@ -2543,6 +2666,7 @@
         showroomExplorerName.textContent = avatar.name;
         const pet = shopItems.find(item => item.id === equipped.pet);
         const ship = shopItems.find(item => item.id === equipped.ship);
+        inventoryDictionary.hidden = !progress.helpers?.dictionary;
         inventoryStage.classList.toggle("has-vehicle", Boolean(ship));
         renderGameAvatar();
         renderMenuPreview();
@@ -2676,7 +2800,54 @@
         shopButton.focus();
       }
 
+      function openDictionary() {
+        if (!progress.helpers?.dictionary) return;
+        progress.helpers.dictionarySeen = true;
+        saveProgress();
+        dictionaryButton.classList.remove("available");
+        if (!dictionaryTabs.childElementCount) {
+          "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").forEach(letter => {
+            const tab = document.createElement("button");
+            tab.type = "button";
+            tab.className = "dictionary-tab";
+            tab.dataset.dictionaryLetter = letter;
+            tab.setAttribute("role", "tab");
+            tab.textContent = letter;
+            dictionaryTabs.append(tab);
+          });
+        }
+        renderDictionaryLetter("A");
+        dictionaryOverlay.classList.add("open");
+        dictionaryOverlay.setAttribute("aria-hidden", "false");
+        closeDictionary.focus();
+      }
+
+      function renderDictionaryLetter(letter) {
+        const words = lexicon.filter(word => word.startsWith(letter));
+        dictionaryTabs.querySelectorAll(".dictionary-tab").forEach(tab => {
+          const active = tab.dataset.dictionaryLetter === letter;
+          tab.classList.toggle("active", active);
+          tab.setAttribute("aria-selected", String(active));
+        });
+        dictionaryWords.replaceChildren();
+        words.forEach(word => {
+          const item = document.createElement("span");
+          item.className = "dictionary-word";
+          item.textContent = word;
+          dictionaryWords.append(item);
+        });
+        dictionaryWords.scrollTop = 0;
+        dictionaryMeta.textContent = `${lexicon.length.toLocaleString()} playable SCOWL words · ${words.length.toLocaleString()} beginning with ${letter}`;
+      }
+
+      function closeDictionaryPanel() {
+        dictionaryOverlay.classList.remove("open");
+        dictionaryOverlay.setAttribute("aria-hidden", "true");
+        dictionaryButton.focus();
+      }
+
       function useHint() {
+        if (isCurrentBoardMastered()) return;
         refreshDailyState();
         if ((progress.hints?.count || 0) < 1) {
           showToast("Your three daily hints return tomorrow", "duplicate");
@@ -2703,7 +2874,8 @@
       }
 
       function openDailyReward() {
-        if (!profileExists || progress.dailyRewardDate === todayKey()) return;
+        const availableDarts = (progress.darts || 0) + (progress.dailyRewardDate === todayKey() ? 0 : 1);
+        if (!profileExists || availableDarts < 1) return;
         closeDiscoveryShelf();
         closeReward.classList.remove("reward-ready");
         rewardResult.textContent = "";
@@ -2747,7 +2919,8 @@
       }
 
       function throwDailyDart() {
-        if (!rewardOverlay.classList.contains("open") || rewardFire.disabled || progress.dailyRewardDate === todayKey()) return;
+        const hasDailyDart = progress.dailyRewardDate !== todayKey();
+        if (!rewardOverlay.classList.contains("open") || rewardFire.disabled || (!hasDailyDart && (progress.darts || 0) < 1)) return;
         rewardFire.disabled = true;
         cancelAnimationFrame(powerFrame);
         cancelAnimationFrame(wheelFrame);
@@ -2778,9 +2951,10 @@
         wheelAngle = finalWheelAngle;
         progress.points = (progress.points || 0) + (prize.points || 0);
         progress.hints.count += prize.hints || 0;
-        progress.dailyRewardDate = todayKey();
+        if (hasDailyDart) progress.dailyRewardDate = todayKey();
+        else progress.darts = Math.max(0, (progress.darts || 0) - 1);
         saveProgress();
-        dailyBubble.hidden = true;
+        refreshDailyState();
         window.setTimeout(() => {
           rewardResult.textContent = `Bullseye! You won ${prize.label}.`;
           rewardFire.textContent = "Prize collected";
