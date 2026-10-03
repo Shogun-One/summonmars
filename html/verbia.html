@@ -388,14 +388,16 @@
     .avatar-cost { display:block; min-height:9px; margin-top:2px; color:var(--surface-muted); font-size:.5rem; font-weight:750; letter-spacing:.03em; }
     .avatar-choice.selected .avatar-cost { color:color-mix(in srgb,var(--gold) 70%,white); }
     .menu-action { width:100%; margin-top:22px; padding:13px; border:0; border-radius:15px 6px 15px 6px; color:#07130f; background:linear-gradient(135deg,var(--mint),var(--gold)); font-size:.78rem; font-weight:900; letter-spacing:.12em; text-transform:uppercase; cursor:pointer; }
-    .menu-game-row { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; margin-top:22px; }
-    .menu-game-row .menu-action { margin-top:0; }
+    .menu-start-action { margin-top:22px; }
+    .menu-exit-row { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; margin-top:12px; }
+    .menu-exit-row .menu-action { margin-top:0; }
     .menu-new-game { color:var(--surface-text); border:1px solid color-mix(in srgb,var(--mint) 38%,transparent); background:rgba(117,245,199,.08); }
+    .menu-exit-game { color:#fff1e9; border:1px solid rgba(255,133,112,.44); background:rgba(255,100,77,.1); }
     .menu-subaction { width:100%; margin-top:8px; padding:11px; border:1px solid color-mix(in srgb,var(--mint) 38%,transparent); border-radius:13px 5px; color:var(--surface-text); background:rgba(117,245,199,.08); font-size:.68rem; font-weight:900; letter-spacing:.1em; text-transform:uppercase; cursor:pointer; }
     .menu-settings-row { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:7px; margin-top:8px; }
     .menu-settings-row .menu-subaction { margin-top:0; }
     .wallet-actions { display:grid; gap:5px; margin-top:7px; }
-    .menu-wallet-section { margin-top:18px; }
+    .menu-wallet-section { margin-top:12px; }
     .wallet-actions .menu-subaction { margin-top:0; }
     .explorer-shop-pulse { animation:shopAttention 2.8s ease-in-out infinite; }
     @keyframes shopAttention { 0%,100% { border-color:color-mix(in srgb,var(--mint) 38%,transparent); box-shadow:0 0 0 0 color-mix(in srgb,var(--gold) 0%,transparent); transform:scale(1); } 50% { color:#fff7dc; border-color:var(--gold); box-shadow:0 0 0 4px color-mix(in srgb,var(--gold) 11%,transparent),0 0 18px color-mix(in srgb,var(--gold) 34%,transparent); transform:scale(1.012); } }
@@ -650,22 +652,22 @@
     .inventory-stage { position:relative; height:min(58svh,560px); min-height:440px; margin:14px 0; overflow:hidden; border:1px solid rgba(255,255,255,.13); border-radius:24px 8px; background:radial-gradient(circle at 50% 36%,color-mix(in srgb,var(--mint) 20%,transparent),transparent 34%),linear-gradient(180deg,#0d2730,#070b15 70%); box-shadow:inset 0 0 55px rgba(75,223,255,.08); }
     .inventory-stage.has-vehicle::before { content:""; position:absolute; z-index:0; inset:12% 2% 14%; background:radial-gradient(ellipse at 50% 55%,color-mix(in srgb,var(--mint) 48%,transparent) 0%,color-mix(in srgb,var(--accent) 24%,transparent) 30%,transparent 72%); filter:blur(14px); opacity:.9; pointer-events:none; }
     .store-showroom-stage { height:min(50svh,480px); min-height:390px; margin-bottom:22px; }
-    .store-points-note { position:absolute; z-index:14; top:24px; right:8px; width:clamp(104px,31%,138px); aspect-ratio:4/3; display:grid; place-content:center; gap:1px; padding:18px 15px 14px; color:#291b0f; background:url('../images/verbia/store-points-note-v1.png') center/contain no-repeat; filter:drop-shadow(0 7px 8px rgba(0,0,0,.55)); text-align:center; transform:rotate(1.5deg); pointer-events:none; }
+    .store-points-note { position:absolute; z-index:0; top:24px; right:8px; width:clamp(104px,31%,138px); aspect-ratio:4/3; display:grid; place-content:center; gap:1px; padding:18px 15px 14px; color:#291b0f; background:url('../images/verbia/store-points-note-v1.png') center/contain no-repeat; filter:drop-shadow(0 7px 8px rgba(0,0,0,.55)); text-align:center; transform:rotate(1.5deg); pointer-events:none; }
     .store-points-note small { font:900 clamp(.42rem,1.8vw,.58rem)/1.1 system-ui,sans-serif; letter-spacing:.13em; text-transform:uppercase; }
     .store-points-note strong { font:900 clamp(1.15rem,5vw,1.7rem)/1 Georgia,serif; }
-    .inventory-score-note { position:absolute; z-index:1; top:20px; left:8px; width:clamp(120px,34%,164px); aspect-ratio:4/3; display:grid; place-content:center; gap:1px; padding:28px 16px 12px; color:#17252d; background:url('../images/verbia/inventory-score-tag-v2.webp') center/contain no-repeat; filter:drop-shadow(0 7px 8px rgba(0,0,0,.58)); text-align:center; transform:rotate(-1.5deg); pointer-events:none; }
+    .inventory-score-note { position:absolute; z-index:0; top:20px; left:8px; width:clamp(120px,34%,164px); aspect-ratio:4/3; display:grid; place-content:center; gap:1px; padding:28px 16px 12px; color:#17252d; background:url('../images/verbia/inventory-score-tag-v2.webp') center/contain no-repeat; filter:drop-shadow(0 7px 8px rgba(0,0,0,.58)); text-align:center; transform:rotate(-1.5deg); pointer-events:none; }
     .inventory-score-note small { font:900 clamp(.42rem,1.7vw,.56rem)/1.15 system-ui,sans-serif; letter-spacing:.12em; text-transform:uppercase; }
     .inventory-score-note strong { max-width:100%; overflow:hidden; font:900 clamp(1.35rem,6vw,2rem)/1 Georgia,serif; letter-spacing:-.035em; text-overflow:ellipsis; }
     .inventory-stage::after { content:"FULL-BODY FITTING BAY"; position:absolute; z-index:10; left:50%; top:12px; translate:-50% 0; color:rgba(255,255,255,.42); font-size:.5rem; font-weight:900; letter-spacing:.16em; white-space:nowrap; }
-    .showroom-table { position:absolute; z-index:1; left:3%; bottom:0; width:30%; height:30%; background:linear-gradient(90deg,transparent 27%,rgba(42,65,66,.88) 28% 72%,transparent 73%) center bottom/42% 4px no-repeat; pointer-events:none; }
+    .showroom-table { position:absolute; z-index:2; left:3%; bottom:0; width:30%; height:30%; background:linear-gradient(90deg,transparent 27%,rgba(42,65,66,.88) 28% 72%,transparent 73%) center bottom/42% 4px no-repeat; pointer-events:none; }
     .showroom-table::before { content:""; position:absolute; left:5%; right:5%; top:0; height:5px; border:1px solid rgba(210,250,244,.5); border-radius:8px 3px; background:linear-gradient(180deg,#9fb9b6 0 28%,#466563 32% 68%,#172d2f 72% 100%); box-shadow:0 3px 7px rgba(0,0,0,.46),inset 0 1px rgba(255,255,255,.5),0 0 8px rgba(117,245,199,.12); transform:perspective(100px) rotateX(5deg); transform-origin:center bottom; }
     .showroom-table::after { content:""; position:absolute; left:50%; top:5px; bottom:3px; width:7px; translate:-50% 0; border:1px solid rgba(172,211,207,.24); border-radius:1px 1px 5px 5px; background:linear-gradient(90deg,#122426,#789492 48%,#203638 72%,#0b1719); box-shadow:0 5px 8px rgba(0,0,0,.48); }
-    .persona { --atlas-x:0%;--atlas-y:0%; position:absolute; z-index:2; left:50%; bottom:12px; width:min(76%,330px); height:calc(100% - 40px); transform:translateX(-50%); background-image:url('../images/verbia/explorer-fitting-atlas-v3.png'); background-size:500% 200%; background-position:var(--atlas-x) var(--atlas-y); background-repeat:no-repeat; filter:drop-shadow(0 16px 18px rgba(0,0,0,.45)); }
-    .inventory-ship { position:absolute; z-index:0; inset:0; background-repeat:no-repeat; background-size:cover; background-position:center; opacity:1; filter:brightness(1.28) contrast(1.08) saturate(1.18) drop-shadow(0 0 16px color-mix(in srgb,var(--mint) 34%,transparent)) drop-shadow(0 12px 18px rgba(0,0,0,.65)); }
+    .persona { --atlas-x:0%;--atlas-y:0%; position:absolute; z-index:3; left:50%; bottom:12px; width:min(76%,330px); height:calc(100% - 40px); transform:translateX(-50%); background-image:url('../images/verbia/explorer-fitting-atlas-v3.png'); background-size:500% 200%; background-position:var(--atlas-x) var(--atlas-y); background-repeat:no-repeat; filter:drop-shadow(0 16px 18px rgba(0,0,0,.45)); }
+    .inventory-ship { position:absolute; z-index:1; inset:0; background-repeat:no-repeat; background-size:cover; background-position:center; opacity:1; filter:brightness(1.28) contrast(1.08) saturate(1.18) drop-shadow(0 0 16px color-mix(in srgb,var(--mint) 34%,transparent)) drop-shadow(0 12px 18px rgba(0,0,0,.65)); }
     .inventory-ship:empty { display:none; }
     .inventory-pet { position:absolute; z-index:7; right:3%; bottom:calc(8px + var(--companion-lift,0px)); width:34%; aspect-ratio:1; transform:scale(var(--companion-scale,1)); transform-origin:right bottom; background-repeat:no-repeat; background-size:contain; background-position:center bottom; filter:drop-shadow(0 8px 8px rgba(0,0,0,.5)); }
     .inventory-pet:empty { display:none; }
-    .inventory-dictionary { position:absolute; z-index:1; left:5%; bottom:calc(30% - 6px); width:clamp(72px,25%,98px); height:58px; background:url('../images/verbia/menu-open-dictionary.png') center bottom/contain no-repeat; filter:brightness(1.18) drop-shadow(0 5px 8px rgba(0,0,0,.6)); pointer-events:none; }
+    .inventory-dictionary { position:absolute; z-index:2; left:5%; bottom:calc(30% - 6px); width:clamp(72px,25%,98px); height:58px; background:url('../images/verbia/menu-open-dictionary.png') center bottom/contain no-repeat; filter:brightness(1.18) drop-shadow(0 5px 8px rgba(0,0,0,.6)); pointer-events:none; }
     .inventory-dictionary[hidden] { display:none!important; }
     .inventory-list { display:grid; gap:14px; margin-top:14px; }
     .inventory-item-group { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; }
@@ -1017,9 +1019,14 @@
         <h2 class="verbia-wordmark" id="menuTitle" aria-label="Verbia"><span class="leading-v" aria-hidden="true">V</span>erbi<span class="inverted-v" aria-hidden="true">V</span></h2>
         <p>Create your path through words</p>
       </div>
-      <div class="menu-game-row">
-        <button class="menu-action" id="resumeButton" type="button">Start journey</button>
-        <button class="menu-action menu-new-game" id="menuNewGameButton" type="button">New Game</button>
+      <button class="menu-action menu-start-action" id="resumeButton" type="button">Start journey</button>
+      <div class="menu-section menu-wallet-section">
+        <h3>Explorer wallet</h3>
+        <div class="wallet-card"><span>Discovery points<strong id="walletPoints">0</strong></span><span>Daily hints<strong id="walletHints">3 / 3</strong></span><span>Score<strong id="walletScore">0</strong></span></div>
+        <div class="wallet-actions">
+          <button class="menu-subaction" id="inventoryButton" type="button">Inventory Showroom</button>
+          <button class="menu-subaction explorer-shop-pulse" id="shopButton" type="button">Explorer Shop</button>
+        </div>
       </div>
       <div class="menu-settings-row">
         <button class="menu-subaction" id="soundSettingsButton" type="button">Sound Settings</button>
@@ -1034,13 +1041,9 @@
         <span class="menu-preview-pet" id="menuPreviewPet"></span>
         <span class="menu-preview-name" id="menuPreviewName"></span>
       </div>
-      <div class="menu-section menu-wallet-section">
-        <h3>Explorer wallet</h3>
-        <div class="wallet-card"><span>Discovery points<strong id="walletPoints">0</strong></span><span>Daily hints<strong id="walletHints">3 / 3</strong></span><span>Score<strong id="walletScore">0</strong></span></div>
-        <div class="wallet-actions">
-          <button class="menu-subaction" id="inventoryButton" type="button">Inventory Showroom</button>
-          <button class="menu-subaction explorer-shop-pulse" id="shopButton" type="button">Explorer Shop</button>
-        </div>
+      <div class="menu-exit-row">
+        <button class="menu-action menu-new-game" id="menuNewGameButton" type="button">New Game</button>
+        <button class="menu-action menu-exit-game" id="menuExitButton" type="button">Exit Game</button>
       </div>
     </section>
   </div>
@@ -1394,6 +1397,7 @@
       const startMenu = document.querySelector("#startMenu");
       const resumeButton = document.querySelector("#resumeButton");
       const menuNewGameButton = document.querySelector("#menuNewGameButton");
+      const menuExitButton = document.querySelector("#menuExitButton");
       const inventoryButton = document.querySelector("#inventoryButton");
       const directionsButton = document.querySelector("#directionsButton");
       const shopButton = document.querySelector("#shopButton");
@@ -1657,6 +1661,7 @@
       avatarBadge.addEventListener("click", openMenu);
       resumeButton.addEventListener("click", closeMenu);
       menuNewGameButton.addEventListener("click", openNewGameConfirmation);
+      menuExitButton.addEventListener("click", exitGameToLaunch);
       cancelNewGameButton.addEventListener("click", closeNewGameConfirmation);
       confirmNewGameButton.addEventListener("click", startNewGame);
       inventoryButton.addEventListener("click", openInventory);
@@ -2705,6 +2710,18 @@
         menuOverlay.setAttribute("aria-hidden", "true");
         hasStarted = true;
         pauseButton.focus();
+      }
+
+      function exitGameToLaunch() {
+        resetTrace();
+        stopMasteryFireworks();
+        menuOverlay.classList.remove("open");
+        menuOverlay.setAttribute("aria-hidden", "true");
+        backgroundTracks.forEach(track => track.pause());
+        backgroundMusicStarted = false;
+        hasStarted = false;
+        if (document.fullscreenElement) document.exitFullscreen?.().catch(() => {});
+        showLaunchChoice();
       }
 
       function enterImmersiveMode() {
