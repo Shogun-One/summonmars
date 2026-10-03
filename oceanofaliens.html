@@ -3906,6 +3906,12 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
       {id:'scene-nebula',type:'scene',name:'NEBULA RUN',price:4000,bossGate:6,color:'#a33bba'},
       {id:'scene-solar',type:'scene',name:'SOLAR STORM',price:4000,bossGate:8,color:'#df5c28'}
     ];
+    // Temporary purchase-testing economy: keep the permanent free starter
+    // items free and make every other catalog item immediately available for
+    // one point. Remove this block when final progression pricing returns.
+    STORE_ITEMS.forEach(item=>{
+      if(item.price>0){ item.price=1; item.bossGate=0; }
+    });
     // Only the two robot pilots and the starter environment are granted on a
     // fresh save. Everything else must be earned and purchased normally.
     const DEFAULT_OWNED_STORE_ITEMS=['pilot-shadow','pilot-robot-f','ship-starter','scene-deep'];
@@ -8787,9 +8793,9 @@ if (flashTimer > 0) {
           ctx.fillStyle='rgba(15,9,27,.96)';ctx.strokeStyle='rgba(255,94,130,.72)';ctx.lineWidth=1.8;
           roundRect(ctx,shopHeader.x,shopHeader.y,shopHeader.w,shopHeader.h,11,true,true);
           ctx.textAlign='left';ctx.fillStyle='#fff0fa';ctx.font=`900 ${compact?15:16}px Orbitron`;
-          ctx.fillText('INVENTORY SHOP',shopHeader.x+12,shopHeader.y+shopHeader.h*.38);
+          ctx.fillText('INVENTORY SHOP',shopHeader.x+12,shopHeader.y+shopHeader.h*.55);
           ctx.textAlign='right';ctx.fillStyle='#ffd75d';ctx.font=`800 ${compact?12:13}px Share Tech Mono`;
-          ctx.fillText(`AVAILABLE POINTS: ${storeCredits.toLocaleString()}`,shopHeader.x+shopHeader.w-12,shopHeader.y+shopHeader.h*.72);
+          ctx.fillText(`AVAILABLE POINTS: ${storeCredits.toLocaleString()}`,shopHeader.x+shopHeader.w-12,shopHeader.y+shopHeader.h*.55);
         };
         if(!compact){ drawInventoryBay(bay); drawShopHeading(); }
         ctx.save();ctx.beginPath();ctx.rect(layout.viewport.x,layout.viewport.y,layout.viewport.w,layout.viewport.h);ctx.clip();
