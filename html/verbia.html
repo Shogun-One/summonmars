@@ -260,6 +260,7 @@
     .hint-button,.daily-bubble,.dictionary-button,.quick-access-button { position:relative; inset:auto; width:52px; height:52px; display:grid; place-items:center; padding:0; border:0; border-radius:0; color:#102019; background:transparent; box-shadow:none; font-size:1.7rem; line-height:1; cursor:pointer; pointer-events:auto; }
     .daily-bubble { position:absolute; left:0; bottom:52px; }
     .dictionary-button { position:absolute; z-index:26; left:60px; top:auto; bottom:calc(-1 * var(--section-gap)); width:58px; height:38px; }
+    .dictionary-button[hidden] { display:none!important; }
     .dictionary-button img { width:56px; height:36px; object-fit:contain; filter:drop-shadow(0 2px 4px rgba(0,0,0,.55)); }
     .quick-access-button { position:absolute; right:1px; width:46px; height:46px; color:#fff; font-size:1.8rem; filter:drop-shadow(0 3px 5px rgba(0,0,0,.72)); transition:transform .16s ease,filter .16s ease; }
     .quick-access-button:hover,.quick-access-button:focus-visible { outline:none; transform:scale(1.1); filter:brightness(1.2) drop-shadow(0 0 8px var(--mint)); }
