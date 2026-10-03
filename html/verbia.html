@@ -399,6 +399,7 @@
     .menu-settings-row .menu-subaction { margin-top:0; }
     .wallet-actions { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:7px; margin-top:7px; }
     .menu-wallet-section { margin-top:12px; }
+    .menu-wallet-section h3 { margin:12px 0 9px; text-align:center; }
     .wallet-actions .menu-subaction { margin-top:0; }
     .explorer-shop-pulse { animation:shopAttention 2.8s ease-in-out infinite; }
     @keyframes shopAttention { 0%,100% { border-color:color-mix(in srgb,var(--mint) 38%,transparent); box-shadow:0 0 0 0 color-mix(in srgb,var(--gold) 0%,transparent); transform:scale(1); } 50% { color:#fff7dc; border-color:var(--gold); box-shadow:0 0 0 4px color-mix(in srgb,var(--gold) 11%,transparent),0 0 18px color-mix(in srgb,var(--gold) 34%,transparent); transform:scale(1.012); } }
@@ -1022,12 +1023,12 @@
       </div>
       <button class="menu-action menu-start-action" id="resumeButton" type="button">Start journey</button>
       <div class="menu-section menu-wallet-section">
-        <h3>Explorer wallet</h3>
-        <div class="wallet-card"><span>Discovery points<strong id="walletPoints">0</strong></span><span>Daily hints<strong id="walletHints">3 / 3</strong></span><span>Score<strong id="walletScore">0</strong></span></div>
         <div class="wallet-actions">
           <button class="menu-subaction explorer-shop-pulse" id="shopButton" type="button">Explorer Shop</button>
           <button class="menu-subaction" id="inventoryButton" type="button">Inventory Showroom</button>
         </div>
+        <h3>Explorer wallet</h3>
+        <div class="wallet-card"><span>Discovery points<strong id="walletPoints">0</strong></span><span>Daily hints<strong id="walletHints">3 / 3</strong></span><span>Score<strong id="walletScore">0</strong></span></div>
       </div>
       <div class="menu-preview" id="menuPreview" aria-label="Current explorer loadout">
         <span class="menu-preview-ship" id="menuPreviewShip"></span>
