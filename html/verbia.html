@@ -408,9 +408,11 @@
     .haptic-toggle { min-width:76px; }
     .music-speed-bar { margin-top:9px; padding:11px 12px 12px; border:1px solid rgba(255,255,255,.14); border-radius:15px 6px; background:rgba(255,255,255,.045); }
     .music-speed-bar>span { display:block; margin-bottom:8px; color:color-mix(in srgb,var(--gold) 78%,white); font-size:.57rem; font-weight:900; letter-spacing:.12em; text-align:center; text-transform:uppercase; }
-    .music-speed-control { display:grid; grid-template-columns:auto minmax(110px,1fr) auto; align-items:center; gap:10px; color:var(--surface-muted); font-size:.62rem; font-weight:850; }
-    .music-speed-control span:last-child { color:var(--mint); }
+    .music-speed-control { display:block; color:var(--surface-muted); font-size:.62rem; font-weight:850; }
     .music-speed-control input { width:100%; accent-color:var(--mint); cursor:pointer; }
+    .music-speed-labels { display:grid; grid-template-columns:repeat(3,1fr); margin-top:4px; color:var(--surface-muted); font-size:.62rem; font-weight:850; }
+    .music-speed-labels span:nth-child(2) { color:var(--gold); text-align:center; }
+    .music-speed-labels span:last-child { color:var(--mint); text-align:right; }
     .menu-preview { position:relative; height:190px; margin-top:14px; overflow:hidden; border:1px solid color-mix(in srgb,var(--mint) 34%,transparent); border-radius:17px 6px; background:radial-gradient(circle at 52% 38%,color-mix(in srgb,var(--mint) 28%,transparent),transparent 44%),linear-gradient(180deg,#175063,#0b1933 82%); box-shadow:inset 0 0 34px rgba(75,223,255,.13); }
     .menu-preview::before { content:"CURRENT EXPLORER"; position:absolute; z-index:8; left:10px; top:8px; color:rgba(255,255,255,.42); font-size:.45rem; font-weight:900; letter-spacing:.15em; }
     .menu-preview-ship { position:absolute; z-index:1; top:8px; right:0; bottom:8px; width:38%; background-repeat:no-repeat; background-position:right center; background-size:contain; opacity:.8; filter:brightness(1.3) contrast(1.08) saturate(1.2) drop-shadow(0 0 11px color-mix(in srgb,var(--mint) 34%,transparent)) drop-shadow(0 6px 9px rgba(0,0,0,.45)); }
@@ -1060,7 +1062,8 @@
       </div>
       <div class="music-speed-bar">
         <span>Music style</span>
-        <label class="music-speed-control" for="musicPace"><span>Slower music</span><input id="musicPace" type="range" min="0" max="1" step="1" value="0" aria-label="Music style: slower music" /><span>Faster music</span></label>
+        <label class="music-speed-control" for="musicPace"><input id="musicPace" type="range" min="0" max="2" step="1" value="0" aria-label="Music style: slow music" /></label>
+        <div class="music-speed-labels" aria-hidden="true"><span>Slow</span><span>Medium</span><span>Fast</span></div>
       </div>
     </section>
   </div>
@@ -1501,8 +1504,9 @@
       const boardClearAudio = new Audio("../mp3/verbia/board-clear-applause.mp3");
       const boardMasterAudio = new Audio("../mp3/verbia/board-master-hurray.mp3");
       const slowBackgroundMusic = new Audio("../mp3/verbia/cosmic-lounge-loop.ogg");
+      const mediumBackgroundMusic = new Audio("../mp3/verbia/cosmic-techno-medium-loop.ogg?v=1");
       const fastBackgroundMusic = new Audio("../mp3/verbia/cosmic-elevator-fast-loop.ogg?v=2");
-      const backgroundTracks = [slowBackgroundMusic,fastBackgroundMusic];
+      const backgroundTracks = [slowBackgroundMusic,mediumBackgroundMusic,fastBackgroundMusic];
       let backgroundMusic = slowBackgroundMusic;
       boardClearAudio.preload = "auto";
       boardMasterAudio.preload = "auto";
@@ -1547,7 +1551,9 @@
       }
 
       function selectedBackgroundTrack() {
-        return settings.musicPace === "fast" ? fastBackgroundMusic : slowBackgroundMusic;
+        if (settings.musicPace === "fast") return fastBackgroundMusic;
+        if (settings.musicPace === "medium") return mediumBackgroundMusic;
+        return slowBackgroundMusic;
       }
 
       function startBackgroundMusic() {
@@ -1755,7 +1761,7 @@
       });
 
       musicPace.addEventListener("input", () => {
-        settings.musicPace = musicPace.value === "1" ? "fast" : "slow";
+        settings.musicPace = ["slow","medium","fast"][Number(musicPace.value)] || "slow";
         applySettings(false);
         startBackgroundMusic();
       });
@@ -3745,7 +3751,7 @@
         ensureInventory();
         if (!["shard","circle","triangle"].includes(settings.shape)) settings.shape = "shard";
         if (!["all","music","effects","off"].includes(settings.soundMode)) settings.soundMode = "all";
-        if (!["slow","fast"].includes(settings.musicPace)) settings.musicPace = "slow";
+        if (!["slow","medium","fast"].includes(settings.musicPace)) settings.musicPace = "slow";
         if (typeof settings.haptics !== "boolean") settings.haptics = true;
         document.documentElement.dataset.theme = settings.theme;
         playfield.dataset.shape = settings.shape;
@@ -3761,8 +3767,8 @@
         hapticToggle.classList.toggle("selected", settings.haptics);
         hapticToggle.setAttribute("aria-pressed", String(settings.haptics));
         hapticToggle.textContent = settings.haptics ? "Vibrate on" : "Vibrate off";
-        musicPace.value = settings.musicPace === "fast" ? "1" : "0";
-        musicPace.setAttribute("aria-label", `Music style: ${settings.musicPace === "fast" ? "faster music" : "slower music"}`);
+        musicPace.value = String(["slow","medium","fast"].indexOf(settings.musicPace));
+        musicPace.setAttribute("aria-label", `Music style: ${settings.musicPace} music`);
         const soundLabels = {all:"♫ Music + FX",music:"♫ Music",effects:"♫ FX",off:"♫ Silent"};
         soundCycleButton.textContent = soundLabels[settings.soundMode];
         soundCycleButton.setAttribute("aria-label", `Sound mode: ${soundLabels[settings.soundMode].replace("♫ ","")}. Tap to change.`);
