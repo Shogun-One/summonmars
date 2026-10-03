@@ -600,6 +600,9 @@
     .confirm-actions .menu-action,.confirm-actions .menu-subaction { margin-top:0; }
     .feature-panel { width:min(100%,500px); min-height:min(92svh,820px); padding:18px; border:1px solid color-mix(in srgb,var(--mint) 42%,transparent); border-radius:28px 10px; background:linear-gradient(150deg,#102726,#060b12); box-shadow:0 30px 90px rgba(0,0,0,.7); }
     .feature-back { width:100%; padding:11px; border:1px solid color-mix(in srgb,var(--gold) 42%,transparent); border-radius:13px 5px; color:#171300; background:linear-gradient(135deg,var(--gold),var(--mint)); font-size:.7rem; font-weight:950; letter-spacing:.1em; text-transform:uppercase; cursor:pointer; }
+    .feature-nav { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+    .feature-resume { width:100%; padding:11px; border:1px solid rgba(255,255,255,.22); border-radius:5px 13px; color:var(--surface-text); background:rgba(255,255,255,.07); font-size:.7rem; font-weight:950; letter-spacing:.1em; text-transform:uppercase; cursor:pointer; }
+    .feature-resume:hover,.feature-resume:focus-visible { border-color:var(--mint); background:rgba(117,245,199,.12); outline:none; }
     .feature-panel h2 { margin:18px 0 5px; font:500 2.35rem Georgia,serif; text-align:center; }
     .feature-intro { margin:0 auto 18px; max-width:390px; color:var(--surface-muted); font-size:.74rem; line-height:1.55; text-align:center; }
     .directions-list { display:grid; gap:9px; margin:0; padding:0; list-style:none; }
@@ -1045,7 +1048,10 @@
 
   <div class="feature-overlay" id="shopOverlay" aria-hidden="true">
     <section class="feature-panel" role="dialog" aria-modal="true" aria-labelledby="shopTitle">
-      <button class="feature-back" id="shopBack" type="button">← Go back</button>
+      <div class="feature-nav">
+        <button class="feature-back" id="shopBack" type="button">← Go back</button>
+        <button class="feature-resume" id="shopResume" type="button">Resume game</button>
+      </div>
       <h2 id="shopTitle">Explorer Store</h2>
       <p class="feature-intro"><span id="shopPoints">0</span> discovery points · Unlock complete explorers, companions, ships, and vehicles.</p>
       <div class="inventory-stage store-showroom-stage" id="shopShowroomStage">
@@ -1054,10 +1060,10 @@
         <span class="inventory-pet" id="shopShowroomPet" aria-label="Equipped pet"></span>
         <span class="showroom-explorer-name" id="shopShowroomName" aria-hidden="true"></span>
       </div>
+      <div class="store-section"><h3>Trinkets &amp; helpers</h3><div class="store-preview" id="helperStore"></div></div>
       <div class="store-section"><h3>Explorers</h3><div class="store-avatar-grid" id="storeAvatarChoices"></div></div>
       <div class="store-section"><h3>Companions</h3><div class="store-preview" id="companionStore"></div></div>
       <div class="store-section"><h3>Ships &amp; vehicles</h3><div class="store-preview" id="shipStore"></div></div>
-      <div class="store-section"><h3>Trinkets &amp; helpers</h3><div class="store-preview" id="helperStore"></div></div>
     </section>
   </div>
 
@@ -1289,6 +1295,7 @@
       const helperStore = document.querySelector("#helperStore");
       const shopOverlay = document.querySelector("#shopOverlay");
       const shopBack = document.querySelector("#shopBack");
+      const shopResume = document.querySelector("#shopResume");
       const shopPoints = document.querySelector("#shopPoints");
       const shopShowroomStage = document.querySelector("#shopShowroomStage");
       const shopShowroomPersona = document.querySelector("#shopShowroomPersona");
@@ -1449,6 +1456,10 @@
       configurationBack.addEventListener("click", closeConfiguration);
       soundSettingsBack.addEventListener("click", closeSoundSettings);
       shopBack.addEventListener("click", closeShop);
+      shopResume.addEventListener("click", () => {
+        closeShop();
+        closeMenu();
+      });
       shopOverlay.addEventListener("click", event => {
         const choice = event.target.closest("[data-shop-item]");
         if (choice) purchaseItem(choice.dataset.shopItem);
