@@ -758,25 +758,30 @@
     .toast.bonus::before { content:"★"; flex:0 0 auto; color:#ffe779; font-size:2.85rem; line-height:.72; -webkit-text-stroke:1px rgba(80,49,0,.5); filter:drop-shadow(0 0 10px rgba(255,225,92,.95)); animation:bonusStar .55s cubic-bezier(.2,.9,.25,1.35) both; }
     .dictionary-overlay { position:fixed; z-index:92; inset:0; display:grid; place-items:center; padding:12px; background:rgba(1,5,10,.9); backdrop-filter:blur(16px); opacity:0; pointer-events:none; transition:opacity .2s ease; }
     .dictionary-overlay.open { opacity:1; pointer-events:auto; }
-    .dictionary-panel { position:relative; width:min(100%,680px); height:min(92svh,820px); display:flex; flex-direction:column; padding:22px 18px 18px; overflow:hidden; border:1px solid color-mix(in srgb,var(--gold) 45%,transparent); border-radius:28px 10px; background:linear-gradient(155deg,#173633,#080d18); box-shadow:0 28px 90px rgba(0,0,0,.72); }
+    .dictionary-panel { position:relative; width:min(100%,680px); height:min(94svh,860px); display:flex; flex-direction:column; padding:18px; overflow:hidden; border:1px solid color-mix(in srgb,var(--gold) 45%,transparent); border-radius:28px 10px; background:radial-gradient(circle at 50% 25%,rgba(117,245,199,.13),transparent 34%),linear-gradient(155deg,#173633,#080d18); box-shadow:0 28px 90px rgba(0,0,0,.72); }
     .dictionary-panel h2 { margin:0 54px; font:500 clamp(1.65rem,7vw,2.25rem) Georgia,serif; line-height:1.1; text-align:center; }
-    .dictionary-meta { margin:7px 46px 12px; color:var(--surface-muted); font-size:.78rem; line-height:1.4; text-align:center; }
-    .dictionary-tabs { flex:0 0 auto; display:flex; gap:7px; margin:0 -2px 10px; padding:2px 2px 7px; overflow-x:auto; scroll-snap-type:x proximity; scrollbar-width:thin; }
-    .dictionary-tab { flex:0 0 40px; min-width:40px; min-height:40px; padding:0; scroll-snap-align:center; border:1px solid rgba(255,255,255,.18); border-radius:10px 4px; color:var(--surface-muted); background:rgba(255,255,255,.06); font-size:.82rem; font-weight:950; cursor:pointer; }
-    .dictionary-tab.active { color:#071411; border-color:var(--gold); background:var(--gold); }
-    .dictionary-search { flex:0 0 auto; width:100%; min-height:44px; margin-bottom:10px; padding:10px 13px; border:1px solid rgba(117,245,199,.3); border-radius:12px 5px; outline:none; color:var(--surface-text); background:rgba(0,0,0,.3); font:700 16px/1.2 system-ui,sans-serif; }
-    .dictionary-search:focus { border-color:var(--mint); box-shadow:0 0 0 3px rgba(117,245,199,.12); }
-    .dictionary-words { min-height:0; flex:1 1 auto; overflow-y:auto; display:grid; grid-template-columns:1fr; align-content:start; gap:7px; padding:10px; border:1px solid rgba(117,245,199,.18); border-radius:14px 5px; background:rgba(0,0,0,.24); scrollbar-width:thin; }
-    .dictionary-word { min-width:0; padding:11px 12px; overflow:hidden; border-radius:9px 4px; color:#c4ffe8; background:rgba(117,245,199,.075); font-size:1rem; font-weight:760; letter-spacing:.055em; text-align:left; text-overflow:ellipsis; }
-    .dictionary-more { flex:0 0 auto; width:100%; margin-top:10px; padding:11px; border:1px solid color-mix(in srgb,var(--gold) 55%,transparent); border-radius:11px 4px; color:#231800; background:linear-gradient(135deg,var(--gold),#ff9b69); font-size:.74rem; font-weight:950; letter-spacing:.08em; text-transform:uppercase; cursor:pointer; }
-    .dictionary-more[hidden] { display:none; }
+    .dictionary-meta { margin:5px 46px 7px; color:var(--surface-muted); font-size:.72rem; line-height:1.35; text-align:center; }
+    .dictionary-wheel { position:relative; flex:0 0 auto; width:min(72vw,280px); aspect-ratio:1; margin:0 auto 8px; border:1px solid rgba(117,245,199,.2); border-radius:50%; background:radial-gradient(circle,rgba(4,18,20,.78) 0 39%,rgba(117,245,199,.055) 40% 62%,rgba(0,0,0,.12) 63% 100%); box-shadow:inset 0 0 34px rgba(117,245,199,.08),0 0 24px rgba(0,0,0,.22); }
+    .dictionary-tabs { position:absolute; inset:0; }
+    .dictionary-tab { position:absolute; width:31px; height:31px; padding:0; border:1px solid rgba(255,255,255,.18); border-radius:50%; color:var(--surface-muted); background:rgba(8,25,26,.82); box-shadow:0 3px 8px rgba(0,0,0,.35); font-size:.66rem; font-weight:950; cursor:pointer; transform:translate(-50%,-50%); }
+    .dictionary-tab.active { color:#071411; border-color:#fff3a6; background:var(--gold); box-shadow:0 0 0 3px rgba(255,217,120,.18),0 0 14px rgba(255,217,120,.5); }
+    .dictionary-wheel-center { position:absolute; z-index:2; inset:28%; display:grid; place-items:center; align-content:center; gap:5px; padding:8px; border:1px solid rgba(117,245,199,.24); border-radius:50%; background:rgba(3,13,17,.72); backdrop-filter:blur(8px); text-align:center; }
+    .dictionary-wheel-letter { color:var(--gold); font:600 2rem/1 Georgia,serif; }
+    .dictionary-wheel-center small { color:var(--surface-muted); font-size:.5rem; font-weight:850; letter-spacing:.08em; text-transform:uppercase; }
+    .dictionary-sections { display:grid; grid-template-columns:repeat(5,1fr); gap:3px; width:100%; }
+    .dictionary-section { min-width:0; padding:5px 0; border:1px solid rgba(255,255,255,.16); border-radius:6px 2px; color:var(--surface-text); background:rgba(255,255,255,.07); font-size:.61rem; font-weight:950; cursor:pointer; }
+    .dictionary-section.active { color:#061512; border-color:var(--mint); background:var(--mint); }
+    .dictionary-words { min-height:0; flex:1 1 auto; overflow-y:auto; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); align-content:start; gap:7px; padding:10px; border:1px solid rgba(117,245,199,.18); border-radius:14px 5px; background:rgba(0,0,0,.24); scrollbar-width:thin; }
+    .dictionary-word { min-width:0; padding:9px 8px; overflow:hidden; border-radius:9px 4px; color:#c4ffe8; background:rgba(117,245,199,.075); font-size:.82rem; font-weight:780; letter-spacing:.035em; text-align:center; text-overflow:ellipsis; }
     .dictionary-close { position:absolute; right:14px; top:14px; animation:rewardClosePulse .72s ease-in-out infinite alternate; }
-    @media (min-width:650px) { .dictionary-words { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+    @media (min-width:650px) { .dictionary-words { grid-template-columns:repeat(3,minmax(0,1fr)); } }
     @media (max-width:540px) {
       .dictionary-overlay { padding:0; }
-      .dictionary-panel { width:100%; height:100svh; padding:max(20px,env(safe-area-inset-top)) 14px max(14px,env(safe-area-inset-bottom)); border-width:0; border-radius:0; }
+      .dictionary-panel { width:100%; height:100svh; padding:max(16px,env(safe-area-inset-top)) 12px max(10px,env(safe-area-inset-bottom)); border-width:0; border-radius:0; }
       .dictionary-panel h2 { margin-inline:48px; }
       .dictionary-close { top:max(12px,env(safe-area-inset-top)); right:12px; }
+      .dictionary-wheel { width:min(67vw,260px); }
+      .dictionary-tab { width:29px; height:29px; font-size:.62rem; }
     }
     .hint-message-overlay { position:fixed; z-index:94; inset:0; display:grid; place-items:center; padding:18px; background:rgba(1,5,10,.84); backdrop-filter:blur(14px); opacity:0; pointer-events:none; transition:opacity .2s ease; }
     .hint-message-overlay.open { opacity:1; pointer-events:auto; }
@@ -1109,10 +1114,15 @@
       <button class="close-button dictionary-close" id="closeDictionary" type="button" aria-label="Close dictionary">✕</button>
       <h2 id="dictionaryTitle">Explorer Dictionary</h2>
       <p class="dictionary-meta" id="dictionaryMeta">37,730 playable SCOWL words · Choose a starting letter</p>
-      <div class="dictionary-tabs" id="dictionaryTabs" role="tablist" aria-label="Starting letter"></div>
-      <input class="dictionary-search" id="dictionarySearch" type="search" inputmode="search" autocomplete="off" aria-label="Filter dictionary words" placeholder="Filter A words" />
+      <div class="dictionary-wheel">
+        <div class="dictionary-tabs" id="dictionaryTabs" role="tablist" aria-label="Starting letter"></div>
+        <div class="dictionary-wheel-center">
+          <strong class="dictionary-wheel-letter" id="dictionaryWheelLetter">A</strong>
+          <small>Jump to section</small>
+          <div class="dictionary-sections" id="dictionarySections" aria-label="Word list sections"></div>
+        </div>
+      </div>
       <div class="dictionary-words" id="dictionaryWords" role="list" aria-live="polite"></div>
-      <button class="dictionary-more" id="dictionaryMore" type="button" hidden>Show more words</button>
     </section>
   </div>
 
@@ -1278,8 +1288,8 @@
       const dictionaryTabs = document.querySelector("#dictionaryTabs");
       const dictionaryWords = document.querySelector("#dictionaryWords");
       const dictionaryMeta = document.querySelector("#dictionaryMeta");
-      const dictionarySearch = document.querySelector("#dictionarySearch");
-      const dictionaryMore = document.querySelector("#dictionaryMore");
+      const dictionaryWheelLetter = document.querySelector("#dictionaryWheelLetter");
+      const dictionarySections = document.querySelector("#dictionarySections");
       const hintMessageOverlay = document.querySelector("#hintMessageOverlay");
       const hintMessageText = document.querySelector("#hintMessageText");
       const closeHintMessage = document.querySelector("#closeHintMessage");
@@ -1514,14 +1524,11 @@
         const tab = event.target.closest("[data-dictionary-letter]");
         if (tab) renderDictionaryLetter(tab.dataset.dictionaryLetter);
       });
-      dictionarySearch.addEventListener("input", () => {
-        dictionaryResultLimit = 100;
-        renderDictionaryLetter(dictionaryActiveLetter,{keepSearch:true,keepLimit:true});
+      dictionarySections.addEventListener("click", event => {
+        const section = event.target.closest("[data-dictionary-section]");
+        if (section) jumpDictionarySection(Number(section.dataset.dictionarySection));
       });
-      dictionaryMore.addEventListener("click", () => {
-        dictionaryResultLimit += 100;
-        renderDictionaryLetter(dictionaryActiveLetter,{keepSearch:true,keepLimit:true,preserveScroll:true});
-      });
+      dictionaryWords.addEventListener("scroll", updateDictionarySectionFromScroll,{passive:true});
       closeHintMessage.addEventListener("click", closeHintMessagePanel);
       dailyBubble.addEventListener("click", openDailyReward);
       rewardFire.addEventListener("click", throwDailyDart);
@@ -1854,7 +1861,7 @@
       }
 
       function freshProgress(profileCreated = false) {
-        return { profileCreated, currentLevel:1, highestLevel:1, boards:{}, levelBoards:{}, signatures:[], hintHistory:{}, points:0, hints:{date:todayKey(),count:3}, hintNotice:false, darts:0, dartNotice:false, dailyRewardDate:"", helpers:{dictionary:true,dictionarySeen:false}, inventory:{owned:[],equipped:{}}, wardrobeBaseVersion:4, avatarCatalogVersion:1, unlockedAvatars:["rx7","nova"], seed:Math.floor(Math.random() * 2147483647) || 9173 };
+        return { profileCreated, currentLevel:1, highestLevel:1, boards:{}, levelBoards:{}, signatures:[], hintHistory:{}, points:0, hints:{date:todayKey(),count:3}, hintNotice:true, darts:0, dartNotice:true, dailyDartSeenDate:"", dailyRewardDate:"", helpers:{dictionary:true,dictionarySeen:false}, inventory:{owned:[],equipped:{}}, wardrobeBaseVersion:4, avatarCatalogVersion:1, unlockedAvatars:["rx7","nova"], seed:Math.floor(Math.random() * 2147483647) || 9173 };
       }
 
       function letterCountForLevel(level) {
@@ -2472,10 +2479,15 @@
         let changed = false;
         if (!progress.hints || progress.hints.date !== today) {
           progress.hints = {date:today,count:Math.max(3, progress.hints?.count || 0)};
+          progress.hintNotice = true;
           changed = true;
         }
         if (!Number.isFinite(progress.points)) progress.points = 0;
         const availableDarts = (progress.darts || 0) + (progress.dailyRewardDate === today ? 0 : 1);
+        if (progress.dailyRewardDate !== today && progress.dailyDartSeenDate !== today && !progress.dartNotice) {
+          progress.dartNotice = true;
+          changed = true;
+        }
         dailyBubble.hidden = !profileExists || availableDarts < 1;
         dartCount.textContent = `×${availableDarts}`;
         dailyBubble.setAttribute("aria-label", `Play dart reward. ${availableDarts} dart${availableDarts === 1 ? "" : "s"} available`);
@@ -2504,6 +2516,7 @@
         progress.helpers.dictionary = true;
         if (typeof progress.hintNotice !== "boolean") progress.hintNotice = false;
         if (!Number.isFinite(progress.darts)) progress.darts = 0;
+        if (typeof progress.dailyDartSeenDate !== "string") progress.dailyDartSeenDate = "";
         if (!Array.isArray(progress.inventory.owned)) progress.inventory.owned = [];
         progress.inventory.equipped ||= {};
         if ((progress.wardrobeBaseVersion || 0) < 4) {
@@ -2923,7 +2936,7 @@
       }
 
       let dictionaryActiveLetter = "A";
-      let dictionaryResultLimit = 100;
+      let dictionarySectionCount = 5;
 
       function openDictionary() {
         if (!progress.helpers?.dictionary) return;
@@ -2931,59 +2944,83 @@
         saveProgress();
         dictionaryButton.classList.remove("available");
         if (!dictionaryTabs.childElementCount) {
-          "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").forEach(letter => {
+          const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+          letters.forEach((letter,index) => {
             const tab = document.createElement("button");
             tab.type = "button";
             tab.className = "dictionary-tab";
             tab.dataset.dictionaryLetter = letter;
             tab.setAttribute("role", "tab");
+            const angle = index * (Math.PI * 2 / letters.length);
+            tab.style.left = `${50 + Math.sin(angle) * 43}%`;
+            tab.style.top = `${50 - Math.cos(angle) * 43}%`;
             tab.textContent = letter;
             dictionaryTabs.append(tab);
           });
+          for (let index = 0; index < dictionarySectionCount; index += 1) {
+            const section = document.createElement("button");
+            section.type = "button";
+            section.className = "dictionary-section";
+            section.dataset.dictionarySection = String(index);
+            section.textContent = String(index + 1);
+            section.setAttribute("aria-label",`Jump to word section ${index + 1}`);
+            dictionarySections.append(section);
+          }
         }
-        dictionarySearch.value = "";
-        dictionaryResultLimit = 100;
-        renderDictionaryLetter("A",{keepSearch:true,keepLimit:true});
+        renderDictionaryLetter("A");
         dictionaryOverlay.classList.add("open");
         dictionaryOverlay.setAttribute("aria-hidden", "false");
         closeDictionary.focus();
       }
 
-      function renderDictionaryLetter(letter,{keepSearch=false,keepLimit=false,preserveScroll=false}={}) {
+      function renderDictionaryLetter(letter) {
         dictionaryActiveLetter = letter;
-        if (!keepSearch) dictionarySearch.value = "";
-        if (!keepLimit) dictionaryResultLimit = 100;
-        dictionarySearch.placeholder = `Filter ${letter} words`;
-        const query = dictionarySearch.value.trim().toUpperCase();
-        const words = lexicon.filter(word => word.startsWith(letter) && (!query || word.includes(query)));
+        dictionaryWheelLetter.textContent = letter;
+        const words = lexicon.filter(word => word.startsWith(letter));
         dictionaryTabs.querySelectorAll(".dictionary-tab").forEach(tab => {
           const active = tab.dataset.dictionaryLetter === letter;
           tab.classList.toggle("active", active);
           tab.setAttribute("aria-selected", String(active));
         });
-        const previousScroll = dictionaryWords.scrollTop;
         dictionaryWords.replaceChildren();
         if (!words.length) {
           const empty = document.createElement("p");
           empty.className = "feature-intro";
-          empty.textContent = `No ${letter} words match this filter.`;
+          empty.textContent = `No playable words begin with ${letter}.`;
           dictionaryWords.append(empty);
         }
-        words.slice(0,dictionaryResultLimit).forEach(word => {
+        const fragment = document.createDocumentFragment();
+        words.forEach(word => {
           const item = document.createElement("span");
           item.className = "dictionary-word";
           item.setAttribute("role","listitem");
           item.textContent = word;
-          dictionaryWords.append(item);
+          fragment.append(item);
         });
-        dictionaryWords.scrollTop = preserveScroll ? previousScroll : 0;
-        const shown = Math.min(dictionaryResultLimit,words.length);
-        const remaining = Math.max(0,words.length - shown);
-        dictionaryMore.hidden = remaining === 0;
-        dictionaryMore.textContent = `Show ${Math.min(100,remaining)} more · ${remaining.toLocaleString()} remaining`;
-        dictionaryMeta.textContent = query
-          ? `${words.length.toLocaleString()} ${letter} words matching “${query}”`
-          : `Showing ${shown.toLocaleString()} of ${words.length.toLocaleString()} ${letter} words · ${lexicon.length.toLocaleString()} total`;
+        dictionaryWords.append(fragment);
+        dictionaryWords.scrollTop = 0;
+        setActiveDictionarySection(0);
+        dictionaryMeta.textContent = `${words.length.toLocaleString()} words beginning with ${letter} · ${lexicon.length.toLocaleString()} total`;
+      }
+
+      function jumpDictionarySection(index) {
+        const maxScroll = Math.max(0,dictionaryWords.scrollHeight - dictionaryWords.clientHeight);
+        dictionaryWords.scrollTo({top:maxScroll * (index / (dictionarySectionCount - 1)),behavior:"smooth"});
+        setActiveDictionarySection(index);
+      }
+
+      function updateDictionarySectionFromScroll() {
+        const maxScroll = dictionaryWords.scrollHeight - dictionaryWords.clientHeight;
+        const ratio = maxScroll > 0 ? dictionaryWords.scrollTop / maxScroll : 0;
+        setActiveDictionarySection(Math.min(dictionarySectionCount - 1,Math.round(ratio * (dictionarySectionCount - 1))));
+      }
+
+      function setActiveDictionarySection(index) {
+        dictionarySections.querySelectorAll(".dictionary-section").forEach((button,buttonIndex) => {
+          const active = buttonIndex === index;
+          button.classList.toggle("active",active);
+          button.setAttribute("aria-current",active ? "true" : "false");
+        });
       }
 
       function closeDictionaryPanel() {
@@ -3041,6 +3078,7 @@
         const availableDarts = (progress.darts || 0) + (progress.dailyRewardDate === todayKey() ? 0 : 1);
         if (!profileExists || availableDarts < 1) return;
         progress.dartNotice = false;
+        progress.dailyDartSeenDate = todayKey();
         saveProgress();
         dailyBubble.classList.remove("available");
         closeDiscoveryShelf();
