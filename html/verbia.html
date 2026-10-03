@@ -258,7 +258,7 @@
     .bubble-tools { position:absolute; z-index:21; left:13px; right:13px; bottom:9px; display:flex; justify-content:flex-start; align-items:flex-end; gap:3px; pointer-events:none; }
     .hint-button,.daily-bubble,.dictionary-button,.quick-access-button { position:relative; inset:auto; width:52px; height:52px; display:grid; place-items:center; padding:0; border:0; border-radius:0; color:#102019; background:transparent; box-shadow:none; font-size:1.7rem; line-height:1; cursor:pointer; pointer-events:auto; }
     .daily-bubble { position:absolute; left:0; bottom:52px; }
-    .dictionary-button { position:absolute; z-index:22; left:72px; top:-8px; bottom:auto; width:58px; height:38px; }
+    .dictionary-button { position:absolute; z-index:26; left:60px; top:auto; bottom:-14px; width:58px; height:38px; }
     .dictionary-button img { width:56px; height:36px; object-fit:contain; filter:drop-shadow(0 2px 4px rgba(0,0,0,.55)); }
     .quick-access-button { position:absolute; right:1px; width:46px; height:46px; color:#fff; font-size:1.8rem; filter:drop-shadow(0 3px 5px rgba(0,0,0,.72)); transition:transform .16s ease,filter .16s ease; }
     .quick-access-button:hover,.quick-access-button:focus-visible { outline:none; transform:scale(1.1); filter:brightness(1.2) drop-shadow(0 0 8px var(--mint)); }
@@ -894,6 +894,7 @@
       </button>
       <span class="game-loadout-pet" id="gameLoadoutPet"></span>
       <span class="game-loadout-ship" id="gameLoadoutShip"></span>
+      <button class="dictionary-button" id="dictionaryButton" type="button" hidden aria-label="Open collected dictionary"><img src="../images/verbia/menu-open-dictionary.png" alt="" /></button>
       <div class="progress-row">
         <span class="score-display">Score <strong id="boardScore">0</strong></span>
       </div>
@@ -911,7 +912,6 @@
         <button class="board-control-button shuffle-button" id="shuffleButton" type="button" aria-label="Shuffle letter positions">↝ Shuffle</button>
       </div>
       <span class="game-level">LVL: <strong id="boardNumber">01</strong></span>
-      <button class="dictionary-button" id="dictionaryButton" type="button" hidden aria-label="Open collected dictionary"><img src="../images/verbia/menu-open-dictionary.png" alt="" /></button>
       <div class="effects-layer" id="effectsLayer" aria-hidden="true"></div>
       <svg id="paths" aria-hidden="true">
         <g id="constellationLines"></g>
