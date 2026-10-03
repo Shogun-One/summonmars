@@ -1026,7 +1026,7 @@
   <div class="feature-overlay" id="newGameConfirmOverlay" aria-hidden="true">
     <section class="feature-panel confirm-panel" role="alertdialog" aria-modal="true" aria-labelledby="newGameConfirmTitle" aria-describedby="newGameConfirmText">
       <h2 id="newGameConfirmTitle">Start a new game?</h2>
-      <p class="feature-intro" id="newGameConfirmText">This resets your level, points, unlocked inventory, and selections. RX-7 will return as your only equipped explorer.</p>
+      <p class="feature-intro" id="newGameConfirmText">This resets your level, score, discovery points, purchased inventory, daily expeditions, and selections. RX-7 will return as your equipped explorer, with both robot explorers available free.</p>
       <div class="confirm-actions">
         <button class="menu-action" id="cancelNewGameButton" type="button">Keep Playing</button>
         <button class="menu-subaction" id="confirmNewGameButton" type="button">Confirm Reset</button>
@@ -1081,14 +1081,20 @@
     <section class="feature-panel" role="dialog" aria-modal="true" aria-labelledby="directionsTitle">
       <button class="feature-back" id="directionsBack" type="button">← Go to menu</button>
       <h2 id="directionsTitle">How to Play</h2>
-      <p class="feature-intro">Trace the constellation, discover real words, and build your explorer’s world.</p>
+      <p class="feature-intro">Everything an explorer needs to trace words, master boards, manage rewards, and build a complete Verbia loadout.</p>
       <ol class="directions-list">
-        <li><span class="direction-icon">☝</span><div><b>Trace words</b><p>Touch a letter, glide through adjacent choices, and release to submit. Slide back over the previous letter to undo it.</p></div></li>
-        <li><span class="direction-icon">✓</span><div><b>Clear each board</b><p>Find the number of stage words shown at the bottom of the constellation to unlock the next board. Find every stage word to master it.</p></div></li>
-        <li><span class="direction-icon">★</span><div><b>Find bonus words</b><p>Valid words outside the stage list earn extra points and fly into Bonus Discoveries.</p></div></li>
-        <li><span class="direction-icon">💡</span><div><b>Hints and daily rewards</b><p>Three hints refresh daily. Buy extra hint packs or darts in the store, then use darts at Daily Orbit for more hints or discovery points.</p></div></li>
-        <li><span class="direction-icon">↻</span><div><b>Shuffle and revisit</b><p>Shuffle letters for a fresh view, or use the left arrow to revisit up to five incomplete cleared boards.</p></div></li>
-        <li><span class="direction-icon">🛍</span><div><b>Collect explorers and helpers</b><p>Spend discovery points on explorers, companions, vehicles, the SCOWL dictionary, hints, and reward darts.</p></div></li>
+        <li><span class="direction-icon">☝</span><div><b>Trace and submit words</b><p>Touch a letter, glide through other letters, and release to submit. While tracing, slide back over the previous letter to remove it. Alerts identify accepted, repeated, and unrecognized words.</p></div></li>
+        <li><span class="direction-icon">✦</span><div><b>Stage words and bonus words</b><p>Stage words advance the board and award 10 Score plus 10 Discovery Points. Other valid dictionary words become Bonus Discoveries and award 5 Score plus 5 Discovery Points.</p></div></li>
+        <li><span class="direction-icon">✓</span><div><b>Clear or master a board</b><p>Find the required number of stage words to clear the board and activate the pulsing green arrow. Find every stage word to master it; the arrow then pulses and shakes, the letters lock, and the board waits for you to continue.</p></div></li>
+        <li><span class="direction-icon">◈</span><div><b>Score versus Discovery Points</b><p>Score records your word-play achievement and never drops during a game. Discovery Points are your spendable balance: rewards add to them and store purchases subtract from them. Both reset only when you confirm New Game.</p></div></li>
+        <li><span class="direction-icon">↻</span><div><b>Shuffle, continue, and revisit</b><p>Shuffle rearranges an active constellation without changing its letters. The green right arrow advances after clearing; the left arrow can revisit up to five recently cleared boards that still have words to discover.</p></div></li>
+        <li><span class="direction-icon">💡</span><div><b>Hints</b><p>Three hints refresh daily. Tap the lightbulb to reveal help; its message remains open until you close it. Hint packs can be purchased repeatedly, and newly added hints make the lightbulb pulse until used.</p></div></li>
+        <li><span class="direction-icon">🎯</span><div><b>Darts and Daily Orbit</b><p>Your daily dart and any purchased or discovered darts appear on the board. Tap the pulsing target to throw at Daily Orbit for hints or Discovery Points. Newly received darts pulse until the target is opened.</p></div></li>
+        <li><span class="direction-icon">📖</span><div><b>Explorer Dictionary</b><p>Purchase the SCOWL Dictionary once to place its book on the game board and showroom floor. Open it for the A–Z wheel, choose one of five sections for each letter, then scroll the readable word list.</p></div></li>
+        <li><span class="direction-icon">⛏</span><div><b>Treasure Cave</b><p>Each expedition costs 100 Discovery Points, with three available per day. Choose one of four caves for a weighted surprise: minerals sold for points, rare high-value relics, hint caches, or reward darts. Possible prize types and values appear below the caves.</p></div></li>
+        <li><span class="direction-icon">🛍</span><div><b>Explorer Store</b><p>Use Discovery Points to unlock explorers, companions, ships, vehicles, and helpers. The hanging paper shows your live balance. Selecting or buying a loadout item keeps you in the store and returns you to the fitting bay to see it.</p></div></li>
+        <li><span class="direction-icon">🎒</span><div><b>Inventory Showroom</b><p>Choose any owned explorer, companion, and vehicle, or tap an equipped companion or vehicle to remove it. The fitting-bay sign shows permanent Score. Store and inventory icons on the board provide quick access.</p></div></li>
+        <li><span class="direction-icon">⚙</span><div><b>Pause menu and New Game</b><p>Pause to resume, review this guide, change sound, haptics, cosmic theme, or letter shape, and view your wallet. New Game permanently resets progress, Score, Discovery Points, purchases, and daily cave use; the two robot explorers remain free.</p></div></li>
       </ol>
     </section>
   </div>
