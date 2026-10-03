@@ -176,7 +176,8 @@
       text-transform: uppercase;
     }
 
-    .game-avatar { position:absolute; z-index:12; left:-16px; bottom:-18px; width:103px; height:146px; padding:0; overflow:visible; border:0; background:transparent; cursor:pointer; filter:drop-shadow(0 8px 9px rgba(0,0,0,.5)); }
+    .game-avatar { position:absolute; z-index:12; left:-16px; bottom:-18px; width:103px; height:146px; padding:0; overflow:visible; border:0; background:transparent; cursor:pointer; filter:drop-shadow(0 8px 9px rgba(0,0,0,.5)); touch-action:manipulation; }
+    .game-avatar::before { content:""; position:absolute; inset:-7px -9px; border-radius:18px; background:rgba(0,0,0,.001); pointer-events:auto; }
     .game-avatar-base { --atlas-x:0%;--atlas-y:0%; position:absolute; z-index:1; inset:0; background-image:url('../images/verbia/explorer-fitting-atlas-v3.png'); background-size:500% 200%; background-position:var(--atlas-x) var(--atlas-y); background-repeat:no-repeat; }
     .game-loadout-ship { position:absolute; z-index:2; right:0; bottom:100%; width:clamp(150px,38%,245px); height:clamp(112px,25vw,158px); transform:translate(var(--vehicle-edge-shift,0%),calc(var(--vehicle-ground-shift,20%) + 4%)); background-repeat:no-repeat; background-size:contain!important; background-position:right bottom!important; opacity:.82; filter:brightness(1.32) contrast(1.08) saturate(1.2) drop-shadow(0 0 10px color-mix(in srgb,var(--mint) 32%,transparent)) drop-shadow(0 6px 8px rgba(0,0,0,.5)); pointer-events:none; }
     .game-loadout-pet { position:absolute; z-index:13; left:48px; bottom:calc(100% - 3px); width:78px; height:88px; transform:scale(var(--companion-scale,1)); transform-origin:center bottom; background-repeat:no-repeat; background-size:contain; background-position:center bottom; filter:drop-shadow(0 5px 6px rgba(0,0,0,.48)); pointer-events:none; }
@@ -265,7 +266,8 @@
     .daily-bubble { position:absolute; left:0; bottom:52px; }
     .dictionary-button { position:absolute; z-index:26; left:60px; top:auto; bottom:calc(-1 * var(--section-gap)); width:58px; height:38px; }
     .dictionary-button[hidden] { display:none!important; }
-    .dictionary-button img { width:56px; height:36px; object-fit:contain; filter:drop-shadow(0 2px 4px rgba(0,0,0,.55)); }
+    .dictionary-button::before { content:""; position:absolute; inset:-10px -12px; border-radius:14px; background:rgba(0,0,0,.001); pointer-events:auto; }
+    .dictionary-button img { width:56px; height:36px; object-fit:contain; filter:drop-shadow(0 2px 4px rgba(0,0,0,.55)); pointer-events:none; }
     .quick-access-button { position:absolute; right:1px; width:46px; height:46px; color:#fff; font-size:1.8rem; filter:drop-shadow(0 3px 5px rgba(0,0,0,.72)); transition:transform .16s ease,filter .16s ease; }
     .quick-access-button:hover,.quick-access-button:focus-visible { outline:none; transform:scale(1.1); filter:brightness(1.2) drop-shadow(0 0 8px var(--mint)); }
     .game-store-button { right:1px; bottom:3px; }
