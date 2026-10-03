@@ -389,6 +389,7 @@
     .avatar-choice.selected .avatar-cost { color:color-mix(in srgb,var(--gold) 70%,white); }
     .menu-action { width:100%; margin-top:22px; padding:13px; border:0; border-radius:15px 6px 15px 6px; color:#07130f; background:linear-gradient(135deg,var(--mint),var(--gold)); font-size:.78rem; font-weight:900; letter-spacing:.12em; text-transform:uppercase; cursor:pointer; }
     .start-menu .menu-subaction { font-size:.78rem; }
+    .start-menu .menu-action,.start-menu .menu-subaction { min-height:44px; }
     .menu-start-action { margin-top:22px; }
     .menu-exit-row { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; margin-top:12px; }
     .menu-exit-row .menu-action { margin-top:0; }
@@ -399,7 +400,8 @@
     .menu-settings-row .menu-subaction { margin-top:0; }
     .wallet-actions { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:7px; margin-top:7px; }
     .menu-wallet-section { margin-top:12px; }
-    .menu-wallet-section h3 { margin:12px 0 9px; text-align:center; }
+    .menu-wallet-section h3 { margin:12px 0 9px; font-size:.78rem; text-align:center; }
+    .menu-wallet-section .wallet-card { font-size:.78rem; }
     .wallet-actions .menu-subaction { margin-top:0; }
     .explorer-shop-pulse { animation:shopAttention 2.8s ease-in-out infinite; }
     @keyframes shopAttention { 0%,100% { border-color:color-mix(in srgb,var(--mint) 38%,transparent); box-shadow:0 0 0 0 color-mix(in srgb,var(--gold) 0%,transparent); transform:scale(1); } 50% { color:#fff7dc; border-color:var(--gold); box-shadow:0 0 0 4px color-mix(in srgb,var(--gold) 11%,transparent),0 0 18px color-mix(in srgb,var(--gold) 34%,transparent); transform:scale(1.012); } }
