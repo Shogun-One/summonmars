@@ -637,7 +637,7 @@
     .inventory-pet { position:absolute; z-index:7; right:3%; bottom:calc(8px + var(--companion-lift,0px)); width:34%; aspect-ratio:1; transform:scale(var(--companion-scale,1)); transform-origin:right bottom; background-repeat:no-repeat; background-size:contain; background-position:center bottom; filter:drop-shadow(0 8px 8px rgba(0,0,0,.5)); }
     .inventory-pet:empty { display:none; }
     .inventory-dictionary { position:absolute; z-index:9; left:12px; bottom:10px; width:88px; height:64px; background:url('../images/verbia/menu-open-dictionary.png') center/contain no-repeat; filter:brightness(1.18) drop-shadow(0 5px 8px rgba(0,0,0,.6)); pointer-events:none; }
-    .inventory-dictionary[hidden] { display:none; }
+    .inventory-dictionary[hidden] { display:none!important; }
     .inventory-list { display:grid; gap:14px; margin-top:14px; }
     .inventory-item-group { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; }
     .inventory-category-label { grid-column:1/-1; }
@@ -1677,6 +1677,7 @@
         applySettings(true);
         renderAvatarChoices();
         renderInventory();
+        renderShop();
         closeDiscoveryShelf();
         launchOverlay.hidden = true;
         openMenu();
@@ -2637,6 +2638,13 @@
           progress.unlockedAvatars = avatars.map(avatar => avatar.id);
           progress.inventory.owned = shopItems.map(item => item.id);
         }
+        const catalogIds = new Set(shopItems.map(item => item.id));
+        progress.inventory.owned = [...new Set(progress.inventory.owned.filter(id => catalogIds.has(id)))];
+        const ownedIds = new Set(progress.inventory.owned);
+        ["pet","ship"].forEach(type => {
+          const equippedItem = shopItems.find(item => item.id === progress.inventory.equipped[type]);
+          if (!equippedItem || equippedItem.type !== type || !ownedIds.has(equippedItem.id)) delete progress.inventory.equipped[type];
+        });
       }
 
       function renderShop() {
@@ -2651,7 +2659,9 @@
         shopShowroomStage.classList.toggle("has-vehicle", Boolean(showroomShip));
         shopShowroomStage.dataset.fitProfile = avatarFitProfile(showroomAvatar);
         shopShowroomStage.style.setProperty("--fit-x", avatarFitOffset(showroomAvatar));
-        shopShowroomDictionary.hidden = !progress.helpers?.dictionary;
+        const dictionaryOwned = progress.helpers?.dictionary === true;
+        shopShowroomDictionary.toggleAttribute("hidden", !dictionaryOwned);
+        shopShowroomDictionary.setAttribute("aria-hidden", String(!dictionaryOwned));
         applyExplorerBody(shopShowroomPersona, showroomAvatar);
         shopShowroomPersona.setAttribute("aria-label", `${showroomAvatar.name} full-body explorer`);
         shopShowroomName.textContent = showroomAvatar.name;
@@ -2889,16 +2899,20 @@
         applyExplorerBody(inventoryPersona, avatar);
         inventoryPersona.setAttribute("aria-label", `${avatar.name} full-body explorer`);
         showroomExplorerName.textContent = avatar.name;
-        const pet = shopItems.find(item => item.id === equipped.pet);
-        const ship = shopItems.find(item => item.id === equipped.ship);
-        inventoryDictionary.hidden = !progress.helpers?.dictionary;
+        const pet = shopItems.find(item => item.id === equipped.pet && progress.inventory.owned.includes(item.id));
+        const ship = shopItems.find(item => item.id === equipped.ship && progress.inventory.owned.includes(item.id));
+        const dictionaryOwned = progress.helpers?.dictionary === true;
+        inventoryDictionary.toggleAttribute("hidden", !dictionaryOwned);
+        inventoryDictionary.setAttribute("aria-hidden", String(!dictionaryOwned));
         inventoryStage.classList.toggle("has-vehicle", Boolean(ship));
         renderGameAvatar();
         renderMenuPreview();
         inventoryPet.textContent = pet ? " " : "";
+        inventoryPet.style.removeProperty("background-image");
         if (pet) applyItemArt(inventoryPet, pet);
         inventoryPet.setAttribute("aria-label", pet ? `${pet.name} equipped` : "No pet equipped");
         inventoryShip.textContent = ship ? " " : "";
+        inventoryShip.style.removeProperty("background-image");
         if (ship) applyItemArt(inventoryShip, ship);
         inventoryShip.setAttribute("aria-label", ship ? `${ship.name} selected` : "No ship or vehicle selected");
         inventoryList.replaceChildren();
