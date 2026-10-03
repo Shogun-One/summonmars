@@ -2188,6 +2188,7 @@ footer{
       <p>Choose how to launch.</p>
       <button id="continueGameBtn" type="button">CONTINUE GAME<small id="continueGameMeta">Resume saved progress</small></button>
       <button id="newGameBtn" type="button">NEW GAME<small>Reset all progress, points, and collections</small></button>
+      <button id="launchSettingsBtn" type="button">SETTINGS<small>Directions, controls, sound, sensitivity, and inventory</small></button>
     </div>
   </section>
 
@@ -2646,10 +2647,12 @@ document.querySelectorAll('img[data-asset]').forEach((img) => {
     const continueGameBtn = document.getElementById('continueGameBtn');
     const continueGameMetaEl = document.getElementById('continueGameMeta');
     const newGameBtn = document.getElementById('newGameBtn');
+    const launchSettingsBtn = document.getElementById('launchSettingsBtn');
     let splashActive = false;
     let launchChoiceSelection = 0;
     let launchAxisLatch = 0;
     let suppressLaunchCarryover = false;
+    let pauseMenuOpenedFromLaunch = false;
     let joystickGuidanceAcknowledged = false;
     let missileGuidanceAcknowledged = false;
     let weaponGuidanceAcknowledged = false;
@@ -5242,6 +5245,7 @@ function updateBosses(dt){
     function showLaunchChoice(){
       const saved=readCampaignProgress();
       running=false;
+      pauseMenuOpenedFromLaunch=false;
       launchChoiceEl.hidden=false;
       continueGameBtn.disabled=!saved;
       continueGameBtn.setAttribute('aria-disabled',saved?'false':'true');
@@ -5252,7 +5256,7 @@ function updateBosses(dt){
     }
 
     function setLaunchChoiceSelection(index){
-      const buttons=[continueGameBtn,newGameBtn];
+      const buttons=[continueGameBtn,newGameBtn,launchSettingsBtn];
       launchChoiceSelection=index===0 && continueGameBtn.disabled ? 1 : clamp(index,0,buttons.length-1);
       buttons.forEach((button,buttonIndex)=>button.classList.toggle('controller-selected',buttonIndex===launchChoiceSelection));
       requestAnimationFrame(()=>buttons[launchChoiceSelection].focus({preventScroll:true}));
@@ -5260,7 +5264,8 @@ function updateBosses(dt){
 
     function navigateLaunchChoice(direction){
       if(launchChoiceEl.hidden || splashActive || !direction) return;
-      const enabled=[0,1].filter(index=>![continueGameBtn,newGameBtn][index].disabled);
+      const buttons=[continueGameBtn,newGameBtn,launchSettingsBtn];
+      const enabled=[0,1,2].filter(index=>!buttons[index].disabled);
       const current=Math.max(0,enabled.indexOf(launchChoiceSelection));
       setLaunchChoiceSelection(enabled[(current+(direction>0?1:-1)+enabled.length)%enabled.length]);
     }
@@ -5268,7 +5273,7 @@ function updateBosses(dt){
     function confirmLaunchChoice(){
       if(launchChoiceEl.hidden || splashActive) return;
       suppressLaunchCarryover=true;
-      [continueGameBtn,newGameBtn][launchChoiceSelection]?.click();
+      [continueGameBtn,newGameBtn,launchSettingsBtn][launchChoiceSelection]?.click();
     }
 
     function showOpeningSplash(){
@@ -5367,6 +5372,12 @@ function updateBosses(dt){
         resetAllPersistentProgressInPlace();
         startFreshCampaignAfterReset();
       });
+    });
+    launchSettingsBtn.addEventListener('click',()=>{
+      launchChoiceEl.hidden=true;
+      pauseMenuOpenedFromLaunch=true;
+      running=false;
+      setPaused(true);
     });
 
     function handleGameUnlocked(){
@@ -5881,6 +5892,15 @@ function updateBosses(dt){
           setPaused._wasPlaying = false;
         }
       }catch{}
+      if(!paused && pauseMenuOpenedFromLaunch){
+        pauseMenuOpenedFromLaunch=false;
+        running=false;
+        music.pause();
+        pulseActive=false;
+        setMusicUI(false);
+        launchChoiceEl.hidden=false;
+        setLaunchChoiceSelection(2);
+      }
     }
 
     pauseBtn.addEventListener('pointerdown', handleMissilePointer, { passive:false });
@@ -8686,7 +8706,7 @@ if (flashTimer > 0) {
 
       ctx.fillStyle='rgba(255,231,255,.98)';
       ctx.font=`900 ${titleSize}px Orbitron, system-ui`;
-      const titles={root:'PAUSE MENU',inventory:'INVENTORY BAY',audioSettings:'MUSIC + AUDIO',directions:'DIRECTIONS',controllerTypes:'CONTROLLER TYPE',controllerDetail:['XBOX CONTROLS','PLAYSTATION CONTROLS','KEYBOARD CONTROLS'][pauseControllerDetailIndex]};
+      const titles={root:pauseMenuOpenedFromLaunch?'MAIN MENU':'PAUSE MENU',inventory:'INVENTORY BAY',audioSettings:'MUSIC + AUDIO',directions:'DIRECTIONS',controllerTypes:'CONTROLLER TYPE',controllerDetail:['XBOX CONTROLS','PLAYSTATION CONTROLS','KEYBOARD CONTROLS'][pauseControllerDetailIndex]};
       if(pauseMenuView!=='directions') ctx.fillText(titles[pauseMenuView],width/2,compact?45:55);
 
       const card=(x,y,w,h,selected,title,description,attention=false)=>{
@@ -8723,7 +8743,7 @@ if (flashTimer > 0) {
         ctx.fillText(`🏆 HIGHEST RUN: ${bestScore.toLocaleString()}`,width/2,compact?68:79);
         const soundLabel = soundMode === 'full' ? 'MUSIC + EFFECTS' : soundMode === 'music' ? 'MUSIC ONLY' : soundMode === 'effects' ? 'EFFECTS ONLY' : 'SOUND OFF';
         const entries=[
-          ['RESUME','Continue'],
+          [pauseMenuOpenedFromLaunch?'GO BACK':'RESUME',pauseMenuOpenedFromLaunch?'Return to launch screen':'Continue'],
           ['RESET','New run'],
           ['INVENTORY','Ships • Pilots • Scenes • Upgrades'],
           ['SOUND',soundLabel],
