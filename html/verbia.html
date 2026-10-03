@@ -10,6 +10,7 @@
   <meta name="apple-mobile-web-app-title" content="Verbia" />
   <meta name="description" content="Verbia prototype — trace a constellation of letters and discover words." />
   <link rel="manifest" href="../data/verbia/manifest.webmanifest" />
+  <link rel="preload" href="../images/verbia/splash-word-explorer-v1.webp" as="image" type="image/webp" fetchpriority="high" />
   <link rel="icon" href="../images/verbia/verbia-icon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" sizes="180x180" href="../images/verbia/verbia-icon-180.png" />
   <title>Verbia — Word Discovery Prototype</title>
@@ -804,20 +805,19 @@
     }
     @keyframes portraitTurn { 50%{transform:rotate(-90deg) scale(1.08)} }
 
-    .splash-screen { position:fixed; z-index:70; inset:0; display:grid; place-items:start center; overflow:hidden; color:#fff; background:#020b0d; isolation:isolate; }
+    .splash-screen { position:fixed; z-index:70; inset:0; display:grid; place-items:start center; overflow:hidden; contain:paint; color:#fff; background:#020b0d; isolation:isolate; }
     .splash-screen[hidden] { display:none; }
-    .splash-screen::before { content:""; position:absolute; z-index:-2; inset:-3%; background-image:url('../images/verbia/splash-word-explorer-v1.png'); background-size:cover; background-position:center 42%; filter:saturate(1.08) brightness(.84); animation:splashScene 3s cubic-bezier(.18,.72,.22,1) both; }
-    .splash-screen::after { content:""; position:absolute; z-index:-1; inset:0; background:radial-gradient(ellipse 62% 25% at 50% 13%,rgba(1,7,15,.74),rgba(1,7,15,.38) 48%,transparent 78%),linear-gradient(to bottom,rgba(1,6,13,.48) 0,rgba(1,6,13,.12) 34%,transparent 52%,rgba(1,5,9,.18) 100%); animation:splashVeil 3s ease both; }
+    .splash-screen::before { content:""; position:absolute; z-index:-2; inset:-3%; background-image:url('../images/verbia/splash-word-explorer-v1.webp'); background-size:cover; background-position:center 42%; filter:saturate(1.08) brightness(.8); backface-visibility:hidden; will-change:transform,opacity; transform:translateZ(0) scale(1.08); animation:splashScene 3s cubic-bezier(.18,.72,.22,1) both; }
+    .splash-screen::after { content:""; position:absolute; z-index:-1; inset:0; background:radial-gradient(ellipse 62% 25% at 50% 13%,rgba(1,7,15,.74),rgba(1,7,15,.38) 48%,transparent 78%),linear-gradient(to bottom,rgba(1,6,13,.48) 0,rgba(1,6,13,.12) 34%,transparent 52%,rgba(1,5,9,.18) 100%); }
     .splash-content { width:100%; margin-top:max(7svh,calc(env(safe-area-inset-top) + 24px)); padding:24px; text-align:center; }
     .splash-title { margin:0; color:#f8fff4; font:500 clamp(3.5rem,18vw,8rem)/.9 Georgia,serif; letter-spacing:-.055em; text-shadow:0 0 16px var(--mint),0 0 48px color-mix(in srgb,var(--mint) 60%,transparent); opacity:0; animation:verbiaTitle .6s .2s cubic-bezier(.2,.85,.25,1.2) forwards; }
     .splash-byline { margin:18px 0 0; color:var(--gold); font-size:clamp(.72rem,2.6vw,1rem); font-weight:850; letter-spacing:.3em; text-transform:uppercase; opacity:0; animation:verbiaLine .5s .9s ease forwards; }
     .splash-tagline { margin:14px 0 0; color:var(--mint); font-size:clamp(.68rem,2.5vw,.95rem); font-weight:750; letter-spacing:.22em; text-transform:uppercase; opacity:0; animation:verbiaLine .5s 1.55s ease forwards; }
     .splash-progress { position:absolute; left:50%; bottom:max(30px,env(safe-area-inset-bottom)); width:min(340px,68vw); height:3px; translate:-50% 0; overflow:hidden; border-radius:99px; background:rgba(255,255,255,.12); }
     .splash-progress::after { content:""; display:block; width:100%; height:100%; transform-origin:left; background:linear-gradient(90deg,var(--mint),var(--gold)); box-shadow:0 0 15px var(--mint); animation:splashProgress 3s linear both; }
-    @keyframes splashScene { 0%{transform:scale(1.1);filter:saturate(.82) brightness(.46) blur(5px)} 42%{filter:saturate(1.08) brightness(.84) blur(0)} 100%{transform:scale(1.025) translateY(-.8%);filter:saturate(1.12) brightness(.78)} }
-    @keyframes splashVeil { 0%{opacity:.92} 50%{opacity:1} 100%{opacity:.82} }
-    @keyframes verbiaTitle { from{opacity:0;transform:scale(.68);filter:blur(14px)} to{opacity:1;transform:scale(1);filter:blur(0)} }
-    @keyframes verbiaLine { from{opacity:0;transform:translateY(12px);filter:blur(7px)} to{opacity:1;transform:translateY(0);filter:blur(0)} }
+    @keyframes splashScene { from{opacity:.64;transform:translateZ(0) scale(1.08)} to{opacity:1;transform:translateZ(0) scale(1.025) translateY(-.8%)} }
+    @keyframes verbiaTitle { from{opacity:0;transform:translateZ(0) scale(.82)} to{opacity:1;transform:translateZ(0) scale(1)} }
+    @keyframes verbiaLine { from{opacity:0;transform:translate3d(0,12px,0)} to{opacity:1;transform:translate3d(0,0,0)} }
     @keyframes splashProgress { from{transform:scaleX(0)} to{transform:scaleX(1)} }
 
     .launch-overlay { position:fixed; z-index:60; inset:0; display:grid; place-items:center; padding:22px; background:radial-gradient(circle at 50% 28%,var(--bg-glow),transparent 38%),linear-gradient(155deg,var(--deep),#020707); backdrop-filter:blur(18px); }
@@ -1355,6 +1355,10 @@
       let selected = [];
       let pointer = null;
       let lastPointerClient = null;
+      let traceGeometry = [];
+      let traceFieldRect = null;
+      let traceMoveFrame = 0;
+      let pendingTracePoint = null;
       let activeTab = "goals";
       let toastTimer;
       let hasStarted = false;
@@ -1385,16 +1389,17 @@
       let responsiveRenderTimer = 0;
       let starfieldFrame = 0;
       let starfieldLastTime = 0;
+      let starfieldLastDraw = 0;
       let nextShootingStarAt = 0;
       let movingStars = [];
       let shootingStars = [];
       let masteryFireworksTimer = 0;
       let fireworksCleanupTimer = 0;
+      let lastHapticAt = 0;
 
       ensureBoard(boardIndex + 1);
 
       renderAvatarChoices();
-      initializeStarfield();
       applySettings(false);
       renderBoard();
       refreshDailyState();
@@ -1415,13 +1420,23 @@
       document.addEventListener("pointerdown", startBackgroundMusic);
       document.addEventListener("fullscreenchange", () => { if (document.fullscreenElement) requestPortraitLock(); });
       document.addEventListener("visibilitychange", () => {
-        if (!backgroundMusicStarted) return;
-        if (document.hidden) backgroundMusic.pause();
-        else if (["all","music"].includes(settings.soundMode)) backgroundMusic.play().catch(() => {});
+        if (document.hidden) {
+          if (backgroundMusicStarted) backgroundMusic.pause();
+          cancelAnimationFrame(starfieldFrame);
+          starfieldFrame = 0;
+          return;
+        }
+        if (backgroundMusicStarted && ["all","music"].includes(settings.soundMode)) backgroundMusic.play().catch(() => {});
+        if (!starfieldFrame && splashScreen.hidden) {
+          starfieldLastTime = performance.now();
+          starfieldLastDraw = 0;
+          starfieldFrame = requestAnimationFrame(animateStarfield);
+        }
       });
 
       playfield.addEventListener("pointerdown", event => {
         if (isCurrentBoardMastered()) return;
+        refreshTraceGeometry();
         const directNode = event.target.closest(".letter-node");
         if (!directNode && event.target.closest("button")) return;
         const node = directNode || traceNodeAtPoint(event.clientX, event.clientY);
@@ -1443,13 +1458,9 @@
       playfield.addEventListener("pointermove", event => {
         if (!tracing || event.pointerId !== pointerId) return;
         event.preventDefault();
-        const currentPointerClient = {x:event.clientX,y:event.clientY};
-        const crossedNodes = traceNodesAlongSegment(lastPointerClient || currentPointerClient, currentPointerClient);
-        updatePointer(event);
-        if (crossedNodes.length) crossedNodes.forEach(handleTraceHover);
-        else handleTraceHover(traceNodeAtPoint(event.clientX, event.clientY));
-        lastPointerClient = currentPointerClient;
-        drawPath();
+        pendingTracePoint = {x:event.clientX,y:event.clientY,pointerId:event.pointerId};
+        if (traceMoveFrame) return;
+        traceMoveFrame = requestAnimationFrame(processTraceMove);
       });
 
       playfield.addEventListener("pointerup", finishTrace);
@@ -1727,13 +1738,15 @@
       function initializeStarfield() {
         resizeStarfield();
         starfieldLastTime = performance.now();
+        starfieldLastDraw = 0;
         nextShootingStarAt = starfieldLastTime + 2600 + Math.random() * 3800;
         cancelAnimationFrame(starfieldFrame);
         starfieldFrame = requestAnimationFrame(animateStarfield);
       }
 
       function resizeStarfield() {
-        const ratio = Math.min(1.5, window.devicePixelRatio || 1);
+        const constrainedDevice = (navigator.hardwareConcurrency || 8) <= 4 || (navigator.deviceMemory || 8) <= 4;
+        const ratio = Math.min(constrainedDevice ? 1.25 : 1.5, window.devicePixelRatio || 1);
         const width = Math.max(320, window.innerWidth);
         const height = Math.max(480, window.innerHeight);
         starfieldBackdrop.width = Math.round(width * ratio);
@@ -1754,6 +1767,12 @@
       }
 
       function animateStarfield(now) {
+        if (document.hidden) { starfieldFrame = 0; return; }
+        if (now - starfieldLastDraw < 32) {
+          starfieldFrame = requestAnimationFrame(animateStarfield);
+          return;
+        }
+        starfieldLastDraw = now;
         const ctx = starfieldBackdrop.getContext("2d");
         const width = window.innerWidth;
         const height = window.innerHeight;
@@ -2096,17 +2115,44 @@
         drawPath();
       }
 
+      function refreshTraceGeometry() {
+        traceFieldRect = playfield.getBoundingClientRect();
+        traceGeometry = nodes.map(node => {
+          const box = node.getBoundingClientRect();
+          return {
+            node,
+            clientX:box.left + box.width / 2,
+            clientY:box.top + box.height / 2,
+            localX:box.left + box.width / 2 - traceFieldRect.left,
+            localY:box.top + box.height / 2 - traceFieldRect.top,
+            radius:Math.min(box.width,box.height) * .46
+          };
+        });
+      }
+
+      function processTraceMove() {
+        traceMoveFrame = 0;
+        const current = pendingTracePoint;
+        pendingTracePoint = null;
+        if (!current || !tracing || current.pointerId !== pointerId) return;
+        const crossedNodes = traceNodesAlongSegment(lastPointerClient || current,current);
+        updatePointer(current);
+        if (crossedNodes.length) crossedNodes.forEach(handleTraceHover);
+        else handleTraceHover(traceNodeAtPoint(current.x,current.y));
+        lastPointerClient = current;
+        drawPath();
+      }
+
       function traceNodeAtPoint(clientX, clientY) {
         let nearest = null;
         let nearestDistance = Infinity;
-        nodes.forEach(node => {
-          const box = node.getBoundingClientRect();
-          const dx = clientX - (box.left + box.width / 2);
-          const dy = clientY - (box.top + box.height / 2);
+        if (!traceGeometry.length) refreshTraceGeometry();
+        traceGeometry.forEach(point => {
+          const dx = clientX - point.clientX;
+          const dy = clientY - point.clientY;
           const distance = Math.hypot(dx, dy);
-          const touchRadius = Math.min(box.width, box.height) * .46;
-          if (distance <= touchRadius && distance < nearestDistance) {
-            nearest = node;
+          if (distance <= point.radius && distance < nearestDistance) {
+            nearest = point.node;
             nearestDistance = distance;
           }
         });
@@ -2117,17 +2163,16 @@
         const segmentX = to.x - from.x;
         const segmentY = to.y - from.y;
         const segmentLengthSquared = segmentX * segmentX + segmentY * segmentY;
-        return nodes.map(node => {
-          const box = node.getBoundingClientRect();
-          const centerX = box.left + box.width / 2;
-          const centerY = box.top + box.height / 2;
-          const radius = Math.min(box.width, box.height) * .46;
+        if (!traceGeometry.length) refreshTraceGeometry();
+        return traceGeometry.map(point => {
+          const centerX = point.clientX;
+          const centerY = point.clientY;
           const progress = segmentLengthSquared
             ? Math.max(0, Math.min(1, ((centerX - from.x) * segmentX + (centerY - from.y) * segmentY) / segmentLengthSquared))
             : 0;
           const closestX = from.x + segmentX * progress;
           const closestY = from.y + segmentY * progress;
-          return {node,progress,distance:Math.hypot(centerX - closestX,centerY - closestY),radius};
+          return {node:point.node,progress,distance:Math.hypot(centerX - closestX,centerY - closestY),radius:point.radius};
         }).filter(hit => hit.distance <= hit.radius).sort((a,b) => a.progress - b.progress).map(hit => hit.node);
       }
 
@@ -2154,11 +2199,15 @@
       }
 
       function updatePointer(event) {
-        const box = playfield.getBoundingClientRect();
-        pointer = { x: event.clientX - box.left, y: event.clientY - box.top };
+        const box = traceFieldRect || playfield.getBoundingClientRect();
+        pointer = { x: (event.clientX ?? event.x) - box.left, y: (event.clientY ?? event.y) - box.top };
       }
 
       function nodeCenter(node) {
+        if (tracing) {
+          const cached = traceGeometry.find(point => point.node === node);
+          if (cached) return {x:cached.localX,y:cached.localY};
+        }
         const fieldBox = playfield.getBoundingClientRect();
         const box = node.getBoundingClientRect();
         return { x: box.left + box.width / 2 - fieldBox.left, y: box.top + box.height / 2 - fieldBox.top };
@@ -2200,6 +2249,9 @@
       function finishTrace(event) {
         if (!tracing || (event.pointerId != null && event.pointerId !== pointerId)) return;
         event.preventDefault?.();
+        if (traceMoveFrame) cancelAnimationFrame(traceMoveFrame);
+        traceMoveFrame = 0;
+        if (pendingTracePoint) processTraceMove();
         const completedPointerId = pointerId;
         tracing = false;
         window.clearTimeout(backtrackTimer);
@@ -2216,6 +2268,9 @@
         event?.preventDefault?.();
         const cancelledPointerId = pointerId;
         tracing = false;
+        cancelAnimationFrame(traceMoveFrame);
+        traceMoveFrame = 0;
+        pendingTracePoint = null;
         pointerId = null;
         pointer = null;
         lastPointerClient = null;
@@ -2283,6 +2338,7 @@
         traceResetTimer = 0;
         window.clearTimeout(backtrackTimer);
         tracing = false; pointerId = null; pointer = null; lastPointerClient = null; hoveredTraceNode = null;
+        cancelAnimationFrame(traceMoveFrame); traceMoveFrame = 0; pendingTracePoint = null;
         selected.forEach(node => node.classList.remove("selected", "cosmic-complete"));
         selected = [];
         if (wordDisplay) renderWord();
@@ -2436,6 +2492,7 @@
         launchOverlay.hidden = true;
         window.setTimeout(() => {
           splashScreen.hidden = true;
+          initializeStarfield();
           showLaunchChoice();
         }, 3000);
       }
@@ -3473,6 +3530,9 @@
 
       function vibrate(pattern) {
         if (!settings.haptics) return;
+        const now = performance.now();
+        if (now - lastHapticAt < 40) return;
+        lastHapticAt = now;
         navigator.vibrate?.(pattern);
       }
 
