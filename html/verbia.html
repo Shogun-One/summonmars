@@ -1687,7 +1687,7 @@
       hintButton.addEventListener("click", useHint);
       gameStoreButton.addEventListener("click", openShopFromGame);
       gameInventoryButton.addEventListener("click", openInventoryFromGame);
-      dictionaryButton.addEventListener("click", openDictionary);
+      dictionaryButton.addEventListener("click", () => openDictionary({acknowledgeMainBook:true}));
       closeDictionary.addEventListener("click", closeDictionaryPanel);
       dictionaryOverlay.addEventListener("click", event => { if (event.target === dictionaryOverlay) closeDictionaryPanel(); });
       dictionaryTabs.addEventListener("click", event => {
@@ -3065,7 +3065,10 @@
           return;
         }
         progress.points -= cost;
-        if (helperId === "dictionary") progress.helpers.dictionary = true;
+        if (helperId === "dictionary") {
+          progress.helpers.dictionary = true;
+          progress.helpers.dictionarySeen = false;
+        }
         if (helperId === "hints") {
           progress.hints.count = (progress.hints.count || 0) + 3;
           progress.hintNotice = true;
@@ -3321,11 +3324,13 @@
       let dictionaryActiveLetter = "A";
       let dictionarySectionCount = 5;
 
-      function openDictionary() {
+      function openDictionary({acknowledgeMainBook = false} = {}) {
         if (!progress.helpers?.dictionary) return;
-        progress.helpers.dictionarySeen = true;
-        saveProgress();
-        dictionaryButton.classList.remove("available");
+        if (acknowledgeMainBook && !progress.helpers.dictionarySeen) {
+          progress.helpers.dictionarySeen = true;
+          saveProgress();
+          dictionaryButton.classList.remove("available");
+        }
         if (!dictionaryTabs.childElementCount) {
           const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
           letters.forEach((letter,index) => {
