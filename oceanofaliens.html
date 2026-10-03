@@ -8260,10 +8260,13 @@ if (flashTimer > 0) {
       const titles={root:'PAUSE MENU',inventory:'INVENTORY + POINTS STORE',audioSettings:'MUSIC + AUDIO',directions:'DIRECTIONS',controllerTypes:'CONTROLLER TYPE',controllerDetail:['XBOX CONTROLS','PLAYSTATION CONTROLS','KEYBOARD CONTROLS'][pauseControllerDetailIndex]};
       ctx.fillText(titles[pauseMenuView],width/2,compact?45:55);
 
-      const card=(x,y,w,h,selected,title,description)=>{
+      const card=(x,y,w,h,selected,title,description,attention=false)=>{
+        const attentionPulse=attention&&!selected ? .5+.5*Math.sin(performance.now()/620) : 0;
         ctx.fillStyle=selected?'rgba(45,18,55,.96)':'rgba(15,9,24,.90)';
-        ctx.strokeStyle=selected?'#7dffbc':'rgba(255,94,130,.48)';
-        ctx.lineWidth=selected?3:1.5;ctx.shadowColor=selected?'rgba(80,255,165,.65)':'transparent';ctx.shadowBlur=selected?14:0;
+        ctx.strokeStyle=selected?'#7dffbc':attention?`rgba(255,94,190,${.48+attentionPulse*.38})`:'rgba(255,94,130,.48)';
+        ctx.lineWidth=selected?3:attention?1.6+attentionPulse*.9:1.5;
+        ctx.shadowColor=selected?'rgba(80,255,165,.65)':attention?`rgba(255,72,190,${.20+attentionPulse*.32})`:'transparent';
+        ctx.shadowBlur=selected?14:attention?4+attentionPulse*8:0;
         roundRect(ctx,x,y,w,h,14,true,true);ctx.shadowBlur=0;
         const narrow=compact&&w<210;
         const titleSize=narrow?(title.length>14?10:12):compact?(title.length>24?13:title.length>18?15:17):(title.length>25?14:16);
@@ -8299,7 +8302,7 @@ if (flashTimer > 0) {
           ['CONTROLLER TYPE','Xbox • PlayStation • Keyboard'],
           ['EXIT GAME','']
         ];
-        rootMenuRects().forEach((rect,i)=>card(rect.x,rect.y,rect.w,rect.h,pauseMenuSelection===i,...entries[i]));
+        rootMenuRects().forEach((rect,i)=>card(rect.x,rect.y,rect.w,rect.h,pauseMenuSelection===i,...entries[i],i===2));
       }else if(pauseMenuView==='audioSettings'){
         const rects=audioSettingsRects();
         const settings=[
