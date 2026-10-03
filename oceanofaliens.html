@@ -3395,7 +3395,7 @@ async function setSoundMode(nextMode, announce = true){
       refreshCombatVoices();
       const wantsFemale=profile==='female';
       const malePattern=/(male|david|mark|guy|alex|daniel|james|thomas|aaron|fred|ralph|george|lee|ryan|arthur|oliver|fred|uk english male)/i;
-      const femalePattern=/(female|samantha|ava|aria|zira|victoria|karen|moira|susan|joanna|serena|salli|joey|kendra|kimberly)/i;
+      const femalePattern=/(female|samantha|ava|aria|zira|victoria|karen|moira|susan|joanna|serena|salli|joey|kendra|kimberly|jenny|tessa|fiona|veena|allison|nicky|shelley|shelly|kathy|vicki|zoe|google us english)/i;
       const scored=combatVoiceCatalog.map(voice=>{
         let score=0;
         if((wantsFemale?femalePattern:malePattern).test(voice.name)) score+=12;
@@ -3408,7 +3408,7 @@ async function setSoundMode(nextMode, announce = true){
       return scored[0]?.voice || null;
     }
     function speakCombatVocal(text,{pitch=1,rate=1,volume=1,echo=false,profile='female',replace=false}={}){
-      if(!effectsEnabled() || !('speechSynthesis' in window) || typeof SpeechSynthesisUtterance==='undefined') return;
+      if(!effectsEnabled() || !('speechSynthesis' in window) || typeof SpeechSynthesisUtterance==='undefined') return false;
       if(replace){
         combatVocalGeneration++;
         try{ window.speechSynthesis.cancel(); }catch{}
@@ -3444,14 +3444,16 @@ async function setSoundMode(nextMode, announce = true){
         // Queue the full tail immediately. Mobile speech engines commonly
         // suspend timers/onend callbacks as GAME OVER appears, but preserve
         // their own utterance queue.
-        const echoOne=makeUtterance(`... ${text}`,.64,pitch*.82);
-        const echoTwo=makeUtterance(`... ${text}`,.38,pitch*.68);
+        const femaleEcho=profile==='female';
+        const echoOne=makeUtterance(`... ${text}`,.64,pitch*(femaleEcho ? 0.96 : 0.82));
+        const echoTwo=makeUtterance(`... ${text}`,.38,pitch*(femaleEcho ? 0.90 : 0.68));
         speakUtterance(lead);
         speakUtterance(echoOne,35);
         speakUtterance(echoTwo,70);
-        return;
+        return true;
       }
       speakUtterance(lead);
+      return true;
     }
 
     function playDamageSound(){
@@ -3490,7 +3492,12 @@ async function setSoundMode(nextMode, announce = true){
         thud.start(now); thud.stop(now+.20);
         alarm.start(now); alarm.stop(now+.16);
         const profile=selectedPilotVoiceProfile();
-        playCombatSample(profile==='female'?'femaleHit':'maleHit',{volume:1});
+        if(profile==='female'){
+          // Use a real female system voice here. The old processed sample was
+          // consistently perceived as a low alien growl on mobile devices.
+          const spoken=speakCombatVocal('Ow!',{profile:'female',pitch:1.18,rate:1.28,volume:1,replace:true});
+          if(!spoken) playCombatSample('femaleHit',{volume:1});
+        }else playCombatSample('maleHit',{volume:1});
         triggerSpeakerBoom(.48,190);
         setTimeout(()=>{
           for(const node of [thud,alarm,thudGain,alarmGain,filter,output]) try{ node.disconnect(); }catch{}
@@ -3506,14 +3513,20 @@ async function setSoundMode(nextMode, announce = true){
       // Bosses use a separate colossal growl; pilots use distinct male/female
       // performances. Final pilot deaths and every boss death have a baked,
       // multi-tap echo so the tail cannot disappear during a screen change.
-      playCombatSample(
-        isBoss
-          ? 'bossDefeat'
-          : final
-            ? (isFemale?'femaleDefeat':'maleDefeat')
-            : (isFemale?'femaleDefeatShort':'maleDefeatShort'),
-        {volume:isBoss?1:.96,replace:isBoss||final}
-      );
+      if(isFemale){
+        // Non-final deaths stay short; only the last life receives the full
+        // female echo before the Game Over/Continue announcement.
+        stopCombatSamples();
+        const spoken=speakCombatVocal(final?'Aah!':'Ow!',{
+          profile:'female',pitch:1.16,rate:final ? 0.92 : 1.24,volume:1,
+          echo:final,replace:true
+        });
+        if(!spoken) playCombatSample(final?'femaleDefeat':'femaleDefeatShort',{volume:.96,replace:final});
+      }else{
+        playCombatSample(isBoss?'bossDefeat':final?'maleDefeat':'maleDefeatShort',{
+          volume:isBoss?1:.96,replace:isBoss||final
+        });
+      }
       triggerSpeakerBoom(isBoss?1.25:.96,isBoss?1120:500);
       if(final){
         clearTimeout(playDefeatYell._announcementTimer);
@@ -3521,7 +3534,7 @@ async function setSoundMode(nextMode, announce = true){
           speakCombatVocal(storeCredits>=CONTINUE_COST?'Continue?':'Game Over',{
             profile:'male',pitch:.72,rate:.78,volume:.92
           });
-        },isFemale?4300:3750);
+        },isFemale?1900:3750);
       }
     }
 
