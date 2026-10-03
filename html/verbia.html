@@ -979,7 +979,7 @@
 
   <div class="feature-overlay" id="soundSettingsOverlay" aria-hidden="true">
     <section class="feature-panel configuration-panel" role="dialog" aria-modal="true" aria-labelledby="soundSettingsTitle">
-      <button class="feature-back" id="soundSettingsBack" type="button">← Go back</button>
+      <button class="feature-back" id="soundSettingsBack" type="button">← Go to menu</button>
       <h2 id="soundSettingsTitle">Sound Settings</h2>
       <p class="feature-intro">Choose how Verbia sounds and feels while you play.</p>
       <div class="settings-bar" aria-label="Game settings">
@@ -996,7 +996,7 @@
 
   <div class="feature-overlay" id="configurationOverlay" aria-hidden="true">
     <section class="feature-panel configuration-panel" role="dialog" aria-modal="true" aria-labelledby="configurationTitle">
-      <button class="feature-back" id="configurationBack" type="button">← Go back</button>
+      <button class="feature-back" id="configurationBack" type="button">← Go to menu</button>
       <h2 id="configurationTitle">Game Themes</h2>
       <p class="feature-intro">Choose the look and shape of your Verbia universe.</p>
       <div class="menu-section">
@@ -1022,7 +1022,7 @@
 
   <div class="feature-overlay" id="directionsOverlay" aria-hidden="true">
     <section class="feature-panel" role="dialog" aria-modal="true" aria-labelledby="directionsTitle">
-      <button class="feature-back" id="directionsBack" type="button">← Go back</button>
+      <button class="feature-back" id="directionsBack" type="button">← Go to menu</button>
       <h2 id="directionsTitle">How to Play</h2>
       <p class="feature-intro">Trace the constellation, discover real words, and build your explorer’s world.</p>
       <ol class="directions-list">
@@ -1039,7 +1039,7 @@
   <div class="feature-overlay" id="inventoryOverlay" aria-hidden="true">
     <section class="feature-panel" role="dialog" aria-modal="true" aria-labelledby="inventoryTitle">
       <div class="feature-nav">
-        <button class="feature-back" id="inventoryBack" type="button">← Go back</button>
+        <button class="feature-back" id="inventoryBack" type="button">← Go to menu</button>
         <button class="feature-resume" id="inventoryResume" type="button">Resume game</button>
       </div>
       <h2 id="inventoryTitle">Inventory Showroom</h2>
@@ -1059,7 +1059,7 @@
   <div class="feature-overlay" id="shopOverlay" aria-hidden="true">
     <section class="feature-panel" role="dialog" aria-modal="true" aria-labelledby="shopTitle">
       <div class="feature-nav">
-        <button class="feature-back" id="shopBack" type="button">← Go back</button>
+        <button class="feature-back" id="shopBack" type="button">← Go to menu</button>
         <button class="feature-resume" id="shopResume" type="button">Resume game</button>
       </div>
       <h2 id="shopTitle">Explorer Store</h2>
@@ -1464,15 +1464,30 @@
       shopButton.addEventListener("click", openShop);
       soundSettingsButton.addEventListener("click", openSoundSettings);
       configurationButton.addEventListener("click", openConfiguration);
-      inventoryBack.addEventListener("click", closeInventory);
+      inventoryBack.addEventListener("click", () => {
+        closeInventory();
+        openMenu();
+      });
       inventoryResume.addEventListener("click", () => {
         closeInventory();
         closeMenu();
       });
-      directionsBack.addEventListener("click", closeDirections);
-      configurationBack.addEventListener("click", closeConfiguration);
-      soundSettingsBack.addEventListener("click", closeSoundSettings);
-      shopBack.addEventListener("click", closeShop);
+      directionsBack.addEventListener("click", () => {
+        closeDirections();
+        openMenu();
+      });
+      configurationBack.addEventListener("click", () => {
+        closeConfiguration();
+        openMenu();
+      });
+      soundSettingsBack.addEventListener("click", () => {
+        closeSoundSettings();
+        openMenu();
+      });
+      shopBack.addEventListener("click", () => {
+        closeShop();
+        openMenu();
+      });
       shopResume.addEventListener("click", () => {
         closeShop();
         closeMenu();
