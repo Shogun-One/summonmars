@@ -1469,6 +1469,8 @@
       backgroundMusic.volume = .18;
       let backgroundMusicStarted = false;
       let boardTransitioning = false;
+      let boardFlipSwapTimer = 0;
+      let boardFlipFinishTimer = 0;
       let hoveredTraceNode = null;
       let backtrackTimer = 0;
       let traceResetTimer = 0;
@@ -1731,6 +1733,16 @@
       function startNewGame() {
         enterImmersiveMode();
         closeNewGameConfirmation();
+        stopMasteryFireworks();
+        window.clearTimeout(boardFlipSwapTimer);
+        window.clearTimeout(boardFlipFinishTimer);
+        boardFlipSwapTimer = 0;
+        boardFlipFinishTimer = 0;
+        boardTransitioning = false;
+        playfield.classList.remove("board-flipping","shuffling","mastered-board");
+        resetTrace();
+        document.querySelectorAll(".word-flight").forEach(token => token.remove());
+        toast.classList.remove("show");
         localStorage.removeItem(storageKey);
         localStorage.removeItem("verbia-progress-v2");
         localStorage.removeItem(settingsKey);
@@ -1964,16 +1976,20 @@
         playfield.classList.remove("board-flipping");
         void playfield.offsetWidth;
         playfield.classList.add("board-flipping");
-        window.setTimeout(() => {
+        window.clearTimeout(boardFlipSwapTimer);
+        window.clearTimeout(boardFlipFinishTimer);
+        boardFlipSwapTimer = window.setTimeout(() => {
           boardIndex = targetIndex;
           progress.currentLevel = boardIndex + 1;
           ensureBoard(progress.currentLevel);
           saveProgress();
           renderBoard();
         }, 395);
-        window.setTimeout(() => {
+        boardFlipFinishTimer = window.setTimeout(() => {
           playfield.classList.remove("board-flipping");
           boardTransitioning = false;
+          boardFlipSwapTimer = 0;
+          boardFlipFinishTimer = 0;
           renderProgress();
           showToast(`Board ${String(boardIndex + 1).padStart(2,"0")} opened`);
         }, 840);
