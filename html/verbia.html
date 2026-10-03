@@ -282,7 +282,10 @@
     .daily-target { position:relative; width:29px; height:29px; border:2px solid #fff7df; border-radius:50%; background:radial-gradient(circle,#ffe46f 0 16%,#e63d49 17% 34%,#fff7df 35% 52%,#e63d49 53% 70%,#fff7df 71%); box-shadow:0 1px 4px rgba(0,0,0,.35); }
     .daily-dart { position:absolute; left:-10px; top:-10px; color:#ff3f4d; font:950 1.45rem/1 Georgia,serif; rotate:90deg; text-shadow:0 1px 0 #fff7df,0 0 5px rgba(255,63,77,.72); }
     .bubble-count { position:absolute; top:-5px; right:-5px; min-width:24px; height:24px; display:grid; place-items:center; padding:0 4px; border:2px solid #fff5cb; border-radius:99px; color:#fff; background:#17201e; box-shadow:0 3px 8px rgba(0,0,0,.48); font-size:.62rem; font-weight:950; line-height:1; letter-spacing:-.02em; }
+    .hint-button:not(.has-hints) .bubble-icon { filter:grayscale(1) brightness(.58) drop-shadow(0 1px 1px rgba(0,0,0,.24)); }
+    .hint-button.has-hints .bubble-icon { filter:brightness(1.25) saturate(1.22) drop-shadow(0 0 5px #ffe65c) drop-shadow(0 0 11px rgba(255,217,72,.82)); }
     .hint-button:disabled { opacity:.42; cursor:not-allowed; filter:grayscale(.6); }
+    .hint-button.has-hints:disabled { opacity:1; filter:none; }
     .daily-bubble[hidden] { display:none; }
 
     #paths {
@@ -2724,8 +2727,10 @@
         const today = todayKey();
         let changed = false;
         if (!progress.hints || progress.hints.date !== today) {
-          progress.hints = {date:today,count:Math.max(3, progress.hints?.count || 0)};
-          progress.hintNotice = true;
+          const previousHintCount = progress.hints?.count || 0;
+          const refreshedHintCount = Math.max(3,previousHintCount);
+          progress.hints = {date:today,count:refreshedHintCount};
+          if (refreshedHintCount > previousHintCount) progress.hintNotice = true;
           changed = true;
         }
         if (!Number.isFinite(progress.points)) progress.points = 0;
@@ -2755,6 +2760,7 @@
 
       function renderWallet() {
         const availableHints = progress.hints?.count ?? 3;
+        hintButton.classList.toggle("has-hints",availableHints > 0);
         hintCount.textContent = `×${availableHints}`;
         hintButton.setAttribute("aria-label", `Use a hint. ${availableHints} available`);
         hintButton.disabled = availableHints < 1 || isCurrentBoardMastered();
@@ -3527,6 +3533,7 @@
         wheelAngle = finalWheelAngle;
         progress.points = (progress.points || 0) + (prize.points || 0);
         progress.hints.count += prize.hints || 0;
+        if (prize.hints) progress.hintNotice = true;
         if (hasDailyDart) progress.dailyRewardDate = todayKey();
         else progress.darts = Math.max(0, (progress.darts || 0) - 1);
         saveProgress();
