@@ -174,7 +174,7 @@
 
     .game-avatar { position:absolute; z-index:12; left:-16px; bottom:-18px; width:103px; height:146px; padding:0; overflow:visible; border:0; background:transparent; cursor:pointer; filter:drop-shadow(0 8px 9px rgba(0,0,0,.5)); }
     .game-avatar-base { --atlas-x:0%;--atlas-y:0%; position:absolute; z-index:1; inset:0; background-image:url('../images/verbia/explorer-fitting-atlas-v3.png'); background-size:500% 200%; background-position:var(--atlas-x) var(--atlas-y); background-repeat:no-repeat; }
-    .game-loadout-ship { position:absolute; z-index:2; right:0; bottom:calc(100% - clamp(31px,6vw,42px)); width:clamp(150px,38%,245px); height:clamp(112px,25vw,158px); transform:translateX(var(--vehicle-edge-shift,0%)); background-repeat:no-repeat; background-size:contain!important; background-position:right bottom!important; opacity:.82; filter:brightness(1.32) contrast(1.08) saturate(1.2) drop-shadow(0 0 10px color-mix(in srgb,var(--mint) 32%,transparent)) drop-shadow(0 6px 8px rgba(0,0,0,.5)); pointer-events:none; }
+    .game-loadout-ship { position:absolute; z-index:2; right:0; bottom:100%; width:clamp(150px,38%,245px); height:clamp(112px,25vw,158px); transform:translate(var(--vehicle-edge-shift,0%),calc(var(--vehicle-ground-shift,20%) + 4%)); background-repeat:no-repeat; background-size:contain!important; background-position:right bottom!important; opacity:.82; filter:brightness(1.32) contrast(1.08) saturate(1.2) drop-shadow(0 0 10px color-mix(in srgb,var(--mint) 32%,transparent)) drop-shadow(0 6px 8px rgba(0,0,0,.5)); pointer-events:none; }
     .game-loadout-pet { position:absolute; z-index:13; left:48px; bottom:calc(100% - 3px); width:78px; height:88px; transform:scale(var(--companion-scale,1)); transform-origin:center bottom; background-repeat:no-repeat; background-size:contain; background-position:center bottom; filter:drop-shadow(0 5px 6px rgba(0,0,0,.48)); pointer-events:none; }
     .game-loadout-ship:empty,.game-loadout-pet:empty { display:none; }
     .progress-card:has(.game-avatar) .progress-row { padding-left:70px; }
@@ -258,8 +258,10 @@
     .hint-button,.daily-bubble,.dictionary-button { position:relative; inset:auto; width:52px; height:52px; display:grid; place-items:center; padding:0; border:0; border-radius:0; color:#102019; background:transparent; box-shadow:none; font-size:1.7rem; line-height:1; cursor:pointer; pointer-events:auto; }
     .daily-bubble { margin-left:auto; }
     .dictionary-button { width:46px; height:46px; }
+    .dictionary-button { position:absolute; left:3px; bottom:44px; }
     .dictionary-button img { width:43px; height:43px; object-fit:contain; filter:drop-shadow(0 2px 4px rgba(0,0,0,.55)); }
     .dictionary-button.available { animation:dictionaryPulse .85s ease-in-out infinite alternate; }
+    .daily-bubble.available { animation:dictionaryPulse .85s ease-in-out infinite alternate; }
     @keyframes dictionaryPulse { to { transform:scale(1.13); filter:brightness(1.28) drop-shadow(0 0 10px var(--gold)); } }
     .bubble-icon { display:block; translate:0 -1px; filter:drop-shadow(0 1px 1px rgba(0,0,0,.24)); }
     .daily-target { position:relative; width:29px; height:29px; border:2px solid #fff7df; border-radius:50%; background:radial-gradient(circle,#ffe46f 0 16%,#e63d49 17% 34%,#fff7df 35% 52%,#e63d49 53% 70%,#fff7df 71%); box-shadow:0 1px 4px rgba(0,0,0,.35); }
@@ -754,6 +756,11 @@
     .dictionary-words { min-height:220px; overflow-y:auto; display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); align-content:start; gap:6px; padding:10px; border:1px solid rgba(117,245,199,.14); border-radius:14px 5px; background:rgba(0,0,0,.22); scrollbar-width:thin; }
     .dictionary-word { min-width:0; padding:6px 4px; overflow:hidden; border-radius:7px; color:var(--mint); background:rgba(117,245,199,.06); font-size:.64rem; font-weight:800; letter-spacing:.04em; text-align:center; text-overflow:ellipsis; }
     .dictionary-close { position:absolute; right:14px; top:14px; animation:rewardClosePulse .72s ease-in-out infinite alternate; }
+    .hint-message-overlay { position:fixed; z-index:94; inset:0; display:grid; place-items:center; padding:18px; background:rgba(1,5,10,.84); backdrop-filter:blur(14px); opacity:0; pointer-events:none; transition:opacity .2s ease; }
+    .hint-message-overlay.open { opacity:1; pointer-events:auto; }
+    .hint-message-panel { position:relative; width:min(100%,520px); min-height:150px; display:grid; place-items:center; padding:48px 24px 28px; border:2px solid #7dffc0; border-radius:24px 8px; color:#052116; background:#38d98c; box-shadow:0 18px 65px rgba(0,68,42,.58),0 0 28px rgba(56,217,140,.42); text-align:center; }
+    .hint-message-panel p { margin:0; font:850 clamp(1.25rem,5vw,2rem)/1.28 Georgia,serif; letter-spacing:.03em; }
+    .hint-message-close { position:absolute; right:13px; top:13px; color:#fff; border-color:#fff7c7; background:#ff4f5d; animation:rewardClosePulse .72s ease-in-out infinite alternate; }
     @keyframes bonusStar { from{opacity:0;transform:scale(.25) rotate(-35deg)} to{opacity:1;transform:scale(1) rotate(0)} }
     .word-flight { position:fixed; z-index:120; left:0; top:0; padding:9px 14px; border:1px solid #fff1a8; border-radius:99px; color:#291c00; background:linear-gradient(135deg,#fff3a5,var(--gold)); box-shadow:0 0 14px #fff4a6,0 0 34px var(--gold),0 10px 24px rgba(0,0,0,.42); font-size:.75rem; font-weight:950; letter-spacing:.08em; pointer-events:none; white-space:nowrap; }
     .stage-shelf-heading.arrived,.bonus-shelf-heading.arrived,.shelf-word.arrived { animation:bonusArrival .7s cubic-bezier(.2,.9,.25,1.35); }
@@ -1077,6 +1084,13 @@
     </section>
   </div>
 
+  <div class="hint-message-overlay" id="hintMessageOverlay" aria-hidden="true">
+    <section class="hint-message-panel" role="dialog" aria-modal="true" aria-labelledby="hintMessageText">
+      <button class="close-button hint-message-close" id="closeHintMessage" type="button" aria-label="Close hint">✕</button>
+      <p id="hintMessageText"></p>
+    </section>
+  </div>
+
   <div class="sheet-backdrop" id="discoveryBackdrop" aria-hidden="true">
     <section class="discovery-sheet" role="dialog" aria-modal="true" aria-labelledby="discoveryTitle">
       <div class="sheet-header">
@@ -1135,7 +1149,12 @@
       const vehicleEdgeShift = {
         "ship-emerald":"8.6%", "ship-crimson":"2.1%", "ship-azure":"8.2%", "ship-solar":"2.3%",
         "ship-violet":"2.3%", "ship-teal":"7.6%", "vehicle-pickup":"2.1%", "vehicle-challenger":"1.2%",
-        "vehicle-formula":"3.1%", "vehicle-semi":"4.1%", "vehicle-clydesdale":"12.3%", "vehicle-superbike":"4.7%"
+        "vehicle-formula":"3.1%", "vehicle-semi":"4.1%", "vehicle-clydesdale":"3.1%", "vehicle-superbike":"4.7%"
+      };
+      const vehicleGroundShift = {
+        "ship-emerald":"13.3%", "ship-crimson":"29.1%", "ship-azure":"16.6%", "ship-solar":"26.6%",
+        "ship-violet":"26.6%", "ship-teal":"25.8%", "vehicle-pickup":"18.9%", "vehicle-challenger":"22.3%",
+        "vehicle-formula":"25%", "vehicle-semi":"21.1%", "vehicle-clydesdale":"19.7%", "vehicle-superbike":"18.8%"
       };
       const shopItems = [
         {id:"pet-dog",name:"Orbit Dog",type:"pet",asset:"../images/verbia/companions/orbit-dog.png",showroomScale:1.08,cost:420},
@@ -1160,7 +1179,7 @@
         {id:"vehicle-challenger",name:"Cosmic Challenger",type:"ship",asset:"../images/verbia/ships/cosmic-challenger.png",cost:900},
         {id:"vehicle-formula",name:"Quantum Formula",type:"ship",asset:"../images/verbia/ships/quantum-formula.png",cost:900},
         {id:"vehicle-semi",name:"Crimson Hauler",type:"ship",asset:"../images/verbia/ships/crimson-hauler.png",cost:900},
-        {id:"vehicle-clydesdale",name:"Stellar Clydesdale",type:"ship",asset:"../images/verbia/ships/stellar-clydesdale.png",cost:900},
+        {id:"vehicle-clydesdale",name:"Wasteland Marauder",type:"ship",asset:"../images/verbia/ships/wasteland-marauder.png",cost:900},
         {id:"vehicle-superbike",name:"Nebula Superbike",type:"ship",asset:"../images/verbia/ships/nebula-superbike.png",cost:900}
       ];
       const playfield = document.querySelector("#playfield");
@@ -1225,6 +1244,9 @@
       const dictionaryTabs = document.querySelector("#dictionaryTabs");
       const dictionaryWords = document.querySelector("#dictionaryWords");
       const dictionaryMeta = document.querySelector("#dictionaryMeta");
+      const hintMessageOverlay = document.querySelector("#hintMessageOverlay");
+      const hintMessageText = document.querySelector("#hintMessageText");
+      const closeHintMessage = document.querySelector("#closeHintMessage");
       const rewardOverlay = document.querySelector("#rewardOverlay");
       const rewardWheel = document.querySelector("#rewardWheel");
       const rewardDart = document.querySelector("#rewardDart");
@@ -1429,6 +1451,7 @@
         const tab = event.target.closest("[data-dictionary-letter]");
         if (tab) renderDictionaryLetter(tab.dataset.dictionaryLetter);
       });
+      closeHintMessage.addEventListener("click", closeHintMessagePanel);
       dailyBubble.addEventListener("click", openDailyReward);
       rewardFire.addEventListener("click", throwDailyDart);
       powerMeter.addEventListener("click", throwDailyDart);
@@ -1760,7 +1783,7 @@
       }
 
       function freshProgress(profileCreated = false) {
-        return { profileCreated, currentLevel:1, highestLevel:1, boards:{}, levelBoards:{}, signatures:[], hintHistory:{}, points:0, hints:{date:todayKey(),count:3}, darts:0, dailyRewardDate:"", helpers:{dictionary:true,dictionarySeen:false}, inventory:{owned:[],equipped:{}}, wardrobeBaseVersion:4, avatarCatalogVersion:1, unlockedAvatars:["rx7","nova"], seed:Math.floor(Math.random() * 2147483647) || 9173 };
+        return { profileCreated, currentLevel:1, highestLevel:1, boards:{}, levelBoards:{}, signatures:[], hintHistory:{}, points:0, hints:{date:todayKey(),count:3}, darts:0, dartNotice:false, dailyRewardDate:"", helpers:{dictionary:true,dictionarySeen:false}, inventory:{owned:[],equipped:{}}, wardrobeBaseVersion:4, avatarCatalogVersion:1, unlockedAvatars:["rx7","nova"], seed:Math.floor(Math.random() * 2147483647) || 9173 };
       }
 
       function letterCountForLevel(level) {
@@ -2385,6 +2408,7 @@
         dailyBubble.hidden = !profileExists || availableDarts < 1;
         dartCount.textContent = `×${availableDarts}`;
         dailyBubble.setAttribute("aria-label", `Play dart reward. ${availableDarts} dart${availableDarts === 1 ? "" : "s"} available`);
+        dailyBubble.classList.toggle("available", Boolean(progress.dartNotice && availableDarts > 0));
         dictionaryButton.hidden = !progress.helpers?.dictionary;
         dictionaryButton.classList.toggle("available", Boolean(progress.helpers?.dictionary && !progress.helpers?.dictionarySeen));
         renderWallet();
@@ -2514,6 +2538,7 @@
         element.style.setProperty("--companion-scale", item.type === "pet" ? String(item.showroomScale || 1) : "1");
         element.style.setProperty("--companion-lift", item.type === "pet" ? `${item.showroomLift || 0}px` : "0px");
         element.style.setProperty("--vehicle-edge-shift", item.type === "ship" ? (vehicleEdgeShift[item.id] || "0%") : "0%");
+        element.style.setProperty("--vehicle-ground-shift", item.type === "ship" ? (vehicleGroundShift[item.id] || "20%") : "0%");
         element.style.backgroundImage = `url('${item.asset}')`;
         element.style.backgroundSize = "contain";
         element.style.backgroundPosition = "center";
@@ -2634,7 +2659,10 @@
         progress.points -= cost;
         if (helperId === "dictionary") progress.helpers.dictionary = true;
         if (helperId === "hints") progress.hints.count = (progress.hints.count || 0) + 3;
-        if (helperId === "dart") progress.darts = (progress.darts || 0) + 1;
+        if (helperId === "dart") {
+          progress.darts = (progress.darts || 0) + 1;
+          progress.dartNotice = true;
+        }
         saveProgress();
         refreshDailyState();
         renderInventory();
@@ -2846,6 +2874,19 @@
         dictionaryButton.focus();
       }
 
+      function showHintMessage(message) {
+        hintMessageText.textContent = message;
+        hintMessageOverlay.classList.add("open");
+        hintMessageOverlay.setAttribute("aria-hidden", "false");
+        closeHintMessage.focus();
+      }
+
+      function closeHintMessagePanel() {
+        hintMessageOverlay.classList.remove("open");
+        hintMessageOverlay.setAttribute("aria-hidden", "true");
+        hintButton.focus();
+      }
+
       function useHint() {
         if (isCurrentBoardMastered()) return;
         refreshDailyState();
@@ -2870,12 +2911,15 @@
         renderWallet();
         const clueNumber = previousHints.length;
         const pattern = word.length > 2 ? `${word[0]}${"•".repeat(word.length - 2)}${word.at(-1)}` : word;
-        showToast(`Hint ${clueNumber} • ${pattern} • ${word.length} letters`, "success", 4500);
+        showHintMessage(`Hint ${clueNumber} • ${pattern} • ${word.length} letters`);
       }
 
       function openDailyReward() {
         const availableDarts = (progress.darts || 0) + (progress.dailyRewardDate === todayKey() ? 0 : 1);
         if (!profileExists || availableDarts < 1) return;
+        progress.dartNotice = false;
+        saveProgress();
+        dailyBubble.classList.remove("available");
         closeDiscoveryShelf();
         closeReward.classList.remove("reward-ready");
         rewardResult.textContent = "";
