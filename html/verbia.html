@@ -1542,9 +1542,15 @@
         if (!screen.orientation?.lock) return;
         screen.orientation.lock("portrait").catch(() => {});
       };
-      const musicIsEnabled = () => ["all","music"].includes(settings.soundMode);
-      const selectedBackgroundTrack = () => settings.musicPace === "fast" ? fastBackgroundMusic : slowBackgroundMusic;
-      const startBackgroundMusic = () => {
+      function musicIsEnabled() {
+        return ["all","music"].includes(settings.soundMode);
+      }
+
+      function selectedBackgroundTrack() {
+        return settings.musicPace === "fast" ? fastBackgroundMusic : slowBackgroundMusic;
+      }
+
+      function startBackgroundMusic() {
         const selectedTrack = selectedBackgroundTrack();
         if (backgroundMusic !== selectedTrack) {
           backgroundMusic = selectedTrack;
@@ -1552,12 +1558,13 @@
         }
         if (!musicIsEnabled() || document.hidden || (!backgroundMusic.paused && !backgroundMusic.ended)) return;
         backgroundMusic.play().then(() => { backgroundMusicStarted = true; }).catch(() => {});
-      };
-      const recoverBackgroundMusic = () => {
+      }
+
+      function recoverBackgroundMusic() {
         window.clearTimeout(musicRecoveryTimer);
         if (!backgroundMusicStarted || !musicIsEnabled() || document.hidden) return;
         musicRecoveryTimer = window.setTimeout(startBackgroundMusic,180);
-      };
+      }
       backgroundTracks.forEach(track => {
         track.addEventListener("ended", recoverBackgroundMusic);
         track.addEventListener("stalled", recoverBackgroundMusic);
