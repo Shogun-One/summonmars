@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ocean-of-aliens-shell-v7';
+const CACHE_NAME = 'ocean-of-aliens-shell-v8';
 const APP_SHELL = [
   '/oceanofaliens.html',
   '/ocean-of-aliens.webmanifest',
