@@ -574,9 +574,10 @@
     .wallet-card { display:flex; justify-content:space-between; gap:12px; padding:12px; border:1px solid rgba(255,217,120,.3); border-radius:13px 5px 13px 5px; background:rgba(255,217,120,.09); color:var(--surface-muted); font-size:.7rem; font-weight:750; }
     .wallet-card strong { display:block; color:var(--gold); font-size:1rem; }
     .store-preview { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; }
-    .store-section+.store-section { margin-top:22px; }
-    .store-section h3,.inventory-explorers h3 { margin:0 0 9px; color:color-mix(in srgb,var(--gold) 78%,white); font-size:.7rem; font-weight:900; letter-spacing:.13em; text-transform:uppercase; }
-    .store-category-label { grid-column:1/-1; margin:10px 0 0; padding:8px 10px 6px; border-bottom:1px solid color-mix(in srgb,var(--accent) 32%,transparent); color:color-mix(in srgb,var(--gold) 78%,white); font-size:.64rem; font-weight:900; letter-spacing:.12em; text-align:left; text-transform:uppercase; }
+    .store-section,.inventory-explorers,.inventory-item-group { padding:12px 10px 10px; border:1px solid color-mix(in srgb,var(--mint) 24%,transparent); border-radius:14px 5px; background:rgba(255,255,255,.025); }
+    .store-section+.store-section { margin-top:14px; }
+    .store-section h3,.inventory-explorers h3,.inventory-category-label { margin:0 0 10px; color:color-mix(in srgb,var(--gold) 78%,white); font-size:.7rem; font-weight:900; letter-spacing:.13em; text-align:center; text-transform:uppercase; }
+    .store-category-label { grid-column:1/-1; margin:10px 0 0; padding:8px 10px 6px; border-bottom:1px solid color-mix(in srgb,var(--accent) 32%,transparent); color:color-mix(in srgb,var(--gold) 78%,white); font-size:.64rem; font-weight:900; letter-spacing:.12em; text-align:center; text-transform:uppercase; }
     .store-category-label:first-child { margin-top:0; }
     .store-avatar-grid { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:8px; }
     .store-avatar-grid .avatar-choice { height:112px; }
@@ -618,9 +619,10 @@
     .inventory-pet:empty { display:none; }
     .inventory-dictionary { position:absolute; z-index:9; left:12px; bottom:10px; width:88px; height:64px; background:url('../images/verbia/menu-open-dictionary.png') center/contain no-repeat; filter:brightness(1.18) drop-shadow(0 5px 8px rgba(0,0,0,.6)); pointer-events:none; }
     .inventory-dictionary[hidden] { display:none; }
-    .inventory-list { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; }
-    .inventory-category-label { grid-column:1/-1; margin:16px 0 2px; color:color-mix(in srgb,var(--gold) 78%,white); font-size:.7rem; font-weight:900; letter-spacing:.13em; text-align:center; text-transform:uppercase; }
-    .inventory-list > .feature-intro { grid-column:1 / -1; width:100%; }
+    .inventory-list { display:grid; gap:14px; margin-top:14px; }
+    .inventory-item-group { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; }
+    .inventory-category-label { grid-column:1/-1; }
+    .inventory-list > .feature-intro { width:100%; }
     .inventory-item { height:142px; overflow:hidden; padding:6px 4px 8px; border:1px solid rgba(255,255,255,.14); border-radius:13px 5px; color:var(--surface-muted); background:rgba(255,255,255,.055); text-align:center; cursor:pointer; }
     .inventory-item-preview { display:block; width:64px; height:64px; margin:0 auto 5px; background-repeat:no-repeat; background-size:contain; background-position:center; }
     .inventory-item-preview.square-cell { aspect-ratio:1 / 2; }
@@ -2720,10 +2722,12 @@
           return;
         }
         ["pet","ship"].forEach(type => {
+          const group = document.createElement("section");
+          group.className = "inventory-item-group";
           const heading = document.createElement("h3");
           heading.className = "inventory-category-label";
           heading.textContent = type === "pet" ? "Companions" : "Ships & vehicles";
-          inventoryList.append(heading);
+          group.append(heading);
           ownedItems.filter(item => item.type === type).forEach(item => {
           const equippedNow = equipped[item.type] === item.id;
           const button = document.createElement("button");
@@ -2738,8 +2742,9 @@
           const state = document.createElement("small");
           state.textContent = equippedNow ? `${item.type === "pet" ? "Companion" : "Ship/vehicle"} selected · tap to remove` : `Tap to select ${item.type === "pet" ? "companion" : "ship/vehicle"}`;
           button.append(preview,name,state);
-          inventoryList.append(button);
+          group.append(button);
           });
+          inventoryList.append(group);
         });
       }
 
