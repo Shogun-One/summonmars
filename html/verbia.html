@@ -401,6 +401,11 @@
     .setting-button { min-height:36px; padding:6px 7px; border:1px solid rgba(255,255,255,.18); border-radius:9px 4px 9px 4px; color:var(--surface-muted); background:rgba(255,255,255,.065); font-size:.57rem; font-weight:850; line-height:1.05; cursor:pointer; }
     .setting-button.selected { color:var(--accent-text); border-color:var(--mint); background:var(--mint); box-shadow:0 0 12px color-mix(in srgb,var(--mint) 25%,transparent); }
     .haptic-toggle { min-width:76px; }
+    .music-speed-bar { margin-top:9px; padding:11px 12px 12px; border:1px solid rgba(255,255,255,.14); border-radius:15px 6px; background:rgba(255,255,255,.045); }
+    .music-speed-bar>span { display:block; margin-bottom:8px; color:color-mix(in srgb,var(--gold) 78%,white); font-size:.57rem; font-weight:900; letter-spacing:.12em; text-align:center; text-transform:uppercase; }
+    .music-speed-control { display:grid; grid-template-columns:auto minmax(110px,1fr) auto; align-items:center; gap:10px; color:var(--surface-muted); font-size:.62rem; font-weight:850; }
+    .music-speed-control span:last-child { color:var(--mint); }
+    .music-speed-control input { width:100%; accent-color:var(--mint); cursor:pointer; }
     .menu-preview { position:relative; height:190px; margin-top:14px; overflow:hidden; border:1px solid color-mix(in srgb,var(--mint) 34%,transparent); border-radius:17px 6px; background:radial-gradient(circle at 52% 38%,color-mix(in srgb,var(--mint) 28%,transparent),transparent 44%),linear-gradient(180deg,#175063,#0b1933 82%); box-shadow:inset 0 0 34px rgba(75,223,255,.13); }
     .menu-preview::before { content:"CURRENT EXPLORER"; position:absolute; z-index:8; left:10px; top:8px; color:rgba(255,255,255,.42); font-size:.45rem; font-weight:900; letter-spacing:.15em; }
     .menu-preview-ship { position:absolute; z-index:1; top:8px; right:0; bottom:8px; width:38%; background-repeat:no-repeat; background-position:right center; background-size:contain; opacity:.8; filter:brightness(1.3) contrast(1.08) saturate(1.2) drop-shadow(0 0 11px color-mix(in srgb,var(--mint) 34%,transparent)) drop-shadow(0 6px 9px rgba(0,0,0,.45)); }
@@ -1048,6 +1053,10 @@
         </div></div>
         <div class="settings-group"><span>Haptics</span><button class="setting-button haptic-toggle" id="hapticToggle" type="button" aria-pressed="true">Vibrate on</button></div>
       </div>
+      <div class="music-speed-bar">
+        <span>Music style</span>
+        <label class="music-speed-control" for="musicPace"><span>Slower music</span><input id="musicPace" type="range" min="0" max="1" step="1" value="0" aria-label="Music style: slower music" /><span>Faster music</span></label>
+      </div>
     </section>
   </div>
 
@@ -1094,7 +1103,7 @@
         <li><span class="direction-icon">⛏</span><div><b>Treasure Cave</b><p>Each expedition costs 100 Discovery Points, with three available per day. Choose one of four caves for a weighted surprise: minerals sold for points, rare high-value relics, hint caches, or reward darts. Possible prize types and values appear below the caves.</p></div></li>
         <li><span class="direction-icon">🛍</span><div><b>Explorer Store</b><p>Use Discovery Points to unlock explorers, companions, ships, vehicles, and helpers. The hanging paper shows your live balance. Selecting or buying a loadout item keeps you in the store and returns you to the fitting bay to see it.</p></div></li>
         <li><span class="direction-icon">🎒</span><div><b>Inventory Showroom</b><p>Choose any owned explorer, companion, and vehicle, or tap an equipped companion or vehicle to remove it. The fitting-bay sign shows permanent Score. Store and inventory icons on the board provide quick access.</p></div></li>
-        <li><span class="direction-icon">⚙</span><div><b>Pause menu and New Game</b><p>Pause to resume, review this guide, change sound, haptics, cosmic theme, or letter shape, and view your wallet. New Game permanently resets progress, Score, Discovery Points, purchases, and daily cave use; the two robot explorers remain free.</p></div></li>
+        <li><span class="direction-icon">⚙</span><div><b>Pause menu and New Game</b><p>Pause to resume, review this guide, choose slower or faster music, change sound, haptics, cosmic theme, or letter shape, and view your wallet. New Game permanently resets progress, Score, Discovery Points, purchases, and daily cave use; the two robot explorers remain free.</p></div></li>
       </ol>
     </section>
   </div>
@@ -1373,6 +1382,7 @@
       const themeChoices = document.querySelector("#themeChoices");
       const soundOptions = document.querySelector("#soundOptions");
       const hapticToggle = document.querySelector("#hapticToggle");
+      const musicPace = document.querySelector("#musicPace");
       const shapeChoices = document.querySelector("#shapeChoices");
       const avatarChoices = document.querySelector("#avatarChoices");
       const splashScreen = document.querySelector("#splashScreen");
@@ -1485,15 +1495,17 @@
       let applauseNoise = null;
       const boardClearAudio = new Audio("../mp3/verbia/board-clear-applause.mp3");
       const boardMasterAudio = new Audio("../mp3/verbia/board-master-hurray.mp3");
-      const backgroundMusic = new Audio("../mp3/verbia/cosmic-lounge-loop.ogg");
+      const slowBackgroundMusic = new Audio("../mp3/verbia/cosmic-lounge-loop.ogg");
+      const fastBackgroundMusic = new Audio("../mp3/verbia/cosmic-elevator-fast-loop.ogg");
+      const backgroundTracks = [slowBackgroundMusic,fastBackgroundMusic];
+      let backgroundMusic = slowBackgroundMusic;
       boardClearAudio.preload = "auto";
       boardMasterAudio.preload = "auto";
-      backgroundMusic.preload = "auto";
-      backgroundMusic.loop = true;
+      backgroundTracks.forEach(track => { track.preload = "auto"; track.loop = true; track.volume = .18; });
       boardClearAudio.volume = .3;
       boardMasterAudio.volume = .34;
-      backgroundMusic.volume = .18;
       let backgroundMusicStarted = false;
+      let musicRecoveryTimer = 0;
       let boardTransitioning = false;
       let boardFlipSwapTimer = 0;
       let boardFlipFinishTimer = 0;
@@ -1525,15 +1537,33 @@
         if (!screen.orientation?.lock) return;
         screen.orientation.lock("portrait").catch(() => {});
       };
+      const musicIsEnabled = () => ["all","music"].includes(settings.soundMode);
+      const selectedBackgroundTrack = () => settings.musicPace === "fast" ? fastBackgroundMusic : slowBackgroundMusic;
       const startBackgroundMusic = () => {
-        if (backgroundMusicStarted || !["all","music"].includes(settings.soundMode)) return;
-        backgroundMusic.play().then(() => {
-          backgroundMusicStarted = true;
-          document.removeEventListener("pointerdown", startBackgroundMusic);
-        }).catch(() => {});
+        const selectedTrack = selectedBackgroundTrack();
+        if (backgroundMusic !== selectedTrack) {
+          backgroundMusic = selectedTrack;
+          backgroundTracks.forEach(track => { if (track !== backgroundMusic) track.pause(); });
+        }
+        if (!musicIsEnabled() || document.hidden || (!backgroundMusic.paused && !backgroundMusic.ended)) return;
+        backgroundMusic.play().then(() => { backgroundMusicStarted = true; }).catch(() => {});
       };
+      const recoverBackgroundMusic = () => {
+        window.clearTimeout(musicRecoveryTimer);
+        if (!backgroundMusicStarted || !musicIsEnabled() || document.hidden) return;
+        musicRecoveryTimer = window.setTimeout(startBackgroundMusic,180);
+      };
+      backgroundTracks.forEach(track => {
+        track.addEventListener("ended", recoverBackgroundMusic);
+        track.addEventListener("stalled", recoverBackgroundMusic);
+        track.addEventListener("waiting", recoverBackgroundMusic);
+        track.addEventListener("error", recoverBackgroundMusic);
+        track.addEventListener("pause", () => { if (track === backgroundMusic) recoverBackgroundMusic(); });
+      });
       document.addEventListener("pointerdown", requestPortraitLock, {once:true});
       document.addEventListener("pointerdown", startBackgroundMusic);
+      window.addEventListener("focus", recoverBackgroundMusic);
+      window.addEventListener("pageshow", recoverBackgroundMusic);
       document.addEventListener("fullscreenchange", () => { if (document.fullscreenElement) requestPortraitLock(); });
       document.addEventListener("visibilitychange", () => {
         if (document.hidden) {
@@ -1542,7 +1572,7 @@
           starfieldFrame = 0;
           return;
         }
-        if (backgroundMusicStarted && ["all","music"].includes(settings.soundMode)) backgroundMusic.play().catch(() => {});
+        recoverBackgroundMusic();
         if (!starfieldFrame && splashScreen.hidden) {
           starfieldLastTime = performance.now();
           starfieldLastDraw = 0;
@@ -1712,6 +1742,12 @@
         vibrate(22);
       });
 
+      musicPace.addEventListener("input", () => {
+        settings.musicPace = musicPace.value === "1" ? "fast" : "slow";
+        applySettings(false);
+        startBackgroundMusic();
+      });
+
       shapeChoices.addEventListener("click", event => {
         const choice = event.target.closest("[data-shape-choice]");
         if (!choice) return;
@@ -1775,7 +1811,7 @@
         localStorage.removeItem("verbia-prototype-board-01");
         progress = freshProgress(true);
         profileExists = true;
-        settings = { theme:"cosmic-red", shape:"shard", avatar:"rx7", soundMode:"all", haptics:true, avatarDefaultVersion:2 };
+        settings = { theme:"cosmic-red", shape:"shard", avatar:"rx7", soundMode:"all", musicPace:"slow", haptics:true, avatarDefaultVersion:2 };
         boardIndex = 0;
         boards.length = 0;
         ensureBoard(1);
@@ -3687,6 +3723,7 @@
         ensureInventory();
         if (!["shard","circle","triangle"].includes(settings.shape)) settings.shape = "shard";
         if (!["all","music","effects","off"].includes(settings.soundMode)) settings.soundMode = "all";
+        if (!["slow","fast"].includes(settings.musicPace)) settings.musicPace = "slow";
         if (typeof settings.haptics !== "boolean") settings.haptics = true;
         document.documentElement.dataset.theme = settings.theme;
         playfield.dataset.shape = settings.shape;
@@ -3702,13 +3739,21 @@
         hapticToggle.classList.toggle("selected", settings.haptics);
         hapticToggle.setAttribute("aria-pressed", String(settings.haptics));
         hapticToggle.textContent = settings.haptics ? "Vibrate on" : "Vibrate off";
+        musicPace.value = settings.musicPace === "fast" ? "1" : "0";
+        musicPace.setAttribute("aria-label", `Music style: ${settings.musicPace === "fast" ? "faster music" : "slower music"}`);
         const soundLabels = {all:"♫ Music + FX",music:"♫ Music",effects:"♫ FX",off:"♫ Silent"};
         soundCycleButton.textContent = soundLabels[settings.soundMode];
         soundCycleButton.setAttribute("aria-label", `Sound mode: ${soundLabels[settings.soundMode].replace("♫ ","")}. Tap to change.`);
         document.querySelectorAll("[data-shape-choice]").forEach(button => button.classList.toggle("selected", button.dataset.shapeChoice === settings.shape));
         document.querySelectorAll("[data-avatar-choice]").forEach(button => button.classList.toggle("selected", button.dataset.avatarChoice === settings.avatar));
-        if (!["all","music"].includes(settings.soundMode)) backgroundMusic.pause();
-        else if (backgroundMusicStarted && !document.hidden) backgroundMusic.play().catch(() => {});
+        const selectedTrack = selectedBackgroundTrack();
+        if (backgroundMusic !== selectedTrack) {
+          const shouldContinue = backgroundMusicStarted && musicIsEnabled() && !document.hidden;
+          backgroundMusic = selectedTrack;
+          backgroundTracks.forEach(track => { if (track !== backgroundMusic) track.pause(); });
+          if (shouldContinue) startBackgroundMusic();
+        } else if (!musicIsEnabled()) backgroundMusic.pause();
+        else if (backgroundMusicStarted && !document.hidden) startBackgroundMusic();
         if (settings.soundMode === "off") {
           boardClearAudio.pause();
           boardMasterAudio.pause();
@@ -3725,8 +3770,8 @@
           const saved = JSON.parse(localStorage.getItem(settingsKey) || "{}");
           delete saved.layout;
           if (!saved.avatarDefaultVersion) saved.avatar = "rx7";
-          return { theme:"cosmic-red", shape:"shard", avatar:"rx7", soundMode:"all", haptics:true, ...saved, avatarDefaultVersion:2 };
-        } catch { return { theme:"cosmic-red", shape:"shard", avatar:"rx7", soundMode:"all", haptics:true, avatarDefaultVersion:2 }; }
+          return { theme:"cosmic-red", shape:"shard", avatar:"rx7", soundMode:"all", musicPace:"slow", haptics:true, ...saved, avatarDefaultVersion:2 };
+        } catch { return { theme:"cosmic-red", shape:"shard", avatar:"rx7", soundMode:"all", musicPace:"slow", haptics:true, avatarDefaultVersion:2 }; }
       }
 
       function saveSettings() { localStorage.setItem(settingsKey, JSON.stringify(settings)); }
