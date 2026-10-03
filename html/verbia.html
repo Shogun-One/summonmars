@@ -942,6 +942,7 @@
       <p>Choose how your journey begins.</p>
       <button class="launch-choice-button primary" id="continueGameButton" type="button">Continue<small id="continueGameMeta">Resume your saved word journey</small></button>
       <button class="launch-choice-button" id="newGameButton" type="button">New Game<small>Clear Verbia progress and create a new explorer</small></button>
+      <button class="launch-choice-button" id="launchSettingsButton" type="button">Settings<small>Open settings, directions, inventory, and the explorer store</small></button>
       <p class="install-note">For app-style fullscreen on a phone, choose Install or Add to Home Screen from the browser menu.</p>
     </div>
   </section>
@@ -1406,6 +1407,7 @@
       const continueGameButton = document.querySelector("#continueGameButton");
       const continueGameMeta = document.querySelector("#continueGameMeta");
       const newGameButton = document.querySelector("#newGameButton");
+      const launchSettingsButton = document.querySelector("#launchSettingsButton");
       const newGameConfirmOverlay = document.querySelector("#newGameConfirmOverlay");
       const cancelNewGameButton = document.querySelector("#cancelNewGameButton");
       const confirmNewGameButton = document.querySelector("#confirmNewGameButton");
@@ -1805,6 +1807,12 @@
       newGameButton.addEventListener("click", () => {
         if (hasSavedGame()) openNewGameConfirmation();
         else startNewGame();
+      });
+
+      launchSettingsButton.addEventListener("click", () => {
+        launchOverlay.hidden = true;
+        hasStarted = false;
+        openMenu();
       });
 
       function openNewGameConfirmation() {
