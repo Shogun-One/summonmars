@@ -174,8 +174,8 @@
 
     .game-avatar { position:absolute; z-index:12; left:-16px; bottom:-18px; width:103px; height:146px; padding:0; overflow:visible; border:0; background:transparent; cursor:pointer; filter:drop-shadow(0 8px 9px rgba(0,0,0,.5)); }
     .game-avatar-base { --atlas-x:0%;--atlas-y:0%; position:absolute; z-index:1; inset:0; background-image:url('../images/verbia/explorer-fitting-atlas-v3.png'); background-size:500% 200%; background-position:var(--atlas-x) var(--atlas-y); background-repeat:no-repeat; }
-    .game-loadout-ship { position:absolute; z-index:2; right:-8px; bottom:calc(100% - clamp(31px,6vw,42px)); width:clamp(150px,38%,245px); height:clamp(112px,25vw,158px); background-repeat:no-repeat; background-size:contain; background-position:right bottom; opacity:.54; filter:brightness(1.12) saturate(1.15) drop-shadow(0 5px 7px rgba(0,0,0,.45)); pointer-events:none; }
-    .game-loadout-pet { position:absolute; z-index:13; left:58px; bottom:calc(100% - 3px); width:78px; height:88px; transform:scale(var(--companion-scale,1)); transform-origin:center bottom; background-repeat:no-repeat; background-size:contain; background-position:center bottom; filter:drop-shadow(0 5px 6px rgba(0,0,0,.48)); pointer-events:none; }
+    .game-loadout-ship { position:absolute; z-index:2; right:clamp(-10px,-2vw,-4px); bottom:calc(100% - clamp(31px,6vw,42px)); width:clamp(150px,38%,245px); height:clamp(112px,25vw,158px); background-repeat:no-repeat; background-size:contain; background-position:right bottom; opacity:.54; filter:brightness(1.12) saturate(1.15) drop-shadow(0 5px 7px rgba(0,0,0,.45)); pointer-events:none; }
+    .game-loadout-pet { position:absolute; z-index:13; left:48px; bottom:calc(100% - 3px); width:78px; height:88px; transform:scale(var(--companion-scale,1)); transform-origin:center bottom; background-repeat:no-repeat; background-size:contain; background-position:center bottom; filter:drop-shadow(0 5px 6px rgba(0,0,0,.48)); pointer-events:none; }
     .game-loadout-ship:empty,.game-loadout-pet:empty { display:none; }
     .progress-card:has(.game-avatar) .progress-row { padding-left:70px; }
     .progress-row { position:relative; z-index:25; }
@@ -2939,6 +2939,13 @@
           portrait.style.backgroundImage = `url('${avatar.bodySrc}')`;
           portrait.style.backgroundSize = "110% auto";
           portrait.style.backgroundPosition = "center top";
+          if (avatar.id === "bigfoot") {
+            portrait.style.backgroundSize = "138% auto";
+            portrait.style.backgroundPosition = "center -8px";
+          } else if (avatar.id === "yeti") {
+            portrait.style.backgroundSize = "134% auto";
+            portrait.style.backgroundPosition = "center -5px";
+          }
         } else if (avatar.portraitAtlas === "hispanic") {
           portrait.style.backgroundImage = "url('../images/verbia/avatar-hispanic-roster-v1.png')";
           portrait.style.backgroundSize = "200% 100%";
