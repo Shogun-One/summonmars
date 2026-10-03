@@ -787,11 +787,11 @@
     .toast.duplicate { color:#251900; border-color:#ffe68a; background:#f5c451; box-shadow:0 12px 38px rgba(91,62,0,.48),0 0 18px rgba(245,196,81,.38); }
     .toast.bonus { display:flex; align-items:center; gap:10px; padding-block:8px; }
     .toast.bonus::before { content:"★"; flex:0 0 auto; color:#ffe779; font-size:2.85rem; line-height:.72; -webkit-text-stroke:1px rgba(80,49,0,.5); filter:drop-shadow(0 0 10px rgba(255,225,92,.95)); animation:bonusStar .55s cubic-bezier(.2,.9,.25,1.35) both; }
-    .dictionary-overlay { position:fixed; z-index:92; inset:0; display:grid; place-items:center; padding:12px; background:rgba(1,5,10,.9); backdrop-filter:blur(16px); opacity:0; pointer-events:none; transition:opacity .2s ease; }
+    .dictionary-overlay { position:fixed; z-index:92; inset:0; display:grid; place-items:center; padding:12px; overflow:hidden; overscroll-behavior:none; background:rgba(1,5,10,.9); backdrop-filter:blur(16px); opacity:0; pointer-events:none; transition:opacity .2s ease; }
     .dictionary-overlay.open { opacity:1; pointer-events:auto; }
-    .dictionary-panel { position:relative; width:min(100%,680px); height:min(94svh,860px); display:flex; flex-direction:column; padding:18px; overflow:hidden; border:1px solid color-mix(in srgb,var(--gold) 45%,transparent); border-radius:28px 10px; background:radial-gradient(circle at 50% 25%,rgba(117,245,199,.13),transparent 34%),linear-gradient(155deg,#173633,#080d18); box-shadow:0 28px 90px rgba(0,0,0,.72); }
-    .dictionary-panel h2 { margin:0 54px; font:500 clamp(1.65rem,7vw,2.25rem) Georgia,serif; line-height:1.1; text-align:center; }
-    .dictionary-meta { margin:5px 46px 7px; color:var(--surface-muted); font-size:.72rem; line-height:1.35; text-align:center; }
+    .dictionary-panel { position:relative; width:min(100%,680px); height:min(94svh,860px); display:flex; flex-direction:column; contain:layout paint; overflow:hidden; overflow-anchor:none; overscroll-behavior:none; padding:18px; border:1px solid color-mix(in srgb,var(--gold) 45%,transparent); border-radius:28px 10px; background:radial-gradient(circle at 50% 25%,rgba(117,245,199,.13),transparent 34%),linear-gradient(155deg,#173633,#080d18); box-shadow:0 28px 90px rgba(0,0,0,.72); }
+    .dictionary-panel h2 { flex:0 0 auto; margin:0 54px; font:500 clamp(1.65rem,7vw,2.25rem) Georgia,serif; line-height:1.1; text-align:center; }
+    .dictionary-meta { flex:0 0 2.7em; display:grid; place-items:center; margin:5px 46px 7px; color:var(--surface-muted); font-size:.72rem; font-variant-numeric:tabular-nums; line-height:1.35; text-align:center; }
     .dictionary-wheel { position:relative; flex:0 0 auto; width:min(72vw,280px); aspect-ratio:1; margin:0 auto 8px; border:1px solid rgba(117,245,199,.2); border-radius:50%; background:radial-gradient(circle,rgba(4,18,20,.78) 0 39%,rgba(117,245,199,.055) 40% 62%,rgba(0,0,0,.12) 63% 100%); box-shadow:inset 0 0 34px rgba(117,245,199,.08),0 0 24px rgba(0,0,0,.22); }
     .dictionary-tabs { position:absolute; inset:0; }
     .dictionary-tab { position:absolute; width:31px; height:31px; padding:0; border:1px solid rgba(255,255,255,.18); border-radius:50%; color:var(--surface-muted); background:rgba(8,25,26,.82); box-shadow:0 3px 8px rgba(0,0,0,.35); font-size:.66rem; font-weight:950; cursor:pointer; transform:translate(-50%,-50%); }
@@ -802,7 +802,7 @@
     .dictionary-sections { display:grid; grid-template-columns:repeat(5,1fr); gap:3px; width:100%; }
     .dictionary-section { min-width:0; padding:5px 0; border:1px solid rgba(255,255,255,.16); border-radius:6px 2px; color:var(--surface-text); background:rgba(255,255,255,.07); font-size:.61rem; font-weight:950; cursor:pointer; }
     .dictionary-section.active { color:#061512; border-color:var(--mint); background:var(--mint); }
-    .dictionary-words { min-height:0; flex:1 1 auto; overflow-y:auto; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); grid-auto-rows:minmax(38px,auto); align-content:start; gap:7px; padding:10px; border:1px solid rgba(117,245,199,.18); border-radius:14px 5px; background:rgba(0,0,0,.24); scrollbar-width:thin; }
+    .dictionary-words { min-height:0; height:0; flex:1 1 0; overflow-y:auto; overflow-anchor:none; overscroll-behavior:contain; touch-action:pan-y; scrollbar-gutter:stable; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); grid-auto-rows:minmax(38px,auto); align-content:start; gap:7px; padding:10px; border:1px solid rgba(117,245,199,.18); border-radius:14px 5px; background:rgba(0,0,0,.24); scrollbar-width:thin; }
     .dictionary-word { min-width:0; min-height:38px; display:flex; align-items:center; justify-content:center; padding:8px; overflow:visible; border-radius:9px 4px; color:#c4ffe8; background:rgba(117,245,199,.075); font-size:.82rem; font-weight:780; line-height:1.25; letter-spacing:.035em; text-align:center; overflow-wrap:anywhere; }
     .dictionary-close { position:absolute; right:14px; top:14px; animation:rewardClosePulse .72s ease-in-out infinite alternate; }
     @media (min-width:650px) { .dictionary-words { grid-template-columns:repeat(3,minmax(0,1fr)); } }
@@ -3340,7 +3340,7 @@
         renderDictionaryLetter("A");
         dictionaryOverlay.classList.add("open");
         dictionaryOverlay.setAttribute("aria-hidden", "false");
-        closeDictionary.focus();
+        closeDictionary.focus({preventScroll:true});
       }
 
       function renderDictionaryLetter(letter) {
@@ -3352,6 +3352,7 @@
           tab.classList.toggle("active", active);
           tab.setAttribute("aria-selected", String(active));
         });
+        dictionaryWords.scrollTop = 0;
         dictionaryWords.replaceChildren();
         if (!words.length) {
           const empty = document.createElement("p");
