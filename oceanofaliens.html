@@ -5573,19 +5573,21 @@ function updateBosses(dt){
     ];
     function inventoryLayout(){
       const compact=width<600;
-      const top=compact?84:94;
       if(compact){
         const margin=14,bayWidth=width-margin*2;
+        const back={x:margin,y:59,w:48,h:36};
+        const viewport={x:margin,y:104,w:bayWidth,h:Math.max(80,height-118)};
         const bayH=bayWidth;
-        const bay={x:margin,y:top,w:width-margin*2,h:bayH};
-        const back={x:margin,y:bay.y+bay.h+8,w:width-margin*2,h:42};
-        return {compact,bay,back,viewport:{x:margin,y:back.y+back.h+8,w:width-margin*2,h:Math.max(34,height-(back.y+back.h+16))}};
+        const bay={x:margin,y:viewport.y,w:bayWidth,h:bayH};
+        return {compact,bay,back,viewport};
       }
+      const top=94;
       const margin=24,gap=16,bayW=Math.min(width*.43,470);
       const bay={x:margin,y:top,w:bayW,h:height-top-16};
       const rightX=bay.x+bay.w+gap,rightW=width-rightX-margin;
       const back={x:rightX,y:top,w:rightW,h:42};
-      return {compact,bay,back,viewport:{x:rightX,y:back.y+back.h+8,w:rightW,h:height-(back.y+back.h+16)}};
+      const shopHeader={x:rightX,y:back.y+back.h+8,w:rightW,h:42};
+      return {compact,bay,back,shopHeader,viewport:{x:rightX,y:shopHeader.y+shopHeader.h+8,w:rightW,h:height-(shopHeader.y+shopHeader.h+16)}};
     }
     function inventoryGeometry(scroll=inventoryScrollY){
       const layout=inventoryLayout();
@@ -5596,7 +5598,11 @@ function updateBosses(dt){
       const rects=new Array(STORE_ITEMS.length+1);
       rects[0]=layout.back;
       const headers=[];
-      let contentY=layout.viewport.y-scroll;
+      const bay=layout.compact?{...layout.bay,y:layout.viewport.y-scroll}:layout.bay;
+      const shopHeader=layout.compact
+        ?{x:layout.viewport.x,y:bay.y+bay.h+12,w:layout.viewport.w,h:48}
+        :layout.shopHeader;
+      let contentY=layout.compact?shopHeader.y+shopHeader.h+8:layout.viewport.y-scroll;
       for(const group of INVENTORY_GROUPS){
         const indexed=STORE_ITEMS.map((item,index)=>({item,index})).filter(entry=>entry.item.type===group.type);
         headers.push({...group,x:layout.viewport.x,y:contentY,w:layout.viewport.w,h:headerH,count:indexed.length});
@@ -5607,7 +5613,7 @@ function updateBosses(dt){
         });
         contentY+=Math.ceil(indexed.length/cols)*(cardH+gap)-gap+sectionGap;
       }
-      return {layout,rects,headers,contentHeight:contentY+scroll-layout.viewport.y};
+      return {layout,bay,shopHeader,rects,headers,contentHeight:contentY+scroll-layout.viewport.y};
     }
     function inventoryRects(){ return inventoryGeometry().rects; }
 
@@ -5636,7 +5642,7 @@ function updateBosses(dt){
       return true;
     }
 
-    function drawInventoryBay(rect){
+    function drawInventoryBay(rect,showItemCaption=true){
       ctx.save();
       roundRect(ctx,rect.x,rect.y,rect.w,rect.h,18,false,false);ctx.clip();
       ctx.fillStyle='#070812';ctx.fillRect(rect.x,rect.y,rect.w,rect.h);
@@ -5673,9 +5679,11 @@ function updateBosses(dt){
       fade.addColorStop(0,'rgba(4,5,13,0)');fade.addColorStop(1,'rgba(4,5,13,.88)');ctx.fillStyle=fade;ctx.fillRect(rect.x,rect.y+rect.h*.70,rect.w,rect.h*.30);
       ctx.textAlign='left';ctx.fillStyle='#7dffbc';ctx.font=`900 ${Math.max(10,Math.min(15,rect.w*.036))}px Orbitron`;
       ctx.fillText('INVENTORY BAY',rect.x+12,rect.y+22);
-      const pilot=STORE_ITEMS.find(item=>item.id===equippedStore.pilot),shipItem=STORE_ITEMS.find(item=>item.id===equippedStore.ship);
-      ctx.fillStyle='rgba(255,240,250,.95)';ctx.font=`800 ${Math.max(9,Math.min(13,rect.w*.031))}px Share Tech Mono`;
-      ctx.fillText(`${pilot?.name||'AXIOM-7'}  •  ${shipItem?.name||'PULSEWING'}`,rect.x+12,rect.y+rect.h-14);
+      if(showItemCaption){
+        const pilot=STORE_ITEMS.find(item=>item.id===equippedStore.pilot),shipItem=STORE_ITEMS.find(item=>item.id===equippedStore.ship);
+        ctx.fillStyle='rgba(255,240,250,.95)';ctx.font=`800 ${Math.max(9,Math.min(13,rect.w*.031))}px Share Tech Mono`;
+        ctx.fillText(`${pilot?.name||'AXIOM-7'}  •  ${shipItem?.name||'PULSEWING'}`,rect.x+12,rect.y+rect.h-14);
+      }
       ctx.restore();
       ctx.strokeStyle='rgba(125,255,188,.8)';ctx.lineWidth=2;ctx.shadowColor='rgba(75,255,189,.42)';ctx.shadowBlur=10;
       roundRect(ctx,rect.x,rect.y,rect.w,rect.h,18,false,true);ctx.shadowBlur=0;
@@ -8584,7 +8592,7 @@ if (flashTimer > 0) {
 
       ctx.fillStyle='rgba(255,231,255,.98)';
       ctx.font=`900 ${titleSize}px Orbitron, system-ui`;
-      const titles={root:'PAUSE MENU',inventory:'INVENTORY + POINTS STORE',audioSettings:'MUSIC + AUDIO',directions:'DIRECTIONS',controllerTypes:'CONTROLLER TYPE',controllerDetail:['XBOX CONTROLS','PLAYSTATION CONTROLS','KEYBOARD CONTROLS'][pauseControllerDetailIndex]};
+      const titles={root:'PAUSE MENU',inventory:'INVENTORY BAY',audioSettings:'MUSIC + AUDIO',directions:'DIRECTIONS',controllerTypes:'CONTROLLER TYPE',controllerDetail:['XBOX CONTROLS','PLAYSTATION CONTROLS','KEYBOARD CONTROLS'][pauseControllerDetailIndex]};
       if(pauseMenuView!=='directions') ctx.fillText(titles[pauseMenuView],width/2,compact?45:55);
 
       const card=(x,y,w,h,selected,title,description,attention=false)=>{
@@ -8634,15 +8642,18 @@ if (flashTimer > 0) {
         ];
         rootMenuRects().forEach((rect,i)=>{
           if(i===2){
-            drawInventoryBay(rect);
-            ctx.fillStyle='rgba(4,3,12,.14)';roundRect(ctx,rect.x,rect.y,rect.w,rect.h,18,true,false);
+            drawInventoryBay(rect,false);
+            ctx.fillStyle='rgba(4,3,12,.08)';roundRect(ctx,rect.x,rect.y,rect.w,rect.h,18,true,false);
             if(pauseMenuSelection===i){
               ctx.strokeStyle='#7dffbc';ctx.lineWidth=3;ctx.shadowColor='rgba(80,255,165,.72)';ctx.shadowBlur=16;
               roundRect(ctx,rect.x,rect.y,rect.w,rect.h,18,false,true);ctx.shadowBlur=0;
             }
-            ctx.textAlign='right';ctx.fillStyle='#7dffbc';ctx.font=`900 ${compact?10:12}px Orbitron`;
-            ctx.fillText('OPEN INVENTORY',rect.x+rect.w-12,rect.y+20);
-            ctx.textAlign='center';
+            const actionH=compact?25:30,actionW=Math.min(rect.w-24,compact?190:230);
+            const actionX=rect.x+(rect.w-actionW)/2,actionY=rect.y+rect.h-actionH-8;
+            ctx.fillStyle='rgba(10,5,20,.88)';ctx.strokeStyle=pauseMenuSelection===i?'#7dffbc':'rgba(255,110,190,.82)';ctx.lineWidth=1.5;
+            roundRect(ctx,actionX,actionY,actionW,actionH,10,true,true);
+            ctx.fillStyle=pauseMenuSelection===i?'#7dffbc':'#fff0fa';ctx.font=`900 ${compact?10:11}px Orbitron`;
+            ctx.textAlign='center';ctx.fillText('OPEN INVENTORY BAY',rect.x+rect.w/2,actionY+actionH/2+1);
           }else card(rect.x,rect.y,rect.w,rect.h,pauseMenuSelection===i,...entries[i]);
         });
       }else if(pauseMenuView==='audioSettings'){
@@ -8656,12 +8667,19 @@ if (flashTimer > 0) {
         ];
         rects.forEach((rect,i)=>card(rect.x,rect.y,rect.w,rect.h,audioSettingsSelection===i,...settings[i]));
       }else if(pauseMenuView==='inventory'){
-        ctx.fillStyle='#ffd75d';ctx.font=`800 ${compact?14:16}px Share Tech Mono`;
-        ctx.fillText(`AVAILABLE POINTS: ${storeCredits.toLocaleString()}`,width/2,compact?67:82);
-        const geometry=inventoryGeometry(),{layout,rects,headers}=geometry;
-        drawInventoryBay(layout.bay);
-        actionCard(layout.back,inventorySelection===0,'GO BACK');
+        const geometry=inventoryGeometry(),{layout,bay,shopHeader,rects,headers}=geometry;
+        actionCard(layout.back,inventorySelection===0,compact?'←':'←  GO BACK');
+        const drawShopHeading=()=>{
+          ctx.fillStyle='rgba(15,9,27,.96)';ctx.strokeStyle='rgba(255,94,130,.72)';ctx.lineWidth=1.8;
+          roundRect(ctx,shopHeader.x,shopHeader.y,shopHeader.w,shopHeader.h,11,true,true);
+          ctx.textAlign='left';ctx.fillStyle='#fff0fa';ctx.font=`900 ${compact?15:16}px Orbitron`;
+          ctx.fillText('INVENTORY SHOP',shopHeader.x+12,shopHeader.y+shopHeader.h*.38);
+          ctx.textAlign='right';ctx.fillStyle='#ffd75d';ctx.font=`800 ${compact?12:13}px Share Tech Mono`;
+          ctx.fillText(`AVAILABLE POINTS: ${storeCredits.toLocaleString()}`,shopHeader.x+shopHeader.w-12,shopHeader.y+shopHeader.h*.72);
+        };
+        if(!compact){ drawInventoryBay(bay); drawShopHeading(); }
         ctx.save();ctx.beginPath();ctx.rect(layout.viewport.x,layout.viewport.y,layout.viewport.w,layout.viewport.h);ctx.clip();
+        if(compact){ drawInventoryBay(bay); drawShopHeading(); }
         headers.forEach(header=>{
           ctx.fillStyle='rgba(15,9,27,.94)';ctx.strokeStyle=header.accent;ctx.lineWidth=1.5;
           roundRect(ctx,header.x,header.y,header.w,header.h,9,true,true);
