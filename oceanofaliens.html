@@ -3314,6 +3314,7 @@ async function setSoundMode(nextMode, announce = true){
     }
 
     function selectedPilotVoiceProfile(){
+      if(equippedStore.pilot==='pilot-shadow') return 'robot';
       return new Set(['pilot-nova','pilot-indian-f','pilot-black-f','pilot-asian-f']).has(equippedStore.pilot)
         ? 'female'
         : 'male';
@@ -3343,18 +3344,72 @@ async function setSoundMode(nextMode, announce = true){
       }
       activeCombatSamples.clear();
     }
-    function playCombatSample(name,{volume=1,replace=false}={}){
+    function playCombatSample(name,{volume=1,replace=false,playbackRate=1,preservePitch=true}={}){
       if(!effectsEnabled()) return null;
       const original=combatVocalSamples[name];
       if(!original) return null;
       if(replace) stopCombatSamples();
       const sample=original.cloneNode(true);
       sample.volume=clamp(volume*effectsVolumeScale(),0,1);
+      sample.playbackRate=clamp(playbackRate,.5,3);
+      sample.preservesPitch=preservePitch;
+      sample.webkitPreservesPitch=preservePitch;
       sample.addEventListener('ended',()=>activeCombatSamples.delete(sample),{once:true});
       sample.addEventListener('error',()=>activeCombatSamples.delete(sample),{once:true});
       activeCombatSamples.add(sample);
       sample.play().catch(()=>activeCombatSamples.delete(sample));
       return sample;
+    }
+
+    function playRobotVocal(kind='hit'){
+      if(!effectsEnabled() || !audioCtx) return;
+      try{
+        if(audioCtx.state==='suspended') audioCtx.resume().catch(()=>{});
+        const now=audioCtx.currentTime;
+        const final=kind==='final',short=kind==='short';
+        const duration=final ? 2.25 : short ? 0.72 : 0.28;
+        const output=audioCtx.createGain();
+        const carrier=audioCtx.createOscillator();
+        const harmonic=audioCtx.createOscillator();
+        const mod=audioCtx.createOscillator();
+        const modDepth=audioCtx.createGain();
+        const carrierGain=audioCtx.createGain();
+        const harmonicGain=audioCtx.createGain();
+        const staticSource=audioCtx.createBufferSource();
+        const staticFilter=audioCtx.createBiquadFilter();
+        const staticGain=audioCtx.createGain();
+        output.gain.setValueAtTime(Math.max(.001,(final ? 0.82 : 0.58)*effectsVolumeScale()),now);
+        output.gain.setValueAtTime(Math.max(.001,(final ? 0.82 : 0.58)*effectsVolumeScale()),now+duration*.68);
+        output.gain.exponentialRampToValueAtTime(.001,now+duration);
+        output.connect(audioCtx.destination);
+        carrier.type='square';harmonic.type='sawtooth';mod.type='square';
+        const startHz=final?760:short?610:690,endHz=final?28:short?72:190;
+        carrier.frequency.setValueAtTime(startHz,now);
+        carrier.frequency.exponentialRampToValueAtTime(endHz,now+duration);
+        harmonic.frequency.setValueAtTime(startHz*1.48,now);
+        harmonic.frequency.exponentialRampToValueAtTime(Math.max(38,endHz*1.32),now+duration);
+        mod.frequency.setValueAtTime(final?22:38,now);
+        mod.frequency.linearRampToValueAtTime(final?7:18,now+duration);
+        carrierGain.gain.value=.48;harmonicGain.gain.value=.19;modDepth.gain.value=.20;
+        mod.connect(modDepth).connect(carrierGain.gain);
+        carrier.connect(carrierGain).connect(output);
+        harmonic.connect(harmonicGain).connect(output);
+        const frames=Math.max(1,Math.floor(audioCtx.sampleRate*duration));
+        const noiseBuffer=audioCtx.createBuffer(1,frames,audioCtx.sampleRate);
+        const noise=noiseBuffer.getChannelData(0);
+        for(let i=0;i<frames;i++) noise[i]=(Math.random()*2-1)*(1-i/frames);
+        staticSource.buffer=noiseBuffer;
+        staticFilter.type='bandpass';staticFilter.frequency.value=final?1250:1850;staticFilter.Q.value=2.8;
+        staticGain.gain.setValueAtTime(final ? 0.23 : 0.12,now);
+        staticGain.gain.exponentialRampToValueAtTime(.001,now+duration);
+        staticSource.connect(staticFilter).connect(staticGain).connect(output);
+        for(const oscillator of [carrier,harmonic,mod]){oscillator.start(now);oscillator.stop(now+duration);}
+        staticSource.start(now);staticSource.stop(now+duration);
+        triggerSpeakerBoom(final?1.12:.58,final?1150:260);
+        setTimeout(()=>{
+          for(const node of [carrier,harmonic,mod,modDepth,carrierGain,harmonicGain,staticSource,staticFilter,staticGain,output]) try{node.disconnect();}catch{}
+        },duration*1000+120);
+      }catch(err){console.warn('Robot vocal failed:',err);}
     }
 
     function armEffectsAudioSession(){
@@ -3492,12 +3547,9 @@ async function setSoundMode(nextMode, announce = true){
         thud.start(now); thud.stop(now+.20);
         alarm.start(now); alarm.stop(now+.16);
         const profile=selectedPilotVoiceProfile();
-        if(profile==='female'){
-          // Use a real female system voice here. The old processed sample was
-          // consistently perceived as a low alien growl on mobile devices.
-          const spoken=speakCombatVocal('Ow!',{profile:'female',pitch:1.18,rate:1.28,volume:1,replace:true});
-          if(!spoken) playCombatSample('femaleHit',{volume:1});
-        }else playCombatSample('maleHit',{volume:1});
+        if(profile==='robot') playRobotVocal('hit');
+        else if(profile==='female') playCombatSample('maleHit',{volume:1,playbackRate:1.8,preservePitch:false});
+        else playCombatSample('maleHit',{volume:1});
         triggerSpeakerBoom(.48,190);
         setTimeout(()=>{
           for(const node of [thud,alarm,thudGain,alarmGain,filter,output]) try{ node.disconnect(); }catch{}
@@ -3510,19 +3562,21 @@ async function setSoundMode(nextMode, announce = true){
       const isBoss=kind==='boss';
       const profile=isBoss?'boss':selectedPilotVoiceProfile();
       const isFemale=profile==='female';
+      const isRobot=profile==='robot';
       // Bosses use a separate colossal growl; pilots use distinct male/female
       // performances. Final pilot deaths and every boss death have a baked,
       // multi-tap echo so the tail cannot disappear during a screen change.
-      if(isFemale){
-        // Non-final deaths stay short; only the last life receives the full
-        // female echo before the Game Over/Continue announcement.
-        stopCombatSamples();
-        const spoken=speakCombatVocal(final?'Aah!':'Ow!',{
-          profile:'female',pitch:1.16,rate:final ? 0.92 : 1.24,volume:1,
-          echo:final,replace:true
+      if(isRobot){
+        if(final) stopCombatSamples();
+        playRobotVocal(final?'final':'short');
+      }else if(isFemale){
+        // A faster copy of the reliable human performance naturally raises
+        // its pitch into a sharper female yell without depending on mobile TTS.
+        playCombatSample(final?'maleDefeat':'maleDefeatShort',{
+          volume:.98,replace:final,playbackRate:final?1.6:1.75,preservePitch:false
         });
-        if(!spoken) playCombatSample(final?'femaleDefeat':'femaleDefeatShort',{volume:.96,replace:final});
       }else{
+        // Keep the approved male and boss performances completely unchanged.
         playCombatSample(isBoss?'bossDefeat':final?'maleDefeat':'maleDefeatShort',{
           volume:isBoss?1:.96,replace:isBoss||final
         });
@@ -3534,7 +3588,7 @@ async function setSoundMode(nextMode, announce = true){
           speakCombatVocal(storeCredits>=CONTINUE_COST?'Continue?':'Game Over',{
             profile:'male',pitch:.72,rate:.78,volume:.92
           });
-        },isFemale?1900:3750);
+        },isRobot?2450:isFemale?2850:3750);
       }
     }
 
@@ -3618,7 +3672,7 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
       if(e.pointerType === 'mouse' && e.button !== 0) return;
       e.preventDefault();
       e.stopPropagation();
-      if(gameOver){
+      if(gameOver && !paused){
         restoreGameFullscreenFromGesture();
         gameOverSelection='restart';
         confirmGameOverChoice();
@@ -3646,13 +3700,7 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
     let mobileFireHeld = false;
     let inventoryPointerScroll = null;
     canvas.addEventListener('pointerdown', (e) => {
-      if(gameOver){
-        e.preventDefault();
-        restoreGameFullscreenFromGesture();
-        handleGameOverPointer(e.clientX,e.clientY);
-        return;
-      }
-      if(paused && !gameOver){
+      if(paused){
         e.preventDefault();
         if((pauseMenuView==='inventory' || pauseMenuView==='directions') && e.pointerType!=='mouse'){
           inventoryPointerScroll={id:e.pointerId,startY:e.clientY,lastY:e.clientY,moved:false,startX:e.clientX,view:pauseMenuView};
@@ -3660,6 +3708,12 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
           return;
         }
         handlePausePointer(e.clientX,e.clientY);
+        return;
+      }
+      if(gameOver){
+        e.preventDefault();
+        restoreGameFullscreenFromGesture();
+        handleGameOverPointer(e.clientX,e.clientY);
         return;
       }
       if(e.pointerType !== 'mouse' || gameOver) return;
@@ -5443,7 +5497,7 @@ function updateBosses(dt){
     }
 
     function handlePausePointer(clientX,clientY){
-      if(!paused || gameOver) return;
+      if(!paused) return;
       const rect=canvas.getBoundingClientRect();
       const x=(clientX-rect.left)*(width/rect.width);
       const y=(clientY-rect.top)*(height/rect.height);
@@ -5496,7 +5550,7 @@ function updateBosses(dt){
     function setPaused(p){
       if(p===paused) return;
       paused = p;
-      document.body.classList.toggle('game-paused', paused && !gameOver);
+      document.body.classList.toggle('game-paused', paused);
       mobilePauseBtn?.setAttribute('aria-label',paused?'Resume game':'Pause game');
       mobilePauseBtn?.setAttribute('aria-pressed',paused?'true':'false');
       if(paused){
@@ -5558,7 +5612,12 @@ function updateBosses(dt){
          target?.isContentEditable) return;
       keysDown[e.key] = true;
       if(e.key === ' ' || e.code === 'Space') e.preventDefault();
-      if(gameOver){
+      if(gameOver && !paused){
+        if((e.key==='p' || e.key==='P') && !e.repeat){
+          e.preventDefault();
+          setPaused(true);
+          return;
+        }
         restoreGameFullscreenFromGesture();
         if(e.key === 'ArrowLeft' || e.key === 'ArrowUp' || e.key === 'a' || e.key === 'A' || e.key === 'w' || e.key === 'W'){
           e.preventDefault();
@@ -5615,7 +5674,7 @@ function updateBosses(dt){
       }
       if(e.key === 'p' || e.key === 'P'){
         e.preventDefault();
-        if(!gameOver) setPaused(!paused);
+        setPaused(!paused);
       }
     });
     document.addEventListener('keyup', (e) => { keysDown[e.key] = false; });
@@ -5771,7 +5830,7 @@ function updateBosses(dt){
       else if(action === 'missile') launchMissile();
       else if(action === 'weaponCycle') cycleCollectedWeapon();
       else if(action === 'reset') softRestart();
-      else if(action === 'pause' && !gameOver) setPaused(!paused);
+      else if(action === 'pause') setPaused(!paused);
       else if(action === 'difficulty') cycleDifficulty();
       else if(action === 'fullscreen') toggleFullscreen();
     }
@@ -5835,7 +5894,12 @@ function updateBosses(dt){
       // GAME OVER takes precedence over every hidden/transition menu. The old
       // ordering allowed a lingering Continue/New Game layer to consume all
       // controller input even while the game-over card was visibly on top.
-      if(gameOver){
+      if(gameOver && !paused){
+        if(buttonEdge(gamepadConfig.pause,currentButtons)){
+          setPaused(true);
+          gamepadState.previousButtons=currentButtons;
+          return;
+        }
         const previousChoice=gameOverSelection;
         const towardRestart=currentButtons[12]||currentButtons[14];
         const towardContinue=currentButtons[13]||currentButtons[15];
@@ -5850,7 +5914,7 @@ function updateBosses(dt){
         // Accept every normal face button plus configured fire and Start.
         // A held fire from the death frame must be released once; after that,
         // any deliberate face-button press activates the glowing choice.
-        const confirmIndexes=[...new Set([0,1,2,3,9,...gamepadConfig.fire])];
+        const confirmIndexes=[...new Set([0,1,2,3,...gamepadConfig.fire])];
         const confirmHeld=confirmIndexes.some(index=>Boolean(currentButtons[index]));
         if(gameOverConfirmLatch){
           if(!confirmHeld) gameOverConfirmLatch=false;
@@ -5935,7 +5999,7 @@ function updateBosses(dt){
           startHoldTriggered = true;
           toggleFullscreen();
         }else if(!startPressed && startWasPressed){
-          if(!startHoldTriggered && !gameOver) setPaused(!paused);
+          if(!startHoldTriggered) setPaused(!paused);
           startHoldStartedAt = 0;
           startHoldTriggered = false;
         }
@@ -6125,7 +6189,6 @@ mobilePauseBtn?.addEventListener('pointerdown', (e) => {
   if(e.pointerType === 'mouse' && e.button !== 0) return;
   e.preventDefault();
   e.stopPropagation();
-  if(gameOver) return;
   mobileFireHeld = false;
   resetJoy();
   setPaused(!paused);
@@ -8282,7 +8345,7 @@ if (flashTimer > 0) {
     }
 
     function drawPaused(){
-      if(!paused || gameOver) return;
+      if(!paused) return;
       ctx.save();
       ctx.fillStyle='rgba(0,0,0,.88)';ctx.fillRect(0,0,width,height);
       ctx.textAlign='center';ctx.textBaseline='middle';
