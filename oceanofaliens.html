@@ -3745,11 +3745,58 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
     let mouseFireHeld = false;
     let mobileFireHeld = false;
     let inventoryPointerScroll = null;
+    let menuScrollAnimation = 0;
+    function cancelMenuScrollAnimation(){
+      if(menuScrollAnimation) cancelAnimationFrame(menuScrollAnimation);
+      menuScrollAnimation=0;
+    }
+    function menuScrollValue(view){ return view==='directions'?directionScrollY:inventoryScrollY; }
+    function menuScrollMax(view){ return view==='directions'?directionMaxScroll():inventoryMaxScroll(); }
+    function setMenuScrollValue(view,value){
+      const next=clamp(value,0,menuScrollMax(view));
+      if(view==='directions') directionScrollY=next;
+      else inventoryScrollY=next;
+      return next;
+    }
+    function startMenuScrollMomentum(view,velocity){
+      cancelMenuScrollAnimation();
+      if(Math.abs(velocity)<.035) return;
+      let last=performance.now();
+      const coast=now=>{
+        const dt=Math.min(32,now-last);last=now;
+        const before=menuScrollValue(view);
+        const after=setMenuScrollValue(view,before+velocity*dt);
+        velocity*=Math.pow(.944,dt/16.67);
+        if(after===before||Math.abs(velocity)<.018){ menuScrollAnimation=0; return; }
+        menuScrollAnimation=requestAnimationFrame(coast);
+      };
+      menuScrollAnimation=requestAnimationFrame(coast);
+    }
+    function smoothlyRevealInventoryBay(){
+      cancelMenuScrollAnimation();
+      const start=inventoryScrollY;
+      if(start<=1){ inventoryScrollY=0; return; }
+      const began=performance.now(),duration=Math.min(520,280+start*.22);
+      const glide=now=>{
+        const t=clamp((now-began)/duration,0,1);
+        const eased=1-Math.pow(1-t,3);
+        inventoryScrollY=start*(1-eased);
+        if(t<1) menuScrollAnimation=requestAnimationFrame(glide);
+        else{ inventoryScrollY=0;menuScrollAnimation=0; }
+      };
+      menuScrollAnimation=requestAnimationFrame(glide);
+    }
     canvas.addEventListener('pointerdown', (e) => {
       if(paused){
         e.preventDefault();
         if((pauseMenuView==='inventory' || pauseMenuView==='directions') && e.pointerType!=='mouse'){
-          inventoryPointerScroll={id:e.pointerId,startY:e.clientY,lastY:e.clientY,moved:false,startX:e.clientX,view:pauseMenuView};
+          cancelMenuScrollAnimation();
+          const canvasRect=canvas.getBoundingClientRect();
+          inventoryPointerScroll={
+            id:e.pointerId,startY:e.clientY,lastY:e.clientY,moved:false,startX:e.clientX,
+            view:pauseMenuView,lastTime:performance.now(),velocity:0,
+            scaleY:height/Math.max(1,canvasRect.height)
+          };
           canvas.setPointerCapture?.(e.pointerId);
           return;
         }
@@ -3776,23 +3823,34 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
     });
     canvas.addEventListener('pointermove',(e)=>{
       if(!inventoryPointerScroll || e.pointerId!==inventoryPointerScroll.id) return;
-      const delta=inventoryPointerScroll.lastY-e.clientY;
-      if(Math.abs(e.clientY-inventoryPointerScroll.startY)>7) inventoryPointerScroll.moved=true;
-      if(inventoryPointerScroll.view==='directions') directionScrollY=clamp(directionScrollY+delta,0,directionMaxScroll());
-      else inventoryScrollY=clamp(inventoryScrollY+delta,0,inventoryMaxScroll());
+      const now=performance.now();
+      const dt=Math.max(4,now-inventoryPointerScroll.lastTime);
+      const delta=(inventoryPointerScroll.lastY-e.clientY)*inventoryPointerScroll.scaleY*1.18;
+      if(Math.abs(e.clientY-inventoryPointerScroll.startY)>5) inventoryPointerScroll.moved=true;
+      setMenuScrollValue(inventoryPointerScroll.view,menuScrollValue(inventoryPointerScroll.view)+delta);
+      const instantVelocity=delta/dt;
+      inventoryPointerScroll.velocity=inventoryPointerScroll.velocity*.58+instantVelocity*.42;
       inventoryPointerScroll.lastY=e.clientY;
+      inventoryPointerScroll.lastTime=now;
       e.preventDefault();
     },{passive:false});
     canvas.addEventListener('pointerup',(e)=>{
       if(!inventoryPointerScroll || e.pointerId!==inventoryPointerScroll.id) return;
       const gesture=inventoryPointerScroll;inventoryPointerScroll=null;
       if(!gesture.moved) handlePausePointer(e.clientX,e.clientY);
+      else startMenuScrollMomentum(gesture.view,gesture.velocity);
       e.preventDefault();
     },{passive:false});
+    canvas.addEventListener('pointercancel',(e)=>{
+      if(!inventoryPointerScroll || e.pointerId!==inventoryPointerScroll.id) return;
+      const gesture=inventoryPointerScroll;inventoryPointerScroll=null;
+      if(gesture.moved) startMenuScrollMomentum(gesture.view,gesture.velocity);
+    });
     canvas.addEventListener('wheel',(e)=>{
       if(!paused || (pauseMenuView!=='inventory' && pauseMenuView!=='directions')) return;
-      if(pauseMenuView==='directions') directionScrollY=clamp(directionScrollY+e.deltaY,0,directionMaxScroll());
-      else inventoryScrollY=clamp(inventoryScrollY+e.deltaY,0,inventoryMaxScroll());
+      cancelMenuScrollAnimation();
+      const unit=e.deltaMode===1?16:e.deltaMode===2?height:1;
+      setMenuScrollValue(pauseMenuView,menuScrollValue(pauseMenuView)+e.deltaY*unit*1.08);
       e.preventDefault();
     },{passive:false});
 
@@ -3845,9 +3903,9 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
       {id:'scene-nebula',type:'scene',name:'NEBULA RUN',price:4000,bossGate:6,color:'#a33bba'},
       {id:'scene-solar',type:'scene',name:'SOLAR STORM',price:4000,bossGate:8,color:'#df5c28'}
     ];
-    // AXIOM-7 and NYX-9 are the permanently free avatar choices. This
-    // playtest build temporarily grants every current item for inspection.
-    const DEFAULT_OWNED_STORE_ITEMS=STORE_ITEMS.map(item=>item.id);
+    // Only the two robot pilots and the starter environment are granted on a
+    // fresh save. Everything else must be earned and purchased normally.
+    const DEFAULT_OWNED_STORE_ITEMS=['pilot-shadow','pilot-robot-f','ship-starter','scene-deep'];
     function storeItemProgressUnlocked(item){
       return bossKills >= (item.bossGate||0);
     }
@@ -3862,6 +3920,15 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
     let ownedStoreItems;
     try{ ownedStoreItems = new Set(JSON.parse(localStorage.getItem(storageKey('OwnedItems')) || '[]')); }
     catch{ ownedStoreItems = new Set(); }
+    // Earlier playtest builds auto-granted these two upgrades. Revoke that
+    // one-time test grant so their HUD badge and bay hardware reflect a real
+    // purchase going forward.
+    const inventoryDefaultsVersion=2;
+    if(Number(localStorage.getItem(storageKey('InventoryDefaultsVersion'))||0)<inventoryDefaultsVersion){
+      ownedStoreItems.delete('missile-21');
+      ownedStoreItems.delete('arc-laser-array');
+      localStorage.setItem(storageKey('InventoryDefaultsVersion'),String(inventoryDefaultsVersion));
+    }
     DEFAULT_OWNED_STORE_ITEMS.forEach(id=>ownedStoreItems.add(id));
     let equippedStore = {ship:'ship-starter',pilot:'pilot-shadow',scene:'scene-deep'};
     try{ equippedStore = {...equippedStore,...JSON.parse(localStorage.getItem(storageKey('EquippedItems')) || '{}')}; }catch{}
@@ -5482,6 +5549,7 @@ function updateBosses(dt){
           updateMissileUI();
           updateArcLaserStatus();
           showGameAlert(`${item.name} UNLOCKED`,'sound-on');
+          smoothlyRevealInventoryBay();
         }else showGameAlert(`NEED ${item.price-storeCredits} MORE POINTS`,'sound-off');
       }else if(pauseMenuView === 'controllerTypes'){
         if(pauseControllerIndex === 0) pauseMenuView = 'root';
@@ -5572,7 +5640,7 @@ function updateBosses(dt){
     }
 
     const INVENTORY_GROUPS=[
-      {type:'pilot',label:'AVATARS',accent:'#d78cff'},
+      {type:'pilot',label:'PILOTS',accent:'#d78cff'},
       {type:'upgrade',label:'AMMO BAY',accent:'#ff815f'},
       {type:'ship',label:'SHIPS / VEHICLES',accent:'#66e9ff'},
       {type:'scene',label:'SCENES',accent:'#6dffb3'}
@@ -5598,7 +5666,7 @@ function updateBosses(dt){
     function inventoryGeometry(scroll=inventoryScrollY){
       const layout=inventoryLayout();
       const cols=2,gap=layout.compact?7:9;
-      const cardH=layout.compact?66:72;
+      const cardH=layout.compact?82:88;
       const headerH=30,sectionGap=10;
       const cardW=(layout.viewport.w-gap)/cols;
       const rects=new Array(STORE_ITEMS.length+1);
@@ -5670,11 +5738,20 @@ function updateBosses(dt){
         ctx.restore();
       }
       if(ownedStoreItems.has('arc-laser-array')&&inventoryArcLaserImg.complete&&inventoryArcLaserImg.naturalWidth){
-        ctx.save();ctx.globalAlpha=.96;ctx.shadowColor='rgba(225,84,255,.8)';ctx.shadowBlur=18;
-        const aw=rect.w*.38,ah=rect.h*.48;
+        ctx.save();
+        const padX=rect.x+rect.w*.035,padY=rect.y+rect.h*.785,padW=rect.w*.29,padH=rect.h*.115;
+        const padGlow=ctx.createRadialGradient(padX+padW*.5,padY,padW*.05,padX+padW*.5,padY,padW*.72);
+        padGlow.addColorStop(0,'rgba(255,212,78,.34)');padGlow.addColorStop(.48,'rgba(82,226,255,.18)');padGlow.addColorStop(1,'rgba(0,0,0,0)');
+        ctx.fillStyle=padGlow;ctx.fillRect(padX-padW*.18,padY-padH*1.9,padW*1.36,padH*2.8);
+        const metal=ctx.createLinearGradient(0,padY,0,padY+padH);
+        metal.addColorStop(0,'rgba(96,113,132,.94)');metal.addColorStop(.28,'rgba(27,35,52,.98)');metal.addColorStop(1,'rgba(5,8,16,.98)');
+        ctx.fillStyle=metal;ctx.strokeStyle='rgba(91,226,255,.7)';ctx.lineWidth=Math.max(1,rect.w*.003);
+        ctx.beginPath();ctx.moveTo(padX+padW*.10,padY);ctx.lineTo(padX+padW*.90,padY);ctx.lineTo(padX+padW,padY+padH);ctx.lineTo(padX,padY+padH);ctx.closePath();ctx.fill();ctx.stroke();
+        ctx.globalAlpha=.98;ctx.shadowColor='rgba(255,202,66,.74)';ctx.shadowBlur=16;
+        const aw=rect.w*.27,ah=rect.h*.31;
         const scale=Math.min(aw/inventoryArcLaserImg.naturalWidth,ah/inventoryArcLaserImg.naturalHeight);
         const dw=inventoryArcLaserImg.naturalWidth*scale,dh=inventoryArcLaserImg.naturalHeight*scale;
-        ctx.drawImage(inventoryArcLaserImg,rect.x+rect.w*.012,rect.y+rect.h-dh-rect.h*.075,dw,dh);
+        ctx.drawImage(inventoryArcLaserImg,padX+(padW-dw)/2,padY-dh+padH*.18,dw,dh);
         ctx.restore();
       }
       const pilotIndex=inventoryPilotFullbodyCell[equippedStore.pilot];
@@ -6471,19 +6548,28 @@ mobilePauseBtn?.addEventListener('pointerdown', (e) => {
 
     function fireArcLaserVolley(){
       if(!arcLaserUnlocked()||arcLaserCooldown>0||gameOver||paused||awaitingLaunchInput||preStartTimer>0||ship.exploding>0) return;
-      const base=forwardAngle(),speed=8.8;
+      const base=forwardAngle(),speed=9.2;
       const fx=Math.cos(base),fy=Math.sin(base),sideX=-fy,sideY=fx;
-      const noseX=ship.x+fx*(ship.radius*1.48),noseY=ship.y+fy*(ship.radius*1.48);
-      [-.42,-.21,0,.21,.42].forEach((spread,index)=>{
-        const angle=base+spread;
-        const sideOffset=(index-2)*2.8;
-        bullets.push({
-          x:noseX+sideX*sideOffset,y:noseY+sideY*sideOffset,
-          vx:Math.cos(angle)*speed,vy:Math.sin(angle)*speed,
-          life:1150,r:2.8,kind:'arcLaser',damage:.72,
-          curve:spread===0?0:Math.sign(spread)*.00032,
-          trailPhase:index*.8
-        });
+      [-1,1].forEach((side,sideIndex)=>{
+        for(let lane=0;lane<3;lane++){
+          const lateral=ship.radius*(1.00+lane*.22)*side;
+          const launchAngle=base+side*(.50+lane*.12);
+          bullets.push({
+            x:ship.x+sideX*lateral-fx*ship.radius*.08,
+            y:ship.y+sideY*lateral-fy*ship.radius*.08,
+            vx:Math.cos(launchAngle)*speed,vy:Math.sin(launchAngle)*speed,
+            life:1280,r:3.1,kind:'arcLaser',damage:.68,
+            curve:-side*(.00118+lane*.00014),
+            trailPhase:sideIndex*2.4+lane*.72
+          });
+        }
+      });
+      // A centered tracer makes the paired side arcs read as one coherent
+      // weapon without hiding the normal gunfire underneath them.
+      bullets.push({
+        x:ship.x+fx*ship.radius*1.35,y:ship.y+fy*ship.radius*1.35,
+        vx:fx*(speed+1),vy:fy*(speed+1),life:1050,r:2.4,
+        kind:'arcLaser',damage:.55,curve:0,trailPhase:5.2
       });
       arcLaserCooldown=560;
       pulseArcLaserStatus();
@@ -7849,10 +7935,10 @@ if (flashTimer > 0) {
           const speed=Math.hypot(b.vx,b.vy)||1;
           const ux=b.vx/speed,uy=b.vy/speed;
           ctx.save();
-          ctx.strokeStyle='rgba(255,226,255,.98)';ctx.lineWidth=1.8;
-          ctx.shadowColor='#ed4dff';ctx.shadowBlur=10;
+          ctx.strokeStyle='rgba(255,248,165,.99)';ctx.lineWidth=1.9;
+          ctx.shadowColor='#ffd12f';ctx.shadowBlur=11;
           ctx.beginPath();ctx.moveTo(b.x-ux*length,b.y-uy*length);ctx.lineTo(b.x+ux*3,b.y+uy*3);ctx.stroke();
-          ctx.strokeStyle='rgba(72,236,255,.58)';ctx.lineWidth=4;ctx.globalAlpha=.48;
+          ctx.strokeStyle='rgba(255,174,22,.62)';ctx.lineWidth=4.4;ctx.globalAlpha=.5;
           ctx.beginPath();ctx.moveTo(b.x-ux*length,b.y-uy*length);ctx.lineTo(b.x+ux*3,b.y+uy*3);ctx.stroke();
           ctx.restore();
         }else if(b.kind === 'laser'){
