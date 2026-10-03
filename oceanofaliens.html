@@ -3817,7 +3817,7 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
 
     const STORE_ITEMS = [
       {id:'pilot-shadow',type:'pilot',name:'AXIOM-7',price:0,bossGate:0,color:'#9f77ff'},
-      {id:'pilot-robot-f',type:'pilot',name:'NYX-9',price:3500,bossGate:1,color:'#75eaff'},
+      {id:'pilot-robot-f',type:'pilot',name:'NYX-9',price:0,bossGate:0,color:'#75eaff'},
       {id:'pilot-nova',type:'pilot',name:'NOVA',price:3500,bossGate:2,color:'#ff77c8'},
       {id:'pilot-ace',type:'pilot',name:'ACE REX',price:3500,bossGate:2,color:'#5dffbf'},
       {id:'pilot-indian-f',type:'pilot',name:'CAPTAIN ASHA',price:3500,bossGate:3,color:'#ff9f68'},
@@ -3841,7 +3841,8 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
       {id:'scene-nebula',type:'scene',name:'NEBULA RUN',price:4000,bossGate:6,color:'#a33bba'},
       {id:'scene-solar',type:'scene',name:'SOLAR STORM',price:4000,bossGate:8,color:'#df5c28'}
     ];
-    // Playtest build: every current inventory item is temporarily available.
+    // AXIOM-7 and NYX-9 are the permanently free avatar choices. This
+    // playtest build temporarily grants every current item for inspection.
     const DEFAULT_OWNED_STORE_ITEMS=STORE_ITEMS.map(item=>item.id);
     function storeItemProgressUnlocked(item){
       return bossKills >= (item.bossGate||0);
@@ -5512,37 +5513,40 @@ function updateBosses(dt){
 
     function rootMenuRects(){
       if(width < 600){
-        // Seven rows share the available height. Keep the final card above a
-        // dedicated footer band instead of letting EXIT GAME collide with it.
         const x=45,w=width-90,top=height<400?76:88;
         const footerTop=height-42,menuBottom=footerTop-8;
         const gap=height<440?4:7;
-        const h=Math.max(22,Math.min(55,(menuBottom-top-gap*6)/7));
+        const available=menuBottom-top;
+        const previewH=Math.max(74,Math.min(w*.38,available*.34,165));
+        const h=Math.max(20,Math.min(55,(available-previewH-gap*6)/6));
         const splitGap=8,splitW=(w-splitGap)/2;
+        const previewY=top+h+gap;
+        const soundY=previewY+previewH+gap;
         return [
           {x,y:top,w:splitW,h}, {x:x+splitW+splitGap,y:top,w:splitW,h},
-          {x,y:top+h+gap,w,h},
-          {x,y:top+2*(h+gap),w:splitW,h}, {x:x+splitW+splitGap,y:top+2*(h+gap),w:splitW,h},
-          {x,y:top+3*(h+gap),w:splitW,h}, {x:x+splitW+splitGap,y:top+3*(h+gap),w:splitW,h},
-          {x,y:top+4*(h+gap),w,h}, {x,y:top+5*(h+gap),w,h},
-          {x,y:top+6*(h+gap),w,h}
+          {x,y:previewY,w,h:previewH},
+          {x,y:soundY,w:splitW,h}, {x:x+splitW+splitGap,y:soundY,w:splitW,h},
+          {x,y:soundY+h+gap,w:splitW,h}, {x:x+splitW+splitGap,y:soundY+h+gap,w:splitW,h},
+          {x,y:soundY+2*(h+gap),w,h}, {x,y:soundY+3*(h+gap),w,h},
+          {x,y:soundY+4*(h+gap),w,h}
         ];
       }
       const margin=50,gapX=18,gapY=12,top=height<620?94:106;
       const w=(width-margin*2-gapX)/2;
       const exitH=Math.min(36,Math.max(30,height*.07));
       const menuBottom=height-50;
-      const h=Math.min(100,Math.max(36,(menuBottom-top-gapY*2-exitH-10)/3));
+      const available=menuBottom-top;
+      const previewH=Math.max(105,Math.min(w*.38,available*.47,225));
+      const rightRowH=Math.max(34,(available-previewH-gapY*2)/2);
+      const leftRowH=Math.max(30,(available-gapY*3)/4);
       const splitGap=10,splitW=(w-splitGap)/2,rightX=margin+w+gapX;
-      const gridBottom=top+3*h+gapY*2;
-      const exitY=Math.min(menuBottom-exitH,gridBottom+10);
       return [
-        {x:margin,y:top,w:splitW,h}, {x:margin+splitW+splitGap,y:top,w:splitW,h},
-        {x:rightX,y:top,w,h},
-        {x:rightX,y:top+h+gapY,w:splitW,h}, {x:rightX+splitW+splitGap,y:top+h+gapY,w:splitW,h},
-        {x:rightX,y:top+2*(h+gapY),w:splitW,h}, {x:rightX+splitW+splitGap,y:top+2*(h+gapY),w:splitW,h},
-        {x:margin,y:top+h+gapY,w,h}, {x:margin,y:top+2*(h+gapY),w,h},
-        {x:width/2-120,y:exitY,w:240,h:exitH}
+        {x:margin,y:top,w:splitW,h:leftRowH}, {x:margin+splitW+splitGap,y:top,w:splitW,h:leftRowH},
+        {x:rightX,y:top,w,h:previewH},
+        {x:rightX,y:top+previewH+gapY,w:splitW,h:rightRowH}, {x:rightX+splitW+splitGap,y:top+previewH+gapY,w:splitW,h:rightRowH},
+        {x:rightX,y:top+previewH+gapY+rightRowH+gapY,w:splitW,h:rightRowH}, {x:rightX+splitW+splitGap,y:top+previewH+gapY+rightRowH+gapY,w:splitW,h:rightRowH},
+        {x:margin,y:top+leftRowH+gapY,w,h:leftRowH}, {x:margin,y:top+2*(leftRowH+gapY),w,h:leftRowH},
+        {x:margin,y:top+3*(leftRowH+gapY),w,h:leftRowH}
       ];
     }
 
@@ -5571,10 +5575,11 @@ function updateBosses(dt){
       const compact=width<600;
       const top=compact?84:94;
       if(compact){
-        const margin=14,bayH=Math.min(190,Math.max(140,height*.27));
+        const margin=14,bayWidth=width-margin*2;
+        const bayH=bayWidth;
         const bay={x:margin,y:top,w:width-margin*2,h:bayH};
         const back={x:margin,y:bay.y+bay.h+8,w:width-margin*2,h:42};
-        return {compact,bay,back,viewport:{x:margin,y:back.y+back.h+8,w:width-margin*2,h:Math.max(80,height-(back.y+back.h+16))}};
+        return {compact,bay,back,viewport:{x:margin,y:back.y+back.h+8,w:width-margin*2,h:Math.max(34,height-(back.y+back.h+16))}};
       }
       const margin=24,gap=16,bayW=Math.min(width*.43,470);
       const bay={x:margin,y:top,w:bayW,h:height-top-16};
@@ -8627,7 +8632,19 @@ if (flashTimer > 0) {
           ['CONTROLLER TYPE','Xbox • PlayStation • Keyboard'],
           ['EXIT GAME','']
         ];
-        rootMenuRects().forEach((rect,i)=>card(rect.x,rect.y,rect.w,rect.h,pauseMenuSelection===i,...entries[i],i===2));
+        rootMenuRects().forEach((rect,i)=>{
+          if(i===2){
+            drawInventoryBay(rect);
+            ctx.fillStyle='rgba(4,3,12,.14)';roundRect(ctx,rect.x,rect.y,rect.w,rect.h,18,true,false);
+            if(pauseMenuSelection===i){
+              ctx.strokeStyle='#7dffbc';ctx.lineWidth=3;ctx.shadowColor='rgba(80,255,165,.72)';ctx.shadowBlur=16;
+              roundRect(ctx,rect.x,rect.y,rect.w,rect.h,18,false,true);ctx.shadowBlur=0;
+            }
+            ctx.textAlign='right';ctx.fillStyle='#7dffbc';ctx.font=`900 ${compact?10:12}px Orbitron`;
+            ctx.fillText('OPEN INVENTORY',rect.x+rect.w-12,rect.y+20);
+            ctx.textAlign='center';
+          }else card(rect.x,rect.y,rect.w,rect.h,pauseMenuSelection===i,...entries[i]);
+        });
       }else if(pauseMenuView==='audioSettings'){
         const rects=audioSettingsRects();
         const settings=[
