@@ -465,6 +465,27 @@
     .weapon-status-overlay.active:active{transform:scale(.94)}
     .weapon-status-overlay img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.42}
     .weapon-status-overlay span{position:relative;z-index:1;padding:2px;font:900 clamp(.52rem,1.8vw,.72rem)/1 'Share Tech Mono',monospace;text-shadow:0 0 7px #000,0 0 10px #41dcff}
+    .arc-laser-status{
+      display:none;
+      position:absolute;
+      z-index:29;
+      width:clamp(42px,12vw,54px);
+      height:clamp(42px,12vw,54px);
+      padding:3px;
+      border:1.5px solid rgba(209,104,255,.92);
+      border-radius:50%;
+      background:radial-gradient(circle,rgba(111,20,125,.74),rgba(5,3,14,.94) 72%);
+      box-shadow:0 0 14px rgba(220,73,255,.62),inset 0 0 12px rgba(80,235,255,.22);
+      pointer-events:none;
+    }
+    .arc-laser-status.active{display:grid;place-items:center}
+    .arc-laser-status img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 0 5px #ef5dff)}
+    .arc-laser-status.firing{animation:arcLaserStatusFire .32s ease-out}
+    @keyframes arcLaserStatusFire{
+      0%{transform:scale(.84);filter:brightness(1)}
+      48%{transform:scale(1.16);filter:brightness(1.8);box-shadow:0 0 24px #f04dff,0 0 42px rgba(61,226,255,.75),inset 0 0 17px rgba(255,255,255,.35)}
+      100%{transform:scale(1);filter:brightness(1)}
+    }
 
     /* ✅ put it OUTSIDE the canvas block */
 body.music-on canvas#game{
@@ -2286,6 +2307,9 @@ footer{
               </div>
             </div>
       <button id="mobilePauseBtn" class="mobile-pause-stamp" type="button" aria-label="Pause game">PAUSE</button>
+      <div id="arcLaserStatus" class="arc-laser-status" role="status" aria-label="Arc Laser Array active" aria-hidden="true">
+        <img data-asset="images/ocean-of-aliens/arc-laser-array-v1.png" alt="">
+      </div>
 
       <button id="musicBtn" class="bubble-btn music-btn" type="button"
               aria-label="Weapon Change Status" title="Collect a special weapon to enable">
@@ -2612,6 +2636,7 @@ document.querySelectorAll('img[data-asset]').forEach((img) => {
     const joystickEl = document.getElementById('joystick');
     const stickEl = joystickEl ? joystickEl.querySelector('.stick') : null;
     const mobilePauseBtn = document.getElementById('mobilePauseBtn');
+    const arcLaserStatusEl = document.getElementById('arcLaserStatus');
     const launchChoiceEl = document.getElementById('launchChoice');
     const splashScreenEl = document.getElementById('splashScreen');
     const continueGameBtn = document.getElementById('continueGameBtn');
@@ -3152,6 +3177,22 @@ function positionMissileReserve(){
   }catch{}
 }
 
+function positionArcLaserStatus(){
+  try{
+    if(!arcLaserStatusEl?.classList.contains('active')) return;
+    const deck=joystickEl.closest('.control-deck');
+    if(!deck) return;
+    const deckRect=deck.getBoundingClientRect(),joyRect=joystickEl.getBoundingClientRect();
+    const badgeRect=arcLaserStatusEl.getBoundingClientRect();
+    const badgeSize=badgeRect.width||50;
+    let left=joyRect.right-deckRect.left+8;
+    if(left+badgeSize>deckRect.width-6) left=joyRect.left-deckRect.left-badgeSize-8;
+    const top=joyRect.top-deckRect.top+(joyRect.height-badgeSize)/2;
+    arcLaserStatusEl.style.left=`${Math.max(6,left)}px`;
+    arcLaserStatusEl.style.top=`${Math.max(6,top)}px`;
+  }catch{}
+}
+
 function showDeckHints(ms = 1500){
   showHint(hintLeft,  'Joystick: Steer + Fire | Top Left: Missiles', ms);
   showHint(hintRight, 'Sound: Pause Menu | Get 1-UPs: Touch controls', ms);
@@ -3162,6 +3203,7 @@ window.addEventListener('resize', () => {
   // keep anchors accurate after rotations/resizes
   positionDeckHints();
   positionMissileReserve();
+  positionArcLaserStatus();
 });
 
 // The Get 1-UPs stamp currently toggles touchscreen steering visibility.
@@ -3785,6 +3827,7 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
       {id:'pilot-asian-f',type:'pilot',name:'COMMANDER MEI',price:3500,bossGate:5,color:'#ff6f91'},
       {id:'pilot-asian-m',type:'pilot',name:'ACE KENJI',price:3500,bossGate:5,color:'#70e0d1'},
       {id:'missile-21',type:'upgrade',name:'MISSILE BAY 21',price:6000,bossGate:7,color:'#ff784e'},
+      {id:'arc-laser-array',type:'upgrade',name:'ARC LASER ARRAY',price:6500,bossGate:8,color:'#e15cff'},
       {id:'ship-starter',type:'ship',name:'PULSEWING',price:0,bossGate:0,color:'#45eaff'},
       {id:'ship-crimson',type:'ship',name:'CRIMSON VIPER',price:2000,bossGate:1,color:'#ff496f'},
       {id:'ship-solar',type:'ship',name:'SOLAR WARDEN',price:2000,bossGate:1,color:'#ffbd45'},
@@ -3798,7 +3841,8 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
       {id:'scene-nebula',type:'scene',name:'NEBULA RUN',price:4000,bossGate:6,color:'#a33bba'},
       {id:'scene-solar',type:'scene',name:'SOLAR STORM',price:4000,bossGate:8,color:'#df5c28'}
     ];
-    const DEFAULT_OWNED_STORE_ITEMS=['ship-starter','pilot-shadow','scene-deep','pilot-nova','pilot-ace','ship-dogbus','ship-phoenix'];
+    // Playtest build: every current inventory item is temporarily available.
+    const DEFAULT_OWNED_STORE_ITEMS=STORE_ITEMS.map(item=>item.id);
     function storeItemProgressUnlocked(item){
       return bossKills >= (item.bossGate||0);
     }
@@ -3874,6 +3918,9 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
     const inventoryMissileBayImg = new Image();
     inventoryMissileBayImg.decoding='async';
     inventoryMissileBayImg.src=A('images/ocean-of-aliens/inventory-missile-bay-v1.png');
+    const inventoryArcLaserImg = new Image();
+    inventoryArcLaserImg.decoding='async';
+    inventoryArcLaserImg.src=A('images/ocean-of-aliens/arc-laser-array-v1.png');
     function inventoryAtlasCrop(atlasImg,index,useAtlas2){
       // These generated atlases contain uneven transparent gutters between
       // their three rows. Equal thirds sampled the next item at the bottom.
@@ -3966,6 +4013,24 @@ diffIndex = clamp(diffIndex, 0, DIFF_PRESETS.length-1);
     const missileAmmoCapacity = () => ownedStoreItems.has('missile-21') ? 21 : 12;
     let missileAmmo = 0;
     let lastMissileReserveAmmo = 0;
+    const arcLaserUnlocked = () => ownedStoreItems.has('arc-laser-array');
+    let arcLaserCooldown = 0;
+    let arcLaserStatusTimer = 0;
+    function updateArcLaserStatus(){
+      const active=arcLaserUnlocked();
+      arcLaserStatusEl?.classList.toggle('active',active);
+      arcLaserStatusEl?.setAttribute('aria-hidden',active?'false':'true');
+      if(active) requestAnimationFrame(positionArcLaserStatus);
+    }
+    function pulseArcLaserStatus(){
+      if(!arcLaserStatusEl) return;
+      clearTimeout(arcLaserStatusTimer);
+      arcLaserStatusEl.classList.remove('firing');
+      void arcLaserStatusEl.offsetWidth;
+      arcLaserStatusEl.classList.add('firing');
+      arcLaserStatusTimer=setTimeout(()=>arcLaserStatusEl.classList.remove('firing'),360);
+    }
+    updateArcLaserStatus();
 
     function fitCompactArenaToViewport(){
       const isCompactPortrait = window.matchMedia('(max-width:900px) and (orientation:portrait)').matches;
@@ -5017,7 +5082,9 @@ function updateBosses(dt){
       enemiesSinceMissileReward = 0;
       resetFirstUseGuidance();
       missileAmmo = 0;
+      arcLaserCooldown = 0;
       updateMissileUI();
+      updateArcLaserStatus();
 
       setWeaponMode("single");
       for(const mode of Object.keys(weaponLevels)) weaponLevels[mode] = 0;
@@ -5189,6 +5256,7 @@ function updateBosses(dt){
       DEFAULT_OWNED_STORE_ITEMS.forEach(id=>ownedStoreItems.add(id));
       equippedStore = {ship:'ship-starter',pilot:'pilot-shadow',scene:'scene-deep'};
       updatePilotPortrait();
+      updateArcLaserStatus();
 
       diffIndex = 0;
       setDiffUI();
@@ -5387,7 +5455,7 @@ function updateBosses(dt){
         if(inventorySelection === 0){ pauseMenuView='root'; return; }
         const item=STORE_ITEMS[inventorySelection-1];
         if(ownedStoreItems.has(item.id)){
-          if(item.type === 'upgrade') showGameAlert('MISSILE BAY 21 OWNED','sound-on');
+          if(item.type === 'upgrade') showGameAlert(`${item.name} ACTIVE`,'sound-on');
           else{
             equippedStore[item.type]=item.id;
             saveInventory();
@@ -5405,6 +5473,7 @@ function updateBosses(dt){
           saveCampaignProgress();
           updatePilotPortrait();
           updateMissileUI();
+          updateArcLaserStatus();
           showGameAlert(`${item.name} UNLOCKED`,'sound-on');
         }else showGameAlert(`NEED ${item.price-storeCredits} MORE POINTS`,'sound-off');
       }else if(pauseMenuView === 'controllerTypes'){
@@ -5494,7 +5563,7 @@ function updateBosses(dt){
 
     const INVENTORY_GROUPS=[
       {type:'pilot',label:'AVATARS',accent:'#d78cff'},
-      {type:'upgrade',label:'AMMO + UPGRADES',accent:'#ff815f'},
+      {type:'upgrade',label:'AMMO BAY',accent:'#ff815f'},
       {type:'ship',label:'SHIPS / VEHICLES',accent:'#66e9ff'},
       {type:'scene',label:'SCENES',accent:'#6dffb3'}
     ];
@@ -5581,6 +5650,14 @@ function updateBosses(dt){
         const scale=Math.min(mw/inventoryMissileBayImg.naturalWidth,mh/inventoryMissileBayImg.naturalHeight);
         const dw=inventoryMissileBayImg.naturalWidth*scale,dh=inventoryMissileBayImg.naturalHeight*scale;
         ctx.drawImage(inventoryMissileBayImg,rect.x+rect.w-dw-rect.w*.025,rect.y+rect.h-dh-rect.h*.055,dw,dh);
+        ctx.restore();
+      }
+      if(ownedStoreItems.has('arc-laser-array')&&inventoryArcLaserImg.complete&&inventoryArcLaserImg.naturalWidth){
+        ctx.save();ctx.globalAlpha=.96;ctx.shadowColor='rgba(225,84,255,.8)';ctx.shadowBlur=18;
+        const aw=rect.w*.38,ah=rect.h*.48;
+        const scale=Math.min(aw/inventoryArcLaserImg.naturalWidth,ah/inventoryArcLaserImg.naturalHeight);
+        const dw=inventoryArcLaserImg.naturalWidth*scale,dh=inventoryArcLaserImg.naturalHeight*scale;
+        ctx.drawImage(inventoryArcLaserImg,rect.x+rect.w*.012,rect.y+rect.h-dh-rect.h*.075,dw,dh);
         ctx.restore();
       }
       const pilotIndex=inventoryPilotFullbodyCell[equippedStore.pilot];
@@ -6354,6 +6431,7 @@ mobilePauseBtn?.addEventListener('pointerdown', (e) => {
         damage:6,
         trailPhase:rand(0,Math.PI*2)
       });
+      fireArcLaserVolley();
       missileAmmo--;
       updateMissileUI();
       saveCampaignProgress();
@@ -6368,6 +6446,26 @@ mobilePauseBtn?.addEventListener('pointerdown', (e) => {
     function pushLaser(px,py,ang){
       const speed=10.5;
       bullets.push({x:px,y:py,vx:Math.cos(ang)*speed,vy:Math.sin(ang)*speed,life:1250,r:4,kind:'laser',damage:2});
+    }
+
+    function fireArcLaserVolley(){
+      if(!arcLaserUnlocked()||arcLaserCooldown>0||gameOver||paused||awaitingLaunchInput||preStartTimer>0||ship.exploding>0) return;
+      const base=forwardAngle(),speed=8.8;
+      const fx=Math.cos(base),fy=Math.sin(base),sideX=-fy,sideY=fx;
+      const noseX=ship.x+fx*(ship.radius*1.48),noseY=ship.y+fy*(ship.radius*1.48);
+      [-.42,-.21,0,.21,.42].forEach((spread,index)=>{
+        const angle=base+spread;
+        const sideOffset=(index-2)*2.8;
+        bullets.push({
+          x:noseX+sideX*sideOffset,y:noseY+sideY*sideOffset,
+          vx:Math.cos(angle)*speed,vy:Math.sin(angle)*speed,
+          life:1150,r:2.8,kind:'arcLaser',damage:.72,
+          curve:spread===0?0:Math.sign(spread)*.00032,
+          trailPhase:index*.8
+        });
+      });
+      arcLaserCooldown=560;
+      pulseArcLaserStatus();
     }
 
     function shoot(){
@@ -6448,6 +6546,7 @@ mobilePauseBtn?.addEventListener('pointerdown', (e) => {
       } else {
         pushBullet(noseX, noseY, ang, spd);
       }
+      fireArcLaserVolley();
     }
 
     // =========================
@@ -6795,6 +6894,7 @@ mobilePauseBtn?.addEventListener('pointerdown', (e) => {
       updateShip(dt);
 
       shootCooldown -= dt;
+      arcLaserCooldown=Math.max(0,arcLaserCooldown-dt);
       const regularFireHeld =
         mouseFireHeld ||
         mobileFireHeld ||
@@ -6830,6 +6930,12 @@ mobilePauseBtn?.addEventListener('pointerdown', (e) => {
             b.vx += (desiredX-b.vx)*0.075;
             b.vy += (desiredY-b.vy)*0.075;
           }
+        }else if(b.kind === 'arcLaser'&&b.curve){
+          const turn=b.curve*dt;
+          const cos=Math.cos(turn),sin=Math.sin(turn);
+          const vx=b.vx*cos-b.vy*sin;
+          b.vy=b.vx*sin+b.vy*cos;
+          b.vx=vx;
         }
         b.x += b.vx;
         b.y += b.vy;
@@ -7717,6 +7823,17 @@ if (flashTimer > 0) {
           ctx.moveTo(0,-10); ctx.quadraticCurveTo(6,-4,5,6); ctx.lineTo(-5,6); ctx.quadraticCurveTo(-6,-4,0,-10); ctx.closePath();
           ctx.fill(); ctx.stroke();
           ctx.restore();
+        }else if(b.kind === 'arcLaser'){
+          const length=11+Math.sin(performance.now()/65+b.trailPhase)*2;
+          const speed=Math.hypot(b.vx,b.vy)||1;
+          const ux=b.vx/speed,uy=b.vy/speed;
+          ctx.save();
+          ctx.strokeStyle='rgba(255,226,255,.98)';ctx.lineWidth=1.8;
+          ctx.shadowColor='#ed4dff';ctx.shadowBlur=10;
+          ctx.beginPath();ctx.moveTo(b.x-ux*length,b.y-uy*length);ctx.lineTo(b.x+ux*3,b.y+uy*3);ctx.stroke();
+          ctx.strokeStyle='rgba(72,236,255,.58)';ctx.lineWidth=4;ctx.globalAlpha=.48;
+          ctx.beginPath();ctx.moveTo(b.x-ux*length,b.y-uy*length);ctx.lineTo(b.x+ux*3,b.y+uy*3);ctx.stroke();
+          ctx.restore();
         }else if(b.kind === 'laser'){
           const length=22;
           const speed=Math.hypot(b.vx,b.vy)||1;
@@ -8548,10 +8665,13 @@ if (flashTimer > 0) {
           let drew=false;
           if(item.type==='pilot') drew=drawInventoryAtlasCell(inventoryPilotFullbodyImg,inventoryPilotFullbodyCell[item.id],5,2,artX,artY,thumb,thumb,true);
           else if(item.type==='ship') drew=drawInventoryAtlasCell(inventoryShipFullhullImg,inventoryShipFullhullCell[item.id],3,3,artX,artY,thumb,thumb,true);
-          else if(item.type==='upgrade'&&inventoryMissileBayImg.complete&&inventoryMissileBayImg.naturalWidth){
-            const scale=Math.min(thumb/inventoryMissileBayImg.naturalWidth,thumb/inventoryMissileBayImg.naturalHeight);
-            const dw=inventoryMissileBayImg.naturalWidth*scale,dh=inventoryMissileBayImg.naturalHeight*scale;
-            ctx.drawImage(inventoryMissileBayImg,artX+(thumb-dw)/2,artY+(thumb-dh)/2,dw,dh);drew=true;
+          else if(item.type==='upgrade'){
+            const upgradeImg=item.id==='arc-laser-array'?inventoryArcLaserImg:inventoryMissileBayImg;
+            if(upgradeImg.complete&&upgradeImg.naturalWidth){
+              const scale=Math.min(thumb/upgradeImg.naturalWidth,thumb/upgradeImg.naturalHeight);
+              const dw=upgradeImg.naturalWidth*scale,dh=upgradeImg.naturalHeight*scale;
+              ctx.drawImage(upgradeImg,artX+(thumb-dw)/2,artY+(thumb-dh)/2,dw,dh);drew=true;
+            }
           }
           if(!drew){
             const useAtlas2=Number.isInteger(inventoryAtlas2Cell[item.id]);
@@ -8589,7 +8709,7 @@ if (flashTimer > 0) {
         const help=[
           ['STARTING A RUN','Move or fire to launch. The pulsing joystick is your steer-and-fire control.'],
           ['HEALTH & LIVES','The portrait bar has 10 health. Lose all 10 to spend a life; friendly couriers arrive after bosses with health.'],
-          ['WEAPONS & MISSILES','Pickups upgrade and auto-equip in progression order. Use the weapon stamp to cycle collected weapons; missiles use their own ammo.'],
+          ['WEAPONS & MISSILES','Pickups upgrade and auto-equip in progression order. The Arc Laser Array assists every normal or missile shot; missiles use their own ammo.'],
           ['POINTS & REWARDS','⭐ is spendable run points. 🎯 is this run total. Store purchases remain owned after Game Over, while new purchases require boss progress.'],
           ['LEVELS & BOSSES','Fill the progress meter to level up. Bosses use learnable unique movement and attacks; defeating them opens later store rewards.'],
           ['SAVE, CONTINUE & RESET','Continue resumes a saved campaign. Game Over restart keeps purchases but starts a fresh score. New Game/Reset clears saved progression.']
