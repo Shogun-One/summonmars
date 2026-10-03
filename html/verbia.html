@@ -1885,7 +1885,7 @@
       }
 
       function freshProgress(profileCreated = false) {
-        return { profileCreated, currentLevel:1, highestLevel:1, boards:{}, levelBoards:{}, signatures:[], hintHistory:{}, points:0, hints:{date:todayKey(),count:3}, hintNotice:true, darts:0, dartNotice:true, dailyDartSeenDate:"", dailyRewardDate:"", helpers:{dictionary:true,dictionarySeen:false}, inventory:{owned:[],equipped:{}}, wardrobeBaseVersion:4, avatarCatalogVersion:1, unlockedAvatars:["rx7","nova"], seed:Math.floor(Math.random() * 2147483647) || 9173 };
+        return { profileCreated, currentLevel:1, highestLevel:1, boards:{}, levelBoards:{}, signatures:[], hintHistory:{}, points:0, hints:{date:todayKey(),count:3}, hintNotice:true, darts:0, dartNotice:true, dailyDartSeenDate:"", dailyRewardDate:"", helpers:{dictionary:false,dictionarySeen:false}, inventory:{owned:[],equipped:{}}, wardrobeBaseVersion:4, avatarCatalogVersion:1, unlockedAvatars:["rx7","nova"], seed:Math.floor(Math.random() * 2147483647) || 9173 };
       }
 
       function letterCountForLevel(level) {
@@ -2576,8 +2576,8 @@
 
       function ensureInventory() {
         progress.inventory ||= {owned:[],equipped:{}};
-        progress.helpers ||= {dictionary:true,dictionarySeen:false};
-        progress.helpers.dictionary = true;
+        progress.helpers ||= {dictionary:false,dictionarySeen:false};
+        if (typeof progress.helpers.dictionary !== "boolean") progress.helpers.dictionary = false;
         if (typeof progress.hintNotice !== "boolean") progress.hintNotice = false;
         if (!Number.isFinite(progress.darts)) progress.darts = 0;
         if (typeof progress.dailyDartSeenDate !== "string") progress.dailyDartSeenDate = "";
