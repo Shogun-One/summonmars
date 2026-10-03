@@ -258,9 +258,10 @@
     .hint-button,.daily-bubble,.dictionary-button { position:relative; inset:auto; width:52px; height:52px; display:grid; place-items:center; padding:0; border:0; border-radius:0; color:#102019; background:transparent; box-shadow:none; font-size:1.7rem; line-height:1; cursor:pointer; pointer-events:auto; }
     .daily-bubble { margin-left:auto; }
     .dictionary-button { width:46px; height:46px; }
-    .dictionary-button { position:absolute; left:3px; bottom:44px; }
+    .dictionary-button { position:absolute; left:3px; bottom:56px; }
     .dictionary-button img { width:43px; height:43px; object-fit:contain; filter:drop-shadow(0 2px 4px rgba(0,0,0,.55)); }
     .dictionary-button.available { animation:dictionaryPulse .85s ease-in-out infinite alternate; }
+    .hint-button.available { animation:dictionaryPulse .85s ease-in-out infinite alternate; }
     .daily-bubble.available { animation:dictionaryPulse .85s ease-in-out infinite alternate; }
     @keyframes dictionaryPulse { to { transform:scale(1.13); filter:brightness(1.28) drop-shadow(0 0 10px var(--gold)); } }
     .bubble-icon { display:block; translate:0 -1px; filter:drop-shadow(0 1px 1px rgba(0,0,0,.24)); }
@@ -1783,7 +1784,7 @@
       }
 
       function freshProgress(profileCreated = false) {
-        return { profileCreated, currentLevel:1, highestLevel:1, boards:{}, levelBoards:{}, signatures:[], hintHistory:{}, points:0, hints:{date:todayKey(),count:3}, darts:0, dartNotice:false, dailyRewardDate:"", helpers:{dictionary:true,dictionarySeen:false}, inventory:{owned:[],equipped:{}}, wardrobeBaseVersion:4, avatarCatalogVersion:1, unlockedAvatars:["rx7","nova"], seed:Math.floor(Math.random() * 2147483647) || 9173 };
+        return { profileCreated, currentLevel:1, highestLevel:1, boards:{}, levelBoards:{}, signatures:[], hintHistory:{}, points:0, hints:{date:todayKey(),count:3}, hintNotice:false, darts:0, dartNotice:false, dailyRewardDate:"", helpers:{dictionary:true,dictionarySeen:false}, inventory:{owned:[],equipped:{}}, wardrobeBaseVersion:4, avatarCatalogVersion:1, unlockedAvatars:["rx7","nova"], seed:Math.floor(Math.random() * 2147483647) || 9173 };
       }
 
       function letterCountForLevel(level) {
@@ -2411,6 +2412,7 @@
         dailyBubble.classList.toggle("available", Boolean(progress.dartNotice && availableDarts > 0));
         dictionaryButton.hidden = !progress.helpers?.dictionary;
         dictionaryButton.classList.toggle("available", Boolean(progress.helpers?.dictionary && !progress.helpers?.dictionarySeen));
+        hintButton.classList.toggle("available", Boolean(progress.hintNotice && (progress.hints?.count || 0) > 0));
         renderWallet();
         if (changed && profileExists) saveProgress();
       }
@@ -2430,6 +2432,7 @@
         progress.inventory ||= {owned:[],equipped:{}};
         progress.helpers ||= {dictionary:true,dictionarySeen:false};
         progress.helpers.dictionary = true;
+        if (typeof progress.hintNotice !== "boolean") progress.hintNotice = false;
         if (!Number.isFinite(progress.darts)) progress.darts = 0;
         if (!Array.isArray(progress.inventory.owned)) progress.inventory.owned = [];
         progress.inventory.equipped ||= {};
@@ -2658,7 +2661,10 @@
         }
         progress.points -= cost;
         if (helperId === "dictionary") progress.helpers.dictionary = true;
-        if (helperId === "hints") progress.hints.count = (progress.hints.count || 0) + 3;
+        if (helperId === "hints") {
+          progress.hints.count = (progress.hints.count || 0) + 3;
+          progress.hintNotice = true;
+        }
         if (helperId === "dart") {
           progress.darts = (progress.darts || 0) + 1;
           progress.dartNotice = true;
@@ -2889,6 +2895,11 @@
 
       function useHint() {
         if (isCurrentBoardMastered()) return;
+        if (progress.hintNotice) {
+          progress.hintNotice = false;
+          hintButton.classList.remove("available");
+          saveProgress();
+        }
         refreshDailyState();
         if ((progress.hints?.count || 0) < 1) {
           showToast("Your three daily hints return tomorrow", "duplicate");
